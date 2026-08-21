@@ -8,6 +8,16 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-512.png" sizes="512x512" type="image/png">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" id="themeColorMeta" content="#F4F6F8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kassenbuch">
+
 <style>
 /* ============================================================
    TOKENS — light is the complete set; dark redefines tokens only
@@ -1765,11 +1775,19 @@ $("#btnImport").addEventListener("click", () => {
 /* =========================================================================
    SETTINGS
    ========================================================================= */
+function syncThemeColorMeta(){
+  const meta = $("#themeColorMeta");
+  if (!meta) return;
+  const ground = getComputedStyle(document.documentElement).getPropertyValue("--ground").trim();
+  if (ground) meta.setAttribute("content", ground);
+}
+
 function applyTheme(v){
   if (v === "system") document.documentElement.removeAttribute("data-theme");
   else document.documentElement.setAttribute("data-theme", v);
   try{ localStorage.setItem(THEME_KEY, v); }catch(e){}
   $$("#themeTog button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v)));
+  syncThemeColorMeta();
   render();
 }
 $$("#themeTog button").forEach(b => b.addEventListener("click", () => applyTheme(b.dataset.v)));
@@ -1844,7 +1862,7 @@ $$(".seg button").forEach(b => b.addEventListener("click", () => { filter = b.da
 
 if (window.matchMedia){
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
-  const onChange = () => { if (!document.documentElement.getAttribute("data-theme")) render(); };
+  const onChange = () => { if (!document.documentElement.getAttribute("data-theme")) { render(); syncThemeColorMeta(); } };
   if (mq.addEventListener) mq.addEventListener("change", onChange);
   else if (mq.addListener) mq.addListener(onChange);
 }
@@ -1901,7 +1919,14 @@ function seed(){
   materialise();
   save();
   render();
+  syncThemeColorMeta();
 })();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
 </script>
 
 </body>

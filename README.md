@@ -18,6 +18,8 @@ Open `index.html` in any browser, or host the file anywhere static.
   detected on re-import.
 - **Auto-categorisation** by merchant name (REWE, Telekom, Deutsche Bahn, …).
 - **Dark and light themes**, following the system or forced in Settings.
+- **Installable as an app** (PWA) — add it to your home screen or desktop from
+  the browser's install prompt, and it keeps working offline.
 
 ## Where the data lives
 
@@ -40,6 +42,20 @@ API for personal accounts, and a static page cannot hold credentials safely.
 |---|---|
 | `index.html` | The whole app — open this |
 | `kassenbuch.html` | Same app, body-fragment form (used for hosted publishing) |
+| `manifest.webmanifest` | PWA manifest — name, icons, standalone display |
+| `sw.js` | Service worker — caches the app shell for offline / installed use |
+| `icons/` | App icons (192, 512, maskable, apple-touch) |
 | `test.mjs` | Playwright test suite — 19 checks incl. both bank CSV formats |
+
+## Installing it as an app
+
+`index.html` registers a service worker and links a web app manifest, so any
+browser that supports PWAs (Chrome, Edge, Android; Safari via "Add to Home
+Screen") can install it as a standalone app with its own icon, no browser
+chrome, and offline access after the first load. It must be served over
+`http(s)://` — service workers don't run from a `file://` URL, so host it on
+any static server (GitHub Pages, Netlify, `python -m http.server`, etc.) to get
+the install prompt. `kassenbuch.html` (the body-fragment file) does not carry
+the PWA tags — those only apply to `index.html`.
 
 Run the tests with `node test.mjs` (needs Playwright installed).
