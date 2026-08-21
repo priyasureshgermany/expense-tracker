@@ -1,0 +1,1908 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kassenbuch — Expense Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<style>
+/* ============================================================
+   TOKENS — light is the complete set; dark redefines tokens only
+   ============================================================ */
+:root{
+  --ground:#F4F6F8;
+  --surface:#FFFFFF;
+  --surface-2:#EFF2F5;
+  --surface-sunk:#E7EBEF;
+  --ink:#0F1922;
+  --ink-2:#465563;
+  --ink-3:#78889A;
+  --line:#DFE4EA;
+  --line-strong:#C6CED7;
+
+  --accent:#0F5273;
+  --accent-ink:#FFFFFF;
+  --accent-soft:#E3EDF3;
+  --accent-mid:#5D93B0;
+
+  --pos:#0B6B4B;          /* income */
+  --pos-soft:#DFF0E8;
+  --neg:#A93724;          /* expense */
+  --neg-soft:#F8E4E0;
+  --warn:#8A5B10;
+  --warn-soft:#FBEEDA;
+
+  --shadow-sm:0 1px 2px rgba(15,25,34,.06), 0 1px 1px rgba(15,25,34,.04);
+  --shadow-md:0 4px 16px rgba(15,25,34,.10);
+  --shadow-lg:0 -8px 40px rgba(15,25,34,.18);
+
+  --r-sm:8px; --r-md:12px; --r-lg:18px; --r-xl:26px;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --shell:512px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0B1116;
+    --surface:#141C23;
+    --surface-2:#1B242C;
+    --surface-sunk:#101820;
+    --ink:#E7EDF3;
+    --ink-2:#A3B1BF;
+    --ink-3:#71818F;
+    --line:#232E38;
+    --line-strong:#33414D;
+
+    --accent:#5FB0D6;
+    --accent-ink:#06131B;
+    --accent-soft:#152833;
+    --accent-mid:#3D7F9E;
+
+    --pos:#3FCB92;
+    --pos-soft:#0F2A20;
+    --neg:#FF7F6B;
+    --neg-soft:#2E1712;
+    --warn:#E5B25B;
+    --warn-soft:#2B2110;
+
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-md:0 4px 16px rgba(0,0,0,.45);
+    --shadow-lg:0 -8px 40px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0B1116;
+  --surface:#141C23;
+  --surface-2:#1B242C;
+  --surface-sunk:#101820;
+  --ink:#E7EDF3;
+  --ink-2:#A3B1BF;
+  --ink-3:#71818F;
+  --line:#232E38;
+  --line-strong:#33414D;
+
+  --accent:#5FB0D6;
+  --accent-ink:#06131B;
+  --accent-soft:#152833;
+  --accent-mid:#3D7F9E;
+
+  --pos:#3FCB92;
+  --pos-soft:#0F2A20;
+  --neg:#FF7F6B;
+  --neg-soft:#2E1712;
+  --warn:#E5B25B;
+  --warn-soft:#2B2110;
+
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  --shadow-md:0 4px 16px rgba(0,0,0,.45);
+  --shadow-lg:0 -8px 40px rgba(0,0,0,.6);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+.shell{
+  max-width:var(--shell);
+  margin:0 auto;
+  min-height:100vh;
+  min-height:100dvh;
+  background:var(--ground);
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+@media (min-width:544px){
+  body{background:var(--surface-sunk)}
+  .shell{
+    box-shadow:0 0 0 1px var(--line), 0 24px 80px rgba(15,25,34,.14);
+  }
+}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:30;
+  background:var(--surface);
+  border-bottom:1px solid var(--line);
+  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+  display:flex; align-items:center; gap:10px;
+}
+.brand{
+  display:flex; align-items:baseline; gap:7px; margin-right:auto; min-width:0;
+}
+.brand b{
+  font-size:16px; font-weight:600; letter-spacing:-.01em; white-space:nowrap;
+}
+.brand span{
+  font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:500; white-space:nowrap;
+}
+.iconbtn{
+  width:36px;height:36px;border-radius:10px;
+  display:grid;place-items:center;color:var(--ink-2);
+  transition:background .15s, color .15s;
+}
+.iconbtn:hover{background:var(--surface-2);color:var(--ink)}
+.iconbtn svg{width:19px;height:19px;stroke-width:1.8}
+
+/* ---------- Month strip ---------- */
+.monthbar{
+  position:sticky; top:0; z-index:29;
+  display:flex;align-items:center;gap:4px;
+  background:var(--surface);
+  border-bottom:1px solid var(--line);
+  padding:0 8px 10px;
+}
+.monthbar .mlabel{
+  flex:1;text-align:center;font-weight:600;font-size:14.5px;letter-spacing:-.005em;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.today-chip{
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  color:var(--accent);background:var(--accent-soft);
+  padding:2px 7px;border-radius:99px;
+}
+
+/* ---------- Statement ---------- */
+.statement{
+  background:var(--surface);
+  padding:22px 18px 18px;
+  border-bottom:1px solid var(--line);
+}
+.eyebrow{
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;
+}
+.net{
+  font-size:clamp(38px,12vw,50px);
+  font-weight:600; letter-spacing:-.035em; line-height:1.02;
+  margin:6px 0 2px; font-variant-numeric:proportional-nums;
+  display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+}
+.net small{
+  font-size:12px;font-weight:500;letter-spacing:0;color:var(--ink-3);
+  text-transform:none;
+}
+.net.is-pos{color:var(--pos)} .net.is-neg{color:var(--neg)}
+
+.tiles{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;
+}
+.tile{
+  background:var(--surface-2);
+  border-radius:var(--r-md);
+  padding:11px 12px;
+  display:flex;flex-direction:column;gap:3px;
+  border-left:3px solid transparent;
+}
+.tile.in{border-left-color:var(--pos)}
+.tile.out{border-left-color:var(--neg)}
+.tile .lbl{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;
+}
+.tile .val{
+  font-size:19px;font-weight:600;letter-spacing:-.02em;
+  font-variant-numeric:proportional-nums;
+}
+.tile.in .val{color:var(--pos)} .tile.out .val{color:var(--neg)}
+.tile .sub{font-size:11px;color:var(--ink-3)}
+
+/* ---------- Meter ---------- */
+.meter-wrap{margin-top:16px}
+.meter-head{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  margin-bottom:7px;
+}
+.meter-head .k{font-size:12px;color:var(--ink-2);font-weight:500}
+.meter-head .v{
+  font-size:12px;color:var(--ink-2);font-family:var(--mono);
+  font-variant-numeric:tabular-nums;
+}
+.meter{
+  height:7px;background:var(--surface-sunk);border-radius:99px;overflow:hidden;
+}
+.meter i{
+  display:block;height:100%;background:var(--accent);
+  border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1);
+}
+
+/* ---------- Demo banner ---------- */
+.demobar{
+  margin:14px 14px 0;padding:13px 15px 14px;
+  background:var(--accent-soft);border-radius:var(--r-lg);
+  border:1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.demobar[hidden]{display:none}
+.demobar .db-t{font-size:13.5px;font-weight:600;color:var(--accent)}
+.demobar .db-s{font-size:12.5px;color:var(--ink-2);margin:2px 0 10px;line-height:1.5}
+.demobar .db-b{
+  font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent);
+  padding:7px 12px;border-radius:9px;transition:filter .15s;
+}
+.demobar .db-b:hover{filter:brightness(1.1)}
+
+/* ---------- Segmented ---------- */
+.segwrap{padding:14px 14px 0;background:var(--ground)}
+.seg{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:3px;
+  background:var(--surface-sunk);padding:3px;border-radius:var(--r-md);
+}
+.seg button{
+  padding:8px 4px;border-radius:9px;font-size:12.5px;font-weight:500;
+  color:var(--ink-2);transition:background .18s,color .18s,box-shadow .18s;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.seg button .n{
+  font-family:var(--mono);font-size:10.5px;font-variant-numeric:tabular-nums;
+  color:var(--ink-3);
+}
+.seg button[aria-selected="true"]{
+  background:var(--surface);color:var(--ink);font-weight:600;
+  box-shadow:var(--shadow-sm);
+}
+.seg button[aria-selected="true"] .n{color:var(--accent)}
+
+/* ---------- List ---------- */
+.list{padding:14px 14px 0;display:flex;flex-direction:column;gap:18px;flex:1}
+.daygroup{display:flex;flex-direction:column;gap:6px}
+.dayhead{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding:0 2px 2px;
+}
+.dayhead .d{
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:600;color:var(--ink-3);
+}
+.dayhead .t{
+  font-family:var(--mono);font-size:11px;font-variant-numeric:tabular-nums;
+  color:var(--ink-3);
+}
+.rows{
+  background:var(--surface);border-radius:var(--r-lg);
+  border:1px solid var(--line);overflow:hidden;
+}
+.row{
+  display:flex;align-items:center;gap:11px;
+  padding:11px 12px;width:100%;text-align:left;
+  border-bottom:1px solid var(--line);
+  transition:background .15s;
+  position:relative;
+}
+.row:last-child{border-bottom:none}
+.row:hover{background:var(--surface-2)}
+.row.planned{background:
+  repeating-linear-gradient(135deg,transparent 0 6px,rgba(120,136,154,.045) 6px 12px);
+}
+.row.planned:hover{background:var(--surface-2)}
+
+.mono{
+  width:34px;height:34px;flex:none;border-radius:10px;
+  display:grid;place-items:center;
+}
+.mono svg{display:block}
+.rowmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.rowmain .t1{
+  font-size:14px;font-weight:500;letter-spacing:-.005em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.rowmain .t2{
+  font-size:11.5px;color:var(--ink-3);
+  display:flex;align-items:center;gap:6px;min-width:0;
+}
+.rowmain .t2 .cn{
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.amt{
+  font-family:var(--mono);font-size:14px;font-weight:500;
+  font-variant-numeric:tabular-nums;white-space:nowrap;flex:none;
+  letter-spacing:-.02em;
+}
+.amt.in{color:var(--pos)} .amt.out{color:var(--neg)}
+.row.planned .amt,.row.planned .t1{opacity:.72}
+
+.pill{
+  font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;
+  padding:1.5px 5px;border-radius:5px;flex:none;
+}
+.pill.due{background:var(--warn-soft);color:var(--warn)}
+.pill.rep{background:var(--accent-soft);color:var(--accent)}
+.pill.late{background:var(--neg-soft);color:var(--neg)}
+
+.tick{
+  width:26px;height:26px;flex:none;border-radius:99px;
+  border:1.6px solid var(--line-strong);
+  display:grid;place-items:center;color:transparent;
+  transition:border-color .15s,background .15s,color .15s;
+}
+.tick:hover{border-color:var(--pos);color:var(--pos)}
+.tick svg{width:14px;height:14px;stroke-width:2.6}
+.tick.on{background:var(--pos);border-color:var(--pos);color:#fff}
+
+/* ---------- Breakdown ---------- */
+.card{
+  margin:18px 14px 0;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-lg);padding:15px 15px 16px;
+}
+.card h3{
+  margin:0 0 13px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;
+}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:grid;grid-template-columns:1fr auto;gap:3px 10px;align-items:baseline}
+.bar .bn{font-size:13px;font-weight:500}
+.bar .bv{
+  font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;
+  color:var(--ink-2);
+}
+.bar .track{
+  grid-column:1/-1;height:6px;background:var(--surface-sunk);
+  border-radius:99px;overflow:hidden;
+}
+.bar .track i{
+  display:block;height:100%;background:var(--accent-mid);border-radius:99px;
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+
+/* ---------- Empty ---------- */
+.empty{
+  text-align:center;padding:44px 26px;color:var(--ink-3);
+}
+.empty .em-ic{
+  width:52px;height:52px;margin:0 auto 14px;border-radius:16px;
+  background:var(--surface-2);display:grid;place-items:center;color:var(--ink-3);
+}
+.empty .em-ic svg{width:24px;height:24px;stroke-width:1.5}
+.empty h4{margin:0 0 5px;font-size:15px;font-weight:600;color:var(--ink-2)}
+.empty p{margin:0;font-size:13px;line-height:1.55;max-width:31ch;margin-inline:auto}
+
+/* ---------- Bottom bar ---------- */
+.spacer{height:92px}
+.dock{
+  position:sticky;bottom:0;z-index:28;
+  max-width:var(--shell);margin:0 auto;
+  background:linear-gradient(to top,var(--ground) 0%,var(--ground) 74%,transparent 100%);
+  padding:18px 14px calc(12px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;gap:9px;
+}
+.dock .grow{flex:1}
+.dockbtn{
+  height:46px;padding:0 14px;border-radius:14px;
+  background:var(--surface);border:1px solid var(--line);
+  display:flex;align-items:center;gap:7px;
+  font-size:13px;font-weight:500;color:var(--ink-2);
+  box-shadow:var(--shadow-sm);transition:transform .12s,border-color .15s,color .15s;
+}
+.dockbtn:hover{color:var(--ink);border-color:var(--line-strong)}
+.dockbtn:active{transform:scale(.97)}
+.dockbtn svg{width:17px;height:17px;stroke-width:1.8}
+.addbtn{
+  height:46px;padding:0 20px;border-radius:14px;
+  background:var(--accent);color:var(--accent-ink);
+  display:flex;align-items:center;gap:7px;
+  font-size:14px;font-weight:600;letter-spacing:-.005em;
+  box-shadow:var(--shadow-md);transition:transform .12s,filter .15s;
+}
+.addbtn:hover{filter:brightness(1.08)}
+.addbtn:active{transform:scale(.97)}
+.addbtn svg{width:18px;height:18px;stroke-width:2.4}
+
+/* ============================================================
+   SHEETS
+   ============================================================ */
+.scrim{
+  position:fixed;inset:0;z-index:60;background:rgba(9,16,22,.5);
+  opacity:0;pointer-events:none;transition:opacity .25s;
+  backdrop-filter:blur(2px);
+}
+.scrim.open{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:61;
+  max-width:var(--shell);margin:0 auto;
+  background:var(--surface);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;
+  box-shadow:var(--shadow-lg);
+  transform:translateY(101%);
+  transition:transform .3s cubic-bezier(.32,.72,0,1);
+  max-height:92dvh;display:flex;flex-direction:column;
+}
+.sheet.open{transform:translateY(0)}
+.sheet-head{
+  padding:14px 18px 10px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px;flex:none;
+}
+.sheet-head::before{
+  content:"";position:absolute;top:7px;left:50%;transform:translateX(-50%);
+  width:34px;height:4px;border-radius:99px;background:var(--line-strong);
+}
+.sheet-head h2{margin:0;font-size:16px;font-weight:600;letter-spacing:-.01em;flex:1}
+.sheet-body{
+  padding:16px 18px calc(20px + env(safe-area-inset-bottom));
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+
+/* ---------- Form ---------- */
+.field{margin-bottom:15px}
+.field > label{
+  display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin-bottom:6px;
+}
+.inp{
+  width:100%;padding:11px 12px;border-radius:var(--r-md);
+  background:var(--surface-2);border:1.5px solid transparent;
+  font-size:15px;transition:border-color .15s,background .15s;
+}
+.inp:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--mono);line-height:1.5}
+
+.amtfield{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface-2);border-radius:var(--r-md);
+  padding:6px 14px;border:1.5px solid transparent;transition:border-color .15s,background .15s;
+}
+.amtfield:focus-within{border-color:var(--accent);background:var(--surface)}
+.amtfield .cur{font-size:24px;font-weight:500;color:var(--ink-3)}
+.amtfield input{
+  flex:1;min-width:0;background:none;border:none;outline:none;
+  font-size:32px;font-weight:600;letter-spacing:-.03em;padding:6px 0;
+  font-variant-numeric:proportional-nums;
+}
+.amtfield.in input{color:var(--pos)} .amtfield.out input{color:var(--neg)}
+
+.toggle2{
+  display:grid;grid-template-columns:1fr 1fr;gap:3px;
+  background:var(--surface-sunk);padding:3px;border-radius:var(--r-md);
+}
+.toggle2 button{
+  padding:10px;border-radius:9px;font-size:13.5px;font-weight:500;color:var(--ink-2);
+  transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.toggle2 button svg{width:15px;height:15px;stroke-width:2}
+.toggle2 button[aria-pressed="true"]{background:var(--surface);font-weight:600;box-shadow:var(--shadow-sm)}
+.toggle2 button.p[aria-pressed="true"]{color:var(--pos)}
+.toggle2 button.n[aria-pressed="true"]{color:var(--neg)}
+.toggle2 button.a[aria-pressed="true"]{color:var(--ink)}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  padding:7px 11px;border-radius:99px;font-size:12.5px;font-weight:500;
+  background:var(--surface-2);color:var(--ink-2);
+  border:1.5px solid transparent;transition:all .15s;
+  display:flex;align-items:center;gap:6px;
+}
+.chip:hover{background:var(--surface-sunk)}
+.chip .cic{display:grid;place-items:center;flex:none}
+.chip .cic svg{display:block}
+.chip[aria-pressed="true"]{
+  background:var(--accent-soft);color:var(--accent);border-color:var(--accent);font-weight:600;
+}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.btn{
+  width:100%;padding:13px;border-radius:var(--r-md);
+  background:var(--accent);color:var(--accent-ink);
+  font-size:15px;font-weight:600;letter-spacing:-.005em;
+  transition:filter .15s,transform .12s;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:scale(.985)}
+.btn.ghost{background:var(--surface-2);color:var(--ink-2);font-weight:500}
+.btn.ghost:hover{background:var(--surface-sunk);color:var(--ink)}
+.btn.danger{background:var(--neg-soft);color:var(--neg)}
+.btn.sm{padding:9px;font-size:13px}
+
+.note{
+  font-size:12px;color:var(--ink-3);line-height:1.6;
+  background:var(--surface-2);padding:11px 13px;border-radius:var(--r-md);
+  border-left:3px solid var(--line-strong);
+}
+.note b{color:var(--ink-2);font-weight:600}
+
+/* ---------- Drop zone ---------- */
+.drop{
+  border:1.5px dashed var(--line-strong);border-radius:var(--r-lg);
+  padding:26px 18px;text-align:center;transition:all .18s;
+  background:var(--surface-2);
+}
+.drop.hot{border-color:var(--accent);background:var(--accent-soft)}
+.drop svg{width:26px;height:26px;stroke-width:1.6;color:var(--ink-3);margin-bottom:9px}
+.drop .dt{font-size:14px;font-weight:600;margin-bottom:3px}
+.drop .ds{font-size:12px;color:var(--ink-3);line-height:1.5}
+
+.prev{
+  border:1px solid var(--line);border-radius:var(--r-md);
+  max-height:290px;overflow-y:auto;
+}
+.prow{
+  display:flex;align-items:center;gap:9px;padding:9px 10px;
+  border-bottom:1px solid var(--line);font-size:12.5px;
+}
+.prow:last-child{border-bottom:none}
+.prow.dupe{opacity:.5}
+.prow input[type=checkbox]{width:17px;height:17px;flex:none;accent-color:var(--accent)}
+.prow .pd{
+  font-family:var(--mono);font-size:11px;color:var(--ink-3);flex:none;
+  font-variant-numeric:tabular-nums;
+}
+.prow .pn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .pa{
+  font-family:var(--mono);font-size:12px;font-weight:500;flex:none;
+  font-variant-numeric:tabular-nums;
+}
+.prow .pa.in{color:var(--pos)} .prow .pa.out{color:var(--neg)}
+
+.rulerow{
+  display:flex;align-items:center;gap:10px;padding:11px 0;
+  border-bottom:1px solid var(--line);
+}
+.rulerow:last-child{border-bottom:none}
+.rulerow .rm{flex:1;min-width:0}
+.rulerow .rt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rulerow .rs{font-size:11.5px;color:var(--ink-3)}
+.rulerow .ra{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;font-weight:500}
+
+.toast{
+  position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));
+  transform:translate(-50%,14px);z-index:80;
+  background:var(--ink);color:var(--ground);
+  padding:10px 16px;border-radius:99px;font-size:13px;font-weight:500;
+  box-shadow:var(--shadow-md);opacity:0;pointer-events:none;
+  transition:opacity .22s,transform .22s;white-space:nowrap;max-width:90vw;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <b>Kassenbuch</b><span>EUR</span>
+    </div>
+    <button class="iconbtn" id="btnRules" title="Recurring entries" aria-label="Recurring entries">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg>
+    </button>
+    <button class="iconbtn" id="btnMenu" title="Settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
+  </header>
+
+  <nav class="monthbar">
+    <button class="iconbtn" id="prevM" aria-label="Previous month">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="mlabel" id="mLabel" aria-live="polite"></div>
+    <button class="iconbtn" id="nextM" aria-label="Next month">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </nav>
+
+  <section class="statement">
+    <div class="eyebrow">Net this month</div>
+    <div class="net" id="netVal">€0.00</div>
+    <div class="tiles">
+      <div class="tile in">
+        <div class="lbl">Income</div>
+        <div class="val" id="inVal">€0.00</div>
+        <div class="sub" id="inSub">—</div>
+      </div>
+      <div class="tile out">
+        <div class="lbl">Expenses</div>
+        <div class="val" id="outVal">€0.00</div>
+        <div class="sub" id="outSub">—</div>
+      </div>
+    </div>
+    <div class="meter-wrap">
+      <div class="meter-head">
+        <span class="k" id="meterK">Planned expenses paid</span>
+        <span class="v" id="meterV">0%</span>
+      </div>
+      <div class="meter"><i id="meterBar" style="width:0%"></i></div>
+    </div>
+  </section>
+
+  <div class="demobar" id="demoBar" hidden>
+    <div class="db-t">You're looking at example data</div>
+    <div class="db-s">Have a click around, then clear it and start on your own numbers.</div>
+    <button class="db-b" id="clearDemo">Clear examples &amp; start fresh</button>
+  </div>
+
+  <div class="segwrap">
+    <div class="seg" role="tablist">
+      <button role="tab" data-f="all" aria-selected="true">All <span class="n" id="cAll">0</span></button>
+      <button role="tab" data-f="planned" aria-selected="false">Planned <span class="n" id="cPlan">0</span></button>
+      <button role="tab" data-f="done" aria-selected="false">Filled <span class="n" id="cDone">0</span></button>
+    </div>
+  </div>
+
+  <main class="list" id="list"></main>
+  <div id="breakdown"></div>
+  <div class="spacer"></div>
+
+  <div class="dock">
+    <button class="addbtn" id="btnAdd">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Add entry
+    </button>
+    <span class="grow"></span>
+    <button class="dockbtn" id="btnImport">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+      Import
+    </button>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<!-- ENTRY SHEET -->
+<section class="sheet" id="shEntry" role="dialog" aria-modal="true" aria-labelledby="entryTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="entryTitle">New entry</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="field">
+      <div class="toggle2" id="eType">
+        <button class="n" data-v="expense" aria-pressed="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg>
+          Expense
+        </button>
+        <button class="p" data-v="income" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg>
+          Income
+        </button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="eAmt">Amount</label>
+      <div class="amtfield out" id="amtWrap">
+        <span class="cur">€</span>
+        <input id="eAmt" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <label for="eNote">Description</label>
+      <input class="inp" id="eNote" type="text" placeholder="e.g. Rewe groceries" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <div class="chips" id="eCats"></div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="eDate">Date</label>
+        <input class="inp" id="eDate" type="date">
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <div class="toggle2" id="eStatus">
+          <button class="a" data-v="done" aria-pressed="true">Paid</button>
+          <button class="a" data-v="planned" aria-pressed="false">Planned</button>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label for="eFreq">Repeat</label>
+      <select class="inp" id="eFreq">
+        <option value="">Does not repeat</option>
+        <option value="weekly">Every week</option>
+        <option value="monthly">Every month</option>
+        <option value="bimonthly">Every 2 months</option>
+        <option value="quarterly">Every 3 months (quarterly)</option>
+        <option value="halfyearly">Every 6 months</option>
+        <option value="yearly">Every year</option>
+      </select>
+    </div>
+    <div class="field" id="repHint" style="display:none">
+      <div class="note">Future entries are created automatically as <b>Planned</b>. Tick them off as you pay.</div>
+    </div>
+    <button class="btn" id="eSave">Save entry</button>
+    <div id="eDeleteWrap" style="display:none;margin-top:9px">
+      <button class="btn danger sm" id="eDelete">Delete this entry</button>
+    </div>
+  </div>
+</section>
+
+<!-- IMPORT SHEET -->
+<section class="sheet" id="shImport" role="dialog" aria-modal="true" aria-labelledby="impTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="impTitle">Import from bank</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div id="impStep1">
+      <div class="drop" id="drop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+        <div class="dt">Drop your CSV here</div>
+        <div class="ds">or tap to choose a file</div>
+        <input type="file" id="file" accept=".csv,.txt,text/csv" class="sr">
+      </div>
+      <div style="margin:15px 0">
+        <div class="note">
+          <b>Commerzbank:</b> Banking → Umsätze → Umsatzanzeige → <b>Exportieren als CSV</b>.<br>
+          <b>Deutsche Bank:</b> Konto → Umsätze → <b>Export</b> → CSV.<br>
+          Column layouts from both are recognised automatically. Nothing leaves your device.
+        </div>
+      </div>
+      <div class="field">
+        <label for="pasteCsv">Or paste CSV text</label>
+        <textarea class="inp" id="pasteCsv" placeholder="Buchungstag;Wertstellung;…"></textarea>
+      </div>
+      <button class="btn ghost" id="parsePaste">Read pasted text</button>
+    </div>
+
+    <div id="impStep2" style="display:none">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:11px">
+        <div>
+          <div style="font-size:14px;font-weight:600" id="impSummary"></div>
+          <div style="font-size:12px;color:var(--ink-3)" id="impSource"></div>
+        </div>
+        <button class="btn ghost sm" id="impToggleAll" style="width:auto;padding:6px 11px">None</button>
+      </div>
+      <div class="prev" id="impPrev"></div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+        <button class="btn" id="impCommit">Import selected</button>
+        <button class="btn ghost sm" id="impBack">Choose a different file</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RULES SHEET -->
+<section class="sheet" id="shRules" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="rulesTitle">Recurring entries</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body"><div id="rulesBody"></div></div>
+</section>
+
+<!-- SETTINGS SHEET -->
+<section class="sheet" id="shSet" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="setTitle">Settings &amp; backup</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="field">
+      <label>Appearance</label>
+      <div class="toggle2" id="themeTog" style="grid-template-columns:repeat(3,1fr)">
+        <button class="a" data-v="system" aria-pressed="true">System</button>
+        <button class="a" data-v="light" aria-pressed="false">Light</button>
+        <button class="a" data-v="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Your data</label>
+      <div class="note" id="statLine">—</div>
+    </div>
+    <div class="field">
+      <label>Backup</label>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn ghost sm" id="copyBackup">Copy backup to clipboard</button>
+        <textarea class="inp" id="restoreBox" placeholder="Paste a backup here to restore…"></textarea>
+        <button class="btn ghost sm" id="doRestore">Restore from pasted backup</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Start over</label>
+      <button class="btn danger sm" id="wipe">Delete all entries</button>
+    </div>
+    <div class="note" style="margin-top:6px">
+      Everything is stored in this browser on this device only — it is never uploaded.
+      Use the backup box above to move your data to another device.
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+"use strict";
+/* =========================================================================
+   Kassenbuch — offline euro expense tracker
+   ========================================================================= */
+
+const KEY = "kassenbuch.v1";
+const THEME_KEY = "kassenbuch.theme";
+
+/* ---------- categories ---------- */
+const CATS = {
+  expense: [
+    {id:"groceries", n:"Groceries", h:152},
+    {id:"rent",      n:"Rent",      h:220},
+    {id:"utilities", n:"Utilities", h:196},
+    {id:"transport", n:"Transport", h:255},
+    {id:"insurance", n:"Insurance", h:280},
+    {id:"health",    n:"Health",    h:340},
+    {id:"dining",    n:"Dining",    h:22},
+    {id:"shopping",  n:"Shopping",  h:44},
+    {id:"subs",      n:"Subscriptions", h:310},
+    {id:"education", n:"Education", h:174},
+    {id:"family",    n:"Family",    h:6},
+    {id:"other",     n:"Other",     h:210}
+  ],
+  income: [
+    {id:"salary",    n:"Salary",    h:152},
+    {id:"freelance", n:"Freelance", h:196},
+    {id:"refund",    n:"Refund",    h:44},
+    {id:"interest",  n:"Interest",  h:255},
+    {id:"gift",      n:"Gift",      h:310},
+    {id:"other_in",  n:"Other",     h:210}
+  ]
+};
+const CAT_BY_ID = {};
+[...CATS.expense, ...CATS.income].forEach(c => { CAT_BY_ID[c.id] = c; });
+function catOf(id){ return CAT_BY_ID[id] || {id:"other", n:"Other", h:210}; }
+
+const FREQ_LABEL = {
+  weekly:"Weekly", monthly:"Monthly", bimonthly:"Every 2 months",
+  quarterly:"Quarterly", halfyearly:"Every 6 months", yearly:"Yearly"
+};
+const FREQ_SHORT = {
+  weekly:"1W", monthly:"1M", bimonthly:"2M",
+  quarterly:"3M", halfyearly:"6M", yearly:"1Y"
+};
+const FREQ_MONTHS = { monthly:1, bimonthly:2, quarterly:3, halfyearly:6, yearly:12 };
+
+/* ---------- category glyphs (24×24 stroke icons) ---------- */
+const ICON = {
+  groceries:'<path d="M4 10h16l-1.6 9.2a2 2 0 01-2 1.8H7.6a2 2 0 01-2-1.8z"/><path d="M8.5 10l2.2-6"/><path d="M15.5 10l-2.2-6"/>',
+  rent:'<path d="M3 11l9-7 9 7"/><path d="M5.5 9.6V20h13V9.6"/><path d="M10 20v-5h4v5"/>',
+  utilities:'<path d="M13.4 2.5L5 13.5h6L10.6 21.5 19 10.5h-6z"/>',
+  transport:'<rect x="5" y="4" width="14" height="12" rx="3"/><path d="M5 11h14"/><path d="M9 13.6h.01M15 13.6h.01"/><path d="M7.5 16h9"/><path d="M8.5 19.5L7 22M15.5 19.5L17 22"/>',
+  insurance:'<path d="M12 3l7.5 3v6c0 4.6-3 8.1-7.5 9.6C7.5 20.1 4.5 16.6 4.5 12V6z"/>',
+  health:'<path d="M12 20.6S3.9 15.1 3.9 9.4A4.6 4.6 0 0112 7.1a4.6 4.6 0 018.1 2.3c0 5.7-8.1 11.2-8.1 11.2z"/>',
+  dining:'<path d="M7 3v6.4a2 2 0 004 0V3"/><path d="M9 11.4V21"/><path d="M16.6 3c-1.2 1.4-1.8 3.1-1.8 5 0 1.6.6 2.6 1.8 3.2V21"/>',
+  shopping:'<path d="M5.5 8h13l1 12.5h-15z"/><path d="M9 8V6a3 3 0 016 0v2"/>',
+  subs:'<circle cx="12" cy="12" r="8.5"/><path d="M10.3 8.8l5.4 3.2-5.4 3.2z"/>',
+  education:'<path d="M2.5 8.5L12 4.2l9.5 4.3L12 12.8z"/><path d="M6.5 10.9V16c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8v-5.1"/><path d="M21.2 9v5"/>',
+  family:'<circle cx="9" cy="8" r="3.2"/><path d="M2.6 20a6.4 6.4 0 0112.8 0"/><path d="M16 5.4a3.2 3.2 0 010 5.4"/><path d="M17.8 14.5a6.4 6.4 0 013.6 5.5"/>',
+  other:'<circle cx="5.6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.4" cy="12" r="1.3"/>',
+  salary:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 10v4M18 10v4"/>',
+  freelance:'<rect x="2.5" y="7" width="19" height="13" rx="2.5"/><path d="M8.5 7V5.5a2 2 0 012-2h3a2 2 0 012 2V7"/><path d="M2.5 12.6h19"/>',
+  refund:'<path d="M4 9h11a5.5 5.5 0 010 11H8.5"/><path d="M8.5 4.5L4 9l4.5 4.5"/>',
+  interest:'<path d="M3 16.5l6-6 4 4 8-8"/><path d="M15.6 6.5H21V12"/>',
+  gift:'<rect x="3" y="9.5" width="18" height="11" rx="2"/><path d="M2 9.5h20"/><path d="M12 9.5V20.5"/><path d="M12 9.5S9.6 4.2 7.2 5.6s1 3.9 4.8 3.9z"/><path d="M12 9.5s2.4-5.3 4.8-3.9-1 3.9-4.8 3.9z"/>',
+  other_in:'<circle cx="5.6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.4" cy="12" r="1.3"/>'
+};
+function iconSvg(catId, size){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round" width="' + size + '" height="' + size +
+    '" aria-hidden="true">' + (ICON[catId] || ICON.other) + '</svg>';
+}
+
+/* ---------- money ---------- */
+const eur = new Intl.NumberFormat("de-DE", {style:"currency", currency:"EUR"});
+const eur0 = new Intl.NumberFormat("de-DE", {style:"currency", currency:"EUR", maximumFractionDigits:0});
+function fmt(cents){ return eur.format((cents||0)/100); }
+function fmtShort(cents){
+  const v = Math.abs(cents||0)/100;
+  return v >= 1000 ? eur0.format((cents||0)/100) : eur.format((cents||0)/100);
+}
+
+/**
+ * Parse a money string in either German (1.234,56) or English (1,234.56) form.
+ * Rule: a separator followed by exactly two digits at the end is the decimal
+ * separator; anything else is a thousands separator.
+ */
+function parseAmount(raw){
+  if (raw == null) return null;
+  let s = String(raw).trim();
+  if (!s) return null;
+  let neg = /^\(.*\)$/.test(s) || s.includes("-");
+  s = s.replace(/[()]/g, "").replace(/[−–—]/g, "-");
+  s = s.replace(/[^\d.,-]/g, "");
+  s = s.replace(/-/g, "");
+  if (!s) return null;
+  const lastComma = s.lastIndexOf(","), lastDot = s.lastIndexOf(".");
+  const sepPos = Math.max(lastComma, lastDot);
+  let intPart = s, fracPart = "";
+  if (sepPos > -1){
+    const tail = s.slice(sepPos + 1);
+    if (/^\d{1,2}$/.test(tail)){
+      intPart = s.slice(0, sepPos);
+      fracPart = tail.padEnd(2, "0");
+    }
+  }
+  intPart = intPart.replace(/[.,]/g, "");
+  if (!intPart && !fracPart) return null;
+  const cents = parseInt(intPart || "0", 10) * 100 + parseInt(fracPart || "0", 10);
+  if (!isFinite(cents)) return null;
+  return neg ? -cents : cents;
+}
+
+/* ---------- dates ---------- */
+function pad(n){ return String(n).padStart(2, "0"); }
+function isoOf(y, m, d){ return y + "-" + pad(m) + "-" + pad(d); }
+function todayISO(){
+  const d = new Date();
+  return isoOf(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+function monthOf(iso){ return iso.slice(0, 7); }
+function daysInMonth(y, m){ return new Date(y, m, 0).getDate(); }
+function shiftMonth(ym, n){
+  const [y, m] = ym.split("-").map(Number);
+  const t = (y * 12) + (m - 1) + n;
+  return Math.floor(t / 12) + "-" + pad((t % 12) + 1);
+}
+function monthTitle(ym){
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString("en-GB", {month:"long", year:"numeric"});
+}
+function dayTitle(iso){
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  const t = todayISO();
+  if (iso === t) return "Today";
+  const yd = new Date(); yd.setDate(yd.getDate() - 1);
+  if (iso === isoOf(yd.getFullYear(), yd.getMonth() + 1, yd.getDate())) return "Yesterday";
+  return dt.toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short"});
+}
+/** nth occurrence from an anchor, keeping the anchor's day-of-month. */
+function occurrence(anchor, freq, n){
+  const [y, m, d] = anchor.split("-").map(Number);
+  if (freq === "weekly"){
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() + 7 * n);
+    return isoOf(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate());
+  }
+  const step = FREQ_MONTHS[freq] || 1;
+  const total = (y * 12) + (m - 1) + step * n;
+  const ny = Math.floor(total / 12), nm = (total % 12) + 1;
+  return isoOf(ny, nm, Math.min(d, daysInMonth(ny, nm)));
+}
+function parseDateCell(raw){
+  if (!raw) return null;
+  const s = String(raw).trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return isoOf(+m[1], +m[2], +m[3]);
+  m = s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})/);
+  if (m){
+    let y = +m[3];
+    if (y < 100) y += y < 70 ? 2000 : 1900;
+    return isoOf(y, +m[2], +m[1]);
+  }
+  return null;
+}
+
+/* ---------- state ---------- */
+let state = { v:1, txns:[], rules:[], skips:[] };
+let view = monthOf(todayISO());
+let filter = "all";
+let editing = null;
+let draft = null;
+let pending = null;
+
+function uid(){ return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
+
+/** The first real edit retires the "example data" banner for good. */
+function userTouched(){ if (state.demo){ delete state.demo; } }
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if (raw){
+      const p = JSON.parse(raw);
+      if (p && Array.isArray(p.txns)){
+        state = {
+          v:1,
+          txns: p.txns,
+          rules: Array.isArray(p.rules) ? p.rules : [],
+          skips: Array.isArray(p.skips) ? p.skips : []
+        };
+        if (p.demo) state.demo = true;
+      }
+    }
+  }catch(e){ /* corrupt or unavailable storage — start clean */ }
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch(e){ toast("Couldn't save — storage is full or blocked"); }
+}
+
+/** Create planned entries for every active rule, from 3 months back to 12 ahead. */
+function materialise(){
+  const horizon = shiftMonth(monthOf(todayISO()), 12) + "-31";
+  const floor = shiftMonth(monthOf(todayISO()), -3) + "-01";
+  const existing = new Set();
+  state.txns.forEach(t => { if (t.ruleId) existing.add(t.ruleId + "|" + t.date); });
+  const skips = new Set(state.skips);
+
+  state.rules.forEach(rule => {
+    if (rule.active === false) return;
+    for (let n = 0; n < 600; n++){
+      const d = occurrence(rule.anchor, rule.freq, n);
+      if (d > horizon) break;
+      if (rule.endDate && d > rule.endDate) break;
+      if (d < floor) continue;
+      const k = rule.id + "|" + d;
+      if (existing.has(k) || skips.has(k)) continue;
+      existing.add(k);
+      state.txns.push({
+        id: uid(), type: rule.type, amount: rule.amount, category: rule.category,
+        note: rule.note, date: d, status:"planned", ruleId: rule.id
+      });
+    }
+  });
+}
+
+/* ---------- DOM helpers ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function el(tag, cls, txt){
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (txt != null) n.textContent = txt;
+  return n;
+}
+function esc(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+let toastT;
+function toast(msg){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+/* ---------- category swatch ---------- */
+function tint(h, dark){
+  return dark ? "hsl(" + h + " 42% 20%)" : "hsl(" + h + " 46% 93%)";
+}
+function tintInk(h, dark){
+  return dark ? "hsl(" + h + " 62% 72%)" : "hsl(" + h + " 44% 30%)";
+}
+function isDark(){
+  const t = document.documentElement.getAttribute("data-theme");
+  if (t === "dark") return true;
+  if (t === "light") return false;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+/* =========================================================================
+   RENDER
+   ========================================================================= */
+function monthTxns(ym){
+  return state.txns.filter(t => monthOf(t.date) === ym);
+}
+
+function render(){
+  const dark = isDark();
+  const all = monthTxns(view).slice().sort((a, b) =>
+    a.date === b.date ? (a.status === b.status ? 0 : a.status === "planned" ? -1 : 1)
+                      : (a.date < b.date ? 1 : -1));
+
+  $("#mLabel").innerHTML = esc(monthTitle(view)) +
+    (view === monthOf(todayISO()) ? ' <span class="today-chip">Now</span>' : "");
+
+  /* --- totals --- */
+  let inDone = 0, inPlan = 0, outDone = 0, outPlan = 0;
+  all.forEach(t => {
+    const done = t.status === "done";
+    if (t.type === "income"){ done ? inDone += t.amount : inPlan += t.amount; }
+    else { done ? outDone += t.amount : outPlan += t.amount; }
+  });
+  const net = (inDone + inPlan) - (outDone + outPlan);
+
+  const netEl = $("#netVal");
+  netEl.className = "net " + (net > 0 ? "is-pos" : net < 0 ? "is-neg" : "");
+  netEl.innerHTML = esc(fmt(net)) +
+    (inPlan + outPlan > 0 ? ' <small>incl. planned</small>' : "");
+
+  $("#inVal").textContent  = fmt(inDone + inPlan);
+  $("#outVal").textContent = fmt(outDone + outPlan);
+  $("#inSub").textContent  = inPlan  > 0 ? fmt(inPlan) + " still expected"  : (inDone  ? "all received" : "nothing yet");
+  $("#outSub").textContent = outPlan > 0 ? fmt(outPlan) + " still to pay"   : (outDone ? "all paid"     : "nothing yet");
+
+  /* --- meter --- */
+  const totOut = outDone + outPlan;
+  const pct = totOut > 0 ? Math.round(outDone / totOut * 100) : 0;
+  $("#meterBar").style.width = pct + "%";
+  $("#meterV").textContent = totOut > 0 ? pct + "% · " + fmt(outDone) + " of " + fmt(totOut) : "—";
+  $("#meterK").textContent = outPlan > 0 ? "Expenses paid so far" : "Expenses paid";
+
+  /* --- counts --- */
+  const nPlan = all.filter(t => t.status === "planned").length;
+  const nDone = all.length - nPlan;
+  $("#cAll").textContent = all.length;
+  $("#cPlan").textContent = nPlan;
+  $("#cDone").textContent = nDone;
+
+  /* --- list --- */
+  const shown = all.filter(t => filter === "all" || t.status === filter);
+  const list = $("#list");
+  list.innerHTML = "";
+
+  if (!shown.length){
+    list.appendChild(emptyState(all.length));
+  } else {
+    const groups = new Map();
+    shown.forEach(t => {
+      if (!groups.has(t.date)) groups.set(t.date, []);
+      groups.get(t.date).push(t);
+    });
+    groups.forEach((items, date) => {
+      const g = el("section", "daygroup");
+      const head = el("div", "dayhead");
+      head.appendChild(el("span", "d", dayTitle(date)));
+      const dayNet = items.reduce((s, t) => s + (t.type === "income" ? t.amount : -t.amount), 0);
+      head.appendChild(el("span", "t", (dayNet > 0 ? "+" : "") + fmt(dayNet)));
+      g.appendChild(head);
+
+      const rows = el("div", "rows");
+      items.forEach(t => rows.appendChild(txnRow(t, dark)));
+      g.appendChild(rows);
+      list.appendChild(g);
+    });
+  }
+
+  renderBreakdown(all, dark);
+  $("#demoBar").hidden = !state.demo;
+  $$(".seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.f === filter)));
+}
+
+function emptyState(monthCount){
+  const e = el("div", "empty");
+  e.innerHTML =
+    '<div class="em-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>' +
+    (monthCount
+      ? "<h4>Nothing in this view</h4><p>There are entries this month, but none match the filter you picked.</p>"
+      : "<h4>No entries yet for " + esc(monthTitle(view)) + "</h4><p>Add your first income or expense, or import a CSV statement from your bank.</p>");
+  return e;
+}
+
+function txnRow(t, dark){
+  const c = catOf(t.category);
+  const row = el("div", "row" + (t.status === "planned" ? " planned" : ""));
+
+  const sw = el("div", "mono");
+  sw.innerHTML = iconSvg(c.id, 18);
+  sw.style.background = tint(c.h, dark);
+  sw.style.color = tintInk(c.h, dark);
+  row.appendChild(sw);
+
+  const main = el("div", "rowmain");
+  const t1 = el("div", "t1", t.note || c.n);
+  main.appendChild(t1);
+
+  const t2 = el("div", "t2");
+  t2.appendChild(el("span", "cn", c.n));
+  if (t.status === "planned"){
+    const late = t.date < todayISO();
+    const p = el("span", "pill " + (late ? "late" : "due"), late ? "Overdue" : "Due");
+    t2.appendChild(p);
+  }
+  if (t.ruleId){
+    const r = state.rules.find(x => x.id === t.ruleId);
+    const p = el("span", "pill rep", r ? FREQ_SHORT[r.freq] : "↻");
+    if (r) p.title = FREQ_LABEL[r.freq];
+    t2.appendChild(p);
+  }
+  main.appendChild(t2);
+
+  const open = el("button", null);
+  open.style.cssText = "flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;text-align:left;align-items:stretch";
+  open.appendChild(main);
+  open.setAttribute("aria-label", "Edit " + (t.note || c.n));
+  open.addEventListener("click", () => openEntry(t));
+  row.appendChild(open);
+
+  const amt = el("div", "amt " + (t.type === "income" ? "in" : "out"),
+    (t.type === "income" ? "+" : "−") + fmt(t.amount).replace("-", ""));
+  row.appendChild(amt);
+
+  const tick = el("button", "tick" + (t.status === "done" ? " on" : ""));
+  tick.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+  tick.setAttribute("aria-label", t.status === "done" ? "Mark as planned" : "Mark as paid");
+  tick.addEventListener("click", e => {
+    e.stopPropagation();
+    userTouched();
+    t.status = t.status === "done" ? "planned" : "done";
+    save(); render();
+    toast(t.status === "done" ? "Marked as paid" : "Moved back to planned");
+  });
+  row.appendChild(tick);
+
+  return row;
+}
+
+function renderBreakdown(all, dark){
+  const host = $("#breakdown");
+  host.innerHTML = "";
+  const spend = all.filter(t => t.type === "expense");
+  if (spend.length < 2) return;
+
+  const by = new Map();
+  spend.forEach(t => by.set(t.category, (by.get(t.category) || 0) + t.amount));
+  const rows = Array.from(by.entries()).sort((a, b) => b[1] - a[1]).slice(0, 7);
+  const max = rows[0][1];
+
+  const card = el("div", "card");
+  card.appendChild(el("h3", null, "Where the money goes"));
+  const bars = el("div", "bars");
+  rows.forEach(([cid, amount]) => {
+    const c = catOf(cid);
+    const b = el("div", "bar");
+    b.appendChild(el("div", "bn", c.n));
+    b.appendChild(el("div", "bv", fmt(amount)));
+    const track = el("div", "track");
+    const i = el("i");
+    i.style.width = Math.max(2, Math.round(amount / max * 100)) + "%";
+    track.appendChild(i);
+    b.appendChild(track);
+    bars.appendChild(b);
+  });
+  card.appendChild(bars);
+  host.appendChild(card);
+}
+
+/* =========================================================================
+   SHEETS
+   ========================================================================= */
+let openSheet = null;
+function sheetOpen(id){
+  if (openSheet) $(openSheet).classList.remove("open");
+  openSheet = id;
+  $("#scrim").classList.add("open");
+  $(id).classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function sheetClose(){
+  if (openSheet) $(openSheet).classList.remove("open");
+  openSheet = null;
+  $("#scrim").classList.remove("open");
+  document.body.style.overflow = "";
+}
+$("#scrim").addEventListener("click", sheetClose);
+$$("[data-close]").forEach(b => b.addEventListener("click", sheetClose));
+document.addEventListener("keydown", e => { if (e.key === "Escape" && openSheet) sheetClose(); });
+
+/* ---------- entry sheet ---------- */
+function renderCatChips(){
+  const host = $("#eCats");
+  host.innerHTML = "";
+  const dark = isDark();
+  CATS[draft.type].forEach(c => {
+    const b = el("button", "chip");
+    b.type = "button";
+    const ic = el("span", "cic");
+    ic.innerHTML = iconSvg(c.id, 15);
+    ic.style.color = draft.category === c.id ? "currentColor" : tintInk(c.h, dark);
+    b.appendChild(ic);
+    b.appendChild(el("span", null, c.n));
+    b.setAttribute("aria-pressed", String(draft.category === c.id));
+    b.addEventListener("click", () => {
+      draft.category = c.id;
+      renderCatChips();
+    });
+    host.appendChild(b);
+  });
+}
+function syncEntryUI(){
+  $$("#eType button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === draft.type)));
+  $$("#eStatus button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === draft.status)));
+  $("#amtWrap").className = "amtfield " + (draft.type === "income" ? "in" : "out");
+  $("#repHint").style.display = $("#eFreq").value ? "" : "none";
+  renderCatChips();
+}
+function openEntry(txn){
+  editing = txn || null;
+  if (txn){
+    draft = {
+      type: txn.type, category: txn.category, status: txn.status
+    };
+    $("#entryTitle").textContent = "Edit entry";
+    $("#eAmt").value = (txn.amount / 100).toFixed(2).replace(".", ",");
+    $("#eNote").value = txn.note || "";
+    $("#eDate").value = txn.date;
+    $("#eFreq").value = "";
+    $("#eFreq").disabled = !!txn.ruleId;
+    $("#eDeleteWrap").style.display = "";
+    $("#eSave").textContent = "Save changes";
+  } else {
+    draft = { type:"expense", category:"groceries", status:"done" };
+    $("#entryTitle").textContent = "New entry";
+    $("#eAmt").value = "";
+    $("#eNote").value = "";
+    $("#eDate").value = view === monthOf(todayISO()) ? todayISO() : view + "-01";
+    $("#eFreq").value = "";
+    $("#eFreq").disabled = false;
+    $("#eDeleteWrap").style.display = "none";
+    $("#eSave").textContent = "Save entry";
+  }
+  syncEntryUI();
+  sheetOpen("#shEntry");
+  if (!txn) setTimeout(() => $("#eAmt").focus(), 340);
+}
+$("#btnAdd").addEventListener("click", () => openEntry(null));
+$$("#eType button").forEach(b => b.addEventListener("click", () => {
+  draft.type = b.dataset.v;
+  draft.category = CATS[draft.type][0].id;
+  syncEntryUI();
+}));
+$$("#eStatus button").forEach(b => b.addEventListener("click", () => {
+  draft.status = b.dataset.v;
+  syncEntryUI();
+}));
+$("#eFreq").addEventListener("change", () => {
+  $("#repHint").style.display = $("#eFreq").value ? "" : "none";
+});
+
+$("#eSave").addEventListener("click", () => {
+  const cents = parseAmount($("#eAmt").value);
+  if (!cents || cents <= 0){ toast("Enter an amount greater than zero"); $("#eAmt").focus(); return; }
+  const date = $("#eDate").value || todayISO();
+  const note = $("#eNote").value.trim();
+  userTouched();
+
+  if (editing){
+    editing.amount = cents;
+    editing.type = draft.type;
+    editing.category = draft.category;
+    editing.status = draft.status;
+    editing.date = date;
+    editing.note = note;
+    save(); render(); sheetClose(); toast("Entry updated");
+    return;
+  }
+
+  const freq = $("#eFreq").value;
+  if (freq){
+    const rule = {
+      id: uid(), type: draft.type, amount: cents, category: draft.category,
+      note: note, freq: freq, anchor: date, active: true
+    };
+    state.rules.push(rule);
+    materialise();
+    // the occurrence on the anchor date inherits the status chosen in the form
+    const first = state.txns.find(t => t.ruleId === rule.id && t.date === date);
+    if (first) first.status = draft.status;
+    save(); render(); sheetClose();
+    toast("Repeating entry added · " + FREQ_LABEL[freq].toLowerCase());
+    return;
+  }
+
+  state.txns.push({
+    id: uid(), type: draft.type, amount: cents, category: draft.category,
+    note: note, date: date, status: draft.status
+  });
+  save();
+  if (monthOf(date) !== view) view = monthOf(date);
+  render(); sheetClose();
+  toast(draft.status === "done" ? "Entry saved" : "Planned entry added");
+});
+
+$("#eDelete").addEventListener("click", () => {
+  if (!editing) return;
+  userTouched();
+  if (editing.ruleId) state.skips.push(editing.ruleId + "|" + editing.date);
+  state.txns = state.txns.filter(t => t.id !== editing.id);
+  save(); render(); sheetClose(); toast("Entry deleted");
+});
+
+/* ---------- rules sheet ---------- */
+function renderRules(){
+  const host = $("#rulesBody");
+  host.innerHTML = "";
+  if (!state.rules.length){
+    host.innerHTML =
+      '<div class="empty" style="padding:30px 10px"><h4>No repeating entries yet</h4>' +
+      '<p>When you add an entry, pick a repeat interval — monthly rent, a quarterly insurance premium, ' +
+      'a bill every 2 months — and future ones appear automatically as planned.</p></div>';
+    return;
+  }
+  const dark = isDark();
+  state.rules.slice().sort((a, b) => b.amount - a.amount).forEach(r => {
+    const c = catOf(r.category);
+    const row = el("div", "rulerow");
+
+    const sw = el("div", "mono");
+    sw.innerHTML = iconSvg(c.id, 18);
+    sw.style.background = tint(c.h, dark);
+    sw.style.color = tintInk(c.h, dark);
+    row.appendChild(sw);
+
+    const m = el("div", "rm");
+    m.appendChild(el("div", "rt", r.note || c.n));
+    const next = nextDue(r);
+    m.appendChild(el("div", "rs",
+      FREQ_LABEL[r.freq] + (next ? " · next " + dayTitle(next).toLowerCase() : "")));
+    row.appendChild(m);
+
+    row.appendChild(el("div", "ra " + (r.type === "income" ? "" : ""),
+      (r.type === "income" ? "+" : "−") + fmt(r.amount)));
+
+    const del = el("button", "iconbtn");
+    del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>';
+    del.setAttribute("aria-label", "Delete repeating entry");
+    del.addEventListener("click", () => {
+      userTouched();
+      state.rules = state.rules.filter(x => x.id !== r.id);
+      state.txns = state.txns.filter(t => !(t.ruleId === r.id && t.status === "planned"));
+      save(); renderRules(); render();
+      toast("Repeating entry removed");
+    });
+    row.appendChild(del);
+    host.appendChild(row);
+  });
+}
+function nextDue(rule){
+  const t = todayISO();
+  for (let n = 0; n < 600; n++){
+    const d = occurrence(rule.anchor, rule.freq, n);
+    if (d >= t) return d;
+    if (rule.endDate && d > rule.endDate) return null;
+  }
+  return null;
+}
+$("#btnRules").addEventListener("click", () => { renderRules(); sheetOpen("#shRules"); });
+
+/* =========================================================================
+   CSV IMPORT
+   ========================================================================= */
+function decode(buf){
+  let txt = new TextDecoder("utf-8").decode(buf);
+  if (txt.indexOf("\uFFFD") > -1){
+    try{ txt = new TextDecoder("windows-1252").decode(buf); }catch(e){ /* keep utf-8 */ }
+  }
+  return txt.replace(/^\uFEFF/, "");
+}
+function detectDelim(text){
+  const head = text.split(/\r?\n/).slice(0, 25).join("\n");
+  const counts = { ";": 0, ",": 0, "\t": 0 };
+  let inQ = false;
+  for (const ch of head){
+    if (ch === '"') inQ = !inQ;
+    else if (!inQ && counts.hasOwnProperty(ch)) counts[ch]++;
+  }
+  let best = ";", bn = -1;
+  for (const k in counts){ if (counts[k] > bn){ bn = counts[k]; best = k; } }
+  return best;
+}
+function parseCSV(text, delim){
+  const rows = [];
+  let row = [], field = "", inQ = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (inQ){
+      if (c === '"'){
+        if (text[i + 1] === '"'){ field += '"'; i++; }
+        else inQ = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQ = true;
+      else if (c === delim){ row.push(field); field = ""; }
+      else if (c === "\n"){ row.push(field); rows.push(row); row = []; field = ""; }
+      else if (c !== "\r") field += c;
+    }
+  }
+  if (field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ""));
+}
+function norm(s){
+  return String(s || "").toLowerCase()
+    .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
+    .replace(/[^a-z0-9]/g, "");
+}
+const H = {
+  date:   ["buchungstag", "bookingdate", "buchungsdatum", "datum", "date", "valuedate", "wertstellung", "wert", "valuta"],
+  amount: ["betrag", "amount", "umsatz", "betragineur", "betrageur"],
+  debit:  ["soll", "debit", "belastung"],
+  credit: ["haben", "credit", "gutschrift"],
+  text:   ["buchungstext", "verwendungszweck", "paymentdetails", "beguenstigterauftraggeber",
+           "begunstigterauftraggeber", "beneficiaryoriginator", "zahlungsempfanger", "empfanger",
+           "auftraggeberempfanger", "umsatzart", "transactiontype", "vorgangverwendungszweck",
+           "description", "name", "payee", "kategorie"]
+};
+/**
+ * Match a normalised header against a token list. Exact match first; then a
+ * substring match for tokens long enough to be unambiguous, so headers mangled
+ * by an encoding hiccup ("Begünstigter" -> "begnstigter") still resolve.
+ */
+function hmatch(h, list){
+  if (!h) return false;
+  if (list.includes(h)) return true;
+  return list.some(k => k.length >= 8 && (h.includes(k) || k.includes(h)));
+}
+function findHeader(rows){
+  for (let i = 0; i < Math.min(rows.length, 30); i++){
+    const cells = rows[i].map(norm);
+    const hasDate = cells.some(c => hmatch(c, H.date));
+    const hasVal = cells.some(c => hmatch(c, H.amount) || hmatch(c, H.debit) || hmatch(c, H.credit));
+    if (hasDate && hasVal) return i;
+  }
+  return -1;
+}
+function detectBank(text){
+  const t = text.toLowerCase();
+  if (t.includes("commerzbank") || t.includes("auftraggeberkonto")) return "Commerzbank";
+  if (t.includes("deutsche bank") || t.includes("db privat") || t.includes("ultimate creditor")) return "Deutsche Bank";
+  if (t.includes("soll") && t.includes("haben")) return "Deutsche Bank style";
+  return "Bank statement";
+}
+
+const RULES_CAT = [
+  [/rewe|edeka|aldi|lidl|penny|netto|kaufland|real markt|dm filiale|rossmann|denns|alnatura|tegut|nahkauf|supermarkt|hit markt/, "groceries"],
+  [/miete|rent|hausverwaltung|vermieter|wohnung|nebenkosten|hausgeld/, "rent"],
+  [/stadtwerke|vattenfall|e\.?on|enbw|rwe|gasag|strom|energie|telekom|vodafone|o2|1und1|1&1|pyur|unitymedia|gez|rundfunk|wasserwerk|entsorgung/, "utilities"],
+  [/deutsche bahn|db vertrieb|db fern|deutschlandticket|bahncard|\bbahn\b|bvg|rmv|hvv|mvg|vrr|vrs|kvb|tankstelle|aral|shell|esso|jet |total |uber|freenow|bolt |flixbus|adac|parkhaus|park |tankst|nextbike|lime |tier /, "transport"],
+  [/versicherung|allianz|huk|axa|ergo|debeka|generali|signal iduna|barmenia|devk|wgv|hdi|insurance/, "insurance"],
+  [/apotheke|arzt|praxis|zahnarzt|klinik|krankenkasse|tk krankenkasse|aok|barmer|dak|doctolib|physio|optiker|fielmann|apollo/, "health"],
+  [/restaurant|pizzeria|mcdonald|burger king|kfc|subway|starbucks|lieferando|wolt|too good to go|bakerei|backerei|baeckerei|cafe|kantine|imbiss|doner|kebab/, "dining"],
+  [/amazon|zalando|otto |mediamarkt|media markt|saturn|ikea|obi |bauhaus|hornbach|h&m|c&a|decathlon|douglas|thalia|shop|store/, "shopping"],
+  [/netflix|spotify|disney|amazon prime|apple\.com|itunes|google |youtube|adobe|microsoft|dropbox|patreon|audible|dazn|sky deutschland|abo /, "subs"],
+  [/schule|universitat|universitaet|hochschule|vhs |volkshochschule|udemy|coursera|sprachschule|kurs |seminar|studiengebuhr|kita|kindergarten/, "education"],
+  [/kindergeld|elterngeld|unterhalt|familienkasse/, "family"]
+];
+const RULES_INC = [
+  [/lohn|gehalt|salary|salaer|bezuge|besoldung|payroll|verguetung|vergutung/, "salary"],
+  [/honorar|freelance|rechnung|invoice|selbstandig|selbststandig/, "freelance"],
+  [/erstattung|rueckerstattung|ruckerstattung|refund|gutschrift retoure|steuererstattung|finanzamt/, "refund"],
+  [/zinsen|interest|dividende|ausschuttung|ertragnis/, "interest"],
+  [/geschenk|gift|schenkung/, "gift"]
+];
+function guessCat(desc, isIncome){
+  const d = String(desc || "").toLowerCase();
+  const list = isIncome ? RULES_INC : RULES_CAT;
+  for (const [re, cat] of list){ if (re.test(d)) return cat; }
+  return isIncome ? "other_in" : "other";
+}
+function importKey(date, amount, desc){
+  return date + "|" + amount + "|" + norm(desc).slice(0, 40);
+}
+
+function handleText(text, sourceName){
+  const delim = detectDelim(text);
+  const rows = parseCSV(text, delim);
+  if (!rows.length){ toast("That file looks empty"); return; }
+
+  const hi = findHeader(rows);
+  if (hi === -1){
+    toast("Couldn't find a date and amount column");
+    return;
+  }
+  const head = rows[hi].map(norm);
+  const idx = { date:-1, amount:-1, debit:-1, credit:-1, texts:[] };
+  head.forEach((h, i) => {
+    if (idx.date === -1 && hmatch(h, H.date)) idx.date = i;
+    else if (idx.amount === -1 && hmatch(h, H.amount)) idx.amount = i;
+    else if (idx.debit === -1 && hmatch(h, H.debit)) idx.debit = i;
+    else if (idx.credit === -1 && hmatch(h, H.credit)) idx.credit = i;
+    else if (hmatch(h, H.text)) idx.texts.push(i);
+  });
+  if (!idx.texts.length){
+    head.forEach((h, i) => {
+      if (i !== idx.date && i !== idx.amount && i !== idx.debit && i !== idx.credit &&
+          /text|zweck|name|detail|partner|art/.test(h)) idx.texts.push(i);
+    });
+  }
+
+  const seen = new Set(state.txns.map(t => t.importKey).filter(Boolean));
+  const items = [];
+  for (let r = hi + 1; r < rows.length; r++){
+    const cells = rows[r];
+    const date = parseDateCell(cells[idx.date]);
+    if (!date) continue;
+
+    let cents = null;
+    if (idx.amount > -1) cents = parseAmount(cells[idx.amount]);
+    if (cents === null && (idx.debit > -1 || idx.credit > -1)){
+      const dv = idx.debit  > -1 ? parseAmount(cells[idx.debit])  : null;
+      const cv = idx.credit > -1 ? parseAmount(cells[idx.credit]) : null;
+      if (cv !== null && cv !== 0) cents = Math.abs(cv);
+      else if (dv !== null && dv !== 0) cents = -Math.abs(dv);
+    }
+    if (cents === null || cents === 0) continue;
+
+    const desc = idx.texts.map(i => (cells[i] || "").trim())
+      .filter(Boolean).join(" · ").replace(/\s+/g, " ").slice(0, 120);
+    const isIncome = cents > 0;
+    const k = importKey(date, cents, desc);
+    items.push({
+      date, amount: Math.abs(cents), type: isIncome ? "income" : "expense",
+      note: desc || (isIncome ? "Credit" : "Debit"),
+      category: guessCat(desc, isIncome),
+      key: k, dupe: seen.has(k), pick: !seen.has(k)
+    });
+  }
+
+  if (!items.length){ toast("No transactions found in that file"); return; }
+  items.sort((a, b) => a.date < b.date ? 1 : -1);
+  pending = { items, source: sourceName, bank: detectBank(text) };
+  renderPreview();
+}
+
+function renderPreview(){
+  $("#impStep1").style.display = "none";
+  $("#impStep2").style.display = "";
+  const { items, bank, source } = pending;
+  const dupes = items.filter(i => i.dupe).length;
+  $("#impSummary").textContent = items.length + " transaction" + (items.length === 1 ? "" : "s") + " found";
+  $("#impSource").textContent = bank + (source ? " · " + source : "") +
+    (dupes ? " · " + dupes + " already imported" : "");
+
+  const host = $("#impPrev");
+  host.innerHTML = "";
+  items.forEach((it, i) => {
+    const r = el("label", "prow" + (it.dupe ? " dupe" : ""));
+    const cb = el("input");
+    cb.type = "checkbox"; cb.checked = it.pick;
+    cb.addEventListener("change", () => { it.pick = cb.checked; updateCommit(); });
+    r.appendChild(cb);
+    r.appendChild(el("span", "pd", it.date.slice(8) + "." + it.date.slice(5, 7)));
+    const n = el("span", "pn", it.note);
+    if (it.dupe) n.title = "Already imported";
+    r.appendChild(n);
+    r.appendChild(el("span", "pa " + (it.type === "income" ? "in" : "out"),
+      (it.type === "income" ? "+" : "−") + fmt(it.amount)));
+    host.appendChild(r);
+  });
+  updateCommit();
+}
+function updateCommit(){
+  const n = pending ? pending.items.filter(i => i.pick).length : 0;
+  $("#impCommit").textContent = n ? "Import " + n + " transaction" + (n === 1 ? "" : "s") : "Nothing selected";
+  $("#impCommit").disabled = !n;
+  $("#impCommit").style.opacity = n ? "1" : ".5";
+}
+$("#impToggleAll").addEventListener("click", () => {
+  const anyOn = pending.items.some(i => i.pick);
+  pending.items.forEach(i => { i.pick = !anyOn; });
+  $("#impToggleAll").textContent = anyOn ? "All" : "None";
+  renderPreview();
+});
+$("#impCommit").addEventListener("click", () => {
+  const picked = pending.items.filter(i => i.pick);
+  if (!picked.length) return;
+  userTouched();
+  picked.forEach(i => {
+    state.txns.push({
+      id: uid(), type: i.type, amount: i.amount, category: i.category,
+      note: i.note, date: i.date, status:"done", importKey: i.key
+    });
+  });
+  save();
+  const newest = picked.reduce((a, b) => a.date > b.date ? a : b).date;
+  view = monthOf(newest);
+  render(); sheetClose();
+  toast("Imported " + picked.length + " transaction" + (picked.length === 1 ? "" : "s"));
+  pending = null;
+  $("#impStep1").style.display = "";
+  $("#impStep2").style.display = "none";
+});
+$("#impBack").addEventListener("click", () => {
+  pending = null;
+  $("#impStep1").style.display = "";
+  $("#impStep2").style.display = "none";
+  $("#file").value = "";
+});
+
+function readFile(f){
+  if (!f) return;
+  const fr = new FileReader();
+  fr.onload = () => handleText(decode(fr.result), f.name);
+  fr.onerror = () => toast("Couldn't read that file");
+  fr.readAsArrayBuffer(f);
+}
+$("#drop").addEventListener("click", () => $("#file").click());
+$("#file").addEventListener("change", e => readFile(e.target.files[0]));
+["dragenter", "dragover"].forEach(ev =>
+  $("#drop").addEventListener(ev, e => { e.preventDefault(); $("#drop").classList.add("hot"); }));
+["dragleave", "drop"].forEach(ev =>
+  $("#drop").addEventListener(ev, e => { e.preventDefault(); $("#drop").classList.remove("hot"); }));
+$("#drop").addEventListener("drop", e => {
+  e.preventDefault();
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) readFile(f);
+});
+$("#parsePaste").addEventListener("click", () => {
+  const t = $("#pasteCsv").value.trim();
+  if (!t){ toast("Paste some CSV text first"); return; }
+  handleText(t, "pasted text");
+});
+$("#btnImport").addEventListener("click", () => {
+  pending = null;
+  $("#impStep1").style.display = "";
+  $("#impStep2").style.display = "none";
+  sheetOpen("#shImport");
+});
+
+/* =========================================================================
+   SETTINGS
+   ========================================================================= */
+function applyTheme(v){
+  if (v === "system") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", v);
+  try{ localStorage.setItem(THEME_KEY, v); }catch(e){}
+  $$("#themeTog button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v)));
+  render();
+}
+$$("#themeTog button").forEach(b => b.addEventListener("click", () => applyTheme(b.dataset.v)));
+
+$("#btnMenu").addEventListener("click", () => {
+  const months = new Set(state.txns.map(t => monthOf(t.date)));
+  $("#statLine").innerHTML =
+    "<b>" + state.txns.length + "</b> entries across <b>" + months.size + "</b> month" +
+    (months.size === 1 ? "" : "s") + ", plus <b>" + state.rules.length + "</b> repeating entr" +
+    (state.rules.length === 1 ? "y" : "ies") + ".";
+  sheetOpen("#shSet");
+});
+$("#copyBackup").addEventListener("click", async () => {
+  const json = JSON.stringify(state);
+  try{
+    await navigator.clipboard.writeText(json);
+    toast("Backup copied — paste it somewhere safe");
+  }catch(e){
+    $("#restoreBox").value = json;
+    $("#restoreBox").select();
+    toast("Copy the text in the box below");
+  }
+});
+$("#doRestore").addEventListener("click", () => {
+  const t = $("#restoreBox").value.trim();
+  if (!t){ toast("Paste a backup first"); return; }
+  try{
+    const p = JSON.parse(t);
+    if (!p || !Array.isArray(p.txns)) throw new Error("shape");
+    state = {
+      v:1, txns:p.txns,
+      rules: Array.isArray(p.rules) ? p.rules : [],
+      skips: Array.isArray(p.skips) ? p.skips : []
+    };
+    materialise(); save(); render(); sheetClose();
+    toast("Restored " + state.txns.length + " entries");
+  }catch(e){
+    toast("That doesn't look like a Kassenbuch backup");
+  }
+});
+$("#wipe").addEventListener("click", function(){
+  if (this.dataset.armed){
+    state = { v:1, txns:[], rules:[], skips:[] };
+    save(); render(); sheetClose();
+    delete this.dataset.armed;
+    this.textContent = "Delete all entries";
+    toast("All entries deleted");
+  } else {
+    this.dataset.armed = "1";
+    this.textContent = "Tap again to confirm — this cannot be undone";
+    setTimeout(() => {
+      delete this.dataset.armed;
+      this.textContent = "Delete all entries";
+    }, 4000);
+  }
+});
+
+$("#clearDemo").addEventListener("click", () => {
+  state = { v:1, txns:[], rules:[], skips:[] };
+  view = monthOf(todayISO());
+  save(); render();
+  toast("Cleared — the book is yours now");
+});
+
+/* =========================================================================
+   NAV
+   ========================================================================= */
+$("#prevM").addEventListener("click", () => { view = shiftMonth(view, -1); render(); });
+$("#nextM").addEventListener("click", () => { view = shiftMonth(view, 1); render(); });
+$("#mLabel").addEventListener("click", () => { view = monthOf(todayISO()); render(); });
+$$(".seg button").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; render(); }));
+
+if (window.matchMedia){
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  const onChange = () => { if (!document.documentElement.getAttribute("data-theme")) render(); };
+  if (mq.addEventListener) mq.addEventListener("change", onChange);
+  else if (mq.addListener) mq.addListener(onChange);
+}
+
+/* =========================================================================
+   SEED + BOOT
+   ========================================================================= */
+function seed(){
+  const today = todayISO();
+  const ym = monthOf(today);
+  const y = +ym.slice(0, 4), mo = +ym.slice(5, 7);
+  const last = daysInMonth(y, mo);
+  const dom = +today.slice(8);
+  /** a day in the current month, offset from today and clamped inside it */
+  const rel = off => isoOf(y, mo, Math.min(last, Math.max(1, dom + off)));
+
+  state.rules = [
+    { id:uid(), type:"income",  amount:320000, category:"salary",    note:"Monthly salary",      freq:"monthly",   anchor:isoOf(y, mo, 1), active:true },
+    { id:uid(), type:"expense", amount:118000, category:"rent",      note:"Rent — Wohnung",      freq:"monthly",   anchor:isoOf(y, mo, Math.min(3, last)), active:true },
+    { id:uid(), type:"expense", amount:4499,   category:"utilities", note:"Telekom internet",    freq:"monthly",   anchor:rel(-2), active:true },
+    { id:uid(), type:"expense", amount:21400,  category:"insurance", note:"Haftpflicht premium", freq:"quarterly", anchor:rel(3),  active:true },
+    { id:uid(), type:"expense", amount:9800,   category:"utilities", note:"Stadtwerke gas",      freq:"bimonthly", anchor:rel(5),  active:true },
+    { id:uid(), type:"expense", amount:1299,   category:"subs",      note:"Netflix",             freq:"monthly",   anchor:rel(8),  active:true }
+  ];
+  state.txns = [
+    { id:uid(), type:"expense", amount:6742, category:"groceries", note:"REWE",                 date:rel(-9) },
+    { id:uid(), type:"expense", amount:2390, category:"dining",    note:"Lunch — Kantine",      date:rel(-7) },
+    { id:uid(), type:"expense", amount:5500, category:"transport", note:"Deutschlandticket",    date:rel(-6) },
+    { id:uid(), type:"expense", amount:8915, category:"groceries", note:"Edeka weekly shop",    date:rel(-4) },
+    { id:uid(), type:"expense", amount:3499, category:"shopping",  note:"Amazon.de order",      date:rel(-3) },
+    { id:uid(), type:"income",  amount:4500, category:"refund",    note:"Amazon return refund", date:rel(-1) }
+  ].map(t => Object.assign(t, { id:uid(), status: t.date <= today ? "done" : "planned" }));
+
+  state.demo = true;
+  materialise();
+  // anything dated on or before today is already settled; the rest stays planned
+  state.txns.forEach(t2 => {
+    if (t2.ruleId) t2.status = t2.date <= today ? "done" : "planned";
+  });
+  save();
+}
+
+(function boot(){
+  let savedTheme = "system";
+  try{ savedTheme = localStorage.getItem(THEME_KEY) || "system"; }catch(e){}
+  if (savedTheme !== "system") document.documentElement.setAttribute("data-theme", savedTheme);
+  $$("#themeTog button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === savedTheme)));
+
+  load();
+  let fresh = false;
+  try{ fresh = !localStorage.getItem(KEY); }catch(e){ fresh = true; }
+  if (fresh && !state.txns.length) seed();
+
+  materialise();
+  save();
+  render();
+})();
+</script>
+
+</body>
+</html>

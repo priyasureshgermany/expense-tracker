@@ -1,0 +1,4 @@
+node_modules/
+_test.html
+shot-*.png
+package-lock.json
