@@ -259,18 +259,24 @@ button{cursor:pointer;background:none;border:none;padding:0}
 
 /* ---------- Demo banner ---------- */
 .demobar{
+  position:relative;
   margin:14px 14px 0;padding:13px 15px 14px;
   background:var(--accent-soft);border-radius:var(--r-lg);
   border:1px solid color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .demobar[hidden]{display:none}
-.demobar .db-t{font-size:13.5px;font-weight:600;color:var(--accent)}
+.demobar .db-t{font-size:13.5px;font-weight:600;color:var(--accent);padding-right:26px}
 .demobar .db-s{font-size:12.5px;color:var(--ink-2);margin:2px 0 10px;line-height:1.5}
 .demobar .db-b{
   font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent);
   padding:7px 12px;border-radius:9px;transition:filter .15s;
 }
 .demobar .db-b:hover{filter:brightness(1.1)}
+.demobar .db-x{
+  position:absolute;top:10px;right:10px;width:24px;height:24px;
+  display:grid;place-items:center;color:var(--ink-2);border-radius:7px;
+}
+.demobar .db-x:hover{background:color-mix(in srgb, var(--accent) 14%, transparent)}
 
 /* ---------- Segmented ---------- */
 .segwrap{padding:14px 14px 0;background:var(--ground)}
@@ -484,6 +490,10 @@ button{cursor:pointer;background:none;border:none;padding:0}
 }
 .inp:focus{outline:none;border-color:var(--accent);background:var(--surface)}
 textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--mono);line-height:1.5}
+@media (max-width:543px){
+  /* iOS Safari zooms the whole page in on focus of any field under 16px */
+  .inp, textarea.inp{font-size:16px}
+}
 
 .amtfield{
   display:flex;align-items:center;gap:8px;
@@ -657,6 +667,15 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
     <div class="db-t">You're looking at example data</div>
     <div class="db-s">Have a click around, then clear it and start on your own numbers.</div>
     <button class="db-b" id="clearDemo">Clear examples &amp; start fresh</button>
+  </div>
+
+  <div class="demobar" id="installBar" hidden>
+    <button class="db-x" id="installClose" aria-label="Dismiss">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="db-t">Install Kassenbuch</div>
+    <div class="db-s" id="installText">Add it to your home screen for a full-screen app with offline access.</div>
+    <button class="db-b" id="installBtn">Install app</button>
   </div>
 
   <div class="segwrap">
@@ -1927,6 +1946,63 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   });
 }
+
+/* ---------- Install banner (PWA) ---------- */
+(function initInstallBanner(){
+  const bar = document.getElementById("installBar");
+  const text = document.getElementById("installText");
+  const btn = document.getElementById("installBtn");
+  const closeBtn = document.getElementById("installClose");
+  const DISMISS_KEY = "kassenbuch.installDismissed";
+
+  const isStandalone = () =>
+    window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  const isSafari = () => /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
+
+  let dismissed = false;
+  try{ dismissed = localStorage.getItem(DISMISS_KEY) === "1"; }catch(e){}
+  if (isStandalone() || dismissed) return;
+
+  let deferredPrompt = null;
+
+  function show(mode){
+    bar.hidden = false;
+    if (mode === "ios"){
+      text.textContent = 'Tap the Share icon, then "Add to Home Screen".';
+      btn.textContent = "Got it";
+    } else {
+      text.textContent = "Add it to your home screen for a full-screen app with offline access.";
+      btn.textContent = "Install app";
+    }
+    bar.dataset.mode = mode;
+  }
+  function dismiss(){
+    bar.hidden = true;
+    try{ localStorage.setItem(DISMISS_KEY, "1"); }catch(e){}
+  }
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    show("android");
+  });
+  window.addEventListener("appinstalled", dismiss);
+
+  if (isIOS() && isSafari()) show("ios");
+
+  btn.addEventListener("click", async () => {
+    if (deferredPrompt){
+      deferredPrompt.prompt();
+      try{ await deferredPrompt.userChoice; }catch(e){}
+      deferredPrompt = null;
+      bar.hidden = true;
+    } else {
+      dismiss();
+    }
+  });
+  closeBtn.addEventListener("click", dismiss);
+})();
 </script>
 
 </body>

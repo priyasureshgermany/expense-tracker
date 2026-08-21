@@ -470,6 +470,10 @@ button{cursor:pointer;background:none;border:none;padding:0}
 }
 .inp:focus{outline:none;border-color:var(--accent);background:var(--surface)}
 textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--mono);line-height:1.5}
+@media (max-width:543px){
+  /* iOS Safari zooms the whole page in on focus of any field under 16px */
+  .inp, textarea.inp{font-size:16px}
+}
 
 .amtfield{
   display:flex;align-items:center;gap:8px;
