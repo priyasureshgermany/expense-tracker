@@ -2308,16 +2308,6 @@
       "ruleId": "11j7m9lmmy6f"
     },
     {
-      "id": "jux8vffhpjnm",
-      "type": "expense",
-      "amount": 128000,
-      "category": "rent",
-      "note": "",
-      "date": "2026-09-02",
-      "status": "planned",
-      "ruleId": "5q98aay2rqyf"
-    },
-    {
       "id": "i50exxwipjnn",
       "type": "expense",
       "amount": 6000,
@@ -2653,7 +2643,8 @@
     "8mofd0hyjidm|2026-09-14",
     "pqouodf8hgzf|2026-08-22",
     "9trvq5n4z3vo|2026-08-22",
-    "b687bcbvxt8c|2026-08-22"
+    "b687bcbvxt8c|2026-08-22",
+    "5q98aay2rqyf|2026-09-02"
   ],
   "shop": {
     "lists": {
