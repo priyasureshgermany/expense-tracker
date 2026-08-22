@@ -335,6 +335,92 @@ html.amounts-shown #btnEye{color:var(--accent)}
 }
 .bal-s{font-size:11.5px;color:rgba(255,255,255,.66);margin-top:4px}
 
+/* ---------- Budget envelopes ---------- */
+.budgetcard{
+  margin:14px 14px 0;padding:14px 15px 10px;
+  background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--line);
+}
+.budgetcard[hidden]{display:none}
+.bc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.bc-t{font-size:12.5px;font-weight:600;color:var(--ink)}
+.bc-edit{font-size:12px;font-weight:600;color:var(--accent)}
+.bc-foot{
+  margin-top:4px;padding:10px 0 4px;border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--ink-3);
+}
+.envrow{
+  display:block;width:100%;text-align:left;padding:9px 0 10px;
+  border-bottom:1px solid var(--line);
+}
+.budgetcard .envrow:last-of-type{border-bottom:none}
+.env-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.env-ic{
+  width:24px;height:24px;flex:none;border-radius:7px;
+  display:grid;place-items:center;
+}
+.env-n{flex:1;min-width:0;font-size:13px;font-weight:500;color:var(--ink);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.env-left{
+  font-family:var(--mono);font-size:12px;font-weight:600;
+  font-variant-numeric:tabular-nums;flex:none;
+}
+.env-track{height:8px;background:var(--surface-sunk);border-radius:99px;overflow:hidden;position:relative}
+.env-track i{
+  display:block;height:100%;border-radius:99px;
+  transition:width .5s cubic-bezier(.4,0,.2,1),background .3s;
+}
+/* where you'd be if the period's spend were even — makes overspending early visible */
+.env-pace{
+  position:absolute;top:-2px;bottom:-2px;width:2px;
+  background:var(--ink-3);opacity:.55;border-radius:2px;
+}
+.env-sub{margin-top:5px;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.emptybudget{
+  margin:14px 14px 0;padding:16px;text-align:center;
+  border:1px dashed var(--line-strong);border-radius:var(--r-lg);
+}
+.emptybudget[hidden]{display:none}
+.eb-t{font-size:13.5px;font-weight:600;color:var(--ink-2)}
+.eb-s{font-size:12px;color:var(--ink-3);line-height:1.55;margin:5px 0 11px}
+.eb-b{
+  font-size:12.5px;font-weight:600;color:var(--accent-ink);
+  background:linear-gradient(135deg,var(--accent-mid),var(--accent));
+  padding:9px 15px;border-radius:9px;
+}
+
+/* ---------- Budget editor + envelope detail ---------- */
+.budrow{
+  display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-bottom:1px solid var(--line);
+}
+.budrow:last-child{border-bottom:none}
+.budrow .br-ic{width:26px;height:26px;flex:none;border-radius:7px;display:grid;place-items:center}
+.budrow .br-n{flex:1;min-width:0;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inp.br-a{
+  flex:none;width:104px;padding:7px 9px;text-align:right;
+  font-family:var(--mono);font-size:13px;font-weight:600;
+}
+.quickadd{
+  display:flex;gap:7px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);
+}
+.quickadd .inp{min-width:0}
+.quickadd .qa-amt{flex:none;width:104px;text-align:right;font-family:var(--mono);font-weight:600}
+.quickadd .qa-note{flex:1}
+.qa-go{
+  flex:none;width:46px;border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--accent-mid),var(--accent));color:var(--accent-ink);
+  display:grid;place-items:center;
+}
+.qa-go svg{width:19px;height:19px}
+.spendrow{
+  display:flex;align-items:center;gap:10px;padding:10px 0;
+  border-bottom:1px solid var(--line);font-size:13px;
+}
+.spendrow:last-child{border-bottom:none}
+.sp-d{font-family:var(--mono);font-size:11px;color:var(--ink-3);flex:none;width:62px}
+.sp-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-a{font-family:var(--mono);font-size:12.5px;font-weight:600;flex:none;font-variant-numeric:tabular-nums}
+
 /* ---------- Dashboard bar charts ---------- */
 .chartblock{
   margin:14px 14px 0;padding:14px 15px 8px;
@@ -1157,6 +1243,25 @@ html.locked #lockScreen::before{
       <button class="db-b" id="installBtn">Install app</button>
     </div>
 
+    <section class="budgetcard" id="budgetCard" hidden>
+      <div class="bc-head">
+        <div class="bc-t">Budgets this period</div>
+        <button class="bc-edit" id="budgetEdit">Edit</button>
+      </div>
+      <div id="budgetRows"></div>
+      <div class="bc-foot" id="budgetFoot"></div>
+    </section>
+
+    <div class="emptybudget" id="budgetEmpty" hidden>
+      <div class="eb-t">Set a monthly budget</div>
+      <div class="eb-s">
+        For things you spend on bit by bit — groceries, a buffer for
+        odds and ends — set an amount for the period and watch it draw down
+        as you spend.
+      </div>
+      <button class="eb-b" id="budgetStart">Set budgets</button>
+    </div>
+
     <div id="charts"></div>
 
     <section class="monthstrip-wrap">
@@ -1392,6 +1497,55 @@ html.locked #lockScreen::before{
   </div>
 </section>
 
+<!-- BUDGET EDITOR SHEET -->
+<section class="sheet" id="shBudget" role="dialog" aria-modal="true" aria-labelledby="budTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="budTitle">Budgets</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="note">
+      An amount here is what you allow yourself <b>per period</b> for that category.
+      Every expense you log against it draws it down. Leave a category blank if you
+      don't want to budget it — one-off bills like rent are better as recurring entries.
+    </div>
+    <div id="budRows" style="margin-top:12px"></div>
+    <button class="btn sm" id="budSave" style="margin-top:14px">Save budgets</button>
+  </div>
+</section>
+
+<!-- ENVELOPE DETAIL SHEET -->
+<section class="sheet" id="shEnv" role="dialog" aria-modal="true" aria-labelledby="envTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="envTitle">Budget</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="purch-total" style="margin-top:0">
+      <span id="envSummary">—</span>
+      <b id="envLeft">€0.00</b>
+    </div>
+
+    <div class="quickadd">
+      <input class="inp qa-amt" id="envAmt" type="text" inputmode="decimal" placeholder="€ 0,00" autocomplete="off">
+      <input class="inp qa-note" id="envNote" type="text" placeholder="What for? (optional)" autocomplete="off">
+      <button class="qa-go" id="envAdd" aria-label="Add spend">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+    <div class="note" style="margin-top:8px">Adds a paid expense dated today in this category.</div>
+
+    <div style="margin-top:16px">
+      <label style="display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:4px">Spends this period</label>
+      <div id="envSpends"></div>
+    </div>
+  </div>
+</section>
+
 <!-- PURCHASE DETAIL SHEET -->
 <section class="sheet" id="shPurch" role="dialog" aria-modal="true" aria-labelledby="purchTitle">
   <div class="sheet-head" style="position:relative">
@@ -1568,7 +1722,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.0.1";
+const APP_VERSION = "1.0.2";
 const APP_BUILT = "2026-08-22";
 
 const KEY = "panappai.v1";
@@ -1588,7 +1742,12 @@ const THEME_KEY = "panappai.theme";
 /* ---------- categories ---------- */
 const CATS = {
   expense: [
-    {id:"groceries", n:"Groceries", h:152},
+    {id:"groceries",    n:"Groceries",           h:152},
+    {id:"groceries_de", n:"Groceries — German",  h:140},
+    {id:"groceries_in", n:"Groceries — Indian",  h:36},
+    {id:"nonveg",       n:"Non-Veg",             h:8},
+    {id:"emi",          n:"EMI",                 h:248},
+    {id:"buffer",       n:"Buffer",              h:288},
     {id:"rent",      n:"Rent",      h:220},
     {id:"utilities", n:"Utilities", h:196},
     {id:"transport", n:"Transport", h:255},
@@ -1643,6 +1802,11 @@ const ICON = {
   subs:'<circle cx="12" cy="12" r="8.5"/><path d="M10.3 8.8l5.4 3.2-5.4 3.2z"/>',
   education:'<path d="M2.5 8.5L12 4.2l9.5 4.3L12 12.8z"/><path d="M6.5 10.9V16c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8v-5.1"/><path d="M21.2 9v5"/>',
   family:'<circle cx="9" cy="8" r="3.2"/><path d="M2.6 20a6.4 6.4 0 0112.8 0"/><path d="M16 5.4a3.2 3.2 0 010 5.4"/><path d="M17.8 14.5a6.4 6.4 0 013.6 5.5"/>',
+  groceries_de:'<path d="M4 10h16l-1.6 9.2a2 2 0 01-2 1.8H7.6a2 2 0 01-2-1.8z"/><path d="M8.5 10l2.2-6"/><path d="M15.5 10l-2.2-6"/><path d="M9 14.5h6"/>',
+  groceries_in:'<path d="M4 10h16l-1.6 9.2a2 2 0 01-2 1.8H7.6a2 2 0 01-2-1.8z"/><path d="M8.5 10l2.2-6"/><path d="M15.5 10l-2.2-6"/><circle cx="12" cy="15" r="1.9"/>',
+  nonveg:'<path d="M16 3.2a5.2 5.2 0 00-7.4 7.3l-3.9 3.9a2.9 2.9 0 004.1 4.1l3.9-3.9A5.2 5.2 0 0016 3.2z"/>',
+  emi:'<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6 14.5h5"/><path d="M15 14.5h3"/>',
+  buffer:'<path d="M12 3l7.5 3v6c0 4.6-3 8.1-7.5 9.6C7.5 20.1 4.5 16.6 4.5 12V6z"/><path d="M9.2 12.2l2 2 3.6-3.9"/>',
   cash:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.4"/><path d="M6 9.5h.01M18 14.5h.01"/>',
   cardpay:'<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6 15h4"/>',
   invest:'<path d="M3 17l5.5-5.5 3.5 3.5L21 6"/><path d="M15.5 6H21v5.5"/><path d="M3 21h18"/>',
@@ -1814,7 +1978,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], shop:null };
+let state = { v:1, txns:[], rules:[], skips:[], shop:null, budgets:{} };
 let view = periodOf(todayISO());
 let filter = "all";
 let editing = null;
@@ -1850,13 +2014,15 @@ function load(){
           txns: p.txns,
           rules: Array.isArray(p.rules) ? p.rules : [],
           skips: Array.isArray(p.skips) ? p.skips : [],
-          shop: normaliseShop(p.shop)
+          shop: normaliseShop(p.shop),
+          budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {}
         };
         if (p.demo) state.demo = true;
       }
     }
   }catch(e){ /* corrupt or unavailable storage — start clean */ }
   if (!state.shop) state.shop = normaliseShop(null);
+  if (!state.budgets) state.budgets = {};
 }
 function save(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -2067,11 +2233,220 @@ function render(){
 
   renderBreakdown(all, dark);
   renderCharts(all);
+  renderBudgets();
   renderBalance();
   renderMonthStrip();
   $("#demoBar").hidden = !state.demo;
   $$("#viewEntries .seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.f === filter)));
 }
+
+/* =========================================================================
+   BUDGET ENVELOPES
+   A planned entry is one dated amount that is either pending or settled —
+   right for rent, wrong for a €200 grocery allowance spent across a dozen
+   trips. An envelope is instead a per-period allowance that every expense in
+   that category draws down, so partial spending is the normal case.
+   ========================================================================= */
+
+/** Only categories carrying an amount are envelopes; the rest are untouched. */
+function budgetList(){
+  return CATS.expense
+    .filter(c => (state.budgets[c.id] || 0) > 0)
+    .map(c => ({ cat:c, planned: state.budgets[c.id] }));
+}
+
+function envSpent(catId, p){
+  let spent = 0;
+  periodTxns(p).forEach(t => {
+    if (t.type === "expense" && t.category === catId && t.status === "done") spent += t.amount;
+  });
+  return spent;
+}
+
+/** How far through the period we are — 0 before it starts, 1 once it's over. */
+function periodProgress(p){
+  const start = new Date(periodStart(p) + "T00:00:00");
+  const end = new Date(periodEnd(p) + "T23:59:59");
+  const now = Date.now();
+  if (now <= start.getTime()) return 0;
+  if (now >= end.getTime()) return 1;
+  return (now - start.getTime()) / (end.getTime() - start.getTime());
+}
+
+function envColour(spent, planned, pace){
+  if (spent > planned) return "var(--health-red)";
+  const used = planned > 0 ? spent / planned : 0;
+  /* ahead of the even-spend line by a wide margin is worth flagging early */
+  if (used > pace + 0.25) return "var(--health-orange)";
+  if (used > 0.9) return "var(--health-yellow)";
+  return "var(--health-green)";
+}
+
+function renderBudgets(){
+  const rows = budgetList();
+  const card = $("#budgetCard");
+  const empty = $("#budgetEmpty");
+
+  if (!rows.length){
+    card.hidden = true;
+    empty.hidden = false;
+    return;
+  }
+  card.hidden = false;
+  empty.hidden = true;
+
+  const dark = isDark();
+  const pace = periodProgress(view);
+  const host = $("#budgetRows");
+  host.innerHTML = "";
+
+  let totPlanned = 0, totSpent = 0;
+
+  rows.forEach(({ cat, planned }) => {
+    const spent = envSpent(cat.id, view);
+    const left = planned - spent;
+    totPlanned += planned; totSpent += spent;
+
+    const row = el("button", "envrow");
+    row.type = "button";
+
+    const top = el("div", "env-top");
+    const ic = el("div", "env-ic");
+    ic.innerHTML = iconSvg(cat.id, 14);
+    ic.style.background = tint(cat.h, dark);
+    ic.style.color = tintInk(cat.h, dark);
+    top.appendChild(ic);
+    top.appendChild(el("div", "env-n", cat.n));
+
+    const leftEl = el("div", "env-left", left >= 0 ? fmt(left) + " left" : fmt(-left) + " over");
+    leftEl.style.color = left >= 0 ? "var(--ink-2)" : "var(--health-red)";
+    top.appendChild(leftEl);
+    row.appendChild(top);
+
+    const track = el("div", "env-track");
+    const fill = el("i");
+    const pct = planned > 0 ? Math.min(100, Math.round(spent / planned * 100)) : 0;
+    fill.style.width = pct + "%";
+    fill.style.background = envColour(spent, planned, pace);
+    track.appendChild(fill);
+    if (pace > 0 && pace < 1){
+      const mark = el("div", "env-pace");
+      mark.style.left = (pace * 100) + "%";
+      mark.title = "Where an even spend would be today";
+      track.appendChild(mark);
+    }
+    row.appendChild(track);
+
+    row.appendChild(el("div", "env-sub", fmt(spent) + " of " + fmt(planned) + " · " + pct + "%"));
+    row.setAttribute("aria-label", cat.n + ", " + pct + "% used");
+    row.addEventListener("click", () => openEnvelope(cat.id));
+    host.appendChild(row);
+  });
+
+  const leftAll = totPlanned - totSpent;
+  $("#budgetFoot").textContent =
+    fmt(totSpent) + " of " + fmt(totPlanned) + " used · " +
+    (leftAll >= 0 ? fmt(leftAll) + " left" : fmt(-leftAll) + " over") +
+    " · " + Math.round(pace * 100) + "% through the period";
+}
+
+/* ---------- envelope detail ---------- */
+let envCat = null;
+
+function openEnvelope(catId){
+  envCat = catId;
+  const cat = catOf(catId);
+  const planned = state.budgets[catId] || 0;
+  const spent = envSpent(catId, view);
+  const left = planned - spent;
+
+  $("#envTitle").textContent = cat.n;
+  $("#envSummary").textContent = fmt(spent) + " of " + fmt(planned) + " used";
+  const leftEl = $("#envLeft");
+  leftEl.textContent = left >= 0 ? fmt(left) + " left" : fmt(-left) + " over";
+  leftEl.style.color = left >= 0 ? "var(--accent)" : "var(--health-red)";
+
+  const host = $("#envSpends");
+  host.innerHTML = "";
+  const spends = periodTxns(view)
+    .filter(t => t.type === "expense" && t.category === catId && t.status === "done")
+    .sort((a, b) => a.date < b.date ? 1 : -1);
+
+  if (!spends.length){
+    host.appendChild(el("div", "note", "Nothing spent from this budget yet this period."));
+  } else {
+    spends.forEach(t => {
+      const r = el("div", "spendrow");
+      r.appendChild(el("span", "sp-d", dayTitle(t.date)));
+      r.appendChild(el("span", "sp-n", t.note || cat.n));
+      r.appendChild(el("span", "sp-a", fmt(t.amount)));
+      host.appendChild(r);
+    });
+  }
+
+  $("#envAmt").value = "";
+  $("#envNote").value = "";
+  sheetOpen("#shEnv");
+}
+
+function envQuickAdd(){
+  if (!envCat) return;
+  const cents = Math.abs(parseAmount($("#envAmt").value) || 0);
+  if (!cents){ toast("Enter an amount"); return; }
+  userTouched();
+  state.txns.push({
+    id: uid(), type:"expense", amount: cents, category: envCat,
+    note: $("#envNote").value.trim(), date: todayISO(), status:"done"
+  });
+  save(); render();
+  openEnvelope(envCat);          /* refresh the sheet in place */
+  toast("Added " + fmt(cents) + " to " + catOf(envCat).n);
+}
+$("#envAdd").addEventListener("click", envQuickAdd);
+$("#envAmt").addEventListener("keydown", e => { if (e.key === "Enter") envQuickAdd(); });
+$("#envNote").addEventListener("keydown", e => { if (e.key === "Enter") envQuickAdd(); });
+
+/* ---------- budget editor ---------- */
+function openBudgetEditor(){
+  const dark = isDark();
+  const host = $("#budRows");
+  host.innerHTML = "";
+  CATS.expense.forEach(c => {
+    const row = el("div", "budrow");
+    const ic = el("div", "br-ic");
+    ic.innerHTML = iconSvg(c.id, 15);
+    ic.style.background = tint(c.h, dark);
+    ic.style.color = tintInk(c.h, dark);
+    row.appendChild(ic);
+    row.appendChild(el("div", "br-n", c.n));
+
+    const inp = el("input", "inp br-a");
+    inp.type = "text";
+    inp.inputMode = "decimal";
+    inp.placeholder = "—";
+    inp.dataset.cat = c.id;
+    const cur = state.budgets[c.id] || 0;
+    inp.value = cur ? (cur / 100).toFixed(2).replace(".", ",") : "";
+    inp.setAttribute("aria-label", "Budget for " + c.n);
+    row.appendChild(inp);
+    host.appendChild(row);
+  });
+  sheetOpen("#shBudget");
+}
+$("#budgetEdit").addEventListener("click", openBudgetEditor);
+$("#budgetStart").addEventListener("click", openBudgetEditor);
+
+$("#budSave").addEventListener("click", () => {
+  const next = {};
+  $$("#budRows .br-a").forEach(inp => {
+    const cents = Math.abs(parseAmount(inp.value) || 0);
+    if (cents > 0) next[inp.dataset.cat] = cents;
+  });
+  state.budgets = next;
+  save(); render(); sheetClose();
+  const n = Object.keys(next).length;
+  toast(n ? n + " budget" + (n === 1 ? "" : "s") + " saved" : "Budgets cleared");
+});
 
 /* =========================================================================
    ABOUT — the deployed version, and what this device is actually running.
@@ -2163,6 +2538,9 @@ function renderBalanceSettings(){
  * The misc *buffer* is what income is left once fixed and grocery plans are
  * covered, so misc actual can be compared against the headroom it eats into.
  */
+/* the Groceries chart covers the whole food family, not just the legacy id */
+const GROCERY_CATS = ["groceries", "groceries_de", "groceries_in", "nonveg"];
+
 function periodStats(txns){
   let income = 0, plannedExp = 0, actualExp = 0;
   let fixedPlanned = 0, fixedActual = 0;
@@ -2176,7 +2554,7 @@ function periodStats(txns){
     plannedExp += t.amount;
     if (done) actualExp += t.amount;
 
-    if (t.category === "groceries"){
+    if (GROCERY_CATS.indexOf(t.category) > -1){
       grocPlanned += t.amount;
       if (done) grocActual += t.amount;
     } else if (t.ruleId){
@@ -2915,7 +3293,8 @@ $("#doRestore").addEventListener("click", () => {
       v:1, txns:p.txns,
       rules: Array.isArray(p.rules) ? p.rules : [],
       skips: Array.isArray(p.skips) ? p.skips : [],
-      shop: normaliseShop(p.shop)
+      shop: normaliseShop(p.shop),
+      budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {}
     };
     materialise(); save(); render(); renderShop(); sheetClose();
     toast("Restored " + state.txns.length + " entries");
@@ -2925,7 +3304,7 @@ $("#doRestore").addEventListener("click", () => {
 });
 $("#wipe").addEventListener("click", function(){
   if (this.dataset.armed){
-    state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null) };
+    state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {} };
     save(); render(); sheetClose();
     delete this.dataset.armed;
     this.textContent = "Delete all entries";
@@ -2941,7 +3320,7 @@ $("#wipe").addEventListener("click", function(){
 });
 
 $("#clearDemo").addEventListener("click", () => {
-  state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null) };
+  state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {} };
   view = periodOf(todayISO());
   save(); render(); renderShop();
   toast("Cleared — the book is yours now");
@@ -2955,6 +3334,8 @@ $("#clearDemo").addEventListener("click", () => {
 let store = "de";
 const STORE_LABEL = { de:"German stores", in:"Indian stores" };
 const STORE_SHORT = { de:"DE", in:"IN" };
+/* so a shop lands in the matching grocery budget rather than one lump category */
+const STORE_CAT = { de:"groceries_de", in:"groceries_in" };
 
 /** Tap-to-add staples, so a shopping list can be built without typing. */
 const CATALOG = {
@@ -3122,7 +3503,7 @@ $("#purchSave").addEventListener("click", () => {
   } else if (total > 0){
     userTouched();
     const t = {
-      id: uid(), type:"expense", amount: total, category:"groceries",
+      id: uid(), type:"expense", amount: total, category: STORE_CAT[h.store] || "groceries",
       note: (STORE_LABEL[h.store] || "").replace(" stores", "") + " shopping",
       date: h.date, status:"done"
     };
@@ -3345,7 +3726,7 @@ $("#shopDone").addEventListener("click", () => {
   if ($("#shopLogExpense").checked && total > 0){
     userTouched();
     const t = {
-      id: uid(), type:"expense", amount: total, category:"groceries",
+      id: uid(), type:"expense", amount: total, category: STORE_CAT[store] || "groceries",
       note: STORE_LABEL[store].replace(" stores", "") + " shopping", date: date, status:"done"
     };
     state.txns.push(t);
@@ -3822,7 +4203,8 @@ async function ghPullNow(){
       v:1, txns:p.txns,
       rules: Array.isArray(p.rules) ? p.rules : [],
       skips: Array.isArray(p.skips) ? p.skips : [],
-      shop: normaliseShop(p.shop)
+      shop: normaliseShop(p.shop),
+      budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {}
     };
     if (p.demo) state.demo = true;
     materialise();
