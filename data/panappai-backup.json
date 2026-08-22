@@ -788,6 +788,15 @@
       "date": "2027-08-20",
       "status": "planned",
       "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "d7096dh083xq",
+      "type": "expense",
+      "amount": 7000,
+      "category": "cardpay",
+      "note": "",
+      "date": "2026-08-15",
+      "status": "done"
     }
   ],
   "rules": [
