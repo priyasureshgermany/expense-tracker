@@ -38,16 +38,6 @@
       "note": "German shopping",
       "date": "2026-08-22",
       "status": "done"
-    },
-    {
-      "id": "fgainp7wtsqz",
-      "type": "income",
-      "amount": 51800,
-      "category": "kindergeld",
-      "note": "For Hasini and Shakthi",
-      "date": "2026-08-20",
-      "status": "done",
-      "ruleId": "ri8fqhdptsqx"
     }
   ],
   "rules": [],
@@ -56,7 +46,8 @@
     "t5o7gvqyobpm|2026-08-30",
     "wj1x5pojobpm|2026-08-27",
     "9xfm5cjdobpm|2026-08-20",
-    "sjte806yobpm|2026-08-25"
+    "sjte806yobpm|2026-08-25",
+    "ri8fqhdptsqx|2026-08-20"
   ],
   "shop": {
     "lists": {
