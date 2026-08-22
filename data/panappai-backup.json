@@ -1088,16 +1088,6 @@
       "ruleId": "0oe9xoy9ijf4"
     },
     {
-      "id": "thdzbhuzjidn",
-      "type": "expense",
-      "amount": 2160,
-      "category": "nonveg",
-      "note": "Fish",
-      "date": "2026-08-17",
-      "status": "done",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
       "id": "r5qykp54jidn",
       "type": "expense",
       "amount": 10000,
@@ -2653,7 +2643,8 @@
     "9trvq5n4z3vo|2026-08-22",
     "b687bcbvxt8c|2026-08-22",
     "5q98aay2rqyf|2026-09-02",
-    "b687bcbvxt8c|2026-09-05"
+    "b687bcbvxt8c|2026-09-05",
+    "8mofd0hyjidm|2026-08-17"
   ],
   "shop": {
     "lists": {
