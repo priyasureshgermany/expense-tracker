@@ -2433,6 +2433,15 @@
       "note": "Hahnchen",
       "date": "2026-08-17",
       "status": "done"
+    },
+    {
+      "id": "ups0napgyzux",
+      "type": "expense",
+      "amount": 5400,
+      "category": "family",
+      "note": "Viswanathan & sons Movie - Cinestar",
+      "date": "2026-08-19",
+      "status": "done"
     }
   ],
   "rules": [
