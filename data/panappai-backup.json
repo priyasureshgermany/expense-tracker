@@ -366,16 +366,6 @@
       "ruleId": "sjte806yobpm"
     },
     {
-      "id": "aw6y64g9obpn",
-      "type": "expense",
-      "amount": 9800,
-      "category": "utilities",
-      "note": "Stadtwerke gas",
-      "date": "2026-08-27",
-      "status": "planned",
-      "ruleId": "wj1x5pojobpm"
-    },
-    {
       "id": "yx2lkzorobpn",
       "type": "expense",
       "amount": 9800,
@@ -759,7 +749,8 @@
   ],
   "skips": [
     "07mh5egsobpm|2026-09-03",
-    "t5o7gvqyobpm|2026-08-30"
+    "t5o7gvqyobpm|2026-08-30",
+    "wj1x5pojobpm|2026-08-27"
   ],
   "shop": {
     "lists": {
