@@ -2478,6 +2478,15 @@
       "note": "Jaffna",
       "date": "2026-08-21",
       "status": "done"
+    },
+    {
+      "id": "3adgnbe72ztv",
+      "type": "expense",
+      "amount": 929,
+      "category": "groceries_in",
+      "note": "Spice land",
+      "date": "2026-08-21",
+      "status": "done"
     }
   ],
   "rules": [
