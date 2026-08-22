@@ -498,6 +498,18 @@ html.amounts-shown #btnEye{color:var(--accent)}
 .histrow:hover{border-color:var(--accent);background:var(--surface-2)}
 .histrow:active{transform:scale(.995)}
 
+/* ---------- About ---------- */
+.aboutbox{
+  background:var(--surface-2);border-radius:var(--r-md);
+  padding:4px 13px;border-left:3px solid var(--accent);
+}
+.ab-row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--ink-3);
+}
+.ab-row:last-child{border-bottom:none}
+.ab-row b{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600}
+
 /* ---------- Purchase detail ---------- */
 .purch-meta{font-size:12.5px;color:var(--ink-3);margin-bottom:12px}
 .purchlist{display:flex;flex-direction:column}
@@ -1530,6 +1542,20 @@ html.locked #lockScreen::before{
       Data lives in this browser on this device by default. Turn on GitHub sync above to also
       keep a backup copy in your repo, or use the backup box to move data to another device by hand.
     </div>
+
+    <div class="field" style="margin-top:20px">
+      <label>About</label>
+      <div class="aboutbox">
+        <div class="ab-row"><span>பணப்பை</span><b id="abName">Expense tracker</b></div>
+        <div class="ab-row"><span>Version</span><b id="abVersion">—</b></div>
+        <div class="ab-row"><span>Deployed</span><b id="abBuilt">—</b></div>
+        <div class="ab-row"><span>Running</span><b id="abRunning">—</b></div>
+      </div>
+      <div class="note" style="margin-top:6px">
+        "Running" is the copy this device has cached. If it lags behind the version above,
+        close the app fully and reopen it to pick up the newer build.
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1539,6 +1565,11 @@ html.locked #lockScreen::before{
 /* =========================================================================
    பணப்பை — offline euro expense tracker
    ========================================================================= */
+
+/* Both lines are rewritten by tools/bump-version.mjs on every release —
+   edit the scheme there, not here. */
+const APP_VERSION = "1.0.0";
+const APP_BUILT = "2026-08-22";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -1576,12 +1607,13 @@ const CATS = {
     {id:"other",     n:"Other",      h:210}
   ],
   income: [
-    {id:"salary",    n:"Salary",    h:152},
-    {id:"freelance", n:"Freelance", h:196},
-    {id:"refund",    n:"Refund",    h:44},
-    {id:"interest",  n:"Interest",  h:255},
-    {id:"gift",      n:"Gift",      h:310},
-    {id:"other_in",  n:"Other",     h:210}
+    {id:"salary",     n:"Salary",      h:152},
+    {id:"kindergeld", n:"Kindergeld",  h:96},
+    {id:"freelance",  n:"Freelance",   h:196},
+    {id:"refund",     n:"Refund",      h:44},
+    {id:"interest",   n:"Interest",    h:255},
+    {id:"gift",       n:"Gift",        h:310},
+    {id:"other_in",   n:"Other",       h:210}
   ]
 };
 const CAT_BY_ID = {};
@@ -1618,6 +1650,7 @@ const ICON = {
   toindia:'<path d="M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/>',
   other:'<circle cx="5.6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.4" cy="12" r="1.3"/>',
   salary:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 10v4M18 10v4"/>',
+  kindergeld:'<circle cx="8.5" cy="7.5" r="2.8"/><path d="M3.5 20a5 5 0 0110 0"/><circle cx="17" cy="10" r="2.2"/><path d="M13.6 20a3.6 3.6 0 017.2 0"/>',
   freelance:'<rect x="2.5" y="7" width="19" height="13" rx="2.5"/><path d="M8.5 7V5.5a2 2 0 012-2h3a2 2 0 012 2V7"/><path d="M2.5 12.6h19"/>',
   refund:'<path d="M4 9h11a5.5 5.5 0 010 11H8.5"/><path d="M8.5 4.5L4 9l4.5 4.5"/>',
   interest:'<path d="M3 16.5l6-6 4 4 8-8"/><path d="M15.6 6.5H21V12"/>',
@@ -2038,6 +2071,29 @@ function render(){
   renderMonthStrip();
   $("#demoBar").hidden = !state.demo;
   $$("#viewEntries .seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.f === filter)));
+}
+
+/* =========================================================================
+   ABOUT — the deployed version, and what this device is actually running.
+   ========================================================================= */
+function renderAbout(){
+  $("#abVersion").textContent = APP_VERSION;
+  $("#abBuilt").textContent = APP_BUILT;
+
+  /* The served copy may be newer than the cached one this device booted from. */
+  const running = $("#abRunning");
+  running.textContent = APP_VERSION + " (cached)";
+  fetch("index.html?v=" + Date.now(), { cache: "no-store" })
+    .then(r => r.ok ? r.text() : null)
+    .then(t => {
+      if (!t) return;
+      const live = (t.match(/const APP_VERSION = "([^"]+)"/) || [])[1];
+      if (!live) return;
+      running.textContent = live === APP_VERSION
+        ? APP_VERSION + " · up to date"
+        : APP_VERSION + " · " + live + " available";
+    })
+    .catch(() => {});
 }
 
 /* =========================================================================
@@ -2835,6 +2891,7 @@ $("#btnMenu").addEventListener("click", () => {
   renderLockSettings();
   renderBalanceSettings();
   renderGhSettings();
+  renderAbout();
   sheetOpen("#shSet");
 });
 $("#copyBackup").addEventListener("click", async () => {

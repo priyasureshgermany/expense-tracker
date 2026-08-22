@@ -1,0 +1,26 @@
+#!/bin/sh
+# Bumps the app version on every code commit, so a release can't ship
+# without its version moving. Install with: tools/install-hooks.sh
+#
+# Skipped for:
+#   - rebases and merges, where commits are replays rather than new releases
+#   - commits that only touch data/ (the app's own backup pushes) or the
+#     version files themselves
+
+if [ -d "$(git rev-parse --git-path rebase-merge 2>/dev/null)" ] ||
+   [ -d "$(git rev-parse --git-path rebase-apply 2>/dev/null)" ] ||
+   [ -f "$(git rev-parse --git-path MERGE_HEAD 2>/dev/null)" ]; then
+  exit 0
+fi
+
+staged=$(git diff --cached --name-only)
+[ -z "$staged" ] && exit 0
+
+# anything staged that isn't data/, version.json or tools/ counts as a release
+if ! echo "$staged" | grep -qvE '^(data/|version\.json$|tools/)'; then
+  exit 0
+fi
+
+node tools/bump-version.mjs || exit 1
+git add version.json index.html sw.js
+exit 0

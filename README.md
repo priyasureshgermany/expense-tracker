@@ -167,3 +167,34 @@ any static server (GitHub Pages, Netlify, `python -m http.server`, etc.) to get
 the install prompt.
 
 Run the tests with `node test.mjs` (needs Playwright installed).
+
+## Versioning
+
+**Settings → About** shows the deployed version, when it was deployed, and
+whether this device is running the latest build or a cached older one.
+
+Versions start at `1.0.0` and move on every release:
+
+| Part | Bumped when |
+|---|---|
+| **major** | first release in a new calendar month |
+| **middle** | first release made on a Monday |
+| **minor** | every other release |
+
+The higher rule wins and resets the parts below it, so a Monday that also opens
+a new month bumps major only. `version.json` records the date of the last
+release, which is what makes "first of the month" and "first on a Monday"
+decidable.
+
+`tools/bump-version.mjs` applies this and rewrites `APP_VERSION` / `APP_BUILT`
+in `index.html` plus the service worker's cache name, so every release also
+invalidates the old cache. A pre-commit hook runs it automatically — install it
+once per clone:
+
+```bash
+sh tools/install-hooks.sh
+```
+
+The hook skips rebases and merges, and commits that only touch `data/` (the
+app's own backup pushes). Use `node tools/bump-version.mjs --dry` to see what
+the next version would be without writing anything.
