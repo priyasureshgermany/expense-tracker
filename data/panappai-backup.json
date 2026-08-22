@@ -2,7 +2,7 @@
   "v": 1,
   "txns": [
     {
-      "id": "f7hfs3ayobpm",
+      "id": "qa2ub9uyiyj6",
       "type": "expense",
       "amount": 6742,
       "category": "groceries",
@@ -11,7 +11,7 @@
       "status": "done"
     },
     {
-      "id": "4tpo772mobpm",
+      "id": "h3ssfk6iiyj6",
       "type": "expense",
       "amount": 2390,
       "category": "dining",
@@ -20,7 +20,7 @@
       "status": "done"
     },
     {
-      "id": "47zdmx56obpm",
+      "id": "pf92mhceiyj6",
       "type": "expense",
       "amount": 5500,
       "category": "transport",
@@ -29,7 +29,7 @@
       "status": "done"
     },
     {
-      "id": "u4hz8dfoobpm",
+      "id": "qfmp2k4hiyj6",
       "type": "expense",
       "amount": 8915,
       "category": "groceries",
@@ -38,7 +38,7 @@
       "status": "done"
     },
     {
-      "id": "4mdabp8dobpm",
+      "id": "lrxwh7q6iyj6",
       "type": "expense",
       "amount": 3499,
       "category": "shopping",
@@ -47,548 +47,678 @@
       "status": "done"
     },
     {
-      "id": "l1j7da0tobpm",
+      "id": "3c0t49w5iyj6",
       "type": "income",
       "amount": 4500,
       "category": "refund",
       "note": "Amazon return refund",
       "date": "2026-08-21",
-      "status": "planned"
+      "status": "done"
     },
     {
-      "id": "4y4ivvweobpm",
+      "id": "c7z9k240iyj6",
       "type": "income",
-      "amount": 550000,
+      "amount": 320000,
       "category": "salary",
       "note": "Monthly salary",
       "date": "2026-08-15",
       "status": "done",
-      "ruleId": "euz8j41uobpm"
+      "ruleId": "l25x7unqiyj6"
     },
     {
-      "id": "hu85vkyiobpm",
+      "id": "m7cmeu8liyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2026-09-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "e2byp0eliyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2026-10-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "sac03bmdiyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2026-11-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "13t1m4s9iyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2026-12-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "jgqe7s2hiyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2027-01-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "d84gqmwjiyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2027-02-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "fqmj7inuiyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2027-03-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "6ye5bzygiyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2027-04-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "utajfwmliyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2027-05-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "ayllslf0iyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2027-06-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "8j9wqb2wiyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2027-07-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "xe05xswaiyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "date": "2027-08-15",
+      "status": "planned",
+      "ruleId": "l25x7unqiyj6"
+    },
+    {
+      "id": "l9z6lhoaiyj6",
       "type": "expense",
-      "amount": 128000,
+      "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2026-08-03",
+      "date": "2026-08-17",
       "status": "done",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "mrkceckrobpm",
+      "id": "eefdycc4iyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2026-09-03",
+      "date": "2026-09-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "poqbf5d1obpm",
+      "id": "3br44hc4iyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2026-10-03",
+      "date": "2026-10-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "06zg5dg3obpm",
+      "id": "qtssmddgiyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2026-11-03",
+      "date": "2026-11-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "pckdmu47obpm",
+      "id": "9l9qsm8aiyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2026-12-03",
+      "date": "2026-12-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "5k1ur00xobpm",
+      "id": "28gaheuaiyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2027-01-03",
+      "date": "2027-01-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "z12x5oxgobpm",
+      "id": "9uil1p76iyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2027-02-03",
+      "date": "2027-02-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "x9wg8ef3obpm",
+      "id": "wqhu1lmniyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2027-03-03",
+      "date": "2027-03-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "yj8qmkgjobpm",
+      "id": "u5mq6681iyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2027-04-03",
+      "date": "2027-04-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "wsfibyhxobpm",
+      "id": "3c4ddur5iyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2027-05-03",
+      "date": "2027-05-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "62p43bivobpm",
+      "id": "50nopi1eiyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2027-06-03",
+      "date": "2027-06-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "u6ts1d08obpm",
+      "id": "1o76eu2eiyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2027-07-03",
+      "date": "2027-07-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "rw07xwroobpm",
+      "id": "q00kpna7iyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
-      "date": "2027-08-03",
+      "date": "2027-08-17",
       "status": "planned",
-      "ruleId": "07mh5egsobpm"
+      "ruleId": "v7kgvq04iyj6"
     },
     {
-      "id": "x3r0kac8obpm",
+      "id": "rqcnqhndiyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2026-08-20",
       "status": "done",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "ftyibpuqobpm",
+      "id": "he6mkuu6iyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2026-09-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "rkt1z8epobpm",
+      "id": "ln5mjdq0iyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2026-10-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "c2t6xtalobpn",
+      "id": "ia19vbpqiyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2026-11-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "dtz408d1obpn",
+      "id": "rg9nhrosiyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2026-12-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "qbkxuobfobpn",
+      "id": "8yshmekuiyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2027-01-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "ujox52gcobpn",
+      "id": "f0ciakaqiyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2027-02-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "cejofo3yobpn",
+      "id": "3ytzx7ubiyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2027-03-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "ss3aeufuobpn",
+      "id": "fyot4faaiyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2027-04-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "yy9xpb23obpn",
+      "id": "rqtpapyliyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2027-05-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "j7aupsgwobpn",
+      "id": "vruxl6driyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2027-06-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "dp6n2gooobpn",
+      "id": "f1k6fjmniyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2027-07-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "tudnrwt5obpn",
+      "id": "nqmss9f9iyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
       "note": "Telekom internet",
       "date": "2027-08-20",
       "status": "planned",
-      "ruleId": "9xfm5cjdobpm"
+      "ruleId": "cfxni7auiyj6"
     },
     {
-      "id": "qxnptcllobpn",
+      "id": "kffb15jhiyj6",
       "type": "expense",
       "amount": 21400,
       "category": "insurance",
       "note": "Haftpflicht premium",
       "date": "2026-08-25",
       "status": "planned",
-      "ruleId": "sjte806yobpm"
+      "ruleId": "ty2hwdwliyj6"
     },
     {
-      "id": "a4nee87nobpn",
+      "id": "22ruay2piyj6",
       "type": "expense",
       "amount": 21400,
       "category": "insurance",
       "note": "Haftpflicht premium",
       "date": "2026-11-25",
       "status": "planned",
-      "ruleId": "sjte806yobpm"
+      "ruleId": "ty2hwdwliyj6"
     },
     {
-      "id": "pw0g1j20obpn",
+      "id": "5h0m9s9ciyj6",
       "type": "expense",
       "amount": 21400,
       "category": "insurance",
       "note": "Haftpflicht premium",
       "date": "2027-02-25",
       "status": "planned",
-      "ruleId": "sjte806yobpm"
+      "ruleId": "ty2hwdwliyj6"
     },
     {
-      "id": "kam4u5wxobpn",
+      "id": "4ecqb8zuiyj6",
       "type": "expense",
       "amount": 21400,
       "category": "insurance",
       "note": "Haftpflicht premium",
       "date": "2027-05-25",
       "status": "planned",
-      "ruleId": "sjte806yobpm"
+      "ruleId": "ty2hwdwliyj6"
     },
     {
-      "id": "8xh7u42vobpn",
+      "id": "a92mti2viyj6",
       "type": "expense",
       "amount": 21400,
       "category": "insurance",
       "note": "Haftpflicht premium",
       "date": "2027-08-25",
       "status": "planned",
-      "ruleId": "sjte806yobpm"
+      "ruleId": "ty2hwdwliyj6"
     },
     {
-      "id": "aw6y64g9obpn",
+      "id": "dv0807b2iyj6",
       "type": "expense",
       "amount": 9800,
       "category": "utilities",
       "note": "Stadtwerke gas",
       "date": "2026-08-27",
       "status": "planned",
-      "ruleId": "wj1x5pojobpm"
+      "ruleId": "z32zgcyhiyj6"
     },
     {
-      "id": "yx2lkzorobpn",
+      "id": "xa5ekixuiyj6",
       "type": "expense",
       "amount": 9800,
       "category": "utilities",
       "note": "Stadtwerke gas",
       "date": "2026-10-27",
       "status": "planned",
-      "ruleId": "wj1x5pojobpm"
+      "ruleId": "z32zgcyhiyj6"
     },
     {
-      "id": "3zk3gecfobpn",
+      "id": "kk5yj2ytiyj6",
       "type": "expense",
       "amount": 9800,
       "category": "utilities",
       "note": "Stadtwerke gas",
       "date": "2026-12-27",
       "status": "planned",
-      "ruleId": "wj1x5pojobpm"
+      "ruleId": "z32zgcyhiyj6"
     },
     {
-      "id": "tliltuywobpn",
+      "id": "nbha38s6iyj6",
       "type": "expense",
       "amount": 9800,
       "category": "utilities",
       "note": "Stadtwerke gas",
       "date": "2027-02-27",
       "status": "planned",
-      "ruleId": "wj1x5pojobpm"
+      "ruleId": "z32zgcyhiyj6"
     },
     {
-      "id": "rozlwbs3obpn",
+      "id": "2ylmqhcpiyj6",
       "type": "expense",
       "amount": 9800,
       "category": "utilities",
       "note": "Stadtwerke gas",
       "date": "2027-04-27",
       "status": "planned",
-      "ruleId": "wj1x5pojobpm"
+      "ruleId": "z32zgcyhiyj6"
     },
     {
-      "id": "czsng91eobpn",
+      "id": "fbb3yn79iyj6",
       "type": "expense",
       "amount": 9800,
       "category": "utilities",
       "note": "Stadtwerke gas",
       "date": "2027-06-27",
       "status": "planned",
-      "ruleId": "wj1x5pojobpm"
+      "ruleId": "z32zgcyhiyj6"
     },
     {
-      "id": "0bmgyv4tobpn",
+      "id": "rj6wwrrjiyj6",
       "type": "expense",
       "amount": 9800,
       "category": "utilities",
       "note": "Stadtwerke gas",
       "date": "2027-08-27",
       "status": "planned",
-      "ruleId": "wj1x5pojobpm"
+      "ruleId": "z32zgcyhiyj6"
     },
     {
-      "id": "csjpsnttobpn",
+      "id": "u1fsxjp4iyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2026-08-30",
-      "status": "done",
-      "ruleId": "t5o7gvqyobpm"
+      "status": "planned",
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "7yrflme6obpn",
+      "id": "ad3nemc2iyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2026-09-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "v9llwj5fobpn",
+      "id": "9nmlt7viiyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2026-10-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "q8rr6w7oobpn",
+      "id": "epfwndxhiyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2026-11-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "gvhdgg26obpn",
+      "id": "inqn2608iyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2026-12-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "tsbmh8xnobpn",
+      "id": "cu8pfdctiyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2027-01-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "6yzzji1gobpn",
+      "id": "4uacx4jtiyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2027-02-28",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "8cg7o2dfobpn",
+      "id": "hnecsy11iyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2027-03-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "9yibzdkgobpn",
+      "id": "k5sbuto1iyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2027-04-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "i7j95junobpn",
+      "id": "oo3eyqdziyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2027-05-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "ojxw1wafobpn",
+      "id": "uo6kkda8iyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2027-06-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "u1628e0gobpn",
+      "id": "5b249ng5iyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2027-07-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     },
     {
-      "id": "q2hub20eobpn",
+      "id": "1qxm9h7wiyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
       "note": "Netflix",
       "date": "2027-08-30",
       "status": "planned",
-      "ruleId": "t5o7gvqyobpm"
+      "ruleId": "xj4ftecziyj6"
     }
   ],
   "rules": [
     {
-      "id": "07mh5egsobpm",
+      "id": "l25x7unqiyj6",
+      "type": "income",
+      "amount": 320000,
+      "category": "salary",
+      "note": "Monthly salary",
+      "freq": "monthly",
+      "anchor": "2026-08-15",
+      "active": true
+    },
+    {
+      "id": "v7kgvq04iyj6",
       "type": "expense",
       "amount": 118000,
       "category": "rent",
       "note": "Rent — Wohnung",
       "freq": "monthly",
-      "anchor": "2026-08-03",
+      "anchor": "2026-08-17",
       "active": true
     },
     {
-      "id": "9xfm5cjdobpm",
+      "id": "cfxni7auiyj6",
       "type": "expense",
       "amount": 4499,
       "category": "utilities",
@@ -598,7 +728,7 @@
       "active": true
     },
     {
-      "id": "sjte806yobpm",
+      "id": "ty2hwdwliyj6",
       "type": "expense",
       "amount": 21400,
       "category": "insurance",
@@ -608,7 +738,7 @@
       "active": true
     },
     {
-      "id": "wj1x5pojobpm",
+      "id": "z32zgcyhiyj6",
       "type": "expense",
       "amount": 9800,
       "category": "utilities",
@@ -618,7 +748,7 @@
       "active": true
     },
     {
-      "id": "t5o7gvqyobpm",
+      "id": "xj4ftecziyj6",
       "type": "expense",
       "amount": 1299,
       "category": "subs",
@@ -633,99 +763,15 @@
     "lists": {
       "de": [
         {
-          "id": "2by8d8rppuxb",
-          "name": "Äpfel",
-          "price": 0,
-          "done": true
-        },
-        {
-          "id": "rf0gqou8pvb2",
-          "name": "Bananen",
-          "price": 0,
-          "done": true
-        },
-        {
-          "id": "g88a0za5pvpe",
-          "name": "Tomaten",
-          "price": 0,
-          "done": true
-        },
-        {
-          "id": "o4fd9mrtpwe0",
-          "name": "Kartoffeln",
-          "price": 0,
-          "done": true
-        },
-        {
-          "id": "vpochayxpwjw",
-          "name": "Zwiebeln",
-          "price": 0,
-          "done": true
-        },
-        {
-          "id": "molenjtfpwwh",
-          "name": "Gurke",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "oxfh2imspxk4",
-          "name": "Trauben",
+          "id": "mjwaoc0ts72o",
+          "name": "Tee",
           "price": 0,
           "done": true
         }
       ],
       "in": []
     },
-    "history": [
-      {
-        "id": "ovstxx6cvpew",
-        "store": "de",
-        "date": "2026-08-22",
-        "total": 0,
-        "items": [
-          {
-            "name": "Milch",
-            "price": 0
-          },
-          {
-            "name": "Eier",
-            "price": 0
-          },
-          {
-            "name": "Joghurt",
-            "price": 0
-          },
-          {
-            "name": "Tomaten",
-            "price": 0
-          },
-          {
-            "name": "Zwiebeln",
-            "price": 0
-          },
-          {
-            "name": "Zitronen",
-            "price": 0
-          },
-          {
-            "name": "Hähnchenbrust",
-            "price": 0
-          },
-          {
-            "name": "Nudeln",
-            "price": 0
-          },
-          {
-            "name": "Zahnpasta",
-            "price": 0
-          },
-          {
-            "name": "Öl",
-            "price": 0
-          }
-        ]
-      }
-    ]
-  }
+    "history": []
+  },
+  "demo": true
 }
