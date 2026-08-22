@@ -8,15 +8,19 @@ Open `index.html` in any browser, or host the file anywhere static.
 ## What it does
 
 - **Dashboard first.** The home screen shows the month's net, income/expenses,
-  a bucket that visually drains as you spend, and a colour-coded strip of
-  surrounding months. Tap **Entries** (next to Dashboard) to switch to the
+  a purse that visually empties as you spend, and a colour-coded strip of
+  surrounding months. Tap **Tracker** (next to Dashboard) to switch to the
   date-by-date list of income and expenses — the two views share the same
   month navigation and Add/Import controls.
-- **The bucket.** "Income left in the bucket" fills with this month's income
-  and drains as expenses are actually paid (not merely planned), with a
-  little coin-drip animation while it's draining. Its colour follows the same
-  health band as the monthly strip below.
-- **Monthly health colours**, on the dashboard's monthly strip and the bucket,
+- **The purse.** "Income left in the purse" fills with this month's income
+  and empties as expenses are actually paid (not merely planned), with coins
+  spilling out of its drawstring neck while it's draining. Its colour follows
+  the same health band as the monthly strip below.
+- **A more colourful, tactile feel** throughout — richer category colours,
+  gradient buttons, a count-up animation on the headline figures, a small
+  confetti burst when you mark something paid, and a soft fade between the
+  Dashboard and Tracker views.
+- **Monthly health colours**, on the dashboard's monthly strip and the purse,
   based on (income − expenses) ÷ income for that month:
   - 🔴 **Red** — expenses exceed income
   - 🟠 **Orange** — a thin buffer, under 5% surplus
@@ -85,7 +89,7 @@ API for personal accounts, and a static page cannot hold credentials safely.
 | File | Purpose |
 |---|---|
 | `index.html` | The whole app — open this |
-| `kassenbuch.html` | An older, simpler body-fragment form of the app (used for hosted publishing elsewhere) — it has the mobile input-zoom fix but **not** the dashboard/bucket/health-colour/lock/GitHub-sync features, since those need a `<head>` (PWA tags, app-lock pre-paint script) that a body fragment doesn't have |
+| `kassenbuch.html` | An older, simpler body-fragment form of the app (used for hosted publishing elsewhere) — it has the mobile input-zoom fix but **not** the dashboard/purse/health-colour/lock/GitHub-sync features, since those need a `<head>` (PWA tags, app-lock pre-paint script) that a body fragment doesn't have |
 | `manifest.webmanifest` | PWA manifest — name, icons, standalone display |
 | `sw.js` | Service worker — caches the app shell for offline / installed use |
 | `icons/` | App icons (192, 512, maskable, apple-touch) |
