@@ -28,9 +28,150 @@
       "note": "German shopping",
       "date": "2026-08-22",
       "status": "done"
+    },
+    {
+      "id": "xmer8zjjl1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2026-08-15",
+      "status": "done",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "toph5dovl1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2026-09-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "3jdx4ydvl1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2026-10-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "2vfucmlyl1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2026-11-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "jbzl7g4ol1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2026-12-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "79o93pdbl1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-01-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "puaebqx7l1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-02-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "b2secrd2l1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-03-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "4r2uwz5jl1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-04-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "wkruzpcgl1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-05-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "hudfucd0l1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-06-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "121cvm4ul1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-07-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
+    },
+    {
+      "id": "34auitr4l1xk",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-08-15",
+      "status": "planned",
+      "ruleId": "fnnbex1yl1xh"
     }
   ],
-  "rules": [],
+  "rules": [
+    {
+      "id": "fnnbex1yl1xh",
+      "type": "income",
+      "amount": 552000,
+      "category": "salary",
+      "note": "From DB",
+      "freq": "monthly",
+      "anchor": "2026-08-15",
+      "active": true
+    }
+  ],
   "skips": [
     "07mh5egsobpm|2026-09-03",
     "t5o7gvqyobpm|2026-08-30",
