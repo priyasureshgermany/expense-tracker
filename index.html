@@ -3382,8 +3382,11 @@ if ("serviceWorker" in navigator) {
 
   const isStandalone = () =>
     window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-  const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
-  const isSafari = () => /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
+  /* iPadOS reports itself as MacIntel, so touch points are the reliable tell */
+  const isIOS = () =>
+    (/iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isIOSSafari = () => isIOS() && !/crios|fxios|edgios|opt\//i.test(navigator.userAgent);
   const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) || window.matchMedia("(pointer: coarse)").matches;
 
   let dismissed = false;
@@ -3396,8 +3399,13 @@ if ("serviceWorker" in navigator) {
   function show(mode){
     shown = true;
     bar.hidden = false;
-    if (mode === "ios"){
-      text.textContent = 'Tap the Share icon, then "Add to Home Screen".';
+    if (mode === "ios-safari"){
+      text.textContent = 'Tap the Share icon at the bottom, scroll down, then "Add to Home Screen".';
+      btn.textContent = "Got it";
+    } else if (mode === "ios-other"){
+      /* iOS has no install API at all, and only the Share sheet can add to the
+         home screen — the browser's ⋮ menu is the wrong place to send people. */
+      text.textContent = 'On iPhone, open the Share menu and choose "Add to Home Screen". If you can\'t find it, open this page in Safari — it works most reliably there.';
       btn.textContent = "Got it";
     } else if (mode === "manual"){
       text.textContent = 'Open your browser menu and tap "Add to Home screen" or "Install app".';
@@ -3420,7 +3428,8 @@ if ("serviceWorker" in navigator) {
   });
   window.addEventListener("appinstalled", dismiss);
 
-  if (isIOS() && isSafari()) show("ios");
+  /* iOS never fires beforeinstallprompt in any browser, so show its steps at once. */
+  if (isIOS()) show(isIOSSafari() ? "ios-safari" : "ios-other");
   else if (isMobile()){
     /* Many mobile browsers (Samsung Internet, Firefox Android, in-app webviews) never fire
        beforeinstallprompt, or Chrome delays it behind engagement heuristics — fall back to
