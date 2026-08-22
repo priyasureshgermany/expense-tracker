@@ -2,25 +2,6 @@
   "v": 1,
   "txns": [
     {
-      "id": "f7hfs3ayobpm",
-      "type": "expense",
-      "amount": 6742,
-      "category": "groceries",
-      "note": "REWE",
-      "date": "2026-08-13",
-      "status": "planned"
-    },
-    {
-      "id": "hu85vkyiobpm",
-      "type": "expense",
-      "amount": 128000,
-      "category": "rent",
-      "note": "Rent — Wohnung",
-      "date": "2026-08-03",
-      "status": "planned",
-      "ruleId": "07mh5egsobpm"
-    },
-    {
       "id": "fhumwps8em8p",
       "type": "expense",
       "amount": 5400,
@@ -878,7 +859,8 @@
     "9xfm5cjdobpm|2026-08-20",
     "sjte806yobpm|2026-08-25",
     "ri8fqhdptsqx|2026-08-20",
-    "euz8j41uobpm|2026-08-15"
+    "euz8j41uobpm|2026-08-15",
+    "07mh5egsobpm|2026-08-03"
   ],
   "shop": {
     "lists": {
