@@ -11,15 +11,6 @@
       "status": "done"
     },
     {
-      "id": "u4hz8dfoobpm",
-      "type": "expense",
-      "amount": 8915,
-      "category": "groceries",
-      "note": "Edeka weekly shop",
-      "date": "2026-08-18",
-      "status": "done"
-    },
-    {
       "id": "4mdabp8dobpm",
       "type": "expense",
       "amount": 3499,
