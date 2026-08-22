@@ -11,24 +11,6 @@
       "status": "done"
     },
     {
-      "id": "4tpo772mobpm",
-      "type": "expense",
-      "amount": 2390,
-      "category": "dining",
-      "note": "Lunch — Kantine",
-      "date": "2026-08-15",
-      "status": "done"
-    },
-    {
-      "id": "47zdmx56obpm",
-      "type": "expense",
-      "amount": 5500,
-      "category": "transport",
-      "note": "Deutschlandticket",
-      "date": "2026-08-16",
-      "status": "done"
-    },
-    {
       "id": "u4hz8dfoobpm",
       "type": "expense",
       "amount": 8915,
