@@ -2460,6 +2460,15 @@
       "note": "For Amma and Loan",
       "date": "2026-08-21",
       "status": "done"
+    },
+    {
+      "id": "cohnlrnp1g4p",
+      "type": "expense",
+      "amount": 1650,
+      "category": "groceries_in",
+      "note": "",
+      "date": "2026-08-21",
+      "status": "done"
     }
   ],
   "rules": [
