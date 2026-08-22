@@ -436,16 +436,6 @@
       "ruleId": "wj1x5pojobpm"
     },
     {
-      "id": "csjpsnttobpn",
-      "type": "expense",
-      "amount": 1299,
-      "category": "subs",
-      "note": "Netflix",
-      "date": "2026-08-30",
-      "status": "done",
-      "ruleId": "t5o7gvqyobpm"
-    },
-    {
       "id": "7yrflme6obpn",
       "type": "expense",
       "amount": 1299,
@@ -768,7 +758,8 @@
     }
   ],
   "skips": [
-    "07mh5egsobpm|2026-09-03"
+    "07mh5egsobpm|2026-09-03",
+    "t5o7gvqyobpm|2026-08-30"
   ],
   "shop": {
     "lists": {
