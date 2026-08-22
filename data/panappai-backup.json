@@ -11,15 +11,6 @@
       "status": "done"
     },
     {
-      "id": "4mdabp8dobpm",
-      "type": "expense",
-      "amount": 3499,
-      "category": "shopping",
-      "note": "Amazon.de order",
-      "date": "2026-08-19",
-      "status": "done"
-    },
-    {
       "id": "l1j7da0tobpm",
       "type": "income",
       "amount": 4500,
