@@ -1,7 +1,7 @@
 {
-  "name": "Kassenbuch — Expense Tracker",
-  "short_name": "Kassenbuch",
-  "description": "Offline euro expense tracker. Plan and reconcile income and expenses — nothing leaves your device.",
+  "name": "பணப்பை — Expense Tracker",
+  "short_name": "பணப்பை",
+  "description": "Offline-first euro expense tracker. Plan and reconcile income and expenses, with an optional GitHub backup.",
   "start_url": "./index.html",
   "scope": "./",
   "id": "./index.html",

@@ -2,10 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Kassenbuch — Expense Tracker</title>
+<title>பணப்பை — Expense Tracker</title>
+<script>
+/* Applied synchronously, before first paint, so a locked app never flashes its data. */
+try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documentElement.classList.add("locked"); }catch(e){}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@500;600;700&display=swap">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -16,7 +20,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Kassenbuch">
+<meta name="apple-mobile-web-app-title" content="பணப்பை">
 
 <style>
 /* ============================================================
@@ -45,12 +49,14 @@
   --warn:#8A5B10;
   --warn-soft:#FBEEDA;
 
+  --health-red:#A93724; --health-orange:#B4590F; --health-yellow:#8A7A0A; --health-green:#0B6B4B;
+
   --shadow-sm:0 1px 2px rgba(15,25,34,.06), 0 1px 1px rgba(15,25,34,.04);
   --shadow-md:0 4px 16px rgba(15,25,34,.10);
   --shadow-lg:0 -8px 40px rgba(15,25,34,.18);
 
   --r-sm:8px; --r-md:12px; --r-lg:18px; --r-xl:26px;
-  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --sans:"IBM Plex Sans","Noto Sans Tamil",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --shell:512px;
 }
@@ -77,6 +83,8 @@
     --neg-soft:#2E1712;
     --warn:#E5B25B;
     --warn-soft:#2B2110;
+
+    --health-red:#FF7F6B; --health-orange:#F0A25C; --health-yellow:#E5D25B; --health-green:#3FCB92;
 
     --shadow-sm:0 1px 2px rgba(0,0,0,.4);
     --shadow-md:0 4px 16px rgba(0,0,0,.45);
@@ -105,6 +113,8 @@
   --neg-soft:#2E1712;
   --warn:#E5B25B;
   --warn-soft:#2B2110;
+
+  --health-red:#FF7F6B; --health-orange:#F0A25C; --health-yellow:#E5D25B; --health-green:#3FCB92;
 
   --shadow-sm:0 1px 2px rgba(0,0,0,.4);
   --shadow-md:0 4px 16px rgba(0,0,0,.45);
@@ -277,6 +287,79 @@ button{cursor:pointer;background:none;border:none;padding:0}
   display:grid;place-items:center;color:var(--ink-2);border-radius:7px;
 }
 .demobar .db-x:hover{background:color-mix(in srgb, var(--accent) 14%, transparent)}
+
+/* ---------- View toggle (Dashboard / Entries) ---------- */
+.viewtog{
+  display:grid;grid-template-columns:1fr 1fr;gap:3px;
+  margin:12px 14px 0;padding:3px;
+  background:var(--surface-sunk);border-radius:var(--r-md);
+}
+.viewtog button{
+  padding:9px 4px;border-radius:9px;font-size:13px;font-weight:500;
+  color:var(--ink-2);transition:background .18s,color .18s,box-shadow .18s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.viewtog button svg{width:16px;height:16px;flex:none}
+.viewtog button[aria-selected="true"]{
+  background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow-sm);
+}
+
+/* ---------- Bucket + coin animation ---------- */
+.bucketcard{
+  margin:14px 14px 0;padding:15px 16px 16px;
+  background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--line);
+}
+.bucket-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.bucket-t{font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.bucket-v{font-family:var(--mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.bucket-wrap{position:relative;width:104px;margin:10px auto 4px}
+.bucket-svg{display:block;width:100%;height:auto}
+.bucket-outline{fill:none;stroke:var(--ink-3);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.bucket-rim{stroke:var(--ink-2)}
+.bucket-level{
+  fill:var(--health-color, var(--accent));
+  transition:y .6s cubic-bezier(.4,0,.2,1), height .6s cubic-bezier(.4,0,.2,1), fill .4s;
+}
+.coin-drip{
+  position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);
+  display:flex;gap:9px;pointer-events:none;
+}
+.coin-drip[hidden]{display:none}
+.coin{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--warn);
+  box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.18);
+  opacity:0;
+  animation:coinfall 1.7s ease-in infinite;
+}
+.coin:nth-child(2){animation-delay:.55s}
+.coin:nth-child(3){animation-delay:1.1s}
+@keyframes coinfall{
+  0%{transform:translateY(-2px) rotate(0deg);opacity:0}
+  12%{opacity:1}
+  85%{opacity:.9}
+  100%{transform:translateY(38px) rotate(50deg);opacity:0}
+}
+.bucket-sub{margin-top:10px;font-size:12px;color:var(--ink-3);text-align:center}
+
+/* ---------- Monthly health strip ---------- */
+.monthstrip-wrap{margin:16px 14px 0}
+.monthstrip-t{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin-bottom:8px;
+}
+.monthstrip{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.monthstrip::-webkit-scrollbar{display:none}
+.monthchip{
+  flex:none;min-width:64px;padding:9px 4px 8px;border-radius:var(--r-md);
+  background:var(--surface-2);border:1px solid transparent;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  transition:border-color .15s,background .15s;
+}
+.monthchip[data-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.monthchip .mc-m{font-size:11px;font-weight:600;color:var(--ink-2)}
+.monthchip .mc-dot{width:8px;height:8px;border-radius:50%;background:var(--dot-color, var(--ink-3))}
+.monthchip .mc-pct{font-family:var(--mono);font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 
 /* ---------- Segmented ---------- */
 .segwrap{padding:14px 14px 0;background:var(--ground)}
@@ -612,14 +695,66 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ---------- App lock ---------- */
+html.locked .shell{display:none}
+#lockScreen{display:none}
+html.locked #lockScreen{
+  display:flex;position:fixed;inset:0;z-index:500;
+  background:var(--ground);align-items:center;justify-content:center;padding:24px;
+}
+.lock-card{width:100%;max-width:300px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.lock-brand{font-size:20px;font-weight:600;margin-bottom:4px}
+.lock-sub{font-size:13px;color:var(--ink-2);margin-bottom:22px}
+.lock-dots{display:flex;gap:14px;margin-bottom:26px}
+.lock-dots span{
+  width:13px;height:13px;border-radius:50%;background:var(--surface-2);
+  border:1.5px solid var(--line-strong);transition:background .12s,border-color .12s,transform .12s;
+}
+.lock-dots span.filled{background:var(--accent);border-color:var(--accent)}
+.lock-dots.shake{animation:lockshake .4s}
+@keyframes lockshake{
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)}
+  60%{transform:translateX(-6px)} 80%{transform:translateX(6px)}
+}
+.lock-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:240px}
+.lock-pad button{
+  aspect-ratio:1;border-radius:50%;background:var(--surface-2);font-size:19px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;transition:background .12s;
+}
+.lock-pad button:active{background:var(--surface-sunk)}
+.lock-bio{
+  margin-bottom:16px;font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent);
+  padding:10px 16px;border-radius:99px;
+}
+.lock-forgot{margin-top:20px;font-size:12px;color:var(--ink-3);text-decoration:underline}
 </style>
 </head>
 <body>
 
+<div id="lockScreen" role="dialog" aria-modal="true" aria-label="App locked">
+  <div class="lock-card">
+    <div class="lock-brand">பணப்பை</div>
+    <div class="lock-sub" id="lockSub">Enter your PIN</div>
+    <div class="lock-dots" id="lockDots"><span></span><span></span><span></span><span></span></div>
+    <button class="lock-bio" id="lockBioBtn" hidden>Unlock with Face / Touch ID</button>
+    <div class="lock-pad" id="lockPad">
+      <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
+      <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+      <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+      <span></span><button type="button" data-k="0">0</button>
+      <button type="button" data-k="back" aria-label="Backspace">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-6 8 6 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"/><path d="M18 9l-6 6M12 9l6 6"/></svg>
+      </button>
+    </div>
+    <button class="lock-forgot" id="lockForgot">Forgot PIN?</button>
+  </div>
+</div>
+
 <div class="shell">
   <header class="topbar">
     <div class="brand">
-      <b>Kassenbuch</b><span>EUR</span>
+      <b>பணப்பை</b><span>EUR</span>
     </div>
     <button class="iconbtn" id="btnRules" title="Recurring entries" aria-label="Recurring entries">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg>
@@ -639,55 +774,100 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
     </button>
   </nav>
 
-  <section class="statement">
-    <div class="eyebrow">Net this month</div>
-    <div class="net" id="netVal">€0.00</div>
-    <div class="tiles">
-      <div class="tile in">
-        <div class="lbl">Income</div>
-        <div class="val" id="inVal">€0.00</div>
-        <div class="sub" id="inSub">—</div>
-      </div>
-      <div class="tile out">
-        <div class="lbl">Expenses</div>
-        <div class="val" id="outVal">€0.00</div>
-        <div class="sub" id="outSub">—</div>
-      </div>
-    </div>
-    <div class="meter-wrap">
-      <div class="meter-head">
-        <span class="k" id="meterK">Planned expenses paid</span>
-        <span class="v" id="meterV">0%</span>
-      </div>
-      <div class="meter"><i id="meterBar" style="width:0%"></i></div>
-    </div>
-  </section>
-
-  <div class="demobar" id="demoBar" hidden>
-    <div class="db-t">You're looking at example data</div>
-    <div class="db-s">Have a click around, then clear it and start on your own numbers.</div>
-    <button class="db-b" id="clearDemo">Clear examples &amp; start fresh</button>
-  </div>
-
-  <div class="demobar" id="installBar" hidden>
-    <button class="db-x" id="installClose" aria-label="Dismiss">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  <div class="viewtog" id="viewTog" role="tablist">
+    <button role="tab" data-view="dash" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Dashboard
     </button>
-    <div class="db-t">Install Kassenbuch</div>
-    <div class="db-s" id="installText">Add it to your home screen for a full-screen app with offline access.</div>
-    <button class="db-b" id="installBtn">Install app</button>
+    <button role="tab" data-view="entries" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      Entries
+    </button>
   </div>
 
-  <div class="segwrap">
-    <div class="seg" role="tablist">
-      <button role="tab" data-f="all" aria-selected="true">All <span class="n" id="cAll">0</span></button>
-      <button role="tab" data-f="planned" aria-selected="false">Planned <span class="n" id="cPlan">0</span></button>
-      <button role="tab" data-f="done" aria-selected="false">Filled <span class="n" id="cDone">0</span></button>
+  <div id="viewDash">
+    <section class="statement">
+      <div class="eyebrow">Net this month</div>
+      <div class="net" id="netVal">€0.00</div>
+      <div class="tiles">
+        <div class="tile in">
+          <div class="lbl">Income</div>
+          <div class="val" id="inVal">€0.00</div>
+          <div class="sub" id="inSub">—</div>
+        </div>
+        <div class="tile out">
+          <div class="lbl">Expenses</div>
+          <div class="val" id="outVal">€0.00</div>
+          <div class="sub" id="outSub">—</div>
+        </div>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-head">
+          <span class="k" id="meterK">Planned expenses paid</span>
+          <span class="v" id="meterV">0%</span>
+        </div>
+        <div class="meter"><i id="meterBar" style="width:0%"></i></div>
+      </div>
+    </section>
+
+    <div class="demobar" id="demoBar" hidden>
+      <div class="db-t">You're looking at example data</div>
+      <div class="db-s">Have a click around, then clear it and start on your own numbers.</div>
+      <button class="db-b" id="clearDemo">Clear examples &amp; start fresh</button>
     </div>
+
+    <div class="demobar" id="installBar" hidden>
+      <button class="db-x" id="installClose" aria-label="Dismiss">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="db-t">Install பணப்பை</div>
+      <div class="db-s" id="installText">Add it to your home screen for a full-screen app with offline access.</div>
+      <button class="db-b" id="installBtn">Install app</button>
+    </div>
+
+    <section class="bucketcard">
+      <div class="bucket-head">
+        <div class="bucket-t">Income left in the bucket</div>
+        <div class="bucket-v" id="bucketPct">100%</div>
+      </div>
+      <div class="bucket-wrap">
+        <svg class="bucket-svg" viewBox="0 0 120 104" aria-hidden="true">
+          <defs>
+            <clipPath id="bucketClip">
+              <path d="M18 10 H102 L92 92 A6 6 0 0 1 86 97 H34 A6 6 0 0 1 28 92 Z"/>
+            </clipPath>
+          </defs>
+          <g clip-path="url(#bucketClip)">
+            <rect id="bucketLevel" class="bucket-level" x="18" y="100" width="84" height="0"/>
+          </g>
+          <path class="bucket-outline" d="M18 10 H102 L92 92 A6 6 0 0 1 86 97 H34 A6 6 0 0 1 28 92 Z"/>
+          <path class="bucket-outline bucket-rim" d="M15 10 H105"/>
+        </svg>
+        <div class="coin-drip" id="coinDrip"><span class="coin"></span><span class="coin"></span><span class="coin"></span></div>
+      </div>
+      <div class="bucket-sub" id="bucketSub">Nothing spent yet this month</div>
+    </section>
+
+    <section class="monthstrip-wrap">
+      <div class="monthstrip-t">Monthly health</div>
+      <div class="monthstrip" id="monthStrip"></div>
+    </section>
+
+    <div id="breakdown"></div>
   </div>
 
-  <main class="list" id="list"></main>
-  <div id="breakdown"></div>
+  <div id="viewEntries" hidden>
+    <div class="segwrap">
+      <div class="seg" role="tablist">
+        <button role="tab" data-f="all" aria-selected="true">All <span class="n" id="cAll">0</span></button>
+        <button role="tab" data-f="planned" aria-selected="false">Planned <span class="n" id="cPlan">0</span></button>
+        <button role="tab" data-f="done" aria-selected="false">Filled <span class="n" id="cDone">0</span></button>
+      </div>
+    </div>
+
+    <main class="list" id="list"></main>
+  </div>
+
   <div class="spacer"></div>
 
   <div class="dock">
@@ -852,6 +1032,16 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
       </div>
     </div>
     <div class="field">
+      <label>App lock</label>
+      <div class="note" id="lockStatus">Off — anyone with this device can open the app.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+        <button class="btn ghost sm" id="lockSetPin">Set a 4-digit PIN</button>
+        <button class="btn ghost sm" id="lockSetBio" hidden>Use Face / Touch ID or Windows Hello</button>
+        <button class="btn danger sm" id="lockTurnOff" hidden>Turn off app lock</button>
+      </div>
+      <div class="note" style="margin-top:6px">Locks the screen only — it does not encrypt the data stored on this device.</div>
+    </div>
+    <div class="field">
       <label>Your data</label>
       <div class="note" id="statLine">—</div>
     </div>
@@ -864,12 +1054,30 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
       </div>
     </div>
     <div class="field">
+      <label>GitHub sync</label>
+      <div class="note" id="ghStatus">Off — data stays only in this browser.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+        <input class="inp" id="ghToken" type="password" placeholder="GitHub token (repo contents: read & write)" autocomplete="off">
+        <input class="inp" id="ghRepo" type="text" placeholder="owner/repo" autocomplete="off">
+        <input class="inp" id="ghPath" type="text" placeholder="data path, e.g. data/panappai-backup.json" autocomplete="off">
+        <button class="btn ghost sm" id="ghSave">Save &amp; enable auto-sync</button>
+        <button class="btn ghost sm" id="ghSyncNow" hidden>Sync now</button>
+        <button class="btn danger sm" id="ghDisable" hidden>Disable sync</button>
+      </div>
+      <div class="note" style="margin-top:6px">
+        Pushes a JSON backup to a file in your own GitHub repo after every change, straight from
+        this browser. The token is stored only in this browser's local storage — use a
+        <b>fine-grained</b> token scoped to just this one repo with "Contents: Read and write",
+        never a broad classic token.
+      </div>
+    </div>
+    <div class="field">
       <label>Start over</label>
       <button class="btn danger sm" id="wipe">Delete all entries</button>
     </div>
     <div class="note" style="margin-top:6px">
-      Everything is stored in this browser on this device only — it is never uploaded.
-      Use the backup box above to move your data to another device.
+      Data lives in this browser on this device by default. Turn on GitHub sync above to also
+      keep a backup copy in your repo, or use the backup box to move data to another device by hand.
     </div>
   </div>
 </section>
@@ -878,11 +1086,22 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 <script>
 "use strict";
 /* =========================================================================
-   Kassenbuch — offline euro expense tracker
+   பணப்பை — offline euro expense tracker
    ========================================================================= */
 
-const KEY = "kassenbuch.v1";
-const THEME_KEY = "kassenbuch.theme";
+const KEY = "panappai.v1";
+const THEME_KEY = "panappai.theme";
+/* one-time migration from the app's old name, Kassenbuch */
+(function migrateOldKeys(){
+  try{
+    if (localStorage.getItem(KEY) == null && localStorage.getItem("kassenbuch.v1") != null){
+      localStorage.setItem(KEY, localStorage.getItem("kassenbuch.v1"));
+    }
+    if (localStorage.getItem(THEME_KEY) == null && localStorage.getItem("kassenbuch.theme") != null){
+      localStorage.setItem(THEME_KEY, localStorage.getItem("kassenbuch.theme"));
+    }
+  }catch(e){}
+})();
 
 /* ---------- categories ---------- */
 const CATS = {
@@ -1077,6 +1296,7 @@ function load(){
 function save(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
   catch(e){ toast("Couldn't save — storage is full or blocked"); }
+  ghScheduleSync();
 }
 
 /** Create planned entries for every active rule, from 3 months back to 12 ahead. */
@@ -1149,6 +1369,32 @@ function monthTxns(ym){
   return state.txns.filter(t => monthOf(t.date) === ym);
 }
 
+/* ---------- monthly health (income vs. expense) ---------- */
+function monthTotals(ym){
+  let inc = 0, exp = 0, incDone = 0, expDone = 0;
+  monthTxns(ym).forEach(t => {
+    if (t.type === "income"){ inc += t.amount; if (t.status === "done") incDone += t.amount; }
+    else { exp += t.amount; if (t.status === "done") expDone += t.amount; }
+  });
+  return { inc, exp, incDone, expDone };
+}
+/**
+ * Health band from the income/expense surplus, as a % of income:
+ * negative (spent more than earned) = red · 0-5% buffer = orange ·
+ * 5-15% = yellow · 15%+ = green. No income logged is neutral unless
+ * there's already an expense against it, which reads as red.
+ */
+function healthBand(inc, exp){
+  if (inc <= 0) return exp > 0 ? "red" : "neutral";
+  const surplusPct = (inc - exp) / inc * 100;
+  if (surplusPct < 0) return "red";
+  if (surplusPct < 5) return "orange";
+  if (surplusPct < 15) return "yellow";
+  return "green";
+}
+const HEALTH_VAR = { red:"--health-red", orange:"--health-orange", yellow:"--health-yellow", green:"--health-green", neutral:"--ink-3" };
+const HEALTH_LABEL = { red:"Overspent", orange:"Thin buffer", yellow:"Comfortable", green:"Healthy", neutral:"No data" };
+
 function render(){
   const dark = isDark();
   const all = monthTxns(view).slice().sort((a, b) =>
@@ -1220,8 +1466,63 @@ function render(){
   }
 
   renderBreakdown(all, dark);
+  renderBucket(inDone + inPlan, outDone, outPlan);
+  renderMonthStrip();
   $("#demoBar").hidden = !state.demo;
   $$(".seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.f === filter)));
+}
+
+/** The bucket empties as expenses are actually paid (not merely planned); its colour reflects the whole month's projected health. */
+function renderBucket(income, spentDone, spentPlanned){
+  const level = $("#bucketLevel");
+  const band = healthBand(income, spentDone + spentPlanned);
+  const colorVar = "var(" + HEALTH_VAR[band] + ")";
+  level.style.fill = colorVar;
+
+  const top = 10, bottom = 100, full = bottom - top;
+  const remainingPct = income > 0 ? Math.max(0, Math.min(1, (income - spentDone) / income)) : (spentDone > 0 ? 0 : 1);
+  const h = full * remainingPct;
+  level.setAttribute("y", bottom - h);
+  level.setAttribute("height", h);
+
+  $("#bucketPct").textContent = Math.round(remainingPct * 100) + "%";
+  $("#bucketPct").style.color = colorVar;
+
+  $("#coinDrip").hidden = spentDone <= 0;
+
+  const sub = $("#bucketSub");
+  if (income <= 0){
+    sub.textContent = spentDone > 0 ? "Spending with no income logged yet" : "Log income to fill the bucket";
+  } else if (spentDone <= 0){
+    sub.textContent = "Nothing spent yet this month";
+  } else {
+    sub.textContent = fmt(spentDone) + " of " + fmt(income) + " spent so far — " + HEALTH_LABEL[band].toLowerCase();
+  }
+}
+
+/** A scrollable strip of the surrounding months, colour-coded by healthBand so overspending stands out at a glance. */
+function renderMonthStrip(){
+  const host = $("#monthStrip");
+  host.innerHTML = "";
+  const center = monthOf(todayISO());
+  for (let n = -3; n <= 2; n++){
+    const ym = shiftMonth(center, n);
+    const { inc, exp } = monthTotals(ym);
+    const band = healthBand(inc, exp);
+    const chip = el("button", "monthchip");
+    chip.type = "button";
+    if (ym === view) chip.dataset.current = "true";
+    chip.style.setProperty("--dot-color", "var(" + HEALTH_VAR[band] + ")");
+    const [y, m] = ym.split("-").map(Number);
+    const label = new Date(y, m - 1, 1).toLocaleDateString("en-GB", { month:"short" });
+    chip.innerHTML =
+      '<span class="mc-m">' + esc(label) + '</span>' +
+      '<span class="mc-dot"></span>' +
+      '<span class="mc-pct">' + (inc > 0 ? Math.round((inc - exp) / inc * 100) + "%" : "—") + '</span>';
+    chip.setAttribute("aria-label", esc(monthTitle(ym)) + " — " + HEALTH_LABEL[band]);
+    chip.addEventListener("click", () => { view = ym; render(); });
+    host.appendChild(chip);
+  }
 }
 
 function emptyState(monthCount){
@@ -1817,6 +2118,8 @@ $("#btnMenu").addEventListener("click", () => {
     "<b>" + state.txns.length + "</b> entries across <b>" + months.size + "</b> month" +
     (months.size === 1 ? "" : "s") + ", plus <b>" + state.rules.length + "</b> repeating entr" +
     (state.rules.length === 1 ? "y" : "ies") + ".";
+  renderLockSettings();
+  renderGhSettings();
   sheetOpen("#shSet");
 });
 $("#copyBackup").addEventListener("click", async () => {
@@ -1844,7 +2147,7 @@ $("#doRestore").addEventListener("click", () => {
     materialise(); save(); render(); sheetClose();
     toast("Restored " + state.txns.length + " entries");
   }catch(e){
-    toast("That doesn't look like a Kassenbuch backup");
+    toast("That doesn't look like a பணப்பை backup");
   }
 });
 $("#wipe").addEventListener("click", function(){
@@ -1878,6 +2181,16 @@ $("#prevM").addEventListener("click", () => { view = shiftMonth(view, -1); rende
 $("#nextM").addEventListener("click", () => { view = shiftMonth(view, 1); render(); });
 $("#mLabel").addEventListener("click", () => { view = monthOf(todayISO()); render(); });
 $$(".seg button").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; render(); }));
+
+/* ---------- Dashboard / Entries panel switch ---------- */
+let panel = "dash";
+function setPanel(p){
+  panel = p;
+  $("#viewDash").hidden = p !== "dash";
+  $("#viewEntries").hidden = p !== "entries";
+  $$("#viewTog button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.view === p)));
+}
+$$("#viewTog button").forEach(b => b.addEventListener("click", () => setPanel(b.dataset.view)));
 
 if (window.matchMedia){
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -1924,6 +2237,290 @@ function seed(){
   save();
 }
 
+/* =========================================================================
+   APP LOCK — PIN, with optional Face/Touch ID / Windows Hello
+   Locks the screen only; it does not encrypt the data in localStorage.
+   ========================================================================= */
+const LOCK_ENABLED_KEY = "panappai.lock.enabled";
+const LOCK_HASH_KEY = "panappai.lock.pinHash";
+const LOCK_SALT_KEY = "panappai.lock.salt";
+const LOCK_BIO_KEY = "panappai.lock.webauthnId";
+
+function lockSalt(){
+  let s = localStorage.getItem(LOCK_SALT_KEY);
+  if (!s){
+    s = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, "0")).join("");
+    localStorage.setItem(LOCK_SALT_KEY, s);
+  }
+  return s;
+}
+async function pinHash(pin){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(lockSalt() + ":" + pin));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+function lockEnabled(){ return localStorage.getItem(LOCK_ENABLED_KEY) === "1"; }
+function lockHasBio(){ return !!localStorage.getItem(LOCK_BIO_KEY); }
+async function bioAvailable(){
+  if (!window.PublicKeyCredential || !PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) return false;
+  return PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(() => false);
+}
+/** Registers a platform authenticator credential (Face ID / Touch ID / Windows Hello) purely as a local unlock gate. */
+async function registerBiometric(){
+  try{
+    const cred = await navigator.credentials.create({
+      publicKey:{
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        rp:{ name:"பணப்பை" },
+        user:{ id: crypto.getRandomValues(new Uint8Array(16)), name:"device-owner", displayName:"பணப்பை" },
+        pubKeyCredParams:[{alg:-7, type:"public-key"}, {alg:-257, type:"public-key"}],
+        authenticatorSelection:{ authenticatorAttachment:"platform", userVerification:"required" },
+        timeout:60000
+      }
+    });
+    const idB64 = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+    localStorage.setItem(LOCK_BIO_KEY, idB64);
+    localStorage.setItem(LOCK_ENABLED_KEY, "1");
+    return true;
+  }catch(e){ return false; }
+}
+/** A successful assertion already required the device's own biometric/PIN check, so no server-side signature check is needed for a local gate. */
+async function unlockWithBiometric(){
+  const idB64 = localStorage.getItem(LOCK_BIO_KEY);
+  if (!idB64) return false;
+  try{
+    const rawId = Uint8Array.from(atob(idB64), c => c.charCodeAt(0));
+    await navigator.credentials.get({
+      publicKey:{
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        allowCredentials:[{ id:rawId, type:"public-key" }],
+        userVerification:"required", timeout:60000
+      }
+    });
+    return true;
+  }catch(e){ return false; }
+}
+
+let lockMode = "unlock"; // "unlock" | "setup1" | "setup2"
+let lockBuf = "";
+let lockFirstPin = "";
+
+function lockRenderDots(){
+  $$("#lockDots span").forEach((s, i) => s.classList.toggle("filled", i < lockBuf.length));
+}
+function lockShake(){
+  const d = $("#lockDots");
+  d.classList.remove("shake"); void d.offsetWidth; d.classList.add("shake");
+}
+function unlockApp(){ document.documentElement.classList.remove("locked"); }
+
+function lockOpenUnlock(){
+  document.documentElement.classList.add("locked");
+  lockMode = "unlock"; lockBuf = ""; lockFirstPin = "";
+  $("#lockSub").textContent = "Enter your PIN";
+  $("#lockForgot").hidden = false;
+  lockRenderDots();
+  $("#lockBioBtn").hidden = !lockHasBio();
+  if (lockHasBio()) unlockWithBiometric().then(ok => { if (ok) unlockApp(); });
+}
+function lockOpenSetup(){
+  document.documentElement.classList.add("locked");
+  lockMode = "setup1"; lockBuf = ""; lockFirstPin = "";
+  $("#lockSub").textContent = "Choose a 4-digit PIN";
+  $("#lockForgot").hidden = true;
+  $("#lockBioBtn").hidden = true;
+  lockRenderDots();
+}
+async function lockDigit(k){
+  if (k === "back"){ lockBuf = lockBuf.slice(0, -1); lockRenderDots(); return; }
+  if (lockBuf.length >= 4) return;
+  lockBuf += k;
+  lockRenderDots();
+  if (lockBuf.length < 4) return;
+
+  if (lockMode === "unlock"){
+    const ok = (await pinHash(lockBuf)) === localStorage.getItem(LOCK_HASH_KEY);
+    if (ok) unlockApp();
+    else{ lockShake(); setTimeout(() => { lockBuf = ""; lockRenderDots(); }, 380); }
+  } else if (lockMode === "setup1"){
+    lockFirstPin = lockBuf; lockBuf = "";
+    lockMode = "setup2";
+    $("#lockSub").textContent = "Confirm your PIN";
+    lockRenderDots();
+  } else if (lockMode === "setup2"){
+    if (lockBuf === lockFirstPin){
+      localStorage.setItem(LOCK_HASH_KEY, await pinHash(lockBuf));
+      localStorage.setItem(LOCK_ENABLED_KEY, "1");
+      unlockApp();
+      toast("PIN set — app lock is on");
+      renderLockSettings();
+    } else {
+      lockShake();
+      setTimeout(() => {
+        lockMode = "setup1"; lockBuf = ""; lockFirstPin = "";
+        $("#lockSub").textContent = "Choose a 4-digit PIN";
+        lockRenderDots();
+      }, 380);
+    }
+  }
+}
+$("#lockPad").addEventListener("click", e => {
+  const b = e.target.closest("button[data-k]");
+  if (b) lockDigit(b.dataset.k);
+});
+$("#lockBioBtn").addEventListener("click", async () => {
+  const ok = await unlockWithBiometric();
+  if (ok) unlockApp(); else toast("Biometric unlock failed");
+});
+$("#lockForgot").addEventListener("click", function(){
+  if (this.dataset.armed){
+    localStorage.removeItem(LOCK_ENABLED_KEY);
+    localStorage.removeItem(LOCK_HASH_KEY);
+    localStorage.removeItem(LOCK_BIO_KEY);
+    delete this.dataset.armed;
+    this.textContent = "Forgot PIN?";
+    unlockApp();
+    renderLockSettings();
+  } else {
+    this.dataset.armed = "1";
+    this.textContent = "Tap again to remove the lock — your entries are unaffected";
+    setTimeout(() => { delete this.dataset.armed; this.textContent = "Forgot PIN?"; }, 4000);
+  }
+});
+
+async function renderLockSettings(){
+  const on = lockEnabled();
+  $("#lockStatus").textContent = on
+    ? (lockHasBio() ? "On — Face/Touch ID or Windows Hello required to open the app." : "On — a PIN is required to open the app.")
+    : "Off — anyone with this device can open the app.";
+  $("#lockSetPin").textContent = on ? "Change PIN" : "Set a 4-digit PIN";
+  $("#lockTurnOff").hidden = !on;
+  const bio = await bioAvailable();
+  $("#lockSetBio").hidden = !bio || (on && lockHasBio());
+}
+$("#lockSetPin").addEventListener("click", () => { sheetClose(); lockOpenSetup(); });
+$("#lockSetBio").addEventListener("click", async () => {
+  const ok = await registerBiometric();
+  toast(ok ? "Face/Touch ID enabled" : "Couldn't set up biometric unlock");
+  renderLockSettings();
+});
+$("#lockTurnOff").addEventListener("click", () => {
+  localStorage.removeItem(LOCK_ENABLED_KEY);
+  localStorage.removeItem(LOCK_HASH_KEY);
+  localStorage.removeItem(LOCK_BIO_KEY);
+  toast("App lock turned off");
+  renderLockSettings();
+});
+
+/* =========================================================================
+   GITHUB SYNC — pushes a JSON backup straight from the browser via the
+   GitHub REST API. The token lives only in this browser's localStorage;
+   there is no server component, so anyone who can read this device's
+   storage can read it too — use a fine-grained, repo-scoped token.
+   ========================================================================= */
+const GH_TOKEN_KEY = "panappai.gh.token";
+const GH_REPO_KEY = "panappai.gh.repo";
+const GH_PATH_KEY = "panappai.gh.path";
+const GH_ENABLED_KEY = "panappai.gh.enabled";
+const GH_LASTSYNC_KEY = "panappai.gh.lastSync";
+const GH_DEFAULT_PATH = "data/panappai-backup.json";
+
+function ghEnabled(){ return localStorage.getItem(GH_ENABLED_KEY) === "1"; }
+function ghHeaders(token){
+  return {
+    "Authorization": "Bearer " + token,
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28"
+  };
+}
+function b64EncodeUtf8(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  bytes.forEach(b => { bin += String.fromCharCode(b); });
+  return btoa(bin);
+}
+
+let ghSyncTimer = null;
+let ghSyncing = false;
+/** Debounced so a burst of edits (e.g. a CSV import) doesn't fire one API call per row. */
+function ghScheduleSync(){
+  if (!ghEnabled()) return;
+  clearTimeout(ghSyncTimer);
+  ghSyncTimer = setTimeout(ghSyncNow, 3000);
+}
+async function ghSyncNow(){
+  if (ghSyncing) return;
+  const token = localStorage.getItem(GH_TOKEN_KEY) || "";
+  const repo = localStorage.getItem(GH_REPO_KEY) || "";
+  const path = localStorage.getItem(GH_PATH_KEY) || GH_DEFAULT_PATH;
+  if (!token || !repo) return;
+
+  ghSyncing = true;
+  const statusEl = $("#ghStatus");
+  if (statusEl) statusEl.textContent = "Syncing…";
+  try{
+    const api = "https://api.github.com/repos/" + repo + "/contents/" + path;
+    let sha = null;
+    const getRes = await fetch(api, { headers: ghHeaders(token) });
+    if (getRes.ok) sha = (await getRes.json()).sha;
+    else if (getRes.status !== 404) throw new Error("GET " + getRes.status);
+
+    const body = {
+      message: "பணப்பை backup — " + new Date().toISOString(),
+      content: b64EncodeUtf8(JSON.stringify(state, null, 2))
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(api, {
+      method:"PUT",
+      headers: Object.assign({ "Content-Type":"application/json" }, ghHeaders(token)),
+      body: JSON.stringify(body)
+    });
+    if (!putRes.ok) throw new Error("PUT " + putRes.status);
+
+    localStorage.setItem(GH_LASTSYNC_KEY, new Date().toISOString());
+    renderGhSettings();
+  }catch(e){
+    if (statusEl) statusEl.textContent = "Sync failed — check the token, repo and path.";
+  }finally{
+    ghSyncing = false;
+  }
+}
+
+function renderGhSettings(){
+  const on = ghEnabled();
+  const repo = localStorage.getItem(GH_REPO_KEY) || "";
+  const path = localStorage.getItem(GH_PATH_KEY) || GH_DEFAULT_PATH;
+  const last = localStorage.getItem(GH_LASTSYNC_KEY);
+  $("#ghToken").value = localStorage.getItem(GH_TOKEN_KEY) || "";
+  $("#ghRepo").value = repo;
+  $("#ghPath").value = path;
+  $("#ghStatus").textContent = on
+    ? "On — auto-syncing to " + esc(repo) + (last ? " · last synced " + new Date(last).toLocaleString() : "")
+    : "Off — data stays only in this browser.";
+  $("#ghSave").textContent = on ? "Update settings" : "Save & enable auto-sync";
+  $("#ghSyncNow").hidden = !on;
+  $("#ghDisable").hidden = !on;
+}
+$("#ghSave").addEventListener("click", () => {
+  const token = $("#ghToken").value.trim();
+  const repo = $("#ghRepo").value.trim().replace(/^https?:\/\/github\.com\//i, "").replace(/\/+$/, "");
+  const path = $("#ghPath").value.trim() || GH_DEFAULT_PATH;
+  if (!token || !repo){ toast("Enter a token and an owner/repo"); return; }
+  localStorage.setItem(GH_TOKEN_KEY, token);
+  localStorage.setItem(GH_REPO_KEY, repo);
+  localStorage.setItem(GH_PATH_KEY, path);
+  localStorage.setItem(GH_ENABLED_KEY, "1");
+  renderGhSettings();
+  toast("GitHub sync enabled");
+  ghSyncNow();
+});
+$("#ghSyncNow").addEventListener("click", ghSyncNow);
+$("#ghDisable").addEventListener("click", () => {
+  localStorage.removeItem(GH_ENABLED_KEY);
+  renderGhSettings();
+  toast("GitHub sync disabled");
+});
+
 (function boot(){
   let savedTheme = "system";
   try{ savedTheme = localStorage.getItem(THEME_KEY) || "system"; }catch(e){}
@@ -1939,6 +2536,7 @@ function seed(){
   save();
   render();
   syncThemeColorMeta();
+  if (lockEnabled()) lockOpenUnlock(); else document.documentElement.classList.remove("locked");
 })();
 
 if ("serviceWorker" in navigator) {
@@ -1953,7 +2551,7 @@ if ("serviceWorker" in navigator) {
   const text = document.getElementById("installText");
   const btn = document.getElementById("installBtn");
   const closeBtn = document.getElementById("installClose");
-  const DISMISS_KEY = "kassenbuch.installDismissed";
+  const DISMISS_KEY = "panappai.installDismissed";
 
   const isStandalone = () =>
     window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
