@@ -28,6 +28,18 @@ Open `index.html` in any browser, or host the file anywhere static.
 - **A colourful, tactile feel** throughout — rich category colours, gradient
   buttons, a count-up animation on the headline figures, a small confetti burst
   when you mark something paid, and a soft fade between views.
+- **Budget envelopes** for money spent bit by bit. A planned entry is one dated
+  amount that's either pending or settled — right for rent, wrong for a €200
+  grocery allowance spent across a dozen trips. Set a per-period amount for a
+  category in **Budgets** and every expense in it draws the envelope down:
+  - Each envelope shows spent, left, a percentage and a bar, going yellow near
+    the limit, orange when well ahead of an even spend, red once over.
+  - A faint marker on each bar is where an even spend would be *today*, so
+    burning through a month's allowance in a week is visible immediately.
+  - Tap an envelope to see every spend against it with dates, and to add
+    another in two taps — amount, optional note, done.
+  - A shop saved in the **Shopping cart** lands in *Groceries — German* or
+    *Groceries — Indian* automatically, by store.
 - **Planned vs. filled** — every entry is either *planned* (still to come) or
   *filled* (settled). Tap the circle on a row to flip it.
 - **Recurring entries** at weekly / monthly / every-2-months / quarterly /
