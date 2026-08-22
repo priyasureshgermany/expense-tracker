@@ -196,5 +196,14 @@ sh tools/install-hooks.sh
 ```
 
 The hook skips rebases and merges, and commits that only touch `data/` (the
-app's own backup pushes). Use `node tools/bump-version.mjs --dry` to see what
-the next version would be without writing anything.
+app's own backup pushes) or `tools/`. Use `node tools/bump-version.mjs --dry`
+to see what the next version would be without writing anything.
+
+Two things worth knowing:
+
+- It bumps per **commit**, not per push. In practice each release here is one
+  commit followed by one push, so the two coincide; batching several commits
+  into one push would advance the version several times.
+- If `index.html` or `sw.js` have unstaged edits, the hook **stops the commit**
+  rather than bumping. It has to stage those two files after rewriting them,
+  and doing so would otherwise pull unrelated working-tree changes in with it.
