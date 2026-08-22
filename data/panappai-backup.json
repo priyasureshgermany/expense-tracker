@@ -574,15 +574,6 @@
       "date": "2027-08-30",
       "status": "planned",
       "ruleId": "t5o7gvqyobpm"
-    },
-    {
-      "id": "zw5v3uo7tex4",
-      "type": "expense",
-      "amount": 5400,
-      "category": "groceries",
-      "note": "German shopping",
-      "date": "2026-08-22",
-      "status": "done"
     }
   ],
   "rules": [
@@ -640,7 +631,50 @@
   "skips": [],
   "shop": {
     "lists": {
-      "de": [],
+      "de": [
+        {
+          "id": "2by8d8rppuxb",
+          "name": "Äpfel",
+          "price": 0,
+          "done": true
+        },
+        {
+          "id": "rf0gqou8pvb2",
+          "name": "Bananen",
+          "price": 0,
+          "done": true
+        },
+        {
+          "id": "g88a0za5pvpe",
+          "name": "Tomaten",
+          "price": 0,
+          "done": true
+        },
+        {
+          "id": "o4fd9mrtpwe0",
+          "name": "Kartoffeln",
+          "price": 0,
+          "done": true
+        },
+        {
+          "id": "vpochayxpwjw",
+          "name": "Zwiebeln",
+          "price": 0,
+          "done": true
+        },
+        {
+          "id": "molenjtfpwwh",
+          "name": "Gurke",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "oxfh2imspxk4",
+          "name": "Trauben",
+          "price": 0,
+          "done": true
+        }
+      ],
       "in": []
     },
     "history": [
@@ -648,7 +682,7 @@
         "id": "ovstxx6cvpew",
         "store": "de",
         "date": "2026-08-22",
-        "total": 5400,
+        "total": 0,
         "items": [
           {
             "name": "Milch",
@@ -690,8 +724,7 @@
             "name": "Öl",
             "price": 0
           }
-        ],
-        "txnId": "zw5v3uo7tex4"
+        ]
       }
     ]
   }
