@@ -1826,6 +1826,126 @@
       "date": "2027-08-07",
       "status": "planned",
       "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "h6k0yyj8xbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2026-09-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "x9qpq29ixbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2026-10-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "ielts9f2xbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2026-11-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "tm463m15xbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2026-12-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "i0cn2ot3xbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2027-01-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "0zlgpi38xbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2027-02-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "q00m2bjvxbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2027-03-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "2abhjcw0xbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2027-04-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "6aibl7o6xbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2027-05-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "7w62mml7xbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2027-06-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "hmclpfqgxbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2027-07-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "0gkjhmb4xbhd",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
+      "date": "2027-08-07",
+      "status": "planned",
+      "ruleId": "0h08ylyuxbhc"
     }
   ],
   "rules": [
@@ -1975,6 +2095,16 @@
       "amount": 1500,
       "category": "subs",
       "note": "Phone recharge - Suresh",
+      "freq": "monthly",
+      "anchor": "2026-09-07",
+      "active": true
+    },
+    {
+      "id": "0h08ylyuxbhc",
+      "type": "expense",
+      "amount": 1300,
+      "category": "subs",
+      "note": "Phone recharge - Priya",
       "freq": "monthly",
       "anchor": "2026-09-07",
       "active": true
