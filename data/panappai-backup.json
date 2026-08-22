@@ -1586,6 +1586,126 @@
       "date": "2027-08-03",
       "status": "planned",
       "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "0llk1dgnttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2026-09-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "nt67bmepttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2026-10-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "zw0kiajwttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2026-11-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "hhjn4qrsttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2026-12-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "u0ffwntlttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2027-01-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "vduq5y9xttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2027-02-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "7q38fssdttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2027-03-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "gzqtnpigttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2027-04-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "yst1vdhgttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2027-05-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "r0umx5csttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2027-06-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "9n6v5tegttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2027-07-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "5iof1ok6ttqv",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "date": "2027-08-05",
+      "status": "planned",
+      "ruleId": "soeg7dlmttqu"
     }
   ],
   "rules": [
@@ -1717,6 +1837,16 @@
       "note": "For Hort - Shakthi",
       "freq": "monthly",
       "anchor": "2026-09-03",
+      "active": true
+    },
+    {
+      "id": "soeg7dlmttqu",
+      "type": "expense",
+      "amount": 4495,
+      "category": "subs",
+      "note": "Internet",
+      "freq": "monthly",
+      "anchor": "2026-09-05",
       "active": true
     }
   ],
