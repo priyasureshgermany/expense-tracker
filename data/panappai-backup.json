@@ -1346,6 +1346,126 @@
       "date": "2027-08-01",
       "status": "planned",
       "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "sllr4qhxp9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2026-09-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "z422npaxp9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2026-10-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "gj79h2i0p9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2026-11-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "qf4mtrg8p9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2026-12-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "iq6fils3p9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2027-01-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "32kd7559p9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2027-02-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "tdcsabyep9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2027-03-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "p5g5z8btp9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2027-04-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "9271ou0yp9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2027-05-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "qy2kig2xp9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2027-06-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "32c8u31op9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2027-07-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "hobl6s36p9ut",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
+      "date": "2027-08-01",
+      "status": "planned",
+      "ruleId": "rbx4wt3np9ur"
     }
   ],
   "rules": [
@@ -1455,6 +1575,16 @@
       "amount": 6300,
       "category": "transport",
       "note": "Deutschland Ticket - Priya",
+      "freq": "monthly",
+      "anchor": "2026-09-01",
+      "active": true
+    },
+    {
+      "id": "rbx4wt3np9ur",
+      "type": "expense",
+      "amount": 5985,
+      "category": "transport",
+      "note": "Deutschland Ticket - Suresh",
       "freq": "monthly",
       "anchor": "2026-09-01",
       "active": true
