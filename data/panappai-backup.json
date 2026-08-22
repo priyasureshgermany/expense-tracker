@@ -538,6 +538,136 @@
       "date": "2027-08-15",
       "status": "planned",
       "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "3vucgt7ptk16",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2026-08-15",
+      "status": "done",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "62e631qvtk16",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2026-09-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "cds2cj1stk16",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2026-10-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "h1oybgvdtk16",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2026-11-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "tj1m003mtk16",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2026-12-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "ncy8wszatk17",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2027-01-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "ezev8uhmtk17",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2027-02-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "jtygsj6btk17",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2027-03-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "euwyksd3tk17",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2027-04-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "qq7hnxuetk17",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2027-05-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "xy3y2jtttk17",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2027-06-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "c92dnxedtk17",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2027-07-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "qxrwdi2wtk17",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
+      "date": "2027-08-15",
+      "status": "planned",
+      "ruleId": "41nv5gwqtk16"
     }
   ],
   "rules": [
@@ -577,6 +707,16 @@
       "amount": 9700,
       "category": "utilities",
       "note": "Gas",
+      "freq": "monthly",
+      "anchor": "2026-08-15",
+      "active": true
+    },
+    {
+      "id": "41nv5gwqtk16",
+      "type": "expense",
+      "amount": 10300,
+      "category": "utilities",
+      "note": "Electricity",
       "freq": "monthly",
       "anchor": "2026-08-15",
       "active": true
