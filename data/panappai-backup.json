@@ -408,6 +408,136 @@
       "date": "2027-08-02",
       "status": "planned",
       "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "jvv6wlxyssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2026-08-15",
+      "status": "done",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "w5dlf2o3ssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2026-09-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "uyuby38nssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2026-10-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "7ovaxbo6ssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2026-11-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "3c57mip3ssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2026-12-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "4hxi272rssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2027-01-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "02f5b7iassun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2027-02-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "24m3ap1ussun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2027-03-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "y6h8gxjhssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2027-04-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "6ouojc5zssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2027-05-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "ieq7o9lvssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2027-06-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "y1qssf4tssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2027-07-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
+    },
+    {
+      "id": "ntkp2mc8ssun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "date": "2027-08-15",
+      "status": "planned",
+      "ruleId": "lr83cp4ussun"
     }
   ],
   "rules": [
@@ -439,6 +569,16 @@
       "note": "",
       "freq": "monthly",
       "anchor": "2026-09-02",
+      "active": true
+    },
+    {
+      "id": "lr83cp4ussun",
+      "type": "expense",
+      "amount": 9700,
+      "category": "utilities",
+      "note": "Gas",
+      "freq": "monthly",
+      "anchor": "2026-08-15",
       "active": true
     }
   ],
