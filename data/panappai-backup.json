@@ -847,6 +847,15 @@
       "date": "2027-08-17",
       "status": "planned",
       "ruleId": "zdw0s17ya40v"
+    },
+    {
+      "id": "96m6vvddbqpo",
+      "type": "expense",
+      "amount": 5598,
+      "category": "education",
+      "note": "Hugeldugel - German B1 book",
+      "date": "2026-08-17",
+      "status": "done"
     }
   ],
   "rules": [
