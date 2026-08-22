@@ -677,6 +677,136 @@
       "note": "VHS",
       "date": "2026-08-20",
       "status": "done"
+    },
+    {
+      "id": "g1cqcyfeyfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2026-08-20",
+      "status": "done",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "c44mf9d6yfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2026-09-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "9nxqy71ayfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2026-10-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "saz3w87iyfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2026-11-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "bnjuzv0jyfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2026-12-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "oumjmxxryfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2027-01-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "z43v9id8yfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2027-02-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "z1ib0t2oyfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2027-03-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "erq2vhlayfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2027-04-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "rcps6r8byfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2027-05-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "nk0f5jeeyfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2027-06-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "w6jxo4ugyfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2027-07-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
+    },
+    {
+      "id": "8i4lnahlyfpq",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "date": "2027-08-20",
+      "status": "planned",
+      "ruleId": "k92gdt2cyfpp"
     }
   ],
   "rules": [
@@ -728,6 +858,16 @@
       "note": "Electricity",
       "freq": "monthly",
       "anchor": "2026-08-15",
+      "active": true
+    },
+    {
+      "id": "k92gdt2cyfpp",
+      "type": "expense",
+      "amount": 10000,
+      "category": "topriya",
+      "note": "For priya",
+      "freq": "monthly",
+      "anchor": "2026-08-20",
       "active": true
     }
   ],
