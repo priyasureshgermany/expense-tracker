@@ -1706,6 +1706,126 @@
       "date": "2027-08-05",
       "status": "planned",
       "ruleId": "soeg7dlmttqu"
+    },
+    {
+      "id": "mce2k74zwkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2026-09-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "7cj3ygorwkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2026-10-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "vqvh2wgqwkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2026-11-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "93zdqyq1wkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2026-12-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "c1n0jyh9wkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2027-01-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "yl9iag75wkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2027-02-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "3t4tr0oqwkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2027-03-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "wg2q4s05wkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2027-04-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "ar7jouktwkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2027-05-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "iwqz30hcwkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2027-06-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "p6xtqm1xwkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2027-07-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
+    },
+    {
+      "id": "0brxb5yhwkny",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "date": "2027-08-07",
+      "status": "planned",
+      "ruleId": "k87e26jiwknw"
     }
   ],
   "rules": [
@@ -1847,6 +1967,16 @@
       "note": "Internet",
       "freq": "monthly",
       "anchor": "2026-09-05",
+      "active": true
+    },
+    {
+      "id": "k87e26jiwknw",
+      "type": "expense",
+      "amount": 1500,
+      "category": "subs",
+      "note": "Phone recharge - Suresh",
+      "freq": "monthly",
+      "anchor": "2026-09-07",
       "active": true
     }
   ],
