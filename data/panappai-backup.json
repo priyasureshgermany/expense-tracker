@@ -1226,6 +1226,126 @@
       "date": "2027-08-14",
       "status": "planned",
       "ruleId": "8mofd0hyjidm"
+    },
+    {
+      "id": "pijndrtym0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2026-09-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "i7p5s11fm0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2026-10-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "78s5857bm0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2026-11-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "krtu1hvtm0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2026-12-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "wyqg94kcm0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2027-01-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "vdd4c2gsm0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2027-02-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "3wpo0vvam0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2027-03-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "nlyajg80m0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2027-04-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "zckals1om0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2027-05-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "n3hqmyzbm0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2027-06-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "usu9riaum0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2027-07-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
+    },
+    {
+      "id": "ajhr1u3lm0rq",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "date": "2027-08-01",
+      "status": "planned",
+      "ruleId": "w09yr4drm0rp"
     }
   ],
   "rules": [
@@ -1327,6 +1447,16 @@
       "note": "Non-Veg",
       "freq": "monthly",
       "anchor": "2026-09-14",
+      "active": true
+    },
+    {
+      "id": "w09yr4drm0rp",
+      "type": "expense",
+      "amount": 6300,
+      "category": "transport",
+      "note": "Deutschland Ticket - Priya",
+      "freq": "monthly",
+      "anchor": "2026-09-01",
       "active": true
     }
   ],
