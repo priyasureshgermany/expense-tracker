@@ -1722,7 +1722,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.0.2";
+const APP_VERSION = "1.0.3";
 const APP_BUILT = "2026-08-22";
 
 const KEY = "panappai.v1";
@@ -1746,7 +1746,9 @@ const CATS = {
     {id:"groceries_de", n:"Groceries — German",  h:140},
     {id:"groceries_in", n:"Groceries — Indian",  h:36},
     {id:"nonveg",       n:"Non-Veg",             h:8},
-    {id:"emi",          n:"EMI",                 h:248},
+    /* noBudget: a fixed amount on a known date belongs in a recurring entry,
+       not an envelope you draw down unpredictably */
+    {id:"emi",          n:"EMI",                 h:248, noBudget:true},
     {id:"buffer",       n:"Buffer",              h:288},
     {id:"rent",      n:"Rent",      h:220},
     {id:"utilities", n:"Utilities", h:196},
@@ -2248,9 +2250,12 @@ function render(){
    that category draws down, so partial spending is the normal case.
    ========================================================================= */
 
+/** Categories that can hold an envelope at all — see the noBudget note above. */
+function budgetableCats(){ return CATS.expense.filter(c => !c.noBudget); }
+
 /** Only categories carrying an amount are envelopes; the rest are untouched. */
 function budgetList(){
-  return CATS.expense
+  return budgetableCats()
     .filter(c => (state.budgets[c.id] || 0) > 0)
     .map(c => ({ cat:c, planned: state.budgets[c.id] }));
 }
@@ -2411,7 +2416,7 @@ function openBudgetEditor(){
   const dark = isDark();
   const host = $("#budRows");
   host.innerHTML = "";
-  CATS.expense.forEach(c => {
+  budgetableCats().forEach(c => {
     const row = el("div", "budrow");
     const ic = el("div", "br-ic");
     ic.innerHTML = iconSvg(c.id, 15);
@@ -2531,42 +2536,18 @@ function renderBalanceSettings(){
 }
 
 /**
- * Splits a period's expenses into the three buckets the dashboard charts:
- *   fixed    — recurring-rule expenses (rent, internet, insurance …)
- *   grocery  — everything in the groceries category
- *   misc     — everything else: ad-hoc, one-off spending
- * The misc *buffer* is what income is left once fixed and grocery plans are
- * covered, so misc actual can be compared against the headroom it eats into.
+ * Income against the period's expenses, planned and settled. The per-category
+ * breakdown that used to live here fed the Groceries and Misc buffer charts;
+ * budget envelopes replaced both, so it's gone rather than left unused.
  */
-/* the Groceries chart covers the whole food family, not just the legacy id */
-const GROCERY_CATS = ["groceries", "groceries_de", "groceries_in", "nonveg"];
-
 function periodStats(txns){
   let income = 0, plannedExp = 0, actualExp = 0;
-  let fixedPlanned = 0, fixedActual = 0;
-  let grocPlanned = 0, grocActual = 0;
-  let miscActual = 0;
-
   txns.forEach(t => {
-    const done = t.status === "done";
     if (t.type === "income"){ income += t.amount; return; }
-
     plannedExp += t.amount;
-    if (done) actualExp += t.amount;
-
-    if (GROCERY_CATS.indexOf(t.category) > -1){
-      grocPlanned += t.amount;
-      if (done) grocActual += t.amount;
-    } else if (t.ruleId){
-      fixedPlanned += t.amount;
-      if (done) fixedActual += t.amount;
-    } else {
-      if (done) miscActual += t.amount;
-    }
+    if (t.status === "done") actualExp += t.amount;
   });
-
-  const miscBuffer = Math.max(0, income - fixedPlanned - grocPlanned);
-  return { income, plannedExp, actualExp, fixedPlanned, fixedActual, grocPlanned, grocActual, miscBuffer, miscActual };
+  return { income, plannedExp, actualExp };
 }
 
 /** One horizontal bar; clicking it reveals the `sub` caption underneath. */
@@ -2627,22 +2608,8 @@ function renderCharts(all){
     { label:"Actual expense",  value:s.actualExp,  color:"var(--neg)",
       sub:fmt(s.plannedExp - s.actualExp) + " of the plan still unpaid." }
   ]));
-
-  host.appendChild(chartBlock("Groceries", null, [
-    { label:"Planned", value:s.grocPlanned, color:"var(--accent-mid)",
-      sub:"Grocery entries logged for this period." },
-    { label:"Actual",  value:s.grocActual,  color:"var(--neg)",
-      sub:s.grocPlanned > 0 ? pct(s.grocActual, s.grocPlanned) + " of the grocery plan spent." : "Nothing planned yet." }
-  ]));
-
-  host.appendChild(chartBlock("Misc buffer", null, [
-    { label:"Buffer", value:s.miscBuffer, color:"var(--accent)",
-      sub:"Income left after fixed bills (" + fmt(s.fixedPlanned) + ") and groceries (" + fmt(s.grocPlanned) + ")." },
-    { label:"Actual", value:s.miscActual, color:s.miscActual > s.miscBuffer ? "var(--health-red)" : "var(--warn)",
-      sub:s.miscActual > s.miscBuffer
-        ? "Over the buffer by " + fmt(s.miscActual - s.miscBuffer) + "."
-        : fmt(s.miscBuffer - s.miscActual) + " of buffer still free." }
-  ]));
+  /* Groceries and Misc buffer used to sit here. Budgets this period covers
+     both, per category and with real drawdown, so they were duplicate views. */
 }
 
 /** A scrollable strip of the surrounding periods, colour-coded by healthBand so overspending stands out at a glance. */

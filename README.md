@@ -13,12 +13,11 @@ Open `index.html` in any browser, or host the file anywhere static.
 - **Three views**, switched by the toggle under the period bar:
   **Dashboard** (charts), **Expenses** (the date-by-date ledger) and
   **Shopping cart** (grocery checklists).
-- **Dashboard bar charts.** Three grouped comparisons, each bar tappable to
-  reveal a plain-English explanation of the number:
-  - *This period* — income vs. planned expense vs. actual expense
-  - *Groceries* — planned vs. actual
-  - *Misc buffer* — what's left after fixed bills and the grocery plan, versus
-    the ad-hoc spending eating into it
+- **Dashboard chart.** *This period* compares income, planned expense and
+  actual expense; each bar is tappable for a plain-English explanation of the
+  number. (Groceries and Misc buffer charts used to sit alongside it — budget
+  envelopes cover both per category and with real drawdown, so they were
+  duplicate views and have gone.)
 - **Period health colours**, on the dashboard's period strip, based on
   (income − expenses) ÷ income:
   - 🔴 **Red** — expenses exceed income
@@ -40,6 +39,8 @@ Open `index.html` in any browser, or host the file anywhere static.
     another in two taps — amount, optional note, done.
   - A shop saved in the **Shopping cart** lands in *Groceries — German* or
     *Groceries — Indian* automatically, by store.
+  - **EMI** is deliberately not budgetable: a fixed amount on a known date is
+    a recurring entry, not an envelope drawn down unpredictably.
 - **Planned vs. filled** — every entry is either *planned* (still to come) or
   *filled* (settled). Tap the circle on a row to flip it.
 - **Recurring entries** at weekly / monthly / every-2-months / quarterly /
