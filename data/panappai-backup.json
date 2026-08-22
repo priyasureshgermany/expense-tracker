@@ -2469,6 +2469,15 @@
       "note": "",
       "date": "2026-08-21",
       "status": "done"
+    },
+    {
+      "id": "4b892qya23lt",
+      "type": "expense",
+      "amount": 6761,
+      "category": "groceries_in",
+      "note": "Jaffna",
+      "date": "2026-08-21",
+      "status": "done"
     }
   ],
   "rules": [
