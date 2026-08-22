@@ -797,6 +797,56 @@
       "note": "",
       "date": "2026-08-15",
       "status": "done"
+    },
+    {
+      "id": "c5bznjaza40x",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "date": "2026-08-17",
+      "status": "done",
+      "ruleId": "zdw0s17ya40v"
+    },
+    {
+      "id": "v8kz7ml6a40x",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "date": "2026-11-17",
+      "status": "planned",
+      "ruleId": "zdw0s17ya40v"
+    },
+    {
+      "id": "bx5dicmea40x",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "date": "2027-02-17",
+      "status": "planned",
+      "ruleId": "zdw0s17ya40v"
+    },
+    {
+      "id": "c3zqht7oa40x",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "date": "2027-05-17",
+      "status": "planned",
+      "ruleId": "zdw0s17ya40v"
+    },
+    {
+      "id": "m8c6k628a40x",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "date": "2027-08-17",
+      "status": "planned",
+      "ruleId": "zdw0s17ya40v"
     }
   ],
   "rules": [
@@ -858,6 +908,16 @@
       "note": "For priya",
       "freq": "monthly",
       "anchor": "2026-08-20",
+      "active": true
+    },
+    {
+      "id": "zdw0s17ya40v",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "freq": "quarterly",
+      "anchor": "2026-08-17",
       "active": true
     }
   ],
