@@ -574,6 +574,15 @@
       "date": "2027-08-30",
       "status": "planned",
       "ruleId": "t5o7gvqyobpm"
+    },
+    {
+      "id": "fhumwps8em8p",
+      "type": "expense",
+      "amount": 5400,
+      "category": "groceries",
+      "note": "German shopping",
+      "date": "2026-08-22",
+      "status": "done"
     }
   ],
   "rules": [
@@ -682,7 +691,7 @@
         "id": "ovstxx6cvpew",
         "store": "de",
         "date": "2026-08-22",
-        "total": 0,
+        "total": 5400,
         "items": [
           {
             "name": "Milch",
@@ -724,7 +733,8 @@
             "name": "Öl",
             "price": 0
           }
-        ]
+        ],
+        "txnId": "fhumwps8em8p"
       }
     ]
   }
