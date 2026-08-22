@@ -1928,16 +1928,6 @@
       "ruleId": "0h08ylyuxbhc"
     },
     {
-      "id": "kfygkvwkxt8d",
-      "type": "expense",
-      "amount": 500,
-      "category": "subs",
-      "note": "Phone recharge - Hasini",
-      "date": "2026-09-05",
-      "status": "planned",
-      "ruleId": "b687bcbvxt8c"
-    },
-    {
       "id": "ju1wlyfext8d",
       "type": "expense",
       "amount": 500,
@@ -2644,7 +2634,8 @@
     "pqouodf8hgzf|2026-08-22",
     "9trvq5n4z3vo|2026-08-22",
     "b687bcbvxt8c|2026-08-22",
-    "5q98aay2rqyf|2026-09-02"
+    "5q98aay2rqyf|2026-09-02",
+    "b687bcbvxt8c|2026-09-05"
   ],
   "shop": {
     "lists": {
