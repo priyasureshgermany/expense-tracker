@@ -1466,6 +1466,126 @@
       "date": "2027-08-01",
       "status": "planned",
       "ruleId": "rbx4wt3np9ur"
+    },
+    {
+      "id": "g3092aazslx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2026-09-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "7iflts24slx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2026-10-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "buaoi31pslx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2026-11-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "hhgvgq3bslx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2026-12-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "992txkn2slx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2027-01-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "1naf5yfislx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2027-02-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "3eh5h6fislx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2027-03-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "junnf1ynslx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2027-04-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "7c6fqbamslx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2027-05-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "mt2eyuyxslx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2027-06-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "v15xwv66slx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2027-07-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
+    },
+    {
+      "id": "69p5c7hlslx8",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "date": "2027-08-03",
+      "status": "planned",
+      "ruleId": "nzysz1jsslx6"
     }
   ],
   "rules": [
@@ -1587,6 +1707,16 @@
       "note": "Deutschland Ticket - Suresh",
       "freq": "monthly",
       "anchor": "2026-09-01",
+      "active": true
+    },
+    {
+      "id": "nzysz1jsslx6",
+      "type": "expense",
+      "amount": 12300,
+      "category": "education",
+      "note": "For Hort - Shakthi",
+      "freq": "monthly",
+      "anchor": "2026-09-03",
       "active": true
     }
   ],
