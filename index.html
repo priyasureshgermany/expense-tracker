@@ -177,6 +177,10 @@ button{cursor:pointer;background:none;border:none;padding:0}
   font-size:10px; letter-spacing:.14em; text-transform:uppercase;
   color:var(--ink-3); font-weight:500; white-space:nowrap;
 }
+#btnEye .eye-on{display:none}
+html.amounts-shown #btnEye .eye-off{display:none}
+html.amounts-shown #btnEye .eye-on{display:block}
+html.amounts-shown #btnEye{color:var(--accent)}
 .iconbtn{
   width:36px;height:36px;border-radius:10px;
   display:grid;place-items:center;color:var(--ink-2);
@@ -308,6 +312,23 @@ button{cursor:pointer;background:none;border:none;padding:0}
   from{opacity:0; transform:translateY(8px)}
   to{opacity:1; transform:translateY(0)}
 }
+
+/* ---------- Account balance ---------- */
+.balcard{
+  margin:14px 14px 0;padding:15px 16px 16px;
+  background:linear-gradient(140deg,#0C4C6E,#12708F 55%,#1E8F86);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-md);
+}
+.balcard[hidden]{display:none}
+.bal-k{
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:600;color:rgba(255,255,255,.7);
+}
+.bal-v{
+  font-size:29px;font-weight:700;letter-spacing:-.02em;color:#fff;margin-top:5px;
+  font-variant-numeric:proportional-nums;
+}
+.bal-s{font-size:11.5px;color:rgba(255,255,255,.66);margin-top:4px}
 
 /* ---------- Dashboard bar charts ---------- */
 .chartblock{
@@ -476,11 +497,14 @@ button{cursor:pointer;background:none;border:none;padding:0}
 .pr-n{flex:1;min-width:0}
 .pr-p{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;flex:none}
 .purch-total{
-  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
-  margin-top:14px;padding:13px 15px;border-radius:var(--r-md);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:14px;padding:11px 13px;border-radius:var(--r-md);
   background:var(--accent-soft);font-size:13px;font-weight:600;color:var(--ink-2);
 }
-.purch-total b{font-family:var(--mono);font-size:17px;color:var(--accent);font-variant-numeric:tabular-nums}
+.inp.purch-total-in{
+  flex:none;width:130px;text-align:right;
+  font-family:var(--mono);font-weight:700;color:var(--accent);
+}
 .inp.sf-total{flex:none;width:120px;text-align:right;font-family:var(--mono);font-weight:600}
 
 /* ---------- Monthly health strip ---------- */
@@ -910,10 +934,22 @@ html.locked #lockScreen::before{
   display:flex;align-items:center;justify-content:center;transition:background .12s;
 }
 .lock-pad button:active{background:rgba(255,255,255,.26)}
-.lock-bio{
-  margin-bottom:16px;font-size:12.5px;font-weight:600;color:#0A4364;background:#fff;
-  padding:10px 16px;border-radius:99px;box-shadow:0 4px 14px rgba(0,0,0,.22);
+.lock-recover{width:100%;max-width:280px;display:flex;flex-direction:column;gap:10px}
+/* a class-level display would otherwise beat the hidden attribute */
+.lock-recover[hidden]{display:none}
+.lock-pad[hidden],.lock-dots[hidden]{display:none}
+.lr-q{font-size:14px;font-weight:600;color:#fff;line-height:1.4;margin-bottom:2px}
+.lr-in{
+  width:100%;padding:12px 14px;border-radius:var(--r-md);font-size:16px;color:#fff;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);text-align:center;
 }
+.lr-in::placeholder{color:rgba(255,255,255,.5)}
+.lr-in:focus{outline:none;border-color:#fff;background:rgba(255,255,255,.2)}
+.lr-go{
+  padding:12px;border-radius:var(--r-md);font-size:14px;font-weight:600;
+  background:#fff;color:#0A4364;
+}
+.lr-back{font-size:12px;color:rgba(255,255,255,.62);text-decoration:underline;margin-top:2px}
 .lock-forgot{margin-top:20px;font-size:12px;color:rgba(255,255,255,.62);text-decoration:underline}
 </style>
 </head>
@@ -924,43 +960,78 @@ html.locked #lockScreen::before{
     <div class="lock-banner">
       <div class="lock-brand">பணப்பை</div>
       <div class="lock-tag">Expense tracker</div>
-      <!-- decorative: stylised euro & rupee notes, not a depiction of real currency -->
+      <!-- Decorative euro notes: the real series' colours and motifs (arched
+           window, ring of stars), drawn simply rather than reproduced. -->
       <svg class="lock-notes" viewBox="0 0 380 104" aria-hidden="true">
-        <g transform="rotate(-17 65 78)">
-          <rect x="26" y="56" width="78" height="44" rx="5" fill="#9B8FC4"/>
-          <rect x="31" y="61" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
-          <text x="39" y="84" font-size="15" font-weight="700" fill="#fff">₹100</text>
+        <defs>
+          <linearGradient id="n5"   x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B9B6B1"/><stop offset="1" stop-color="#87857F"/></linearGradient>
+          <linearGradient id="n10"  x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E08A72"/><stop offset="1" stop-color="#B94F41"/></linearGradient>
+          <linearGradient id="n20"  x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7FB0DC"/><stop offset="1" stop-color="#4374B4"/></linearGradient>
+          <linearGradient id="n50"  x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0BC6E"/><stop offset="1" stop-color="#D08A2E"/></linearGradient>
+          <linearGradient id="n100" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#86C79A"/><stop offset="1" stop-color="#3F8F5F"/></linearGradient>
+          <linearGradient id="n200" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E6CF77"/><stop offset="1" stop-color="#BE9C2E"/></linearGradient>
+          <!-- Art sits in the left 44 units: the fan overlaps each note's right
+               edge, so anything placed there would be covered by the next note. -->
+          <g id="noteArt">
+            <rect width="78" height="44" rx="5"/>
+            <rect x="4" y="4" width="70" height="36" rx="3" fill="#fff" fill-opacity=".13"/>
+            <path d="M58 36 V22 a7 7 0 0 1 14 0 V36 Z" fill="#fff" fill-opacity=".28"/>
+            <path d="M62 36 V26 a3 3 0 0 1 6 0 V36 Z" fill="#fff" fill-opacity=".2"/>
+            <g fill="#FFD84D" fill-opacity=".9">
+              <circle cx="10" cy="10.5" r=".85"/><circle cx="14" cy="9" r=".85"/>
+              <circle cx="18" cy="8.6" r=".85"/><circle cx="22" cy="9" r=".85"/>
+              <circle cx="26" cy="10.5" r=".85"/>
+            </g>
+            <path d="M8 37 h32" stroke="#fff" stroke-opacity=".3" stroke-width=".8"/>
+          </g>
+        </defs>
+
+        <g transform="translate(26,56) rotate(-17 39 22)">
+          <use href="#noteArt" fill="url(#n5)"/>
+          <text x="9" y="30" font-size="15" font-weight="700" fill="#fff">€</text>
+          <text x="9" y="39" font-size="4.2" font-weight="700" fill="#fff" fill-opacity=".7" letter-spacing=".8">EURO</text>
+          <text x="20" y="30" font-size="15" font-weight="700" fill="#fff">5</text>
         </g>
-        <g transform="rotate(-11 115 68)">
-          <rect x="76" y="46" width="78" height="44" rx="5" fill="#5B8FD4"/>
-          <rect x="81" y="51" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
-          <text x="89" y="74" font-size="15" font-weight="700" fill="#fff">€20</text>
+        <g transform="translate(76,46) rotate(-11 39 22)">
+          <use href="#noteArt" fill="url(#n10)"/>
+          <text x="9" y="30" font-size="15" font-weight="700" fill="#fff">€</text>
+          <text x="9" y="39" font-size="4.2" font-weight="700" fill="#fff" fill-opacity=".7" letter-spacing=".8">EURO</text>
+          <text x="20" y="30" font-size="15" font-weight="700" fill="#fff">10</text>
         </g>
-        <g transform="rotate(-4 165 62)">
-          <rect x="126" y="40" width="78" height="44" rx="5" fill="#7FA98C"/>
-          <rect x="131" y="45" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
-          <text x="139" y="68" font-size="15" font-weight="700" fill="#fff">₹200</text>
+        <g transform="translate(126,40) rotate(-4 39 22)">
+          <use href="#noteArt" fill="url(#n20)"/>
+          <text x="9" y="30" font-size="15" font-weight="700" fill="#fff">€</text>
+          <text x="9" y="39" font-size="4.2" font-weight="700" fill="#fff" fill-opacity=".7" letter-spacing=".8">EURO</text>
+          <text x="20" y="30" font-size="15" font-weight="700" fill="#fff">20</text>
         </g>
-        <g transform="rotate(4 215 62)">
-          <rect x="176" y="40" width="78" height="44" rx="5" fill="#E8A33D"/>
-          <rect x="181" y="45" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
-          <text x="189" y="68" font-size="15" font-weight="700" fill="#fff">€50</text>
+        <g transform="translate(176,40) rotate(4 39 22)">
+          <use href="#noteArt" fill="url(#n50)"/>
+          <text x="9" y="30" font-size="15" font-weight="700" fill="#fff">€</text>
+          <text x="9" y="39" font-size="4.2" font-weight="700" fill="#fff" fill-opacity=".7" letter-spacing=".8">EURO</text>
+          <text x="20" y="30" font-size="15" font-weight="700" fill="#fff">50</text>
         </g>
-        <g transform="rotate(11 265 68)">
-          <rect x="226" y="46" width="78" height="44" rx="5" fill="#C86A9E"/>
-          <rect x="231" y="51" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
-          <text x="239" y="74" font-size="15" font-weight="700" fill="#fff">₹500</text>
+        <g transform="translate(226,46) rotate(11 39 22)">
+          <use href="#noteArt" fill="url(#n100)"/>
+          <text x="9" y="30" font-size="15" font-weight="700" fill="#fff">€</text>
+          <text x="9" y="39" font-size="4.2" font-weight="700" fill="#fff" fill-opacity=".7" letter-spacing=".8">EURO</text>
+          <text x="20" y="30" font-size="15" font-weight="700" fill="#fff">100</text>
         </g>
-        <g transform="rotate(17 315 78)">
-          <rect x="276" y="56" width="78" height="44" rx="5" fill="#D2695C"/>
-          <rect x="281" y="61" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
-          <text x="289" y="84" font-size="15" font-weight="700" fill="#fff">€10</text>
+        <g transform="translate(276,56) rotate(17 39 22)">
+          <use href="#noteArt" fill="url(#n200)"/>
+          <text x="9" y="30" font-size="15" font-weight="700" fill="#fff">€</text>
+          <text x="9" y="39" font-size="4.2" font-weight="700" fill="#fff" fill-opacity=".7" letter-spacing=".8">EURO</text>
+          <text x="20" y="30" font-size="15" font-weight="700" fill="#fff">200</text>
         </g>
       </svg>
     </div>
     <div class="lock-sub" id="lockSub">Enter your PIN</div>
     <div class="lock-dots" id="lockDots"><span></span><span></span><span></span><span></span></div>
-    <button class="lock-bio" id="lockBioBtn" hidden>Unlock with Face / Touch ID</button>
+    <div class="lock-recover" id="lockRecover" hidden>
+      <div class="lr-q" id="lockRecoverQ"></div>
+      <input class="lr-in" id="lockAnswer" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Your answer">
+      <button class="lr-go" id="lockAnswerGo">Unlock</button>
+      <button class="lr-back" id="lockRecoverBack">Back to PIN</button>
+    </div>
     <div class="lock-pad" id="lockPad">
       <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
       <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
@@ -981,6 +1052,10 @@ html.locked #lockScreen::before{
     </div>
     <button class="iconbtn" id="btnRules" title="Recurring entries" aria-label="Recurring entries">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg>
+    </button>
+    <button class="iconbtn" id="btnEye" title="Show amounts" aria-label="Show amounts" aria-pressed="false">
+      <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+      <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
     </button>
     <button class="iconbtn" id="btnMenu" title="Settings" aria-label="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -1013,6 +1088,12 @@ html.locked #lockScreen::before{
   </div>
 
   <div id="viewDash">
+    <section class="balcard" id="balCard" hidden>
+      <div class="bal-k">In the account now</div>
+      <div class="bal-v" id="balNow">€0.00</div>
+      <div class="bal-s" id="balSub">—</div>
+    </section>
+
     <section class="statement">
       <div class="eyebrow">Net this period</div>
       <div class="net" id="netVal">€0.00</div>
@@ -1127,14 +1208,9 @@ html.locked #lockScreen::before{
   <div class="spacer"></div>
 
   <div class="dock">
-    <button class="addbtn" id="btnAdd">
+    <button class="addbtn" id="btnAdd" style="flex:1">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
       Add entry
-    </button>
-    <span class="grow"></span>
-    <button class="dockbtn" id="btnImport">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-      Import
     </button>
   </div>
 </div>
@@ -1304,9 +1380,11 @@ html.locked #lockScreen::before{
     <div class="purch-meta" id="purchMeta"></div>
     <div class="purchlist" id="purchItems"></div>
     <div class="purch-total">
-      <span>Total bill</span>
-      <b id="purchTotal">€0.00</b>
+      <label for="purchTotal">Total bill</label>
+      <input class="inp purch-total-in" id="purchTotal" type="text" inputmode="decimal" placeholder="€ 0,00" autocomplete="off">
     </div>
+    <button class="btn sm" id="purchSave" style="margin-top:12px">Save total</button>
+    <div class="note" id="purchNote" style="margin-top:10px"></div>
   </div>
 </section>
 
@@ -1359,18 +1437,46 @@ html.locked #lockScreen::before{
       </div>
     </div>
     <div class="field">
+      <label for="balAmt">Money already in the account</label>
+      <div class="note">
+        What your account holds right now, as a starting point. The dashboard then tracks
+        it forward: this balance, plus income received, minus expenses paid from that date on.
+      </div>
+      <div style="display:flex;gap:7px;margin-top:8px">
+        <input class="inp" id="balAmt" type="text" inputmode="decimal" placeholder="€ 0,00" autocomplete="off" style="flex:1;text-align:right;font-family:var(--mono);font-weight:600">
+        <input class="inp" id="balDate" type="date" style="flex:none;width:160px">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+        <button class="btn ghost sm" id="balSave">Save balance</button>
+        <button class="btn danger sm" id="balClear" hidden>Remove balance</button>
+      </div>
+    </div>
+    <div class="field">
       <label>App lock</label>
       <div class="note" id="lockStatus">Off — anyone with this device can open the app.</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
         <button class="btn ghost sm" id="lockSetPin">Set a 4-digit PIN</button>
-        <button class="btn ghost sm" id="lockSetBio" hidden>Use Face / Touch ID or Windows Hello</button>
         <button class="btn danger sm" id="lockTurnOff" hidden>Turn off app lock</button>
+      </div>
+      <div id="lockQWrap" hidden style="margin-top:12px">
+        <label for="lockQ">Security question</label>
+        <div class="note" id="lockQStatus" style="margin-bottom:8px">—</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input class="inp" id="lockQ" type="text" placeholder="e.g. My first school?" autocomplete="off">
+          <input class="inp" id="lockA" type="text" placeholder="Answer" autocomplete="off" autocapitalize="none" spellcheck="false">
+          <button class="btn ghost sm" id="lockQSave">Save security question</button>
+        </div>
       </div>
       <div class="note" style="margin-top:6px">Locks the screen only — it does not encrypt the data stored on this device.</div>
     </div>
     <div class="field">
       <label>Your data</label>
       <div class="note" id="statLine">—</div>
+    </div>
+    <div class="field">
+      <label>Import a bank statement</label>
+      <button class="btn ghost sm" id="btnImport">Import CSV…</button>
+      <div class="note" style="margin-top:6px">Commerzbank and Deutsche Bank CSV exports, plus most other German bank formats.</div>
     </div>
     <div class="field">
       <label>Backup</label>
@@ -1500,11 +1606,38 @@ function iconSvg(catId, size){
 /* ---------- money ---------- */
 const eur = new Intl.NumberFormat("de-DE", {style:"currency", currency:"EUR"});
 const eur0 = new Intl.NumberFormat("de-DE", {style:"currency", currency:"EUR", maximumFractionDigits:0});
-function fmt(cents){ return eur.format((cents||0)/100); }
+/* ---------- private mode ----------
+   Amounts are masked by default so the app can be opened in public without
+   the numbers on show; the eye button in the top bar reveals them. Masking is
+   applied at the single formatting point, so it covers every screen at once.
+   Editable inputs are filled from the raw value, not fmt(), and stay usable. */
+const HIDE_KEY = "panappai.hideAmounts";
+const AMOUNT_MASK = "••••";
+let amountsHidden = true;
+try{ amountsHidden = localStorage.getItem(HIDE_KEY) !== "0"; }catch(e){}
+
+function fmt(cents){ return amountsHidden ? AMOUNT_MASK : eur.format((cents||0)/100); }
 function fmtShort(cents){
+  if (amountsHidden) return AMOUNT_MASK;
   const v = Math.abs(cents||0)/100;
   return v >= 1000 ? eur0.format((cents||0)/100) : eur.format((cents||0)/100);
 }
+
+/* Defined here beside fmt(), but wired up with getElementById because the
+   $ helper isn't declared until further down the script. */
+function syncEyeBtn(){
+  const b = document.getElementById("btnEye");
+  b.setAttribute("aria-pressed", String(!amountsHidden));
+  b.title = amountsHidden ? "Show amounts" : "Hide amounts";
+  b.setAttribute("aria-label", b.title);
+  document.documentElement.classList.toggle("amounts-shown", !amountsHidden);
+}
+document.getElementById("btnEye").addEventListener("click", () => {
+  amountsHidden = !amountsHidden;
+  try{ localStorage.setItem(HIDE_KEY, amountsHidden ? "1" : "0"); }catch(e){}
+  syncEyeBtn();
+  render(); renderShop();
+});
 
 /**
  * Parse a money string in either German (1.234,56) or English (1,234.56) form.
@@ -1874,9 +2007,65 @@ function render(){
 
   renderBreakdown(all, dark);
   renderCharts(all);
+  renderBalance();
   renderMonthStrip();
   $("#demoBar").hidden = !state.demo;
   $$("#viewEntries .seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.f === filter)));
+}
+
+/* =========================================================================
+   ACCOUNT BALANCE — a starting figure plus everything settled since.
+   Only *done* entries count: planned ones haven't touched the bank yet.
+   ========================================================================= */
+const BAL_AMT_KEY = "panappai.balance.amount";
+const BAL_DATE_KEY = "panappai.balance.date";
+
+function balanceSetting(){
+  const amt = parseInt(localStorage.getItem(BAL_AMT_KEY) || "", 10);
+  const date = localStorage.getItem(BAL_DATE_KEY) || "";
+  return Number.isFinite(amt) && date ? { amount: amt, date: date } : null;
+}
+
+function renderBalance(){
+  const b = balanceSetting();
+  const card = $("#balCard");
+  if (!b){ card.hidden = true; return; }
+  card.hidden = false;
+
+  let inc = 0, exp = 0;
+  state.txns.forEach(t => {
+    if (t.status !== "done" || t.date < b.date) return;
+    if (t.type === "income") inc += t.amount; else exp += t.amount;
+  });
+  const now = b.amount + inc - exp;
+
+  const el2 = $("#balNow");
+  animateValue(el2, now, v => { el2.textContent = fmt(v); });
+  $("#balSub").textContent =
+    "From " + fmt(b.amount) + " on " + dayTitle(b.date) +
+    " · " + fmt(inc) + " in, " + fmt(exp) + " out since";
+}
+
+$("#balSave").addEventListener("click", () => {
+  const amt = parseAmount($("#balAmt").value);
+  const date = $("#balDate").value || todayISO();
+  if (amt == null){ toast("Enter the amount currently in the account"); return; }
+  localStorage.setItem(BAL_AMT_KEY, String(Math.round(amt)));
+  localStorage.setItem(BAL_DATE_KEY, date);
+  renderBalanceSettings(); render();
+  toast("Balance saved");
+});
+$("#balClear").addEventListener("click", () => {
+  localStorage.removeItem(BAL_AMT_KEY);
+  localStorage.removeItem(BAL_DATE_KEY);
+  renderBalanceSettings(); render();
+  toast("Balance removed");
+});
+function renderBalanceSettings(){
+  const b = balanceSetting();
+  $("#balAmt").value = b ? (b.amount / 100).toFixed(2).replace(".", ",") : "";
+  $("#balDate").value = b ? b.date : todayISO();
+  $("#balClear").hidden = !b;
 }
 
 /**
@@ -2613,6 +2802,7 @@ $("#btnMenu").addEventListener("click", () => {
     (periods.size === 1 ? "" : "s") + ", plus <b>" + state.rules.length + "</b> repeating entr" +
     (state.rules.length === 1 ? "y" : "ies") + ".";
   renderLockSettings();
+  renderBalanceSettings();
   renderGhSettings();
   sheetOpen("#shSet");
 });
@@ -2788,8 +2978,11 @@ function renderShopHistory(){
   });
 }
 
-/** Read-only detail of one saved shop, opened from the Recent purchases list. */
+/** Detail of one saved shop, opened from the Recent purchases list. */
+let editingPurchase = null;
+
 function openPurchase(h){
+  editingPurchase = h;
   $("#purchTitle").textContent = STORE_LABEL[h.store] || "Purchase";
   $("#purchMeta").textContent = dayTitle(h.date) + " · " + h.items.length +
     " item" + (h.items.length === 1 ? "" : "s");
@@ -2803,9 +2996,44 @@ function openPurchase(h){
     host.appendChild(row);
   });
 
-  $("#purchTotal").textContent = fmt(h.total);
+  $("#purchTotal").value = h.total ? (h.total / 100).toFixed(2).replace(".", ",") : "";
+  const linked = h.txnId && state.txns.some(t => t.id === h.txnId);
+  $("#purchNote").textContent = linked
+    ? "Changing the total updates the groceries expense this shop posted to the ledger."
+    : "This shop hasn't been posted to the ledger. Entering a total adds it as a groceries expense.";
   sheetOpen("#shPurch");
 }
+
+/** Keeps the saved shop and the ledger entry it created in step with each other. */
+$("#purchSave").addEventListener("click", () => {
+  const h = editingPurchase;
+  if (!h) return;
+  const total = Math.abs(parseAmount($("#purchTotal").value) || 0);
+  h.total = total;
+
+  const linked = h.txnId ? state.txns.find(t => t.id === h.txnId) : null;
+  if (linked){
+    if (total > 0){
+      linked.amount = total;
+    } else {
+      /* a total cleared back to nothing shouldn't leave a €0 row in the ledger */
+      state.txns = state.txns.filter(t => t.id !== h.txnId);
+      delete h.txnId;
+    }
+  } else if (total > 0){
+    userTouched();
+    const t = {
+      id: uid(), type:"expense", amount: total, category:"groceries",
+      note: (STORE_LABEL[h.store] || "").replace(" stores", "") + " shopping",
+      date: h.date, status:"done"
+    };
+    state.txns.push(t);
+    h.txnId = t.id;
+  }
+
+  save(); render(); renderShop(); sheetClose();
+  toast(total > 0 ? "Total set to " + fmt(total) : "Total cleared");
+});
 
 $$("#storeTog button").forEach(b => b.addEventListener("click", () => { store = b.dataset.store; renderShop(); }));
 
@@ -3009,17 +3237,21 @@ $("#shopDone").addEventListener("click", () => {
      exist when a scanned receipt supplied them */
   const total = Math.abs(parseAmount($("#shopTotal").value) || 0);
 
-  state.shop.history.push({
+  const record = {
     id: uid(), store: store, date: date, total: total,
     items: checked.map(i => ({ name:i.name, price:i.price || 0 }))
-  });
+  };
+  state.shop.history.push(record);
 
   if ($("#shopLogExpense").checked && total > 0){
     userTouched();
-    state.txns.push({
+    const t = {
       id: uid(), type:"expense", amount: total, category:"groceries",
       note: STORE_LABEL[store].replace(" stores", "") + " shopping", date: date, status:"done"
-    });
+    };
+    state.txns.push(t);
+    /* remembered so the total can be corrected later without orphaning the entry */
+    record.txnId = t.id;
   }
 
   state.shop.lists[store] = arr.filter(i => !i.done);
@@ -3108,7 +3340,8 @@ function seed(){
 const LOCK_ENABLED_KEY = "panappai.lock.enabled";
 const LOCK_HASH_KEY = "panappai.lock.pinHash";
 const LOCK_SALT_KEY = "panappai.lock.salt";
-const LOCK_BIO_KEY = "panappai.lock.webauthnId";
+const LOCK_Q_KEY = "panappai.lock.question";
+const LOCK_A_KEY = "panappai.lock.answerHash";
 
 function lockSalt(){
   let s = localStorage.getItem(LOCK_SALT_KEY);
@@ -3123,45 +3356,12 @@ async function pinHash(pin){
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 function lockEnabled(){ return localStorage.getItem(LOCK_ENABLED_KEY) === "1"; }
-function lockHasBio(){ return !!localStorage.getItem(LOCK_BIO_KEY); }
-async function bioAvailable(){
-  if (!window.PublicKeyCredential || !PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) return false;
-  return PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(() => false);
-}
-/** Registers a platform authenticator credential (Face ID / Touch ID / Windows Hello) purely as a local unlock gate. */
-async function registerBiometric(){
-  try{
-    const cred = await navigator.credentials.create({
-      publicKey:{
-        challenge: crypto.getRandomValues(new Uint8Array(32)),
-        rp:{ name:"பணப்பை" },
-        user:{ id: crypto.getRandomValues(new Uint8Array(16)), name:"device-owner", displayName:"பணப்பை" },
-        pubKeyCredParams:[{alg:-7, type:"public-key"}, {alg:-257, type:"public-key"}],
-        authenticatorSelection:{ authenticatorAttachment:"platform", userVerification:"required" },
-        timeout:60000
-      }
-    });
-    const idB64 = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
-    localStorage.setItem(LOCK_BIO_KEY, idB64);
-    localStorage.setItem(LOCK_ENABLED_KEY, "1");
-    return true;
-  }catch(e){ return false; }
-}
-/** A successful assertion already required the device's own biometric/PIN check, so no server-side signature check is needed for a local gate. */
-async function unlockWithBiometric(){
-  const idB64 = localStorage.getItem(LOCK_BIO_KEY);
-  if (!idB64) return false;
-  try{
-    const rawId = Uint8Array.from(atob(idB64), c => c.charCodeAt(0));
-    await navigator.credentials.get({
-      publicKey:{
-        challenge: crypto.getRandomValues(new Uint8Array(32)),
-        allowCredentials:[{ id:rawId, type:"public-key" }],
-        userVerification:"required", timeout:60000
-      }
-    });
-    return true;
-  }catch(e){ return false; }
+function lockHasQuestion(){ return !!localStorage.getItem(LOCK_A_KEY); }
+/** Answers are compared case- and space-insensitively, and only the hash is stored. */
+async function answerHash(a){
+  const norm = String(a || "").trim().toLowerCase().replace(/\s+/g, " ");
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(lockSalt() + ":a:" + norm));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
 let lockMode = "unlock"; // "unlock" | "setup1" | "setup2"
@@ -3175,23 +3375,30 @@ function lockShake(){
   const d = $("#lockDots");
   d.classList.remove("shake"); void d.offsetWidth; d.classList.add("shake");
 }
-function unlockApp(){ document.documentElement.classList.remove("locked"); }
+function unlockApp(){
+  document.documentElement.classList.remove("locked");
+  lockHiddenAt = 0;
+  lockResetIdle();
+}
 
 function lockOpenUnlock(){
   document.documentElement.classList.add("locked");
   lockMode = "unlock"; lockBuf = ""; lockFirstPin = "";
   $("#lockSub").textContent = "Enter your PIN";
   $("#lockForgot").hidden = false;
+  $("#lockRecover").hidden = true;
+  $("#lockPad").hidden = false;
+  $("#lockDots").hidden = false;
   lockRenderDots();
-  $("#lockBioBtn").hidden = !lockHasBio();
-  if (lockHasBio()) unlockWithBiometric().then(ok => { if (ok) unlockApp(); });
 }
 function lockOpenSetup(){
   document.documentElement.classList.add("locked");
   lockMode = "setup1"; lockBuf = ""; lockFirstPin = "";
   $("#lockSub").textContent = "Choose a 4-digit PIN";
   $("#lockForgot").hidden = true;
-  $("#lockBioBtn").hidden = true;
+  $("#lockRecover").hidden = true;
+  $("#lockPad").hidden = false;
+  $("#lockDots").hidden = false;
   lockRenderDots();
 }
 async function lockDigit(k){
@@ -3231,46 +3438,99 @@ $("#lockPad").addEventListener("click", e => {
   const b = e.target.closest("button[data-k]");
   if (b) lockDigit(b.dataset.k);
 });
-$("#lockBioBtn").addEventListener("click", async () => {
-  const ok = await unlockWithBiometric();
-  if (ok) unlockApp(); else toast("Biometric unlock failed");
-});
-$("#lockForgot").addEventListener("click", function(){
-  if (this.dataset.armed){
-    localStorage.removeItem(LOCK_ENABLED_KEY);
-    localStorage.removeItem(LOCK_HASH_KEY);
-    localStorage.removeItem(LOCK_BIO_KEY);
-    delete this.dataset.armed;
-    this.textContent = "Forgot PIN?";
-    unlockApp();
-    renderLockSettings();
+/* ---------- forgotten PIN: answer the security question, then set a new one ----------
+   The PIN itself is only ever stored as a salted hash, so it can't be shown back —
+   a correct answer leads to choosing a new PIN instead. */
+function lockShowRecovery(){
+  if (!lockHasQuestion()){
+    toast("No security question was set — turn the lock off in Settings on a device where you're signed in");
+    return;
+  }
+  $("#lockSub").textContent = "Answer to reset your PIN";
+  $("#lockRecoverQ").textContent = localStorage.getItem(LOCK_Q_KEY) || "Your security question";
+  $("#lockAnswer").value = "";
+  $("#lockPad").hidden = true;
+  $("#lockDots").hidden = true;
+  $("#lockForgot").hidden = true;
+  $("#lockRecover").hidden = false;
+  setTimeout(() => $("#lockAnswer").focus(), 80);
+}
+$("#lockForgot").addEventListener("click", lockShowRecovery);
+$("#lockRecoverBack").addEventListener("click", lockOpenUnlock);
+
+async function lockTryAnswer(){
+  const given = await answerHash($("#lockAnswer").value);
+  if (given === localStorage.getItem(LOCK_A_KEY)){
+    $("#lockRecover").hidden = true;
+    lockOpenSetup();
+    toast("Answer accepted — choose a new PIN");
   } else {
-    this.dataset.armed = "1";
-    this.textContent = "Tap again to remove the lock — your entries are unaffected";
-    setTimeout(() => { delete this.dataset.armed; this.textContent = "Forgot PIN?"; }, 4000);
+    lockShake();
+    $("#lockAnswer").value = "";
+    toast("That doesn't match");
+  }
+}
+$("#lockAnswerGo").addEventListener("click", lockTryAnswer);
+$("#lockAnswer").addEventListener("keydown", e => { if (e.key === "Enter") lockTryAnswer(); });
+
+/* ---------- session: re-lock after 5 idle minutes, or on returning to the app ----------
+   An installed PWA is often resumed from memory rather than reloaded, so boot-time
+   locking alone never fires — the visibility check is what covers reopening. */
+const LOCK_IDLE_MS = 5 * 60 * 1000;
+let lockIdleTimer = null;
+let lockHiddenAt = 0;
+
+function lockNow(){
+  if (!lockEnabled() || document.documentElement.classList.contains("locked")) return;
+  lockOpenUnlock();
+}
+function lockResetIdle(){
+  if (lockIdleTimer) clearTimeout(lockIdleTimer);
+  if (!lockEnabled()) return;
+  lockIdleTimer = setTimeout(lockNow, LOCK_IDLE_MS);
+}
+["pointerdown", "keydown", "touchstart"].forEach(ev =>
+  document.addEventListener(ev, lockResetIdle, { passive: true }));
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden){
+    lockHiddenAt = Date.now();
+  } else if (lockHiddenAt && Date.now() - lockHiddenAt > LOCK_IDLE_MS){
+    lockNow();
+  } else {
+    lockResetIdle();
   }
 });
 
-async function renderLockSettings(){
+function renderLockSettings(){
   const on = lockEnabled();
   $("#lockStatus").textContent = on
-    ? (lockHasBio() ? "On — Face/Touch ID or Windows Hello required to open the app." : "On — a PIN is required to open the app.")
+    ? "On — a PIN is required after 5 minutes idle, or when the app is reopened."
     : "Off — anyone with this device can open the app.";
   $("#lockSetPin").textContent = on ? "Change PIN" : "Set a 4-digit PIN";
   $("#lockTurnOff").hidden = !on;
-  const bio = await bioAvailable();
-  $("#lockSetBio").hidden = !bio || (on && lockHasBio());
+  $("#lockQWrap").hidden = !on;
+  $("#lockQ").value = localStorage.getItem(LOCK_Q_KEY) || "";
+  $("#lockQStatus").textContent = lockHasQuestion()
+    ? "A security question is set — it's the only way back in if you forget the PIN."
+    : "No security question yet. Without one, a forgotten PIN can't be reset on this device.";
 }
 $("#lockSetPin").addEventListener("click", () => { sheetClose(); lockOpenSetup(); });
-$("#lockSetBio").addEventListener("click", async () => {
-  const ok = await registerBiometric();
-  toast(ok ? "Face/Touch ID enabled" : "Couldn't set up biometric unlock");
+$("#lockQSave").addEventListener("click", async () => {
+  const q = $("#lockQ").value.trim();
+  const a = $("#lockA").value.trim();
+  if (!q || !a){ toast("Fill in both the question and the answer"); return; }
+  localStorage.setItem(LOCK_Q_KEY, q);
+  localStorage.setItem(LOCK_A_KEY, await answerHash(a));
+  $("#lockA").value = "";
   renderLockSettings();
+  toast("Security question saved");
 });
 $("#lockTurnOff").addEventListener("click", () => {
   localStorage.removeItem(LOCK_ENABLED_KEY);
   localStorage.removeItem(LOCK_HASH_KEY);
-  localStorage.removeItem(LOCK_BIO_KEY);
+  localStorage.removeItem(LOCK_Q_KEY);
+  localStorage.removeItem(LOCK_A_KEY);
   toast("App lock turned off");
   renderLockSettings();
 });
@@ -3512,8 +3772,10 @@ $("#ghDisable").addEventListener("click", () => {
   save();
   render();
   renderShop();
+  syncEyeBtn();
   syncThemeColorMeta();
   if (lockEnabled()) lockOpenUnlock(); else document.documentElement.classList.remove("locked");
+  lockResetIdle();
 })();
 
 if ("serviceWorker" in navigator) {

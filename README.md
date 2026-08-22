@@ -33,7 +33,7 @@ Open `index.html` in any browser, or host the file anywhere static.
 - **Recurring entries** at weekly / monthly / every-2-months / quarterly /
   every-6-months / yearly intervals. Future occurrences appear automatically as
   planned entries, 12 months ahead.
-- **Bank CSV import** for Commerzbank and Deutsche Bank exports, plus most other
+- **Bank CSV import** (Settings → Import a bank statement) for Commerzbank and Deutsche Bank exports, plus most other
   German bank formats. Handles `;` and `,` delimiters, German (`1.234,56`) and
   English (`1,234.56`) number formats, `Betrag` single-column and `Soll`/`Haben`
   two-column layouts, UTF-8 and Windows-1252 encodings. Duplicate rows are
@@ -44,12 +44,21 @@ Open `index.html` in any browser, or host the file anywhere static.
   it keeps working offline. On Chrome/Edge/Android an in-app banner offers an
   install button; on iOS Safari it shows the "Add to Home Screen" steps
   instead, since iOS has no programmatic install prompt.
-- **App lock** — gate the app behind a 4-digit PIN, or your device's own
-  Face ID / Touch ID / Windows Hello via WebAuthn. Set it up from
-  **Settings → App lock**. The lock screen is a branded full-bleed gradient
-  with the app name and a fan of euro and rupee notes. This locks the *screen*
-  only; it does not encrypt the data itself, so it's a deterrent for a shared
-  device, not real cryptographic security.
+- **Amounts hidden by default.** Every figure shows as `••••` until you tap the
+  eye button in the top bar, so the app can be opened in public without the
+  numbers on show. The choice is remembered.
+- **Money already in the account.** Set what the account holds today in
+  **Settings**, and the dashboard carries it forward: that balance, plus income
+  received, minus expenses paid since that date. Planned entries are excluded —
+  they haven't touched the bank yet.
+- **App lock** — a 4-digit PIN, set from **Settings → App lock**. It asks again
+  after 5 minutes idle and whenever the app is reopened, not only on a cold
+  start. Pair it with a **security question**: the PIN is stored only as a
+  salted hash and can never be shown back, so answering the question leads to
+  setting a new PIN. The lock screen is a branded full-bleed gradient with the
+  app name and a fan of euro notes. This locks the *screen* only; it does not
+  encrypt the data itself, so it's a deterrent for a shared device, not real
+  cryptographic security.
 - **Optional GitHub sync** — see below.
 
 ## Shopping lists
@@ -69,7 +78,10 @@ stores** — designed for tapping rather than typing:
   into *Recent purchases* with a purchase date, leaves anything unbought on
   the list, and can post the total bill to the ledger as a groceries expense.
 - **Recent purchases are tappable** — opening one shows everything bought on
-  that trip, with per-item prices where a scan supplied them, and the total.
+  that trip, with per-item prices where a scan supplied them. The **total is
+  editable there**, so a shop saved without one can be priced afterwards:
+  setting a total posts the groceries expense, changing it updates that same
+  entry, and clearing it removes it again rather than leaving a €0 row.
 
 ### Scanning a receipt
 
