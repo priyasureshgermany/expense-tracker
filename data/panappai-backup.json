@@ -2076,6 +2076,136 @@
       "date": "2027-08-22",
       "status": "planned",
       "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "82zrqn1xz3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2026-08-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "x5zygfx1z3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2026-09-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "t1ac7xjxz3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2026-10-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "4op69pvfz3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2026-11-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "u9gf2lg5z3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2026-12-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "4vlpx48uz3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2027-01-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "c9lse7spz3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2027-02-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "ii6cu6j0z3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2027-03-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "m2kmcym0z3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2027-04-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "hx7dkwm3z3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2027-05-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "bzapjwhoz3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2027-06-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "zmoc7fwlz3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2027-07-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "8du4z2cuz3vp",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
+      "date": "2027-08-22",
+      "status": "planned",
+      "ruleId": "9trvq5n4z3vo"
     }
   ],
   "rules": [
@@ -2245,6 +2375,16 @@
       "amount": 500,
       "category": "subs",
       "note": "Phone recharge - Hasini",
+      "freq": "monthly",
+      "anchor": "2026-08-22",
+      "active": true
+    },
+    {
+      "id": "9trvq5n4z3vo",
+      "type": "expense",
+      "amount": 222000,
+      "category": "other",
+      "note": "EMI - Commerzbank",
       "freq": "monthly",
       "anchor": "2026-08-22",
       "active": true
