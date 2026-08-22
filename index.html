@@ -288,45 +288,179 @@ button{cursor:pointer;background:none;border:none;padding:0}
 }
 .demobar .db-x:hover{background:color-mix(in srgb, var(--accent) 14%, transparent)}
 
-/* ---------- View toggle (Dashboard / Entries) ---------- */
+/* ---------- View toggle (Dashboard / Tracker / Shop) ---------- */
 .viewtog{
-  display:grid;grid-template-columns:1fr 1fr;gap:3px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:3px;
   margin:12px 14px 0;padding:3px;
   background:var(--surface-sunk);border-radius:var(--r-md);
 }
 .viewtog button{
-  padding:9px 4px;border-radius:9px;font-size:13px;font-weight:500;
+  padding:9px 2px;border-radius:9px;font-size:12.5px;font-weight:500;
   color:var(--ink-2);transition:background .18s,color .18s,box-shadow .18s;
-  display:flex;align-items:center;justify-content:center;gap:6px;
+  display:flex;align-items:center;justify-content:center;gap:5px;
 }
-.viewtog button svg{width:16px;height:16px;flex:none}
+.viewtog button svg{width:15px;height:15px;flex:none}
 .viewtog button[aria-selected="true"]{
   background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow-sm);
 }
-#viewDash, #viewEntries{ animation:panelIn .3s cubic-bezier(.2,.7,.3,1) }
+#viewDash, #viewEntries, #viewShop{ animation:panelIn .3s cubic-bezier(.2,.7,.3,1) }
 @keyframes panelIn{
   from{opacity:0; transform:translateY(8px)}
   to{opacity:1; transform:translateY(0)}
 }
 
-/* ---------- Bucket (coins, no animation) ---------- */
-.bucketcard{
-  margin:14px 14px 0;padding:16px 16px 18px;
-  background:linear-gradient(160deg, var(--surface), var(--surface-2));
-  border-radius:var(--r-lg);border:1px solid var(--line);
+/* ---------- Dashboard bar charts ---------- */
+.chartblock{
+  margin:14px 14px 0;padding:14px 15px 8px;
+  background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--line);
 }
-.bucket-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.bucket-t{font-size:12.5px;font-weight:600;color:var(--ink-2)}
-.bucket-v{font-family:var(--mono);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;transition:color .4s}
-.bucket-wrap{position:relative;width:60%;max-width:230px;min-width:150px;margin:10px auto 4px}
-.bucket-svg{display:block;width:100%;height:auto}
-.bucket-outline{fill:none;stroke:var(--ink-3);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
-.bucket-rim{stroke:var(--ink-2)}
-.pattern-euro{
-  font-family:var(--sans);font-size:11px;font-weight:800;fill:#D79A3C;
+.chartblock-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px}
+.cb-t{font-size:12.5px;font-weight:600;color:var(--ink)}
+.cb-n{
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  color:var(--health-color, var(--ink-3));
 }
-#bucketLevel{ transition:y .6s cubic-bezier(.4,0,.2,1), height .6s cubic-bezier(.4,0,.2,1) }
-.bucket-sub{margin-top:10px;font-size:12px;color:var(--ink-3);text-align:center}
+.barrow{
+  display:block;width:100%;text-align:left;padding:7px 0 9px;
+  border-bottom:1px solid var(--line);
+}
+.chartblock .barrow:last-child{border-bottom:none}
+.barrow-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.barrow-l{font-size:12.5px;font-weight:500;color:var(--ink-2)}
+.barrow-v{
+  font-family:var(--mono);font-size:12.5px;font-weight:600;
+  font-variant-numeric:tabular-nums;color:var(--ink);
+}
+.barrow-track{height:9px;background:var(--surface-sunk);border-radius:99px;overflow:hidden}
+.barrow-track i{
+  display:block;height:100%;border-radius:99px;
+  transition:width .55s cubic-bezier(.4,0,.2,1),filter .15s;
+}
+.barrow:hover .barrow-track i{filter:brightness(1.12)}
+.barrow:active .barrow-track i{filter:brightness(.92)}
+.barrow-sub{
+  font-size:11.5px;color:var(--ink-3);line-height:1.5;
+  max-height:0;opacity:0;overflow:hidden;
+  transition:max-height .28s ease,opacity .22s ease,margin-top .28s ease;
+}
+.barrow.open .barrow-sub{max-height:60px;opacity:1;margin-top:7px}
+
+/* ---------- Shopping lists ---------- */
+.shopadd{display:flex;gap:7px;margin:12px 14px 0}
+.shopadd-main{
+  flex:1;height:44px;border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--accent-mid),var(--accent));color:var(--accent-ink);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:14px;font-weight:600;transition:filter .15s,transform .12s;
+}
+.shopadd-main svg{width:18px;height:18px}
+.shopadd-main:active{transform:scale(.985)}
+.shopadd-b{
+  flex:none;width:44px;border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--accent-mid),var(--accent));color:var(--accent-ink);
+  display:grid;place-items:center;transition:filter .15s,transform .12s;
+}
+.shopadd-b svg{width:19px;height:19px}
+.shopadd-b:active{transform:scale(.95)}
+.shoplist{margin:12px 14px 0;display:flex;flex-direction:column;gap:7px}
+.shopitem{
+  display:flex;align-items:center;gap:11px;padding:11px 12px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  transition:background .18s,border-color .18s;
+}
+.shopitem.checked{background:var(--pos-soft);border-color:color-mix(in srgb, var(--pos) 28%, transparent)}
+.shopitem.checked .si-n{color:var(--ink-2)}
+.si-box{
+  width:22px;height:22px;flex:none;border-radius:7px;
+  border:1.6px solid var(--line-strong);display:grid;place-items:center;
+  color:transparent;transition:background .15s,border-color .15s,color .15s;
+}
+.si-box svg{width:13px;height:13px;stroke-width:3}
+.shopitem.checked .si-box{background:var(--pos);border-color:var(--pos);color:#fff}
+.si-n{flex:1;min-width:0;font-size:14px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* the price only appears once an item is ticked, and stays optional */
+.si-price{
+  flex:none;width:84px;padding:6px 9px;border-radius:9px;
+  background:var(--surface);border:1.5px solid var(--line-strong);
+  font-family:var(--mono);font-size:13px;text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.si-price:focus{outline:none;border-color:var(--accent)}
+.si-x{
+  width:26px;height:26px;flex:none;display:grid;place-items:center;
+  color:var(--ink-3);border-radius:7px;transition:background .15s,color .15s;
+}
+.si-x:hover{background:var(--neg-soft);color:var(--neg)}
+.si-x svg{width:14px;height:14px}
+
+/* ---------- Item picker ---------- */
+.pickgroup{margin-bottom:16px}
+.pickgroup h4{
+  margin:0 0 9px;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;
+}
+.pickchips{display:flex;flex-wrap:wrap;gap:7px}
+.pickchip{
+  padding:9px 13px;border-radius:99px;font-size:13px;font-weight:500;
+  background:var(--surface-2);border:1.5px solid transparent;color:var(--ink-2);
+  display:flex;align-items:center;gap:6px;transition:background .15s,color .15s,border-color .15s;
+}
+.pickchip:hover{background:var(--surface-sunk);color:var(--ink)}
+.pickchip.added{
+  background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600;
+}
+.pickchip .pc-t{width:13px;height:13px;flex:none}
+
+/* ---------- Receipt scan results ---------- */
+.scan-sum{margin:14px 0 10px;font-size:13px;font-weight:600;color:var(--ink)}
+.scan-lines{display:flex;flex-direction:column;gap:5px;max-height:230px;overflow-y:auto}
+.scanline{
+  display:flex;align-items:center;gap:9px;padding:8px 11px;
+  background:var(--surface-2);border-radius:9px;font-size:12.5px;
+}
+.sl-tag{
+  font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;
+  padding:2px 6px;border-radius:5px;flex:none;
+}
+.sl-tag.match{background:var(--pos-soft);color:var(--pos)}
+.sl-tag.new{background:var(--warn-soft);color:var(--warn)}
+.sl-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl-p{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;flex:none}
+.shopactions{margin:14px 14px 0;display:flex;gap:8px}
+.shopactions .btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px}
+.shopactions .btn svg{width:16px;height:16px}
+.shopempty{
+  margin:14px;padding:26px 18px;text-align:center;
+  border:1px dashed var(--line-strong);border-radius:var(--r-lg);
+  color:var(--ink-3);font-size:13px;line-height:1.6;
+}
+.shopfinish{
+  margin:14px 14px 0;padding:14px 15px 15px;
+  background:var(--accent-soft);border-radius:var(--r-lg);
+  border:1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.sf-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.sf-k{font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.sf-v{font-size:12.5px;color:var(--ink-2);font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* the native date control has a wide intrinsic size — pin it so it can't overflow the card */
+.inp.sf-date{flex:none;width:160px;max-width:100%;padding:7px 10px}
+.sf-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
+.sf-check input{width:16px;height:16px;accent-color:var(--accent)}
+.shophist{display:flex;flex-direction:column;gap:7px}
+.histrow{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+}
+.hr-s{
+  font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+  padding:3px 7px;border-radius:6px;flex:none;
+}
+.hr-s.de{background:var(--accent-soft);color:var(--accent)}
+.hr-s.in{background:var(--warn-soft);color:var(--warn)}
+.hr-m{flex:1;min-width:0}
+.hr-d{font-size:12.5px;font-weight:500}
+.hr-i{font-size:11.5px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hr-t{font-family:var(--mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;flex:none}
 
 /* ---------- Monthly health strip ---------- */
 .monthstrip-wrap{margin:16px 14px 0}
@@ -697,19 +831,52 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 /* ---------- App lock ---------- */
 html.locked .shell{display:none}
 #lockScreen{display:none}
+/* The lock screen is its own branded surface: the banner gradient fills the
+   whole viewport, so everything on it is light-on-dark in both themes. */
 html.locked #lockScreen{
-  display:flex;position:fixed;inset:0;z-index:500;
-  background:var(--ground);align-items:center;justify-content:center;padding:24px;
+  display:flex;position:fixed;inset:0;z-index:500;overflow-y:auto;
+  align-items:center;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
+  background:linear-gradient(155deg,#0A4364 0%,#0F5F80 42%,#177E88 72%,#1E9483 100%);
 }
-.lock-card{width:100%;max-width:300px;display:flex;flex-direction:column;align-items:center;text-align:center}
-.lock-brand{font-size:20px;font-weight:600;margin-bottom:4px}
-.lock-sub{font-size:13px;color:var(--ink-2);margin-bottom:22px}
+html.locked #lockScreen::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(90% 55% at 12% -5%, rgba(255,255,255,.26), transparent 62%),
+    radial-gradient(70% 45% at 100% 104%, rgba(0,0,0,.30), transparent 60%);
+}
+.lock-card{
+  position:relative;z-index:1;
+  width:100%;max-width:340px;margin:auto;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+}
+.lock-banner{width:100%;margin-bottom:26px}
+.lock-brand{
+  font-size:30px;font-weight:700;letter-spacing:-.01em;color:#fff;line-height:1.15;
+  text-shadow:0 2px 16px rgba(0,0,0,.32);
+}
+.lock-tag{
+  margin-top:5px;
+  font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;
+  color:rgba(255,255,255,.7);
+}
+/* the fan bleeds past the card so it reads as part of the background */
+.lock-notes{
+  display:block;width:118%;margin:14px -9% 0;height:auto;
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.28));
+}
+.lock-sub{font-size:13px;color:rgba(255,255,255,.82);margin-bottom:22px}
+/* short screens: keep the keypad reachable by dropping the illustration */
+@media (max-height:660px){
+  .lock-notes{display:none}
+  .lock-banner{margin-bottom:20px}
+}
 .lock-dots{display:flex;gap:14px;margin-bottom:26px}
 .lock-dots span{
-  width:13px;height:13px;border-radius:50%;background:var(--surface-2);
-  border:1.5px solid var(--line-strong);transition:background .12s,border-color .12s,transform .12s;
+  width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.16);
+  border:1.5px solid rgba(255,255,255,.42);transition:background .12s,border-color .12s,transform .12s;
 }
-.lock-dots span.filled{background:var(--accent);border-color:var(--accent)}
+.lock-dots span.filled{background:#fff;border-color:#fff}
 .lock-dots.shake{animation:lockshake .4s}
 @keyframes lockshake{
   0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)}
@@ -717,22 +884,59 @@ html.locked #lockScreen{
 }
 .lock-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:240px}
 .lock-pad button{
-  aspect-ratio:1;border-radius:50%;background:var(--surface-2);font-size:19px;font-weight:500;
+  aspect-ratio:1;border-radius:50%;font-size:19px;font-weight:500;color:#fff;
+  background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);
   display:flex;align-items:center;justify-content:center;transition:background .12s;
 }
-.lock-pad button:active{background:var(--surface-sunk)}
+.lock-pad button:active{background:rgba(255,255,255,.26)}
 .lock-bio{
-  margin-bottom:16px;font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent);
-  padding:10px 16px;border-radius:99px;
+  margin-bottom:16px;font-size:12.5px;font-weight:600;color:#0A4364;background:#fff;
+  padding:10px 16px;border-radius:99px;box-shadow:0 4px 14px rgba(0,0,0,.22);
 }
-.lock-forgot{margin-top:20px;font-size:12px;color:var(--ink-3);text-decoration:underline}
+.lock-forgot{margin-top:20px;font-size:12px;color:rgba(255,255,255,.62);text-decoration:underline}
 </style>
 </head>
 <body>
 
 <div id="lockScreen" role="dialog" aria-modal="true" aria-label="App locked">
   <div class="lock-card">
-    <div class="lock-brand">பணப்பை</div>
+    <div class="lock-banner">
+      <div class="lock-brand">பணப்பை</div>
+      <div class="lock-tag">Expense tracker</div>
+      <!-- decorative: stylised euro & rupee notes, not a depiction of real currency -->
+      <svg class="lock-notes" viewBox="0 0 380 104" aria-hidden="true">
+        <g transform="rotate(-17 65 78)">
+          <rect x="26" y="56" width="78" height="44" rx="5" fill="#9B8FC4"/>
+          <rect x="31" y="61" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
+          <text x="39" y="84" font-size="15" font-weight="700" fill="#fff">₹100</text>
+        </g>
+        <g transform="rotate(-11 115 68)">
+          <rect x="76" y="46" width="78" height="44" rx="5" fill="#5B8FD4"/>
+          <rect x="81" y="51" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
+          <text x="89" y="74" font-size="15" font-weight="700" fill="#fff">€20</text>
+        </g>
+        <g transform="rotate(-4 165 62)">
+          <rect x="126" y="40" width="78" height="44" rx="5" fill="#7FA98C"/>
+          <rect x="131" y="45" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
+          <text x="139" y="68" font-size="15" font-weight="700" fill="#fff">₹200</text>
+        </g>
+        <g transform="rotate(4 215 62)">
+          <rect x="176" y="40" width="78" height="44" rx="5" fill="#E8A33D"/>
+          <rect x="181" y="45" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
+          <text x="189" y="68" font-size="15" font-weight="700" fill="#fff">€50</text>
+        </g>
+        <g transform="rotate(11 265 68)">
+          <rect x="226" y="46" width="78" height="44" rx="5" fill="#C86A9E"/>
+          <rect x="231" y="51" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
+          <text x="239" y="74" font-size="15" font-weight="700" fill="#fff">₹500</text>
+        </g>
+        <g transform="rotate(17 315 78)">
+          <rect x="276" y="56" width="78" height="44" rx="5" fill="#D2695C"/>
+          <rect x="281" y="61" width="68" height="34" rx="3" fill="none" stroke="rgba(255,255,255,.45)"/>
+          <text x="289" y="84" font-size="15" font-weight="700" fill="#fff">€10</text>
+        </g>
+      </svg>
+    </div>
     <div class="lock-sub" id="lockSub">Enter your PIN</div>
     <div class="lock-dots" id="lockDots"><span></span><span></span><span></span><span></span></div>
     <button class="lock-bio" id="lockBioBtn" hidden>Unlock with Face / Touch ID</button>
@@ -781,11 +985,15 @@ html.locked #lockScreen{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
       Tracker
     </button>
+    <button role="tab" data-view="shop" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Shop
+    </button>
   </div>
 
   <div id="viewDash">
     <section class="statement">
-      <div class="eyebrow">Net this month</div>
+      <div class="eyebrow">Net this period</div>
       <div class="net" id="netVal">€0.00</div>
       <div class="tiles">
         <div class="tile in">
@@ -823,34 +1031,10 @@ html.locked #lockScreen{
       <button class="db-b" id="installBtn">Install app</button>
     </div>
 
-    <section class="bucketcard">
-      <div class="bucket-head">
-        <div class="bucket-t">Balance in the bucket</div>
-        <div class="bucket-v" id="bucketPct">100%</div>
-      </div>
-      <div class="bucket-wrap">
-        <svg class="bucket-svg" viewBox="0 0 120 104" aria-hidden="true">
-          <defs>
-            <clipPath id="bucketClip">
-              <path d="M18 10 H102 L92 92 A6 6 0 0 1 86 97 H34 A6 6 0 0 1 28 92 Z"/>
-            </clipPath>
-            <pattern id="coinPattern" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">
-              <rect width="22" height="22" fill="var(--health-color, var(--accent))" fill-opacity=".14"/>
-              <text x="11" y="16" text-anchor="middle" class="pattern-euro">€</text>
-            </pattern>
-          </defs>
-          <g clip-path="url(#bucketClip)">
-            <rect id="bucketLevel" x="18" y="100" width="84" height="0" fill="url(#coinPattern)"/>
-          </g>
-          <path class="bucket-outline" d="M18 10 H102 L92 92 A6 6 0 0 1 86 97 H34 A6 6 0 0 1 28 92 Z"/>
-          <path class="bucket-outline bucket-rim" d="M15 10 H105"/>
-        </svg>
-      </div>
-      <div class="bucket-sub" id="bucketSub">Nothing spent yet this month</div>
-    </section>
+    <div id="charts"></div>
 
     <section class="monthstrip-wrap">
-      <div class="monthstrip-t">Monthly health</div>
+      <div class="monthstrip-t">Period health</div>
       <div class="monthstrip" id="monthStrip"></div>
     </section>
 
@@ -867,6 +1051,52 @@ html.locked #lockScreen{
     </div>
 
     <main class="list" id="list"></main>
+  </div>
+
+  <div id="viewShop" hidden>
+    <div class="segwrap">
+      <div class="seg" id="storeTog" role="tablist" style="grid-template-columns:1fr 1fr">
+        <button role="tab" data-store="de" aria-selected="true">German stores <span class="n" id="cDe">0</span></button>
+        <button role="tab" data-store="in" aria-selected="false">Indian stores <span class="n" id="cIn">0</span></button>
+      </div>
+    </div>
+
+    <div class="shopadd">
+      <button class="shopadd-main" id="shopPick">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add items
+      </button>
+    </div>
+
+    <div class="shoplist" id="shopList"></div>
+
+    <div class="shopactions" id="shopActions">
+      <button class="btn ghost sm" id="shopScan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><path d="M3 12h18"/></svg>
+        Scan receipt
+      </button>
+    </div>
+
+    <section class="shopfinish" id="shopFinish" hidden>
+      <div class="sf-row">
+        <div class="sf-k">Checked</div>
+        <div class="sf-v"><span id="sfCount">0</span> item(s) · <b id="sfTotal">€0.00</b></div>
+      </div>
+      <div class="sf-row">
+        <label class="sf-k" for="shopDate">Purchased on</label>
+        <input class="inp sf-date" id="shopDate" type="date">
+      </div>
+      <label class="sf-check">
+        <input type="checkbox" id="shopLogExpense" checked>
+        <span>Also log it as a groceries expense</span>
+      </label>
+      <button class="btn sm" id="shopDone">Save purchase</button>
+    </section>
+
+    <section class="monthstrip-wrap" id="shopHistWrap" hidden>
+      <div class="monthstrip-t">Recent purchases</div>
+      <div class="shophist" id="shopHist"></div>
+    </section>
   </div>
 
   <div class="spacer"></div>
@@ -1013,6 +1243,59 @@ html.locked #lockScreen{
     </button>
   </div>
   <div class="sheet-body"><div id="rulesBody"></div></div>
+</section>
+
+<!-- ITEM PICKER SHEET -->
+<section class="sheet" id="shPick" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="pickTitle">Add items</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div id="pickBody"></div>
+    <div class="field" style="margin-top:18px">
+      <label for="pickCustom">Not on the list?</label>
+      <div style="display:flex;gap:7px">
+        <input class="inp" id="pickCustom" type="text" placeholder="Add your own item" autocomplete="off">
+        <button class="shopadd-b" id="pickCustomAdd" aria-label="Add custom item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECEIPT SCAN SHEET -->
+<section class="sheet" id="shScan" role="dialog" aria-modal="true" aria-labelledby="scanTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="scanTitle">Scan receipt</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="note">
+      Paste the receipt text and it will fill in the prices: each line is matched to an item on
+      your list, and anything it can't match is added to the end of the list with its price.
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label for="scanText">Receipt text</label>
+      <textarea class="inp" id="scanText" style="min-height:130px" placeholder="Milch 1L        1,19&#10;Vollkornbrot    2,49&#10;Äpfel 1kg       3,20"></textarea>
+    </div>
+    <button class="btn ghost sm" id="scanRead">Read receipt</button>
+    <div id="scanResult" hidden>
+      <div class="scan-sum" id="scanSum"></div>
+      <div class="scan-lines" id="scanLines"></div>
+      <button class="btn sm" id="scanApply" style="margin-top:12px">Apply prices</button>
+    </div>
+    <div class="note" style="margin-top:14px">
+      Reading a <b>photo</b> of a receipt isn't supported: on-device text recognition would need an
+      OCR library, which this app deliberately doesn't bundle so it stays a single offline file.
+      Most shops e-mail a digital receipt you can copy the text from.
+    </div>
+  </div>
 </section>
 
 <!-- SETTINGS SHEET -->
@@ -1228,6 +1511,35 @@ function monthTitle(ym){
   const [y, m] = ym.split("-").map(Number);
   return new Date(y, m - 1, 1).toLocaleDateString("en-GB", {month:"long", year:"numeric"});
 }
+
+/* ---------- budget periods: the 15th to the 14th of the next month ----------
+   A period is keyed by the YYYY-MM it *starts* in, so "2026-08" means
+   15 Aug 2026 → 14 Sep 2026. Period keys are still YYYY-MM strings, so
+   shiftMonth() works on them unchanged.                                      */
+const PERIOD_START_DAY = 15;
+function periodOf(iso){
+  const d = +iso.slice(8, 10);
+  const ym = iso.slice(0, 7);
+  return d >= PERIOD_START_DAY ? ym : shiftMonth(ym, -1);
+}
+const shiftPeriod = shiftMonth;
+function periodStart(p){ return p + "-" + pad(PERIOD_START_DAY); }
+function periodEnd(p){ return shiftMonth(p, 1) + "-" + pad(PERIOD_START_DAY - 1); }
+function periodTitle(p){
+  const [sy, sm] = p.split("-").map(Number);
+  const [ey, em] = shiftMonth(p, 1).split("-").map(Number);
+  const a = new Date(sy, sm - 1, PERIOD_START_DAY);
+  const b = new Date(ey, em - 1, PERIOD_START_DAY - 1);
+  const short = { day:"numeric", month:"short" };
+  return sy === ey
+    ? a.toLocaleDateString("en-GB", short) + " – " + b.toLocaleDateString("en-GB", short) + " " + ey
+    : a.toLocaleDateString("en-GB", short) + " " + sy + " – " + b.toLocaleDateString("en-GB", short) + " " + ey;
+}
+/** Short label for the month strip, e.g. "15 Aug". */
+function periodChipLabel(p){
+  const [y, m] = p.split("-").map(Number);
+  return new Date(y, m - 1, PERIOD_START_DAY).toLocaleDateString("en-GB", { day:"numeric", month:"short" });
+}
 function dayTitle(iso){
   const [y, m, d] = iso.split("-").map(Number);
   const dt = new Date(y, m - 1, d);
@@ -1265,8 +1577,8 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[] };
-let view = monthOf(todayISO());
+let state = { v:1, txns:[], rules:[], skips:[], shop:null };
+let view = periodOf(todayISO());
 let filter = "all";
 let editing = null;
 let draft = null;
@@ -1276,6 +1588,19 @@ function uid(){ return Math.random().toString(36).slice(2, 10) + Date.now().toSt
 
 /** The first real edit retires the "example data" banner for good. */
 function userTouched(){ if (state.demo){ delete state.demo; } }
+
+/** Shopping lists were added after v1, so older saved states arrive without them. */
+function normaliseShop(s){
+  const base = { lists:{ de:[], in:[] }, history:[] };
+  if (!s || typeof s !== "object") return base;
+  return {
+    lists: {
+      de: Array.isArray(s.lists && s.lists.de) ? s.lists.de : [],
+      in: Array.isArray(s.lists && s.lists.in) ? s.lists.in : []
+    },
+    history: Array.isArray(s.history) ? s.history : []
+  };
+}
 
 function load(){
   try{
@@ -1287,12 +1612,14 @@ function load(){
           v:1,
           txns: p.txns,
           rules: Array.isArray(p.rules) ? p.rules : [],
-          skips: Array.isArray(p.skips) ? p.skips : []
+          skips: Array.isArray(p.skips) ? p.skips : [],
+          shop: normaliseShop(p.shop)
         };
         if (p.demo) state.demo = true;
       }
     }
   }catch(e){ /* corrupt or unavailable storage — start clean */ }
+  if (!state.shop) state.shop = normaliseShop(null);
 }
 function save(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -1399,14 +1726,14 @@ function isDark(){
 /* =========================================================================
    RENDER
    ========================================================================= */
-function monthTxns(ym){
-  return state.txns.filter(t => monthOf(t.date) === ym);
+function periodTxns(p){
+  return state.txns.filter(t => periodOf(t.date) === p);
 }
 
-/* ---------- monthly health (income vs. expense) ---------- */
+/* ---------- period health (income vs. expense) ---------- */
 function monthTotals(ym){
   let inc = 0, exp = 0, incDone = 0, expDone = 0;
-  monthTxns(ym).forEach(t => {
+  periodTxns(ym).forEach(t => {
     if (t.type === "income"){ inc += t.amount; if (t.status === "done") incDone += t.amount; }
     else { exp += t.amount; if (t.status === "done") expDone += t.amount; }
   });
@@ -1431,12 +1758,12 @@ const HEALTH_LABEL = { red:"Overspent", orange:"Thin buffer", yellow:"Comfortabl
 
 function render(){
   const dark = isDark();
-  const all = monthTxns(view).slice().sort((a, b) =>
+  const all = periodTxns(view).slice().sort((a, b) =>
     a.date === b.date ? (a.status === b.status ? 0 : a.status === "planned" ? -1 : 1)
                       : (a.date < b.date ? 1 : -1));
 
-  $("#mLabel").innerHTML = esc(monthTitle(view)) +
-    (view === monthOf(todayISO()) ? ' <span class="today-chip">Now</span>' : "");
+  $("#mLabel").innerHTML = esc(periodTitle(view)) +
+    (view === periodOf(todayISO()) ? ' <span class="today-chip">Now</span>' : "");
 
   /* --- totals --- */
   let inDone = 0, inPlan = 0, outDone = 0, outPlan = 0;
@@ -1502,64 +1829,142 @@ function render(){
   }
 
   renderBreakdown(all, dark);
-  renderBucket(inDone, inPlan, outDone, outPlan);
+  renderCharts(all);
   renderMonthStrip();
   $("#demoBar").hidden = !state.demo;
-  $$(".seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.f === filter)));
+  $$("#viewEntries .seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.f === filter)));
 }
 
-/** The coin level reflects the actual balance so far (income received minus expenses paid), not the whole month's plan. */
-function renderBucket(incDone, incPlan, outDone, outPlan){
-  const incomeTotal = incDone + incPlan;
-  const band = healthBand(incomeTotal, outDone + outPlan);
-  const colorVar = "var(" + HEALTH_VAR[band] + ")";
-  document.documentElement.style.setProperty("--health-color", colorVar);
-  $("#bucketPct").style.color = colorVar;
+/**
+ * Splits a period's expenses into the three buckets the dashboard charts:
+ *   fixed    — recurring-rule expenses (rent, internet, insurance …)
+ *   grocery  — everything in the groceries category
+ *   misc     — everything else: ad-hoc, one-off spending
+ * The misc *buffer* is what income is left once fixed and grocery plans are
+ * covered, so misc actual can be compared against the headroom it eats into.
+ */
+function periodStats(txns){
+  let income = 0, plannedExp = 0, actualExp = 0;
+  let fixedPlanned = 0, fixedActual = 0;
+  let grocPlanned = 0, grocActual = 0;
+  let miscActual = 0;
 
-  const balance = incDone - outDone;
-  const capacity = Math.max(incomeTotal, 1);
-  const remainingPct = Math.max(0, Math.min(1, balance / capacity));
+  txns.forEach(t => {
+    const done = t.status === "done";
+    if (t.type === "income"){ income += t.amount; return; }
 
-  const level = $("#bucketLevel");
-  const top = 10, bottom = 100, full = bottom - top;
-  const h = full * remainingPct;
-  level.setAttribute("y", bottom - h);
-  level.setAttribute("height", h);
+    plannedExp += t.amount;
+    if (done) actualExp += t.amount;
 
-  $("#bucketPct").textContent = Math.round(remainingPct * 100) + "%";
+    if (t.category === "groceries"){
+      grocPlanned += t.amount;
+      if (done) grocActual += t.amount;
+    } else if (t.ruleId){
+      fixedPlanned += t.amount;
+      if (done) fixedActual += t.amount;
+    } else {
+      if (done) miscActual += t.amount;
+    }
+  });
 
-  const sub = $("#bucketSub");
-  if (incomeTotal <= 0 && outDone <= 0){
-    sub.textContent = "Log income to fill the bucket";
-  } else if (balance < 0){
-    sub.textContent = "Overdrawn by " + fmt(-balance) + " so far this month";
-  } else if (outDone <= 0){
-    sub.textContent = "Nothing spent yet this month";
-  } else {
-    sub.textContent = fmt(balance) + " balance — " + fmt(outDone) + " spent so far, " + HEALTH_LABEL[band].toLowerCase();
+  const miscBuffer = Math.max(0, income - fixedPlanned - grocPlanned);
+  return { income, plannedExp, actualExp, fixedPlanned, fixedActual, grocPlanned, grocActual, miscBuffer, miscActual };
+}
+
+/** One horizontal bar; clicking it reveals the `sub` caption underneath. */
+function barRow(label, value, max, colorVar, sub){
+  const row = el("button", "barrow");
+  row.type = "button";
+  row.setAttribute("aria-expanded", "false");
+
+  const head = el("div", "barrow-head");
+  head.appendChild(el("span", "barrow-l", label));
+  head.appendChild(el("span", "barrow-v", fmt(value)));
+  row.appendChild(head);
+
+  const track = el("div", "barrow-track");
+  const fill = el("i");
+  fill.style.background = colorVar;
+  fill.style.width = (max > 0 ? Math.max(value > 0 ? 2 : 0, Math.round(value / max * 100)) : 0) + "%";
+  track.appendChild(fill);
+  row.appendChild(track);
+
+  if (sub){
+    const cap = el("div", "barrow-sub", sub);
+    row.appendChild(cap);
   }
+  row.addEventListener("click", () => {
+    const open = row.classList.toggle("open");
+    row.setAttribute("aria-expanded", String(open));
+  });
+  return row;
 }
 
-/** A scrollable strip of the surrounding months, colour-coded by healthBand so overspending stands out at a glance. */
+function chartBlock(title, note, rows){
+  const block = el("section", "chartblock");
+  const h = el("div", "chartblock-h");
+  h.appendChild(el("span", "cb-t", title));
+  if (note) h.appendChild(el("span", "cb-n", note));
+  block.appendChild(h);
+  const max = Math.max(1, ...rows.map(r => r.value));
+  rows.forEach(r => block.appendChild(barRow(r.label, r.value, max, r.color, r.sub)));
+  return block;
+}
+
+function renderCharts(all){
+  const s = periodStats(all);
+  const band = healthBand(s.income, s.plannedExp);
+  document.documentElement.style.setProperty("--health-color", "var(" + HEALTH_VAR[band] + ")");
+
+  const host = $("#charts");
+  host.innerHTML = "";
+
+  const pct = (a, b) => b > 0 ? Math.round(a / b * 100) + "%" : "—";
+
+  host.appendChild(chartBlock("This period", HEALTH_LABEL[band], [
+    { label:"Income",          value:s.income,     color:"var(--pos)",
+      sub:"Everything expected in, planned and received." },
+    { label:"Planned expense", value:s.plannedExp, color:"var(--warn)",
+      sub:"Every expense entered for this period — " + pct(s.plannedExp, s.income) + " of income." },
+    { label:"Actual expense",  value:s.actualExp,  color:"var(--neg)",
+      sub:fmt(s.plannedExp - s.actualExp) + " of the plan still unpaid." }
+  ]));
+
+  host.appendChild(chartBlock("Groceries", null, [
+    { label:"Planned", value:s.grocPlanned, color:"var(--accent-mid)",
+      sub:"Grocery entries logged for this period." },
+    { label:"Actual",  value:s.grocActual,  color:"var(--neg)",
+      sub:s.grocPlanned > 0 ? pct(s.grocActual, s.grocPlanned) + " of the grocery plan spent." : "Nothing planned yet." }
+  ]));
+
+  host.appendChild(chartBlock("Misc buffer", null, [
+    { label:"Buffer", value:s.miscBuffer, color:"var(--accent)",
+      sub:"Income left after fixed bills (" + fmt(s.fixedPlanned) + ") and groceries (" + fmt(s.grocPlanned) + ")." },
+    { label:"Actual", value:s.miscActual, color:s.miscActual > s.miscBuffer ? "var(--health-red)" : "var(--warn)",
+      sub:s.miscActual > s.miscBuffer
+        ? "Over the buffer by " + fmt(s.miscActual - s.miscBuffer) + "."
+        : fmt(s.miscBuffer - s.miscActual) + " of buffer still free." }
+  ]));
+}
+
+/** A scrollable strip of the surrounding periods, colour-coded by healthBand so overspending stands out at a glance. */
 function renderMonthStrip(){
   const host = $("#monthStrip");
   host.innerHTML = "";
-  const center = monthOf(todayISO());
+  const center = periodOf(todayISO());
   for (let n = -3; n <= 2; n++){
-    const ym = shiftMonth(center, n);
+    const ym = shiftPeriod(center, n);
     const { inc, exp } = monthTotals(ym);
     const band = healthBand(inc, exp);
     const chip = el("button", "monthchip");
     chip.type = "button";
     if (ym === view) chip.dataset.current = "true";
     chip.style.setProperty("--dot-color", "var(" + HEALTH_VAR[band] + ")");
-    const [y, m] = ym.split("-").map(Number);
-    const label = new Date(y, m - 1, 1).toLocaleDateString("en-GB", { month:"short" });
     chip.innerHTML =
-      '<span class="mc-m">' + esc(label) + '</span>' +
+      '<span class="mc-m">' + esc(periodChipLabel(ym)) + '</span>' +
       '<span class="mc-dot"></span>' +
       '<span class="mc-pct">' + (inc > 0 ? Math.round((inc - exp) / inc * 100) + "%" : "—") + '</span>';
-    chip.setAttribute("aria-label", esc(monthTitle(ym)) + " — " + HEALTH_LABEL[band]);
+    chip.setAttribute("aria-label", esc(periodTitle(ym)) + " — " + HEALTH_LABEL[band]);
     chip.addEventListener("click", () => { view = ym; render(); });
     host.appendChild(chip);
   }
@@ -1571,8 +1976,8 @@ function emptyState(monthCount){
     '<div class="em-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">' +
     '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>' +
     (monthCount
-      ? "<h4>Nothing in this view</h4><p>There are entries this month, but none match the filter you picked.</p>"
-      : "<h4>No entries yet for " + esc(monthTitle(view)) + "</h4><p>Add your first income or expense, or import a CSV statement from your bank.</p>");
+      ? "<h4>Nothing in this view</h4><p>There are entries this period, but none match the filter you picked.</p>"
+      : "<h4>No entries yet for " + esc(periodTitle(view)) + "</h4><p>Add your first income or expense, or import a CSV statement from your bank.</p>");
   return e;
 }
 
@@ -1734,7 +2139,7 @@ function openEntry(txn){
     $("#entryTitle").textContent = "New entry";
     $("#eAmt").value = "";
     $("#eNote").value = "";
-    $("#eDate").value = view === monthOf(todayISO()) ? todayISO() : view + "-01";
+    $("#eDate").value = view === periodOf(todayISO()) ? todayISO() : periodStart(view);
     $("#eFreq").value = "";
     $("#eFreq").disabled = false;
     $("#eDeleteWrap").style.display = "none";
@@ -1797,7 +2202,7 @@ $("#eSave").addEventListener("click", () => {
     note: note, date: date, status: draft.status
   });
   save();
-  if (monthOf(date) !== view) view = monthOf(date);
+  if (periodOf(date) !== view) view = periodOf(date);
   render(); sheetClose();
   toast(draft.status === "done" ? "Entry saved" : "Planned entry added");
 });
@@ -2093,7 +2498,7 @@ $("#impCommit").addEventListener("click", () => {
   });
   save();
   const newest = picked.reduce((a, b) => a.date > b.date ? a : b).date;
-  view = monthOf(newest);
+  view = periodOf(newest);
   render(); sheetClose();
   toast("Imported " + picked.length + " transaction" + (picked.length === 1 ? "" : "s"));
   pending = null;
@@ -2158,10 +2563,10 @@ function applyTheme(v){
 $$("#themeTog button").forEach(b => b.addEventListener("click", () => applyTheme(b.dataset.v)));
 
 $("#btnMenu").addEventListener("click", () => {
-  const months = new Set(state.txns.map(t => monthOf(t.date)));
+  const periods = new Set(state.txns.map(t => periodOf(t.date)));
   $("#statLine").innerHTML =
-    "<b>" + state.txns.length + "</b> entries across <b>" + months.size + "</b> month" +
-    (months.size === 1 ? "" : "s") + ", plus <b>" + state.rules.length + "</b> repeating entr" +
+    "<b>" + state.txns.length + "</b> entries across <b>" + periods.size + "</b> period" +
+    (periods.size === 1 ? "" : "s") + ", plus <b>" + state.rules.length + "</b> repeating entr" +
     (state.rules.length === 1 ? "y" : "ies") + ".";
   renderLockSettings();
   renderGhSettings();
@@ -2187,9 +2592,10 @@ $("#doRestore").addEventListener("click", () => {
     state = {
       v:1, txns:p.txns,
       rules: Array.isArray(p.rules) ? p.rules : [],
-      skips: Array.isArray(p.skips) ? p.skips : []
+      skips: Array.isArray(p.skips) ? p.skips : [],
+      shop: normaliseShop(p.shop)
     };
-    materialise(); save(); render(); sheetClose();
+    materialise(); save(); render(); renderShop(); sheetClose();
     toast("Restored " + state.txns.length + " entries");
   }catch(e){
     toast("That doesn't look like a பணப்பை backup");
@@ -2197,7 +2603,7 @@ $("#doRestore").addEventListener("click", () => {
 });
 $("#wipe").addEventListener("click", function(){
   if (this.dataset.armed){
-    state = { v:1, txns:[], rules:[], skips:[] };
+    state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null) };
     save(); render(); sheetClose();
     delete this.dataset.armed;
     this.textContent = "Delete all entries";
@@ -2213,27 +2619,386 @@ $("#wipe").addEventListener("click", function(){
 });
 
 $("#clearDemo").addEventListener("click", () => {
-  state = { v:1, txns:[], rules:[], skips:[] };
-  view = monthOf(todayISO());
-  save(); render();
+  state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null) };
+  view = periodOf(todayISO());
+  save(); render(); renderShop();
   toast("Cleared — the book is yours now");
+});
+
+/* =========================================================================
+   SHOPPING LISTS — one per store group, kept outside the period ledger.
+   Finishing a shop moves the checked items into history with a purchase
+   date, and can post the total to the ledger as a groceries expense.
+   ========================================================================= */
+let store = "de";
+const STORE_LABEL = { de:"German stores", in:"Indian stores" };
+const STORE_SHORT = { de:"DE", in:"IN" };
+
+/** Tap-to-add staples, so a shopping list can be built without typing. */
+const CATALOG = {
+  de: [
+    { g:"Molkerei & Eier", items:["Milch","Butter","Eier","Käse","Joghurt","Quark","Sahne","Frischkäse"] },
+    { g:"Backwaren",       items:["Brot","Brötchen","Vollkornbrot","Toast"] },
+    { g:"Obst & Gemüse",   items:["Äpfel","Bananen","Tomaten","Kartoffeln","Zwiebeln","Gurke","Karotten","Salat","Paprika","Zitronen","Avocado","Champignons"] },
+    { g:"Fleisch & Fisch", items:["Hähnchenbrust","Hackfleisch","Aufschnitt","Lachs","Thunfisch"] },
+    { g:"Vorrat",          items:["Nudeln","Reis","Mehl","Zucker","Salz","Olivenöl","Tomatensoße","Müsli","Haferflocken","Honig","Schokolade"] },
+    { g:"Getränke",        items:["Sprudelwasser","Orangensaft","Kaffee","Tee","Bier","Wein"] },
+    { g:"Haushalt",        items:["Toilettenpapier","Küchenrolle","Spülmittel","Waschmittel","Müllbeutel","Zahnpasta","Shampoo","Duschgel"] }
+  ],
+  in: [
+    { g:"Dal & pulses",     items:["Toor dal","Moong dal","Chana dal","Urad dal","Masoor dal","Rajma","Kabuli chana"] },
+    { g:"Rice & flour",     items:["Basmati rice","Sona masoori rice","Idli rice","Atta","Besan","Rava / sooji","Poha","Rice flour"] },
+    { g:"Spices",           items:["Turmeric powder","Chilli powder","Coriander powder","Cumin seeds","Mustard seeds","Garam masala","Sambar powder","Rasam powder","Hing","Cardamom","Cinnamon","Bay leaves"] },
+    { g:"Fresh",            items:["Curry leaves","Coriander leaves","Green chillies","Ginger","Garlic","Okra / bhindi","Bottle gourd","Drumsticks","Methi leaves","Coconut"] },
+    { g:"Dairy & frozen",   items:["Paneer","Curd","Ghee","Frozen paratha","Frozen samosa"] },
+    { g:"Pantry & snacks",  items:["Coconut oil","Tamarind","Jaggery","Mango pickle","Papad","Idli batter","Dosa batter","Tea powder","Cashew nuts","Almonds","Raisins","Sev / mixture"] }
+  ]
+};
+
+function shopList(){ return state.shop.lists[store]; }
+
+function renderShop(){
+  const list = shopList();
+  $("#cDe").textContent = state.shop.lists.de.length;
+  $("#cIn").textContent = state.shop.lists.in.length;
+  $$("#storeTog button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.store === store)));
+
+  const host = $("#shopList");
+  host.innerHTML = "";
+  if (!list.length){
+    const e = el("div", "shopempty");
+    e.innerHTML = "Nothing on the " + esc(STORE_LABEL[store].toLowerCase()) + " list yet.<br>Tap <b>Add items</b> to pick from the usual staples, tick them off as you shop, then save the purchase.";
+    host.appendChild(e);
+  } else {
+    list.forEach(item => host.appendChild(shopRow(item)));
+  }
+
+  updateShopSummary();
+  renderShopHistory();
+}
+
+/** Kept separate from renderShop so typing a price doesn't rebuild (and blur) the input. */
+function updateShopSummary(){
+  const checked = shopList().filter(i => i.done);
+  const total = checked.reduce((s, i) => s + (i.price || 0), 0);
+  $("#shopFinish").hidden = checked.length === 0;
+  $("#sfCount").textContent = checked.length;
+  $("#sfTotal").textContent = fmt(total);
+  if (!$("#shopDate").value) $("#shopDate").value = todayISO();
+}
+
+function shopRow(item){
+  const row = el("div", "shopitem" + (item.done ? " checked" : ""));
+
+  const box = el("button", "si-box");
+  box.type = "button";
+  box.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+  box.setAttribute("aria-label", item.done ? "Untick " + item.name : "Tick off " + item.name);
+  box.addEventListener("click", () => toggleShopItem(item));
+  row.appendChild(box);
+
+  const name = el("button", "si-n", item.name);
+  name.type = "button";
+  name.addEventListener("click", () => toggleShopItem(item));
+  row.appendChild(name);
+
+  /* price is asked for only once the item is actually in the basket, and stays optional */
+  if (item.done){
+    const price = el("input", "si-price");
+    price.type = "text";
+    price.inputMode = "decimal";
+    price.placeholder = "€ —";
+    price.value = item.price ? (item.price / 100).toFixed(2).replace(".", ",") : "";
+    price.setAttribute("aria-label", "Price for " + item.name);
+    price.addEventListener("input", () => {
+      item.price = Math.abs(parseAmount(price.value) || 0);
+      updateShopSummary();
+    });
+    price.addEventListener("change", save);
+    price.addEventListener("blur", save);
+    row.appendChild(price);
+  }
+
+  const x = el("button", "si-x");
+  x.type = "button";
+  x.setAttribute("aria-label", "Remove " + item.name);
+  x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+  x.addEventListener("click", () => {
+    const arr = shopList();
+    const i = arr.indexOf(item);
+    if (i > -1) arr.splice(i, 1);
+    save(); renderShop();
+  });
+  row.appendChild(x);
+
+  return row;
+}
+
+function toggleShopItem(item){
+  item.done = !item.done;
+  if (!item.done) item.price = 0;
+  save(); renderShop();
+  if (item.done){
+    /* jump straight to the price box so it can be filled without hunting for it */
+    const row = Array.from($$("#shopList .shopitem")).find(r => r.querySelector(".si-n").textContent === item.name);
+    const inp = row && row.querySelector(".si-price");
+    if (inp) inp.focus();
+  }
+}
+
+function renderShopHistory(){
+  const hist = state.shop.history.slice().sort((a, b) => a.date < b.date ? 1 : -1).slice(0, 8);
+  $("#shopHistWrap").hidden = hist.length === 0;
+  const host = $("#shopHist");
+  host.innerHTML = "";
+  hist.forEach(h => {
+    const row = el("div", "histrow");
+    row.appendChild(el("span", "hr-s " + h.store, STORE_SHORT[h.store] || "?"));
+    const m = el("div", "hr-m");
+    m.appendChild(el("div", "hr-d", dayTitle(h.date)));
+    m.appendChild(el("div", "hr-i", h.items.map(i => i.name).join(", ")));
+    row.appendChild(m);
+    row.appendChild(el("div", "hr-t", fmt(h.total)));
+    host.appendChild(row);
+  });
+}
+
+$$("#storeTog button").forEach(b => b.addEventListener("click", () => { store = b.dataset.store; renderShop(); }));
+
+/* ---------- picker: tap a staple to put it on the list ---------- */
+function addShopItem(name){
+  const clean = String(name).trim();
+  if (!clean) return false;
+  const list = shopList();
+  if (list.some(i => normName(i.name) === normName(clean))) return false;
+  list.push({ id:uid(), name:clean, price:0, done:false });
+  return true;
+}
+
+function renderPicker(){
+  const host = $("#pickBody");
+  host.innerHTML = "";
+  const onList = new Set(shopList().map(i => normName(i.name)));
+
+  (CATALOG[store] || []).forEach(group => {
+    const g = el("div", "pickgroup");
+    g.appendChild(el("h4", null, group.g));
+    const chips = el("div", "pickchips");
+    group.items.forEach(name => {
+      const added = onList.has(normName(name));
+      const chip = el("button", "pickchip" + (added ? " added" : ""));
+      chip.type = "button";
+      chip.innerHTML = (added
+        ? '<svg class="pc-t" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
+        : '<svg class="pc-t" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>')
+        + "<span></span>";
+      chip.querySelector("span").textContent = name;
+      chip.addEventListener("click", () => {
+        if (added){
+          const list = shopList();
+          const i = list.findIndex(x => normName(x.name) === normName(name));
+          if (i > -1) list.splice(i, 1);
+        } else {
+          addShopItem(name);
+        }
+        save(); renderShop(); renderPicker();
+      });
+      chips.appendChild(chip);
+    });
+    g.appendChild(chips);
+    host.appendChild(g);
+  });
+}
+
+$("#shopPick").addEventListener("click", () => { renderPicker(); sheetOpen("#shPick"); });
+
+function addCustomFromPicker(){
+  const v = $("#pickCustom").value;
+  if (!v.trim()){ toast("Type a name first"); return; }
+  if (!addShopItem(v)){ toast("That's already on the list"); return; }
+  $("#pickCustom").value = "";
+  save(); renderShop(); renderPicker();
+  toast("Added");
+}
+$("#pickCustomAdd").addEventListener("click", addCustomFromPicker);
+$("#pickCustom").addEventListener("keydown", e => { if (e.key === "Enter") addCustomFromPicker(); });
+
+/* =========================================================================
+   RECEIPT PARSING — turns pasted receipt text into {name, price} lines and
+   matches them against the current list, appending anything unrecognised.
+   ========================================================================= */
+/** German receipts spell umlauts out (AEPFEL for Äpfel), so fold both to the same form. */
+function deumlaut(s){
+  return String(s || "")
+    .replace(/ä/gi, "ae").replace(/ö/gi, "oe").replace(/ü/gi, "ue").replace(/ß/g, "ss");
+}
+
+function normName(s){
+  return deumlaut(String(s || "").toLowerCase())
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9 ]/g, " ")
+    .replace(/\b\d+\s*(kg|g|gr|ml|l|ltr|stk|st|pcs|pack|x)\b/g, " ")
+    .replace(/\b(kg|g|gr|ml|l|ltr|stk|st|pcs|pack)\b/g, " ")
+    .replace(/\s+/g, " ").trim();
+}
+
+const RECEIPT_SKIP = /^(summe|gesamt|zwischensumme|total|subtotal|mwst|ust|netto|brutto|steuer|bar\b|geg\b|geg\.|gegeben|karte|kartenzahl|ec[- ]?card|girocard|visa|mastercard|rueckgeld|wechselgeld|zahlbetrag|kundenbeleg|beleg|datum|uhrzeit|tse|trace|terminal|zahlung|betrag|change|cash|card|gst|cgst|sgst|igst|round|bill|invoice|qty|item|thank|danke|tel|www|filiale|markt|kasse|posten|anzahl|artikel|coupon|rabatt|treue)/i;
+
+function parseReceiptText(text){
+  const out = [];
+  String(text || "").split(/\r?\n/).forEach(raw => {
+    const line = raw.trim();
+    if (!line || RECEIPT_SKIP.test(deumlaut(line.toLowerCase()))) return;
+
+    const m = line.match(/(\d{1,3}(?:[.\s]\d{3})*[.,]\d{2})\s*[A-Za-z€₹*%]{0,4}$/);
+    if (!m) return;
+    const cents = Math.abs(parseAmount(m[1]) || 0);
+    if (!cents) return;
+
+    let name = line.slice(0, m.index)
+      .replace(/[€₹]/g, "")
+      .replace(/^\s*\d+\s*[xX*]\s*/, "")
+      .replace(/\s*\d+\s*[xX*]\s*$/, "")
+      .replace(/[.,;:_\-\s]+$/, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+
+    if (name.length < 2 || /^[\d.,\s]+$/.test(name)) return;
+    out.push({ name: name, price: cents });
+  });
+  return out;
+}
+
+/** Exact, then containment, then token overlap — good enough for shop abbreviations. */
+function matchListItem(list, name){
+  const n = normName(name);
+  if (!n) return null;
+
+  let hit = list.find(i => normName(i.name) === n);
+  if (hit) return hit;
+
+  hit = list.find(i => {
+    const k = normName(i.name);
+    return k && k.length > 2 && (k.includes(n) || n.includes(k));
+  });
+  if (hit) return hit;
+
+  const nt = n.split(" ").filter(w => w.length > 2);
+  let best = null, bestScore = 0;
+  list.forEach(i => {
+    const kt = normName(i.name).split(" ").filter(w => w.length > 2);
+    if (!kt.length || !nt.length) return;
+    const overlap = kt.filter(w => nt.indexOf(w) > -1).length;
+    const score = overlap / Math.max(nt.length, kt.length);
+    if (overlap > 0 && score > bestScore){ bestScore = score; best = i; }
+  });
+  return bestScore >= 0.5 ? best : null;
+}
+
+let scanParsed = null;
+
+$("#shopScan").addEventListener("click", () => {
+  $("#scanText").value = "";
+  $("#scanResult").hidden = true;
+  scanParsed = null;
+  sheetOpen("#shScan");
+});
+
+$("#scanRead").addEventListener("click", () => {
+  const parsed = parseReceiptText($("#scanText").value);
+  if (!parsed.length){
+    toast("No priced lines found in that text");
+    $("#scanResult").hidden = true;
+    scanParsed = null;
+    return;
+  }
+  const list = shopList();
+  scanParsed = parsed.map(p => ({ ...p, hit: matchListItem(list, p.name) }));
+
+  const matched = scanParsed.filter(p => p.hit).length;
+  const fresh = scanParsed.length - matched;
+  $("#scanSum").textContent =
+    matched + " matched · " + fresh + " new item" + (fresh === 1 ? "" : "s") +
+    " · " + fmt(scanParsed.reduce((s, p) => s + p.price, 0));
+
+  const host = $("#scanLines");
+  host.innerHTML = "";
+  scanParsed.forEach(p => {
+    const row = el("div", "scanline");
+    row.appendChild(el("span", "sl-tag " + (p.hit ? "match" : "new"), p.hit ? "match" : "new"));
+    row.appendChild(el("span", "sl-n", p.hit ? p.hit.name : p.name));
+    row.appendChild(el("span", "sl-p", fmt(p.price)));
+    host.appendChild(row);
+  });
+  $("#scanResult").hidden = false;
+});
+
+$("#scanApply").addEventListener("click", () => {
+  if (!scanParsed || !scanParsed.length) return;
+  const list = shopList();
+  let updated = 0, added = 0;
+  scanParsed.forEach(p => {
+    if (p.hit){
+      p.hit.price = p.price;
+      p.hit.done = true;
+      updated++;
+    } else {
+      list.push({ id:uid(), name:p.name, price:p.price, done:true });
+      added++;
+    }
+  });
+  scanParsed = null;
+  save(); renderShop(); sheetClose();
+  toast(updated + " price" + (updated === 1 ? "" : "s") + " filled, " + added + " added");
+});
+
+$("#shopDone").addEventListener("click", () => {
+  const arr = shopList();
+  const checked = arr.filter(i => i.done);
+  if (!checked.length){ toast("Tick off what you bought first"); return; }
+
+  const date = $("#shopDate").value || todayISO();
+  const total = checked.reduce((s, i) => s + (i.price || 0), 0);
+
+  state.shop.history.push({
+    id: uid(), store: store, date: date, total: total,
+    items: checked.map(i => ({ name:i.name, price:i.price || 0 }))
+  });
+
+  if ($("#shopLogExpense").checked && total > 0){
+    userTouched();
+    state.txns.push({
+      id: uid(), type:"expense", amount: total, category:"groceries",
+      note: STORE_LABEL[store].replace(" stores", "") + " shopping", date: date, status:"done"
+    });
+  }
+
+  state.shop.lists[store] = arr.filter(i => !i.done);
+  $("#shopDate").value = todayISO();
+  save(); render(); renderShop();
+  toast("Saved " + checked.length + " item" + (checked.length === 1 ? "" : "s") + " · " + fmt(total));
 });
 
 /* =========================================================================
    NAV
    ========================================================================= */
-$("#prevM").addEventListener("click", () => { view = shiftMonth(view, -1); render(); });
-$("#nextM").addEventListener("click", () => { view = shiftMonth(view, 1); render(); });
-$("#mLabel").addEventListener("click", () => { view = monthOf(todayISO()); render(); });
-$$(".seg button").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; render(); }));
+$("#prevM").addEventListener("click", () => { view = shiftPeriod(view, -1); render(); });
+$("#nextM").addEventListener("click", () => { view = shiftPeriod(view, 1); render(); });
+$("#mLabel").addEventListener("click", () => { view = periodOf(todayISO()); render(); });
+$$("#viewEntries .seg button").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; render(); }));
 
-/* ---------- Dashboard / Entries panel switch ---------- */
+/* ---------- Dashboard / Tracker / Shop panel switch ---------- */
 let panel = "dash";
 function setPanel(p){
   panel = p;
   $("#viewDash").hidden = p !== "dash";
   $("#viewEntries").hidden = p !== "entries";
+  $("#viewShop").hidden = p !== "shop";
+  /* the month bar and ledger dock drive the ledger only; shopping lists aren't period-scoped */
+  $(".monthbar").style.display = p === "shop" ? "none" : "";
+  $(".dock").style.display = p === "shop" ? "none" : "";
   $$("#viewTog button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.view === p)));
+  if (p === "shop") renderShop();
 }
 $$("#viewTog button").forEach(b => b.addEventListener("click", () => setPanel(b.dataset.view)));
 
@@ -2256,9 +3021,13 @@ function seed(){
   /** a day in the current month, offset from today and clamped inside it */
   const rel = off => isoOf(y, mo, Math.min(last, Math.max(1, dom + off)));
 
+  /* anchored on the 15th/16th so the demo lands inside the current 15th-to-14th period */
+  const pStart = periodStart(periodOf(today));
+  const pDay = d => { const [py, pm] = pStart.split("-").map(Number); return isoOf(py, pm, Math.min(daysInMonth(py, pm), PERIOD_START_DAY + d)); };
+
   state.rules = [
-    { id:uid(), type:"income",  amount:320000, category:"salary",    note:"Monthly salary",      freq:"monthly",   anchor:isoOf(y, mo, 1), active:true },
-    { id:uid(), type:"expense", amount:118000, category:"rent",      note:"Rent — Wohnung",      freq:"monthly",   anchor:isoOf(y, mo, Math.min(3, last)), active:true },
+    { id:uid(), type:"income",  amount:320000, category:"salary",    note:"Monthly salary",      freq:"monthly",   anchor:pDay(0), active:true },
+    { id:uid(), type:"expense", amount:118000, category:"rent",      note:"Rent — Wohnung",      freq:"monthly",   anchor:pDay(2), active:true },
     { id:uid(), type:"expense", amount:4499,   category:"utilities", note:"Telekom internet",    freq:"monthly",   anchor:rel(-2), active:true },
     { id:uid(), type:"expense", amount:21400,  category:"insurance", note:"Haftpflicht premium", freq:"quarterly", anchor:rel(3),  active:true },
     { id:uid(), type:"expense", amount:9800,   category:"utilities", note:"Stadtwerke gas",      freq:"bimonthly", anchor:rel(5),  active:true },
@@ -2580,6 +3349,7 @@ $("#ghDisable").addEventListener("click", () => {
   materialise();
   save();
   render();
+  renderShop();
   syncThemeColorMeta();
   if (lockEnabled()) lockOpenUnlock(); else document.documentElement.classList.remove("locked");
 })();

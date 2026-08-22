@@ -7,25 +7,27 @@ Open `index.html` in any browser, or host the file anywhere static.
 
 ## What it does
 
-- **Dashboard first.** The home screen shows the month's net, income/expenses,
-  a bucket that visually reflects your running balance, and a colour-coded
-  strip of surrounding months. Tap **Tracker** (next to Dashboard) to switch to
-  the date-by-date list of income and expenses — the two views share the same
-  month navigation and Add/Import controls.
-- **The bucket.** "Balance in the bucket" fills with tiled € symbols up to a
-  level based on your actual balance (income received minus expenses paid, not
-  merely planned) — no animation, just a clear static read. Its colour follows
-  the same health band as the monthly strip below.
-- **A more colourful, tactile feel** throughout — richer category colours,
-  gradient buttons, a count-up animation on the headline figures, a small
-  confetti burst when you mark something paid, and a soft fade between the
-  Dashboard and Tracker views.
-- **Monthly health colours**, on the dashboard's monthly strip and the bucket,
-  based on (income − expenses) ÷ income for that month:
+- **Budget periods run the 15th to the 14th**, not calendar months — so a
+  period reads as e.g. *15 Aug – 14 Sept*. Every total, filter, chart and the
+  ◀ ▶ navigation follows that cycle.
+- **Three views**, switched by the toggle under the period bar:
+  **Dashboard** (charts), **Tracker** (the date-by-date ledger) and
+  **Shop** (grocery checklists).
+- **Dashboard bar charts.** Three grouped comparisons, each bar tappable to
+  reveal a plain-English explanation of the number:
+  - *This period* — income vs. planned expense vs. actual expense
+  - *Groceries* — planned vs. actual
+  - *Misc buffer* — what's left after fixed bills and the grocery plan, versus
+    the ad-hoc spending eating into it
+- **Period health colours**, on the dashboard's period strip, based on
+  (income − expenses) ÷ income:
   - 🔴 **Red** — expenses exceed income
   - 🟠 **Orange** — a thin buffer, under 5% surplus
   - 🟡 **Yellow** — a comfortable 5–15% surplus
   - 🟢 **Green** — a healthy 15%+ surplus
+- **A colourful, tactile feel** throughout — rich category colours, gradient
+  buttons, a count-up animation on the headline figures, a small confetti burst
+  when you mark something paid, and a soft fade between views.
 - **Planned vs. filled** — every entry is either *planned* (still to come) or
   *filled* (settled). Tap the circle on a row to flip it.
 - **Recurring entries** at weekly / monthly / every-2-months / quarterly /
@@ -44,10 +46,41 @@ Open `index.html` in any browser, or host the file anywhere static.
   instead, since iOS has no programmatic install prompt.
 - **App lock** — gate the app behind a 4-digit PIN, or your device's own
   Face ID / Touch ID / Windows Hello via WebAuthn. Set it up from
-  **Settings → App lock**. This locks the *screen* only; it does not encrypt
-  the data itself, so it's a deterrent for a shared device, not real
-  cryptographic security.
+  **Settings → App lock**. The lock screen is a branded full-bleed gradient
+  with the app name and a fan of euro and rupee notes. This locks the *screen*
+  only; it does not encrypt the data itself, so it's a deterrent for a shared
+  device, not real cryptographic security.
 - **Optional GitHub sync** — see below.
+
+## Shopping lists
+
+The **Shop** tab keeps two checklists — **German stores** and **Indian
+stores** — designed for tapping rather than typing:
+
+- **Add items** opens a picker of ~54 staples per store, grouped by aisle
+  (Molkerei & Eier, Obst & Gemüse, … / Dal & pulses, Spices, …). Tap a chip to
+  add it, tap again to remove. A small "Not on the list?" field covers
+  anything the catalogue misses.
+- **Prices are asked for on ticking, not on adding.** Adding an item takes
+  only its name; ticking it off reveals an optional inline price box that
+  auto-focuses, and the running total updates as you type.
+- **Save purchase** sits at the end of the page: it files the ticked items
+  into *Recent purchases* with a purchase date, leaves anything unbought on
+  the list, and can post the total to the ledger as a groceries expense.
+
+### Scanning a receipt
+
+**Scan receipt** (just above Save) takes the **text** of a receipt, pasted in.
+It pulls out each priced line, matches it against the list — folding German
+umlaut spellings, so `AEPFEL 1KG` finds *Äpfel* — fills in the price and ticks
+the item, and appends anything it can't match to the end of the list with its
+price. Totals, change and tax lines are ignored. You see the matched/new
+breakdown and confirm before anything is applied.
+
+Reading a **photo** of a receipt is deliberately not supported: on-device text
+recognition would mean bundling an OCR library, which would end this app's
+single-offline-file design. Most shops e-mail a digital receipt you can copy
+the text from.
 
 ## Where the data lives
 
@@ -89,7 +122,7 @@ API for personal accounts, and a static page cannot hold credentials safely.
 | File | Purpose |
 |---|---|
 | `index.html` | The whole app — open this |
-| `kassenbuch.html` | An older, simpler body-fragment form of the app (used for hosted publishing elsewhere) — it has the mobile input-zoom fix but **not** the dashboard/bucket/health-colour/lock/GitHub-sync features, since those need a `<head>` (PWA tags, app-lock pre-paint script) that a body fragment doesn't have |
+| `kassenbuch.html` | An older, simpler body-fragment form of the app (used for hosted publishing elsewhere). It still works on calendar months and has **none** of the period/charts/Shop/lock/GitHub-sync features, which need a `<head>` (PWA tags, app-lock pre-paint script) that a body fragment doesn't have |
 | `manifest.webmanifest` | PWA manifest — name, icons, standalone display |
 | `sw.js` | Service worker — caches the app shell for offline / installed use |
 | `icons/` | App icons (192, 512, maskable, apple-touch) |
