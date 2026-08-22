@@ -668,6 +668,15 @@
       "date": "2027-08-15",
       "status": "planned",
       "ruleId": "41nv5gwqtk16"
+    },
+    {
+      "id": "5r6kgkk3w9xg",
+      "type": "expense",
+      "amount": 22900,
+      "category": "education",
+      "note": "VHS",
+      "date": "2026-08-20",
+      "status": "done"
     }
   ],
   "rules": [
