@@ -364,15 +364,10 @@ html.amounts-shown #btnEye{color:var(--accent)}
   font-family:var(--mono);font-size:12px;font-weight:600;
   font-variant-numeric:tabular-nums;flex:none;
 }
-.env-track{height:8px;background:var(--surface-sunk);border-radius:99px;overflow:hidden;position:relative}
+.env-track{height:8px;background:var(--surface-sunk);border-radius:99px;overflow:hidden}
 .env-track i{
   display:block;height:100%;border-radius:99px;
   transition:width .5s cubic-bezier(.4,0,.2,1),background .3s;
-}
-/* where you'd be if the period's spend were even — makes overspending early visible */
-.env-pace{
-  position:absolute;top:-2px;bottom:-2px;width:2px;
-  background:var(--ink-3);opacity:.55;border-radius:2px;
 }
 .env-sub{margin-top:5px;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .emptybudget{
@@ -1767,7 +1762,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.0.4";
+const APP_VERSION = "1.0.5";
 const APP_BUILT = "2026-08-23";
 
 const KEY = "panappai.v1";
@@ -2411,12 +2406,6 @@ function renderBudgets(){
     fill.style.width = pct + "%";
     fill.style.background = envColour(spent, planned, pace);
     track.appendChild(fill);
-    if (pace > 0 && pace < 1){
-      const mark = el("div", "env-pace");
-      mark.style.left = (pace * 100) + "%";
-      mark.title = "Where an even spend would be today";
-      track.appendChild(mark);
-    }
     row.appendChild(track);
 
     row.appendChild(el("div", "env-sub", fmt(spent) + " of " + fmt(planned) + " · " + pct + "%"));
@@ -2425,11 +2414,16 @@ function renderBudgets(){
     host.appendChild(row);
   });
 
+  /* Used-vs-elapsed side by side is the pace read: 60% spent 30% of the way in
+     is the thing worth noticing, and it says so in words rather than as a mark
+     on the bar, which looked like a rendering artefact. */
   const leftAll = totPlanned - totSpent;
+  const usedPct = totPlanned > 0 ? Math.round(totSpent / totPlanned * 100) : 0;
+  const pacePct = Math.round(pace * 100);
   $("#budgetFoot").textContent =
-    fmt(totSpent) + " of " + fmt(totPlanned) + " used · " +
+    fmt(totSpent) + " of " + fmt(totPlanned) + " used (" + usedPct + "%) · " +
     (leftAll >= 0 ? fmt(leftAll) + " left" : fmt(-leftAll) + " over") +
-    " · " + Math.round(pace * 100) + "% through the period";
+    " · you're " + pacePct + "% through the period";
 }
 
 /* ---------- envelope detail ---------- */
