@@ -57,25 +57,29 @@ Open `index.html` in any browser, or host the file anywhere static.
 The **Shop** tab keeps two checklists — **German stores** and **Indian
 stores** — designed for tapping rather than typing:
 
-- **Add items** opens a picker of ~54 staples per store, grouped by aisle
+- **Add items** opens a picker of staples per store, grouped by aisle
   (Molkerei & Eier, Obst & Gemüse, … / Dal & pulses, Spices, …). Tap a chip to
   add it, tap again to remove. A small "Not on the list?" field covers
   anything the catalogue misses.
-- **Prices are asked for on ticking, not on adding.** Adding an item takes
-  only its name; ticking it off reveals an optional inline price box that
-  auto-focuses, and the running total updates as you type.
+- **Ticking an item asks for nothing** — no per-item price to fill in while
+  you're standing in the shop.
+- **One Total bill box** at the end, filled in once when you're done (or
+  filled automatically by a receipt scan).
 - **Save purchase** sits at the end of the page: it files the ticked items
   into *Recent purchases* with a purchase date, leaves anything unbought on
-  the list, and can post the total to the ledger as a groceries expense.
+  the list, and can post the total bill to the ledger as a groceries expense.
+- **Recent purchases are tappable** — opening one shows everything bought on
+  that trip, with per-item prices where a scan supplied them, and the total.
 
 ### Scanning a receipt
 
 **Scan receipt** (just above Save) takes the **text** of a receipt, pasted in.
 It pulls out each priced line, matches it against the list — folding German
-umlaut spellings, so `AEPFEL 1KG` finds *Äpfel* — fills in the price and ticks
-the item, and appends anything it can't match to the end of the list with its
-price. Totals, change and tax lines are ignored. You see the matched/new
-breakdown and confirm before anything is applied.
+umlaut spellings, so `AEPFEL 1KG` finds *Äpfel* — ticks the item and records
+its price, and appends anything it can't match to the end of the list. The
+**Total bill** box is filled in from the scanned lines. Totals, change and tax
+lines are ignored. You see the matched/new breakdown and confirm before
+anything is applied.
 
 Reading a **photo** of a receipt is deliberately not supported: on-device text
 recognition would mean bundling an OCR library, which would end this app's
@@ -85,9 +89,15 @@ the text from.
 ## Where the data lives
 
 `localStorage` by default, in the browser on the device you use — nothing is
-uploaded unless you turn on GitHub sync. Use
-**Settings → Backup → Copy backup to clipboard** to move data to another
-device by hand, or use GitHub sync for it to happen automatically.
+uploaded unless you turn on GitHub sync.
+
+**`localStorage` is per-browser, not per-device.** Safari and Chrome on the
+same phone have completely separate storage, so entries added in one are
+invisible in the other, and an app lock set in one doesn't apply to the other.
+There is no way for a web page to share storage across browsers. To carry data
+over, either use **Settings → Backup → Copy backup to clipboard** and paste it
+into the other browser's restore box, or set up GitHub sync in both and use
+**Pull onto this device**.
 
 ### GitHub sync (optional)
 
@@ -108,6 +118,10 @@ Fill in the token, the repo as `owner/repo`, and a file path (defaults to
 `data/panappai-backup.json`), then **Save & enable auto-sync**. Sync is
 debounced a few seconds after each change so a burst of edits doesn't fire an
 API call per row.
+
+**Push now** uploads immediately. **Pull onto this device** downloads the
+backup and *replaces* whatever this browser currently holds — that's how a
+second browser or phone catches up, so it asks for a second tap to confirm.
 
 ## Bank export instructions
 

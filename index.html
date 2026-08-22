@@ -461,6 +461,27 @@ button{cursor:pointer;background:none;border:none;padding:0}
 .hr-d{font-size:12.5px;font-weight:500}
 .hr-i{font-size:11.5px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hr-t{font-family:var(--mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;flex:none}
+.histrow{width:100%;text-align:left;transition:border-color .15s,background .15s}
+.histrow:hover{border-color:var(--accent);background:var(--surface-2)}
+.histrow:active{transform:scale(.995)}
+
+/* ---------- Purchase detail ---------- */
+.purch-meta{font-size:12.5px;color:var(--ink-3);margin-bottom:12px}
+.purchlist{display:flex;flex-direction:column}
+.purchrow{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 2px;border-bottom:1px solid var(--line);font-size:14px;
+}
+.purchrow:last-child{border-bottom:none}
+.pr-n{flex:1;min-width:0}
+.pr-p{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;flex:none}
+.purch-total{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  margin-top:14px;padding:13px 15px;border-radius:var(--r-md);
+  background:var(--accent-soft);font-size:13px;font-weight:600;color:var(--ink-2);
+}
+.purch-total b{font-family:var(--mono);font-size:17px;color:var(--accent);font-variant-numeric:tabular-nums}
+.inp.sf-total{flex:none;width:120px;text-align:right;font-family:var(--mono);font-weight:600}
 
 /* ---------- Monthly health strip ---------- */
 .monthstrip-wrap{margin:16px 14px 0}
@@ -1079,8 +1100,12 @@ html.locked #lockScreen::before{
 
     <section class="shopfinish" id="shopFinish" hidden>
       <div class="sf-row">
-        <div class="sf-k">Checked</div>
-        <div class="sf-v"><span id="sfCount">0</span> item(s) · <b id="sfTotal">€0.00</b></div>
+        <div class="sf-k">Bought</div>
+        <div class="sf-v"><span id="sfCount">0</span> item(s)</div>
+      </div>
+      <div class="sf-row">
+        <label class="sf-k" for="shopTotal">Total bill</label>
+        <input class="inp sf-total" id="shopTotal" type="text" inputmode="decimal" placeholder="€ 0,00" autocomplete="off">
       </div>
       <div class="sf-row">
         <label class="sf-k" for="shopDate">Purchased on</label>
@@ -1267,6 +1292,24 @@ html.locked #lockScreen::before{
   </div>
 </section>
 
+<!-- PURCHASE DETAIL SHEET -->
+<section class="sheet" id="shPurch" role="dialog" aria-modal="true" aria-labelledby="purchTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="purchTitle">Purchase</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="purch-meta" id="purchMeta"></div>
+    <div class="purchlist" id="purchItems"></div>
+    <div class="purch-total">
+      <span>Total bill</span>
+      <b id="purchTotal">€0.00</b>
+    </div>
+  </div>
+</section>
+
 <!-- RECEIPT SCAN SHEET -->
 <section class="sheet" id="shScan" role="dialog" aria-modal="true" aria-labelledby="scanTitle">
   <div class="sheet-head" style="position:relative">
@@ -1345,7 +1388,8 @@ html.locked #lockScreen::before{
         <input class="inp" id="ghRepo" type="text" placeholder="owner/repo" autocomplete="off">
         <input class="inp" id="ghPath" type="text" placeholder="data path, e.g. data/panappai-backup.json" autocomplete="off">
         <button class="btn ghost sm" id="ghSave">Save &amp; enable auto-sync</button>
-        <button class="btn ghost sm" id="ghSyncNow" hidden>Sync now</button>
+        <button class="btn ghost sm" id="ghSyncNow" hidden>Push now</button>
+        <button class="btn ghost sm" id="ghPull" hidden>Pull onto this device</button>
         <button class="btn danger sm" id="ghDisable" hidden>Disable sync</button>
       </div>
       <div class="note" style="margin-top:6px">
@@ -2637,13 +2681,12 @@ const STORE_SHORT = { de:"DE", in:"IN" };
 /** Tap-to-add staples, so a shopping list can be built without typing. */
 const CATALOG = {
   de: [
-    { g:"Molkerei & Eier", items:["Milch","Butter","Eier","Käse","Joghurt","Quark","Sahne","Frischkäse"] },
-    { g:"Backwaren",       items:["Brot","Brötchen","Vollkornbrot","Toast"] },
-    { g:"Obst & Gemüse",   items:["Äpfel","Bananen","Tomaten","Kartoffeln","Zwiebeln","Gurke","Karotten","Salat","Paprika","Zitronen","Avocado","Champignons"] },
-    { g:"Fleisch & Fisch", items:["Hähnchenbrust","Hackfleisch","Aufschnitt","Lachs","Thunfisch"] },
-    { g:"Vorrat",          items:["Nudeln","Reis","Mehl","Zucker","Salz","Olivenöl","Tomatensoße","Müsli","Haferflocken","Honig","Schokolade"] },
-    { g:"Getränke",        items:["Sprudelwasser","Orangensaft","Kaffee","Tee","Bier","Wein"] },
-    { g:"Haushalt",        items:["Toilettenpapier","Küchenrolle","Spülmittel","Waschmittel","Müllbeutel","Zahnpasta","Shampoo","Duschgel"] }
+    { g:"Molkerei & Eier", items:["Milch","Butter","Eier","Käse","Joghurt","Sahne"] },
+    { g:"Backwaren",       items:["Vollkornbrot","Croissant","Donut"] },
+    { g:"Obst & Gemüse",   items:["Äpfel","Bananen","Tomaten","Kartoffeln","Zwiebeln","Gurke","Karotten","Salat","Paprika","Zitronen","Pflaumen","Trauben"] },
+    { g:"Fleisch & Fisch", items:["Hähnchen","Thunfisch"] },
+    { g:"Vorrat",          items:["Nudeln","Öl","Tomatensoße","Schokolade"] },
+    { g:"Haushalt",        items:["Toilettenpapier","Küchenrolle","Waschmittel","Waschgel","Reinigungsgel","Müllbeutel","Zahnpasta","Shampoo"] }
   ],
   in: [
     { g:"Dal & pulses",     items:["Toor dal","Moong dal","Chana dal","Urad dal","Masoor dal","Rajma","Kabuli chana"] },
@@ -2677,13 +2720,11 @@ function renderShop(){
   renderShopHistory();
 }
 
-/** Kept separate from renderShop so typing a price doesn't rebuild (and blur) the input. */
+/** Kept separate from renderShop so typing the total doesn't rebuild (and blur) the input. */
 function updateShopSummary(){
   const checked = shopList().filter(i => i.done);
-  const total = checked.reduce((s, i) => s + (i.price || 0), 0);
   $("#shopFinish").hidden = checked.length === 0;
   $("#sfCount").textContent = checked.length;
-  $("#sfTotal").textContent = fmt(total);
   if (!$("#shopDate").value) $("#shopDate").value = todayISO();
 }
 
@@ -2702,22 +2743,9 @@ function shopRow(item){
   name.addEventListener("click", () => toggleShopItem(item));
   row.appendChild(name);
 
-  /* price is asked for only once the item is actually in the basket, and stays optional */
-  if (item.done){
-    const price = el("input", "si-price");
-    price.type = "text";
-    price.inputMode = "decimal";
-    price.placeholder = "€ —";
-    price.value = item.price ? (item.price / 100).toFixed(2).replace(".", ",") : "";
-    price.setAttribute("aria-label", "Price for " + item.name);
-    price.addEventListener("input", () => {
-      item.price = Math.abs(parseAmount(price.value) || 0);
-      updateShopSummary();
-    });
-    price.addEventListener("change", save);
-    price.addEventListener("blur", save);
-    row.appendChild(price);
-  }
+  /* Ticking asks for nothing — the bill is entered once at the end. A price
+     only shows here when a scanned receipt supplied one, and is read-only. */
+  if (item.price) row.appendChild(el("div", "si-p", fmt(item.price)));
 
   const x = el("button", "si-x");
   x.type = "button";
@@ -2738,12 +2766,6 @@ function toggleShopItem(item){
   item.done = !item.done;
   if (!item.done) item.price = 0;
   save(); renderShop();
-  if (item.done){
-    /* jump straight to the price box so it can be filled without hunting for it */
-    const row = Array.from($$("#shopList .shopitem")).find(r => r.querySelector(".si-n").textContent === item.name);
-    const inp = row && row.querySelector(".si-price");
-    if (inp) inp.focus();
-  }
 }
 
 function renderShopHistory(){
@@ -2752,15 +2774,37 @@ function renderShopHistory(){
   const host = $("#shopHist");
   host.innerHTML = "";
   hist.forEach(h => {
-    const row = el("div", "histrow");
+    const row = el("button", "histrow");
+    row.type = "button";
     row.appendChild(el("span", "hr-s " + h.store, STORE_SHORT[h.store] || "?"));
     const m = el("div", "hr-m");
     m.appendChild(el("div", "hr-d", dayTitle(h.date)));
     m.appendChild(el("div", "hr-i", h.items.map(i => i.name).join(", ")));
     row.appendChild(m);
     row.appendChild(el("div", "hr-t", fmt(h.total)));
+    row.setAttribute("aria-label", "Show what was bought on " + dayTitle(h.date));
+    row.addEventListener("click", () => openPurchase(h));
     host.appendChild(row);
   });
+}
+
+/** Read-only detail of one saved shop, opened from the Recent purchases list. */
+function openPurchase(h){
+  $("#purchTitle").textContent = STORE_LABEL[h.store] || "Purchase";
+  $("#purchMeta").textContent = dayTitle(h.date) + " · " + h.items.length +
+    " item" + (h.items.length === 1 ? "" : "s");
+
+  const host = $("#purchItems");
+  host.innerHTML = "";
+  h.items.forEach(i => {
+    const row = el("div", "purchrow");
+    row.appendChild(el("span", "pr-n", i.name));
+    if (i.price) row.appendChild(el("span", "pr-p", fmt(i.price)));
+    host.appendChild(row);
+  });
+
+  $("#purchTotal").textContent = fmt(h.total);
+  sheetOpen("#shPurch");
 }
 
 $$("#storeTog button").forEach(b => b.addEventListener("click", () => { store = b.dataset.store; renderShop(); }));
@@ -2947,9 +2991,12 @@ $("#scanApply").addEventListener("click", () => {
       added++;
     }
   });
+  /* a scan knows the bill, so fill the Total box rather than making it be retyped */
+  const billed = scanParsed.reduce((s, p) => s + p.price, 0);
   scanParsed = null;
   save(); renderShop(); sheetClose();
-  toast(updated + " price" + (updated === 1 ? "" : "s") + " filled, " + added + " added");
+  $("#shopTotal").value = (billed / 100).toFixed(2).replace(".", ",");
+  toast(updated + " matched, " + added + " added · " + fmt(billed));
 });
 
 $("#shopDone").addEventListener("click", () => {
@@ -2958,7 +3005,9 @@ $("#shopDone").addEventListener("click", () => {
   if (!checked.length){ toast("Tick off what you bought first"); return; }
 
   const date = $("#shopDate").value || todayISO();
-  const total = checked.reduce((s, i) => s + (i.price || 0), 0);
+  /* the single Total bill box is the source of truth; per-item prices only
+     exist when a scanned receipt supplied them */
+  const total = Math.abs(parseAmount($("#shopTotal").value) || 0);
 
   state.shop.history.push({
     id: uid(), store: store, date: date, total: total,
@@ -2975,6 +3024,7 @@ $("#shopDone").addEventListener("click", () => {
 
   state.shop.lists[store] = arr.filter(i => !i.done);
   $("#shopDate").value = todayISO();
+  $("#shopTotal").value = "";
   save(); render(); renderShop();
   toast("Saved " + checked.length + " item" + (checked.length === 1 ? "" : "s") + " · " + fmt(total));
 });
@@ -3313,7 +3363,45 @@ function renderGhSettings(){
     : "Off — data stays only in this browser.";
   $("#ghSave").textContent = on ? "Update settings" : "Save & enable auto-sync";
   $("#ghSyncNow").hidden = !on;
+  $("#ghPull").hidden = !on;
   $("#ghDisable").hidden = !on;
+}
+
+/**
+ * Pulls the backup file back down and replaces this browser's data with it.
+ * localStorage is per-browser, so this is how a second browser or device
+ * catches up — it overwrites, so it asks for a second tap first.
+ */
+async function ghPullNow(){
+  const token = localStorage.getItem(GH_TOKEN_KEY) || "";
+  const repo = localStorage.getItem(GH_REPO_KEY) || "";
+  const path = localStorage.getItem(GH_PATH_KEY) || GH_DEFAULT_PATH;
+  if (!token || !repo){ toast("Set up sync first"); return; }
+
+  $("#ghStatus").textContent = "Pulling…";
+  try{
+    const res = await fetch("https://api.github.com/repos/" + repo + "/contents/" + path, {
+      headers: ghHeaders(token), cache: "no-store"
+    });
+    if (!res.ok) throw new Error("GET " + res.status);
+    const meta = await res.json();
+    const json = decodeURIComponent(escape(atob(String(meta.content || "").replace(/\n/g, ""))));
+    const p = JSON.parse(json);
+    if (!p || !Array.isArray(p.txns)) throw new Error("shape");
+
+    state = {
+      v:1, txns:p.txns,
+      rules: Array.isArray(p.rules) ? p.rules : [],
+      skips: Array.isArray(p.skips) ? p.skips : [],
+      shop: normaliseShop(p.shop)
+    };
+    if (p.demo) state.demo = true;
+    materialise();
+    save(); render(); renderShop(); renderGhSettings();
+    toast("Pulled " + state.txns.length + " entries from GitHub");
+  }catch(e){
+    $("#ghStatus").textContent = "Pull failed — check the token, repo and path.";
+  }
 }
 $("#ghSave").addEventListener("click", () => {
   const token = $("#ghToken").value.trim();
@@ -3329,6 +3417,20 @@ $("#ghSave").addEventListener("click", () => {
   ghSyncNow();
 });
 $("#ghSyncNow").addEventListener("click", ghSyncNow);
+$("#ghPull").addEventListener("click", function(){
+  if (this.dataset.armed){
+    delete this.dataset.armed;
+    this.textContent = "Pull onto this device";
+    ghPullNow();
+  } else {
+    this.dataset.armed = "1";
+    this.textContent = "Tap again — this replaces the data in this browser";
+    setTimeout(() => {
+      delete this.dataset.armed;
+      this.textContent = "Pull onto this device";
+    }, 4000);
+  }
+});
 $("#ghDisable").addEventListener("click", () => {
   localStorage.removeItem(GH_ENABLED_KEY);
   renderGhSettings();
