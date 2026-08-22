@@ -11,16 +11,6 @@
       "status": "done"
     },
     {
-      "id": "4y4ivvweobpm",
-      "type": "income",
-      "amount": 550000,
-      "category": "salary",
-      "note": "Monthly salary",
-      "date": "2026-08-15",
-      "status": "done",
-      "ruleId": "euz8j41uobpm"
-    },
-    {
       "id": "hu85vkyiobpm",
       "type": "expense",
       "amount": 128000,
@@ -47,7 +37,8 @@
     "wj1x5pojobpm|2026-08-27",
     "9xfm5cjdobpm|2026-08-20",
     "sjte806yobpm|2026-08-25",
-    "ri8fqhdptsqx|2026-08-20"
+    "ri8fqhdptsqx|2026-08-20",
+    "euz8j41uobpm|2026-08-15"
   ],
   "shop": {
     "lists": {
