@@ -2176,6 +2176,136 @@
       "date": "2027-08-22",
       "status": "planned",
       "ruleId": "9trvq5n4z3vo"
+    },
+    {
+      "id": "hbi08hwgmy6g",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2026-08-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "puo0ke9qmy6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2026-09-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "xiped4mcmy6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2026-10-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "647kfe2kmy6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2026-11-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "6nrkia6cmy6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2026-12-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "oqqxl4iumy6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2027-01-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "p3v388n0my6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2027-02-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "adkr0wndmy6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2027-03-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "1vamh79zmy6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2027-04-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "21difx3nmy6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2027-05-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "ki1ymkk6my6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2027-06-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "plhj5b79my6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2027-07-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "15pqdm4omy6g",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "date": "2027-08-01",
+      "status": "planned",
+      "ruleId": "11j7m9lmmy6f"
     }
   ],
   "rules": [
@@ -2357,6 +2487,16 @@
       "note": "EMI - Commerzbank",
       "freq": "monthly",
       "anchor": "2026-08-22",
+      "active": true
+    },
+    {
+      "id": "11j7m9lmmy6f",
+      "type": "expense",
+      "amount": 222000,
+      "category": "emi",
+      "note": "Personal Loan - Commerzbank",
+      "freq": "monthly",
+      "anchor": "2026-09-01",
       "active": true
     }
   ],
