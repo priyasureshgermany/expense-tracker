@@ -2442,6 +2442,15 @@
       "note": "Viswanathan & sons Movie - Cinestar",
       "date": "2026-08-19",
       "status": "done"
+    },
+    {
+      "id": "ajpu3uuqzugh",
+      "type": "expense",
+      "amount": 1328,
+      "category": "groceries_de",
+      "note": "Lidl",
+      "date": "2026-08-19",
+      "status": "done"
     }
   ],
   "rules": [
