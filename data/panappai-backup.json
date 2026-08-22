@@ -2496,6 +2496,15 @@
       "note": "Tedi",
       "date": "2026-08-21",
       "status": "done"
+    },
+    {
+      "id": "w55br0xla1f8",
+      "type": "expense",
+      "amount": 900,
+      "category": "nonveg",
+      "note": "Hanchen",
+      "date": "2026-08-22",
+      "status": "done"
     }
   ],
   "rules": [
