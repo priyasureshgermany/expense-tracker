@@ -3356,7 +3356,19 @@ $("#ghDisable").addEventListener("click", () => {
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    navigator.serviceWorker.register("sw.js").then(reg => {
+      /* pick up a new build without waiting for the browser's own 24h check */
+      if (reg.update) reg.update().catch(() => {});
+    }).catch(() => {});
+  });
+
+  /* When a newer worker takes over, reload once so the page isn't left showing
+     the previous build's HTML. The flag stops this becoming a reload loop. */
+  let swReloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (swReloaded) return;
+    swReloaded = true;
+    location.reload();
   });
 }
 

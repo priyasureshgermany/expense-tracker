@@ -1,4 +1,8 @@
-const CACHE = "kassenbuch-v1";
+/* Bump VERSION on every release: activate() purges any cache that isn't the
+   current one, which is what lets a new build actually replace the old one. */
+const VERSION = "v3";
+const CACHE = "panappai-" + VERSION;
+
 const ASSETS = [
   "./",
   "./index.html",
@@ -24,16 +28,41 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
-  const url = new URL(event.request.url);
-  if (url.origin !== location.origin) return;
+  const req = event.request;
+  if (req.method !== "GET") return;
+  if (new URL(req.url).origin !== location.origin) return;
 
+  const isDocument = req.mode === "navigate" || req.destination === "document";
+
+  if (isDocument) {
+    /* Network-first for the page itself: online users always get the newest
+       build, and the cached copy is only a fallback when the network fails.
+       Cache-first here is what previously pinned installed users to an old
+       version indefinitely. */
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req).then((hit) => hit || caches.match("./index.html")))
+    );
+    return;
+  }
+
+  /* Everything else (icons, manifest): serve fast from cache, refresh behind. */
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const network = fetch(event.request)
-        .then((response) => {
-          if (response.ok) caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));
-          return response;
+    caches.match(req).then((cached) => {
+      const network = fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
         })
         .catch(() => cached);
       return cached || network;
