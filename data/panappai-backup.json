@@ -2451,6 +2451,15 @@
       "note": "Lidl",
       "date": "2026-08-19",
       "status": "done"
+    },
+    {
+      "id": "y91obng30s3b",
+      "type": "expense",
+      "amount": 30000,
+      "category": "toindia",
+      "note": "For Amma and Loan",
+      "date": "2026-08-21",
+      "status": "done"
     }
   ],
   "rules": [
