@@ -1091,8 +1091,8 @@
       "id": "thdzbhuzjidn",
       "type": "expense",
       "amount": 2160,
-      "category": "groceries",
-      "note": "Non-Veg",
+      "category": "nonveg",
+      "note": "Fish",
       "date": "2026-08-17",
       "status": "done",
       "ruleId": "8mofd0hyjidm"
