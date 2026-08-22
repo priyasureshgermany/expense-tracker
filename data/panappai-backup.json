@@ -1110,11 +1110,11 @@
     {
       "id": "thdzbhuzjidn",
       "type": "expense",
-      "amount": 10000,
+      "amount": 2160,
       "category": "groceries",
       "note": "Non-Veg",
-      "date": "2026-09-14",
-      "status": "planned",
+      "date": "2026-08-17",
+      "status": "done",
       "ruleId": "8mofd0hyjidm"
     },
     {
