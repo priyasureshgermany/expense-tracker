@@ -309,7 +309,7 @@ button{cursor:pointer;background:none;border:none;padding:0}
   to{opacity:1; transform:translateY(0)}
 }
 
-/* ---------- Purse + coin-spill animation ---------- */
+/* ---------- Bucket (coins, no animation) ---------- */
 .bucketcard{
   margin:14px 14px 0;padding:16px 16px 18px;
   background:linear-gradient(160deg, var(--surface), var(--surface-2));
@@ -318,58 +318,15 @@ button{cursor:pointer;background:none;border:none;padding:0}
 .bucket-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .bucket-t{font-size:12.5px;font-weight:600;color:var(--ink-2)}
 .bucket-v{font-family:var(--mono);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;transition:color .4s}
-.bucket-wrap{position:relative;width:120px;margin:6px auto 2px}
-.purse-svg{display:block;width:100%;height:auto;overflow:visible}
-.purse-outline{fill:none;stroke:var(--ink-2);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
-.purse-knot{fill:none}
-.purse-fill{
-  fill:var(--health-color, var(--accent)); fill-opacity:.14;
-  transition:fill .4s;
+.bucket-wrap{position:relative;width:60%;max-width:230px;min-width:150px;margin:10px auto 4px}
+.bucket-svg{display:block;width:100%;height:auto}
+.bucket-outline{fill:none;stroke:var(--ink-3);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.bucket-rim{stroke:var(--ink-2)}
+.pattern-euro{
+  font-family:var(--sans);font-size:11px;font-weight:800;fill:#D79A3C;
 }
-.purse-level{
-  fill:var(--health-color, var(--accent));
-  transition:y .6s cubic-bezier(.4,0,.2,1), height .6s cubic-bezier(.4,0,.2,1), fill .4s;
-}
-.purse-shine{animation:shineSweep 3.6s ease-in-out infinite}
-@keyframes shineSweep{
-  0%{transform:translateX(0) skewX(-18deg)}
-  55%{transform:translateX(190px) skewX(-18deg)}
-  100%{transform:translateX(190px) skewX(-18deg)}
-}
-.coin-spill{
-  position:absolute;top:16%;left:50%;transform:translateX(-50%);
-  width:76px;height:76px;pointer-events:none;
-}
-.coin-spill[hidden]{display:none}
-.spill-coin{
-  position:absolute;top:0;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;
-  background:radial-gradient(circle at 32% 28%, #FFE8AE, var(--warn) 65%);
-  box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.22), 0 1px 2px rgba(0,0,0,.15);
-  opacity:0;
-  animation:spillA 1.9s ease-in infinite;
-}
-.spill-coin:nth-child(1){animation-name:spillA; animation-delay:0s}
-.spill-coin:nth-child(2){animation-name:spillB; animation-delay:.45s}
-.spill-coin:nth-child(3){animation-name:spillC; animation-delay:.95s}
-@keyframes spillA{
-  0%{transform:translate(-3px,-2px) rotate(0deg);opacity:0}
-  10%{opacity:1}
-  80%{opacity:.85}
-  100%{transform:translate(-38px,60px) rotate(-150deg);opacity:0}
-}
-@keyframes spillB{
-  0%{transform:translate(1px,-4px) rotate(0deg);opacity:0}
-  10%{opacity:1}
-  80%{opacity:.85}
-  100%{transform:translate(5px,68px) rotate(130deg);opacity:0}
-}
-@keyframes spillC{
-  0%{transform:translate(4px,-2px) rotate(0deg);opacity:0}
-  10%{opacity:1}
-  80%{opacity:.85}
-  100%{transform:translate(36px,58px) rotate(165deg);opacity:0}
-}
-.bucket-sub{margin-top:6px;font-size:12px;color:var(--ink-3);text-align:center}
+#bucketLevel{ transition:y .6s cubic-bezier(.4,0,.2,1), height .6s cubic-bezier(.4,0,.2,1) }
+.bucket-sub{margin-top:10px;font-size:12px;color:var(--ink-3);text-align:center}
 
 /* ---------- Monthly health strip ---------- */
 .monthstrip-wrap{margin:16px 14px 0}
@@ -868,35 +825,26 @@ html.locked #lockScreen{
 
     <section class="bucketcard">
       <div class="bucket-head">
-        <div class="bucket-t">Income left in the purse</div>
+        <div class="bucket-t">Balance in the bucket</div>
         <div class="bucket-v" id="bucketPct">100%</div>
       </div>
       <div class="bucket-wrap">
-        <svg class="purse-svg" viewBox="0 0 120 132" aria-hidden="true">
+        <svg class="bucket-svg" viewBox="0 0 120 104" aria-hidden="true">
           <defs>
-            <clipPath id="purseClip">
-              <path d="M44,36 C26,40 14,56 14,74 C14,102 34,122 60,122 C86,122 106,102 106,74 C106,56 94,40 76,36 Z"/>
+            <clipPath id="bucketClip">
+              <path d="M18 10 H102 L92 92 A6 6 0 0 1 86 97 H34 A6 6 0 0 1 28 92 Z"/>
             </clipPath>
-            <linearGradient id="purseShine" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#fff" stop-opacity="0"/>
-              <stop offset="45%" stop-color="#fff" stop-opacity=".55"/>
-              <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-            </linearGradient>
+            <pattern id="coinPattern" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">
+              <rect width="22" height="22" fill="var(--health-color, var(--accent))" fill-opacity=".14"/>
+              <text x="11" y="16" text-anchor="middle" class="pattern-euro">€</text>
+            </pattern>
           </defs>
-
-          <path class="purse-fill" d="M44,36 C26,40 14,56 14,74 C14,102 34,122 60,122 C86,122 106,102 106,74 C106,56 94,40 76,36 Z"/>
-          <g clip-path="url(#purseClip)">
-            <rect id="bucketLevel" class="purse-level" x="14" y="122" width="92" height="0"/>
-            <rect class="purse-shine" x="-40" y="10" width="26" height="120" transform="skewX(-18)"/>
+          <g clip-path="url(#bucketClip)">
+            <rect id="bucketLevel" x="18" y="100" width="84" height="0" fill="url(#coinPattern)"/>
           </g>
-          <path class="purse-outline" d="M44,36 C26,40 14,56 14,74 C14,102 34,122 60,122 C86,122 106,102 106,74 C106,56 94,40 76,36 Z"/>
-          <path class="purse-outline purse-ruffle" d="M44,36 q4,-7 8,-1 q4,-7 8,-1 q4,-7 8,-1 q4,-7 8,-1"/>
-          <path class="purse-outline purse-tie" d="M52,29 q8,-8 16,0"/>
-          <circle class="purse-outline purse-knot" cx="60" cy="22" r="4.5"/>
+          <path class="bucket-outline" d="M18 10 H102 L92 92 A6 6 0 0 1 86 97 H34 A6 6 0 0 1 28 92 Z"/>
+          <path class="bucket-outline bucket-rim" d="M15 10 H105"/>
         </svg>
-        <div class="coin-spill" id="coinDrip">
-          <span class="spill-coin"></span><span class="spill-coin"></span><span class="spill-coin"></span>
-        </div>
       </div>
       <div class="bucket-sub" id="bucketSub">Nothing spent yet this month</div>
     </section>
@@ -1554,39 +1502,41 @@ function render(){
   }
 
   renderBreakdown(all, dark);
-  renderBucket(inDone + inPlan, outDone, outPlan);
+  renderBucket(inDone, inPlan, outDone, outPlan);
   renderMonthStrip();
   $("#demoBar").hidden = !state.demo;
   $$(".seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.f === filter)));
 }
 
-/** The purse empties as expenses are actually paid (not merely planned); its colour reflects the whole month's projected health. */
-function renderBucket(income, spentDone, spentPlanned){
-  const level = $("#bucketLevel");
-  const band = healthBand(income, spentDone + spentPlanned);
+/** The coin level reflects the actual balance so far (income received minus expenses paid), not the whole month's plan. */
+function renderBucket(incDone, incPlan, outDone, outPlan){
+  const incomeTotal = incDone + incPlan;
+  const band = healthBand(incomeTotal, outDone + outPlan);
   const colorVar = "var(" + HEALTH_VAR[band] + ")";
-  level.style.fill = colorVar;
-  const fillWash = document.querySelector(".purse-fill");
-  if (fillWash) fillWash.style.fill = colorVar;
+  document.documentElement.style.setProperty("--health-color", colorVar);
+  $("#bucketPct").style.color = colorVar;
 
-  const top = 36, bottom = 122, full = bottom - top;
-  const remainingPct = income > 0 ? Math.max(0, Math.min(1, (income - spentDone) / income)) : (spentDone > 0 ? 0 : 1);
+  const balance = incDone - outDone;
+  const capacity = Math.max(incomeTotal, 1);
+  const remainingPct = Math.max(0, Math.min(1, balance / capacity));
+
+  const level = $("#bucketLevel");
+  const top = 10, bottom = 100, full = bottom - top;
   const h = full * remainingPct;
   level.setAttribute("y", bottom - h);
   level.setAttribute("height", h);
 
   $("#bucketPct").textContent = Math.round(remainingPct * 100) + "%";
-  $("#bucketPct").style.color = colorVar;
-
-  $("#coinDrip").hidden = spentDone <= 0;
 
   const sub = $("#bucketSub");
-  if (income <= 0){
-    sub.textContent = spentDone > 0 ? "Spending with no income logged yet" : "Log income to fill the purse";
-  } else if (spentDone <= 0){
+  if (incomeTotal <= 0 && outDone <= 0){
+    sub.textContent = "Log income to fill the bucket";
+  } else if (balance < 0){
+    sub.textContent = "Overdrawn by " + fmt(-balance) + " so far this month";
+  } else if (outDone <= 0){
     sub.textContent = "Nothing spent yet this month";
   } else {
-    sub.textContent = fmt(spentDone) + " of " + fmt(income) + " spent so far — " + HEALTH_LABEL[band].toLowerCase();
+    sub.textContent = fmt(balance) + " balance — " + fmt(outDone) + " spent so far, " + HEALTH_LABEL[band].toLowerCase();
   }
 }
 
@@ -2652,17 +2602,23 @@ if ("serviceWorker" in navigator) {
     window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
   const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
   const isSafari = () => /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
+  const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) || window.matchMedia("(pointer: coarse)").matches;
 
   let dismissed = false;
   try{ dismissed = localStorage.getItem(DISMISS_KEY) === "1"; }catch(e){}
   if (isStandalone() || dismissed) return;
 
   let deferredPrompt = null;
+  let shown = false;
 
   function show(mode){
+    shown = true;
     bar.hidden = false;
     if (mode === "ios"){
       text.textContent = 'Tap the Share icon, then "Add to Home Screen".';
+      btn.textContent = "Got it";
+    } else if (mode === "manual"){
+      text.textContent = 'Open your browser menu and tap "Add to Home screen" or "Install app".';
       btn.textContent = "Got it";
     } else {
       text.textContent = "Add it to your home screen for a full-screen app with offline access.";
@@ -2683,6 +2639,12 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("appinstalled", dismiss);
 
   if (isIOS() && isSafari()) show("ios");
+  else if (isMobile()){
+    /* Many mobile browsers (Samsung Internet, Firefox Android, in-app webviews) never fire
+       beforeinstallprompt, or Chrome delays it behind engagement heuristics — fall back to
+       manual instructions so there's always some install guidance on a phone. */
+    setTimeout(() => { if (!shown) show("manual"); }, 3500);
+  }
 
   btn.addEventListener("click", async () => {
     if (deferredPrompt){
