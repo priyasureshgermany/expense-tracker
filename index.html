@@ -299,11 +299,16 @@ html.amounts-shown #btnEye{color:var(--accent)}
   background:var(--surface-sunk);border-radius:var(--r-md);
 }
 .viewtog button{
-  padding:9px 2px;border-radius:9px;font-size:12.5px;font-weight:500;
+  padding:9px 2px;border-radius:9px;font-size:12px;font-weight:500;
   color:var(--ink-2);transition:background .18s,color .18s,box-shadow .18s;
-  display:flex;align-items:center;justify-content:center;gap:5px;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  line-height:1.25;text-align:center;
 }
-.viewtog button svg{width:15px;height:15px;flex:none}
+.viewtog button svg{width:14px;height:14px;flex:none}
+/* "Shopping cart" is long; below this width the labels stack under the icons */
+@media (max-width:400px){
+  .viewtog button{flex-direction:column;gap:3px;font-size:10.5px;padding:7px 2px}
+}
 .viewtog button[aria-selected="true"]{
   background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow-sm);
 }
@@ -399,6 +404,13 @@ html.amounts-shown #btnEye{color:var(--accent)}
 .si-box svg{width:13px;height:13px;stroke-width:3}
 .shopitem.checked .si-box{background:var(--pos);border-color:var(--pos);color:#fff}
 .si-n{flex:1;min-width:0;font-size:14px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si-qty{
+  flex:none;width:62px;padding:5px 7px;border-radius:8px;
+  background:var(--surface-2);border:1.5px solid var(--line);
+  font-size:12.5px;text-align:center;color:var(--ink-2);
+}
+.si-qty:focus{outline:none;border-color:var(--accent);background:var(--surface);color:var(--ink)}
+.si-qty::placeholder{color:var(--ink-3);opacity:.7}
 /* the price only appears once an item is ticked, and stays optional */
 .si-price{
   flex:none;width:84px;padding:6px 9px;border-radius:9px;
@@ -1079,11 +1091,11 @@ html.locked #lockScreen::before{
     </button>
     <button role="tab" data-view="entries" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
-      Tracker
+      Expenses
     </button>
     <button role="tab" data-view="shop" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-      Shop
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 11.4a2 2 0 002 1.6h7.8a2 2 0 002-1.6L21 7H6.2"/></svg>
+      Shopping cart
     </button>
   </div>
 
@@ -1556,7 +1568,12 @@ const CATS = {
     {id:"subs",      n:"Subscriptions", h:310},
     {id:"education", n:"Education", h:174},
     {id:"family",    n:"Family",    h:6},
-    {id:"other",     n:"Other",     h:210}
+    {id:"cash",      n:"Cash Withdrawal",   h:190},
+    {id:"cardpay",   n:"Credit card payment", h:264},
+    {id:"invest",    n:"Investment", h:130},
+    {id:"topriya",   n:"To Priya",   h:330},
+    {id:"toindia",   n:"To India",   h:32},
+    {id:"other",     n:"Other",      h:210}
   ],
   income: [
     {id:"salary",    n:"Salary",    h:152},
@@ -1594,6 +1611,11 @@ const ICON = {
   subs:'<circle cx="12" cy="12" r="8.5"/><path d="M10.3 8.8l5.4 3.2-5.4 3.2z"/>',
   education:'<path d="M2.5 8.5L12 4.2l9.5 4.3L12 12.8z"/><path d="M6.5 10.9V16c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8v-5.1"/><path d="M21.2 9v5"/>',
   family:'<circle cx="9" cy="8" r="3.2"/><path d="M2.6 20a6.4 6.4 0 0112.8 0"/><path d="M16 5.4a3.2 3.2 0 010 5.4"/><path d="M17.8 14.5a6.4 6.4 0 013.6 5.5"/>',
+  cash:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.4"/><path d="M6 9.5h.01M18 14.5h.01"/>',
+  cardpay:'<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6 15h4"/>',
+  invest:'<path d="M3 17l5.5-5.5 3.5 3.5L21 6"/><path d="M15.5 6H21v5.5"/><path d="M3 21h18"/>',
+  topriya:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0114 0"/>',
+  toindia:'<path d="M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/>',
   other:'<circle cx="5.6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.4" cy="12" r="1.3"/>',
   salary:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 10v4M18 10v4"/>',
   freelance:'<rect x="2.5" y="7" width="19" height="13" rx="2.5"/><path d="M8.5 7V5.5a2 2 0 012-2h3a2 2 0 012 2V7"/><path d="M2.5 12.6h19"/>',
@@ -2031,24 +2053,28 @@ function balanceSetting(){
   return Number.isFinite(amt) && date ? { amount: amt, date: date } : null;
 }
 
+/** Always visible: a starting balance is optional, and without one this is
+    simply everything settled to date. Planned entries never count — they
+    haven't left the bank yet. */
 function renderBalance(){
   const b = balanceSetting();
-  const card = $("#balCard");
-  if (!b){ card.hidden = true; return; }
-  card.hidden = false;
+  const from = b ? b.date : null;
+  $("#balCard").hidden = false;
 
   let inc = 0, exp = 0;
   state.txns.forEach(t => {
-    if (t.status !== "done" || t.date < b.date) return;
+    if (t.status !== "done") return;
+    if (from && t.date < from) return;
     if (t.type === "income") inc += t.amount; else exp += t.amount;
   });
-  const now = b.amount + inc - exp;
+  const base = b ? b.amount : 0;
+  const now = base + inc - exp;
 
   const el2 = $("#balNow");
   animateValue(el2, now, v => { el2.textContent = fmt(v); });
-  $("#balSub").textContent =
-    "From " + fmt(b.amount) + " on " + dayTitle(b.date) +
-    " · " + fmt(inc) + " in, " + fmt(exp) + " out since";
+  $("#balSub").textContent = b
+    ? "From " + fmt(base) + " on " + dayTitle(b.date) + " · " + fmt(inc) + " in, " + fmt(exp) + " out since"
+    : fmt(inc) + " received, " + fmt(exp) + " paid so far · set a starting balance in Settings";
 }
 
 $("#balSave").addEventListener("click", () => {
@@ -2938,6 +2964,17 @@ function shopRow(item){
   name.addEventListener("click", () => toggleShopItem(item));
   row.appendChild(name);
 
+  /* Free text rather than a number, so "2", "1kg" and "500g" all work. */
+  const qty = el("input", "si-qty");
+  qty.type = "text";
+  qty.value = item.qty || "";
+  qty.placeholder = "Qty";
+  qty.setAttribute("aria-label", "Quantity for " + item.name);
+  qty.addEventListener("input", () => { item.qty = qty.value; });
+  qty.addEventListener("change", save);
+  qty.addEventListener("blur", save);
+  row.appendChild(qty);
+
   /* Ticking asks for nothing — the bill is entered once at the end. A price
      only shows here when a scanned receipt supplied one, and is read-only. */
   if (item.price) row.appendChild(el("div", "si-p", fmt(item.price)));
@@ -2996,7 +3033,7 @@ function openPurchase(h){
   host.innerHTML = "";
   h.items.forEach(i => {
     const row = el("div", "purchrow");
-    row.appendChild(el("span", "pr-n", i.name));
+    row.appendChild(el("span", "pr-n", i.name + (i.qty ? "  ×" + i.qty : "")));
     if (i.price) row.appendChild(el("span", "pr-p", fmt(i.price)));
     host.appendChild(row);
   });
@@ -3048,7 +3085,7 @@ function addShopItem(name){
   if (!clean) return false;
   const list = shopList();
   if (list.some(i => normName(i.name) === normName(clean))) return false;
-  list.push({ id:uid(), name:clean, price:0, done:false });
+  list.push({ id:uid(), name:clean, qty:"", price:0, done:false });
   return true;
 }
 
@@ -3220,7 +3257,7 @@ $("#scanApply").addEventListener("click", () => {
       p.hit.done = true;
       updated++;
     } else {
-      list.push({ id:uid(), name:p.name, price:p.price, done:true });
+      list.push({ id:uid(), name:p.name, qty:"", price:p.price, done:true });
       added++;
     }
   });
@@ -3244,7 +3281,7 @@ $("#shopDone").addEventListener("click", () => {
 
   const record = {
     id: uid(), store: store, date: date, total: total,
-    items: checked.map(i => ({ name:i.name, price:i.price || 0 }))
+    items: checked.map(i => ({ name:i.name, qty:i.qty || "", price:i.price || 0 }))
   };
   state.shop.history.push(record);
 
