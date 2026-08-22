@@ -3321,8 +3321,13 @@ async function ghExplain(res){
   const tail = detail ? " (" + detail + ")" : "";
   if (res.status === 401)
     return "401 — GitHub rejected the token. It may be mistyped, expired or revoked. Generate a new fine-grained token and paste it again." + tail;
-  if (res.status === 403)
+  if (res.status === 403){
+    /* 403 covers both "wrong permission" and "too many requests" — saying the
+       wrong one sends people editing a token that was never the problem. */
+    if (/rate limit/i.test(detail))
+      return "403 — GitHub rate limit hit. Wait a few minutes and try again." + tail;
     return "403 — token accepted but not allowed. Set its Repository permissions → Contents to \"Read and write\"." + tail;
+  }
   if (res.status === 404)
     return "404 — repo or path not found. Check the owner/repo spelling, and that the token's \"Only select repositories\" list includes this repo." + tail;
   if (res.status === 409 || res.status === 422)
@@ -3415,7 +3420,20 @@ async function ghPullNow(){
     });
     if (!res.ok) throw new Error(await ghExplain(res));
     const meta = await res.json();
-    const json = decodeURIComponent(escape(atob(String(meta.content || "").replace(/\n/g, ""))));
+
+    /* Over ~1MB the contents API stops inlining the file and returns an empty
+       body with encoding "none", which would otherwise decode to garbage. */
+    let raw = String(meta.content || "").replace(/\s/g, "");
+    if (!raw || meta.encoding !== "base64"){
+      if (meta.download_url){
+        raw = null;
+        var text = await (await fetch(meta.download_url, { cache:"no-store" })).text();
+      } else {
+        throw new Error("the backup file came back empty.");
+      }
+    }
+    const json = raw === null ? text
+      : decodeURIComponent(escape(atob(raw)));
     const p = JSON.parse(json);
     if (!p || !Array.isArray(p.txns)) throw new Error("shape");
 
@@ -3428,7 +3446,12 @@ async function ghPullNow(){
     if (p.demo) state.demo = true;
     materialise();
     save(); render(); renderShop(); renderGhSettings();
-    toast("Pulled " + state.txns.length + " entries from GitHub");
+    /* Spell out what arrived — a pull that lands the same example data looks
+       identical to nothing having happened. */
+    const shopCount = state.shop.lists.de.length + state.shop.lists.in.length;
+    toast("Pulled " + state.txns.length + " entries, " + state.rules.length + " repeating, " +
+      shopCount + " shopping item" + (shopCount === 1 ? "" : "s") +
+      (state.demo ? " (still example data)" : ""));
   }catch(e){
     const msg = (e && e.message) ? e.message : "unknown error";
     $("#ghStatus").textContent = "Pull failed · " +
