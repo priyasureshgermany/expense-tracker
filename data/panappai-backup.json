@@ -367,57 +367,7 @@
           "done": false
         }
       ],
-      "in": [
-        {
-          "id": "uebrh34cnl4m",
-          "name": "Toor dal",
-          "qty": "1.5kg",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "a661mhpxo7ev",
-          "name": "Moong dal",
-          "qty": "1",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "oh26svsro8jl",
-          "name": "Chana dal",
-          "qty": "1",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "6yuryzhro94g",
-          "name": "Urad dal",
-          "qty": "1",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "hjegm1ago9w7",
-          "name": "Masoor dal",
-          "qty": "2",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "vuayorxgoasn",
-          "name": "Rajma",
-          "qty": "2",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "jnbtsolhoc9f",
-          "name": "Kabuli chana",
-          "qty": "2",
-          "price": 0,
-          "done": false
-        }
-      ]
+      "in": []
     },
     "history": [
       {
