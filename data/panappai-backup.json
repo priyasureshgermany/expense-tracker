@@ -288,6 +288,126 @@
       "date": "2027-08-20",
       "status": "planned",
       "ruleId": "famje82zlzu3"
+    },
+    {
+      "id": "8svt470orqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2026-09-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "3xmmtvz6rqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2026-10-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "9de3x9o2rqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2026-11-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "6l6akx80rqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2026-12-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "k7ywn7nvrqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2027-01-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "s3fe5hcxrqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2027-02-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "h1zpz24xrqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2027-03-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "12d5bl3nrqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2027-04-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "ywym58bnrqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2027-05-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "qiz6zw4nrqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2027-06-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "qufxq4s4rqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2027-07-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "ls1s037grqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2027-08-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
     }
   ],
   "rules": [
@@ -309,6 +429,16 @@
       "note": "For Hasini and Shakthi",
       "freq": "monthly",
       "anchor": "2026-08-20",
+      "active": true
+    },
+    {
+      "id": "5q98aay2rqyf",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "freq": "monthly",
+      "anchor": "2026-09-02",
       "active": true
     }
   ],
