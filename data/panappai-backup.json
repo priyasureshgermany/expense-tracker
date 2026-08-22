@@ -150,16 +150,6 @@
       "ruleId": "07mh5egsobpm"
     },
     {
-      "id": "x3r0kac8obpm",
-      "type": "expense",
-      "amount": 4499,
-      "category": "utilities",
-      "note": "Telekom internet",
-      "date": "2026-08-20",
-      "status": "done",
-      "ruleId": "9xfm5cjdobpm"
-    },
-    {
       "id": "ftyibpuqobpm",
       "type": "expense",
       "amount": 4499,
@@ -714,7 +704,8 @@
   "skips": [
     "07mh5egsobpm|2026-09-03",
     "t5o7gvqyobpm|2026-08-30",
-    "wj1x5pojobpm|2026-08-27"
+    "wj1x5pojobpm|2026-08-27",
+    "9xfm5cjdobpm|2026-08-20"
   ],
   "shop": {
     "lists": {
