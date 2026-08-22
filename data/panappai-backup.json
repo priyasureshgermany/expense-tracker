@@ -2438,7 +2438,7 @@
       "id": "ups0napgyzux",
       "type": "expense",
       "amount": 5400,
-      "category": "family",
+      "category": "buffer",
       "note": "Viswanathan & sons Movie - Cinestar",
       "date": "2026-08-19",
       "status": "done"
