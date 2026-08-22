@@ -11,8 +11,8 @@ Open `index.html` in any browser, or host the file anywhere static.
   period reads as e.g. *15 Aug – 14 Sept*. Every total, filter, chart and the
   ◀ ▶ navigation follows that cycle.
 - **Three views**, switched by the toggle under the period bar:
-  **Dashboard** (charts), **Tracker** (the date-by-date ledger) and
-  **Shop** (grocery checklists).
+  **Dashboard** (charts), **Expenses** (the date-by-date ledger) and
+  **Shopping cart** (grocery checklists).
 - **Dashboard bar charts.** Three grouped comparisons, each bar tappable to
   reveal a plain-English explanation of the number:
   - *This period* — income vs. planned expense vs. actual expense
@@ -47,10 +47,10 @@ Open `index.html` in any browser, or host the file anywhere static.
 - **Amounts hidden by default.** Every figure shows as `••••` until you tap the
   eye button in the top bar, so the app can be opened in public without the
   numbers on show. The choice is remembered.
-- **Money already in the account.** Set what the account holds today in
-  **Settings**, and the dashboard carries it forward: that balance, plus income
-  received, minus expenses paid since that date. Planned entries are excluded —
-  they haven't touched the bank yet.
+- **Money already in the account.** The dashboard always shows a running
+  balance from settled income minus settled expenses. Optionally set what the
+  account holds today in **Settings** and it counts forward from there instead.
+  Planned entries are excluded either way — they haven't touched the bank yet.
 - **App lock** — a 4-digit PIN, set from **Settings → App lock**. It asks again
   after 5 minutes idle and whenever the app is reopened, not only on a cold
   start. Pair it with a **security question**: the PIN is stored only as a
@@ -63,13 +63,15 @@ Open `index.html` in any browser, or host the file anywhere static.
 
 ## Shopping lists
 
-The **Shop** tab keeps two checklists — **German stores** and **Indian
+The **Shopping cart** tab keeps two checklists — **German stores** and **Indian
 stores** — designed for tapping rather than typing:
 
 - **Add items** opens a picker of staples per store, grouped by aisle
   (Molkerei & Eier, Obst & Gemüse, … / Dal & pulses, Spices, …). Tap a chip to
   add it, tap again to remove. A small "Not on the list?" field covers
   anything the catalogue misses.
+- **A quantity box** sits beside each item, taking free text so "2", "1kg" and
+  "500g" all work. It carries through to the saved purchase.
 - **Ticking an item asks for nothing** — no per-item price to fill in while
   you're standing in the shop.
 - **One Total bill box** at the end, filled in once when you're done (or
