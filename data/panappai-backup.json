@@ -1946,6 +1946,136 @@
       "date": "2027-08-07",
       "status": "planned",
       "ruleId": "0h08ylyuxbhc"
+    },
+    {
+      "id": "kfygkvwkxt8d",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2026-08-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "ju1wlyfext8d",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2026-09-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "12i2t2x9xt8d",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2026-10-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "70bwe6x1xt8e",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2026-11-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "sdg76z7yxt8e",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2026-12-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "dneelo1sxt8e",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2027-01-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "9ufkvj5bxt8e",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2027-02-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "ugthalxqxt8e",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2027-03-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "j29albnxxt8e",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2027-04-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "ijbexiq2xt8e",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2027-05-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "oyuezexrxt8e",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2027-06-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "ni1xu9dxxt8e",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2027-07-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "m92xtrh5xt8e",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2027-08-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
     }
   ],
   "rules": [
@@ -2107,6 +2237,16 @@
       "note": "Phone recharge - Priya",
       "freq": "monthly",
       "anchor": "2026-09-07",
+      "active": true
+    },
+    {
+      "id": "b687bcbvxt8c",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "freq": "monthly",
+      "anchor": "2026-08-22",
       "active": true
     }
   ],
