@@ -374,6 +374,48 @@
           "qty": "1.5kg",
           "price": 0,
           "done": false
+        },
+        {
+          "id": "a661mhpxo7ev",
+          "name": "Moong dal",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "oh26svsro8jl",
+          "name": "Chana dal",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "6yuryzhro94g",
+          "name": "Urad dal",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "hjegm1ago9w7",
+          "name": "Masoor dal",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "vuayorxgoasn",
+          "name": "Rajma",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "jnbtsolhoc9f",
+          "name": "Kabuli chana",
+          "qty": "",
+          "price": 0,
+          "done": false
         }
       ]
     },
