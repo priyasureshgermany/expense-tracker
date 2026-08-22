@@ -76,16 +76,6 @@
       "ruleId": "07mh5egsobpm"
     },
     {
-      "id": "mrkceckrobpm",
-      "type": "expense",
-      "amount": 118000,
-      "category": "rent",
-      "note": "Rent — Wohnung",
-      "date": "2026-09-03",
-      "status": "planned",
-      "ruleId": "07mh5egsobpm"
-    },
-    {
       "id": "poqbf5d1obpm",
       "type": "expense",
       "amount": 118000,
@@ -777,7 +767,9 @@
       "active": true
     }
   ],
-  "skips": [],
+  "skips": [
+    "07mh5egsobpm|2026-09-03"
+  ],
   "shop": {
     "lists": {
       "de": [
