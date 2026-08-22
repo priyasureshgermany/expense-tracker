@@ -2487,6 +2487,15 @@
       "note": "Spice land",
       "date": "2026-08-21",
       "status": "done"
+    },
+    {
+      "id": "10jw6pcg3rz1",
+      "type": "expense",
+      "amount": 2300,
+      "category": "groceries_de",
+      "note": "Tedi",
+      "date": "2026-08-21",
+      "status": "done"
     }
   ],
   "rules": [
