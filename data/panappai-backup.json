@@ -2424,6 +2424,15 @@
       "note": "",
       "date": "2026-08-17",
       "status": "done"
+    },
+    {
+      "id": "mwhkp4uax13l",
+      "type": "expense",
+      "amount": 1500,
+      "category": "nonveg",
+      "note": "Hahnchen",
+      "date": "2026-08-17",
+      "status": "done"
     }
   ],
   "rules": [
