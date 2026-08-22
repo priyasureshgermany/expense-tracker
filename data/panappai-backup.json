@@ -373,7 +373,7 @@
           "name": "Toor dal",
           "qty": "1.5kg",
           "price": 0,
-          "done": false
+          "done": true
         },
         {
           "id": "a661mhpxo7ev",
