@@ -41,8 +41,8 @@ Open `index.html` in any browser, or host the file anywhere static.
   envelope down:
   - Each envelope shows spent, left, a percentage and a bar, going yellow near
     the limit, orange when well ahead of an even spend, red once over.
-  - A faint marker on each bar is where an even spend would be *today*, so
-    burning through a month's allowance in a week is visible immediately.
+  - The card foots with how much is used against how far through the period
+    you are — 60% spent 30% of the way in is the thing worth noticing.
   - Tap an envelope to see every spend against it with dates, and to add
     another in two taps — amount, optional note, done.
   - A shop saved in the **Shopping cart** lands in *Groceries — German* or
