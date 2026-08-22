@@ -3311,6 +3311,25 @@ function ghScheduleSync(){
   clearTimeout(ghSyncTimer);
   ghSyncTimer = setTimeout(ghSyncNow, 3000);
 }
+/** "owner/repo" — anything else produces a confusing network error instead of a 404. */
+const GH_REPO_RE = /^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/;
+
+/** Turns a GitHub API failure into something that actually says what to fix. */
+async function ghExplain(res){
+  let detail = "";
+  try{ detail = (await res.json()).message || ""; }catch(e){}
+  const tail = detail ? " (" + detail + ")" : "";
+  if (res.status === 401)
+    return "401 — GitHub rejected the token. It may be mistyped, expired or revoked. Generate a new fine-grained token and paste it again." + tail;
+  if (res.status === 403)
+    return "403 — token accepted but not allowed. Set its Repository permissions → Contents to \"Read and write\"." + tail;
+  if (res.status === 404)
+    return "404 — repo or path not found. Check the owner/repo spelling, and that the token's \"Only select repositories\" list includes this repo." + tail;
+  if (res.status === 409 || res.status === 422)
+    return res.status + " — GitHub refused the write. If the repo is empty, add any file (e.g. a README) once, then retry." + tail;
+  return res.status + " — unexpected GitHub error." + tail;
+}
+
 async function ghSyncNow(){
   if (ghSyncing) return;
   const token = localStorage.getItem(GH_TOKEN_KEY) || "";
@@ -3318,15 +3337,20 @@ async function ghSyncNow(){
   const path = localStorage.getItem(GH_PATH_KEY) || GH_DEFAULT_PATH;
   if (!token || !repo) return;
 
-  ghSyncing = true;
   const statusEl = $("#ghStatus");
+  if (!GH_REPO_RE.test(repo)){
+    if (statusEl) statusEl.textContent = 'Push failed · the repo must be "owner/repo", e.g. priyasureshgermany/expense-tracker — not just the repo name.';
+    return;
+  }
+
+  ghSyncing = true;
   if (statusEl) statusEl.textContent = "Syncing…";
   try{
     const api = "https://api.github.com/repos/" + repo + "/contents/" + path;
     let sha = null;
-    const getRes = await fetch(api, { headers: ghHeaders(token) });
+    const getRes = await fetch(api, { headers: ghHeaders(token), cache:"no-store" });
     if (getRes.ok) sha = (await getRes.json()).sha;
-    else if (getRes.status !== 404) throw new Error("GET " + getRes.status);
+    else if (getRes.status !== 404) throw new Error(await ghExplain(getRes));
 
     const body = {
       message: "பணப்பை backup — " + new Date().toISOString(),
@@ -3339,12 +3363,14 @@ async function ghSyncNow(){
       headers: Object.assign({ "Content-Type":"application/json" }, ghHeaders(token)),
       body: JSON.stringify(body)
     });
-    if (!putRes.ok) throw new Error("PUT " + putRes.status);
+    if (!putRes.ok) throw new Error(await ghExplain(putRes));
 
     localStorage.setItem(GH_LASTSYNC_KEY, new Date().toISOString());
     renderGhSettings();
   }catch(e){
-    if (statusEl) statusEl.textContent = "Sync failed — check the token, repo and path.";
+    /* Network/CORS failures arrive as a bare TypeError with no status. */
+    const msg = (e && e.message) ? e.message : "unknown error";
+    if (statusEl) statusEl.textContent = "Push failed · " + (/^\d/.test(msg) ? msg : "couldn't reach GitHub — check the connection. " + msg);
   }finally{
     ghSyncing = false;
   }
@@ -3377,13 +3403,17 @@ async function ghPullNow(){
   const repo = localStorage.getItem(GH_REPO_KEY) || "";
   const path = localStorage.getItem(GH_PATH_KEY) || GH_DEFAULT_PATH;
   if (!token || !repo){ toast("Set up sync first"); return; }
+  if (!GH_REPO_RE.test(repo)){
+    $("#ghStatus").textContent = 'Pull failed · the repo must be "owner/repo", e.g. priyasureshgermany/expense-tracker.';
+    return;
+  }
 
   $("#ghStatus").textContent = "Pulling…";
   try{
     const res = await fetch("https://api.github.com/repos/" + repo + "/contents/" + path, {
       headers: ghHeaders(token), cache: "no-store"
     });
-    if (!res.ok) throw new Error("GET " + res.status);
+    if (!res.ok) throw new Error(await ghExplain(res));
     const meta = await res.json();
     const json = decodeURIComponent(escape(atob(String(meta.content || "").replace(/\n/g, ""))));
     const p = JSON.parse(json);
@@ -3400,7 +3430,9 @@ async function ghPullNow(){
     save(); render(); renderShop(); renderGhSettings();
     toast("Pulled " + state.txns.length + " entries from GitHub");
   }catch(e){
-    $("#ghStatus").textContent = "Pull failed — check the token, repo and path.";
+    const msg = (e && e.message) ? e.message : "unknown error";
+    $("#ghStatus").textContent = "Pull failed · " +
+      (msg === "shape" ? "that file isn't a பணப்பை backup." : msg);
   }
 }
 $("#ghSave").addEventListener("click", () => {
@@ -3408,6 +3440,11 @@ $("#ghSave").addEventListener("click", () => {
   const repo = $("#ghRepo").value.trim().replace(/^https?:\/\/github\.com\//i, "").replace(/\/+$/, "");
   const path = $("#ghPath").value.trim() || GH_DEFAULT_PATH;
   if (!token || !repo){ toast("Enter a token and an owner/repo"); return; }
+  if (!GH_REPO_RE.test(repo)){
+    toast('Repo must be "owner/repo" — add your username in front');
+    $("#ghStatus").textContent = 'The repo field needs the owner too, e.g. priyasureshgermany/expense-tracker.';
+    return;
+  }
   localStorage.setItem(GH_TOKEN_KEY, token);
   localStorage.setItem(GH_REPO_KEY, repo);
   localStorage.setItem(GH_PATH_KEY, path);
