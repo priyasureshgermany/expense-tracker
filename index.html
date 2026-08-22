@@ -397,9 +397,12 @@ html.amounts-shown #btnEye{color:var(--accent)}
 .budrow .br-ic{width:26px;height:26px;flex:none;border-radius:7px;display:grid;place-items:center}
 .budrow .br-n{flex:1;min-width:0;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .inp.br-a{
-  flex:none;width:104px;padding:7px 9px;text-align:right;
+  flex:none;width:92px;padding:7px 9px;text-align:right;
   font-family:var(--mono);font-size:13px;font-weight:600;
 }
+.budadd{display:flex;gap:7px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.budadd[hidden]{display:none}
+.budadd .inp{flex:1;min-width:0}
 .quickadd{
   display:flex;gap:7px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);
 }
@@ -901,6 +904,10 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   display:flex;align-items:center;gap:6px;
 }
 .chip:hover{background:var(--surface-sunk)}
+.chip-add{
+  background:transparent;border:1.5px dashed var(--line-strong);color:var(--ink-3);
+}
+.chip-add:hover{border-color:var(--accent);color:var(--accent);background:transparent}
 .chip .cic{display:grid;place-items:center;flex:none}
 .chip .cic svg{display:block}
 .chip[aria-pressed="true"]{
@@ -1243,9 +1250,11 @@ html.locked #lockScreen::before{
       <button class="db-b" id="installBtn">Install app</button>
     </div>
 
+    <div id="charts"></div>
+
     <section class="budgetcard" id="budgetCard" hidden>
       <div class="bc-head">
-        <div class="bc-t">Budgets this period</div>
+        <div class="bc-t">What's left to spend</div>
         <button class="bc-edit" id="budgetEdit">Edit</button>
       </div>
       <div id="budgetRows"></div>
@@ -1253,7 +1262,7 @@ html.locked #lockScreen::before{
     </section>
 
     <div class="emptybudget" id="budgetEmpty" hidden>
-      <div class="eb-t">Set a monthly budget</div>
+      <div class="eb-t">Set money aside</div>
       <div class="eb-s">
         For things you spend on bit by bit — groceries, a buffer for
         odds and ends — set an amount for the period and watch it draw down
@@ -1261,8 +1270,6 @@ html.locked #lockScreen::before{
       </div>
       <button class="eb-b" id="budgetStart">Set budgets</button>
     </div>
-
-    <div id="charts"></div>
 
     <section class="monthstrip-wrap">
       <div class="monthstrip-t">Period health</div>
@@ -1497,6 +1504,36 @@ html.locked #lockScreen::before{
   </div>
 </section>
 
+<!-- ADD CATEGORY SHEET -->
+<section class="sheet" id="shCat" role="dialog" aria-modal="true" aria-labelledby="catAddTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="catAddTitle">New category</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="field">
+      <label for="catName">Name</label>
+      <div style="display:flex;gap:7px">
+        <input class="inp" id="catName" type="text" placeholder="e.g. Childcare" autocomplete="off">
+        <button class="shopadd-b" id="catAdd" aria-label="Add category">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label>Your categories</label>
+      <div id="catManage"></div>
+    </div>
+    <div class="note" style="margin-top:10px">
+      Custom categories work everywhere the built-in ones do — entries, recurring
+      rules, budgets and the charts. One that's already used by an entry can't be
+      deleted until those entries are retagged.
+    </div>
+  </div>
+</section>
+
 <!-- BUDGET EDITOR SHEET -->
 <section class="sheet" id="shBudget" role="dialog" aria-modal="true" aria-labelledby="budTitle">
   <div class="sheet-head" style="position:relative">
@@ -1512,6 +1549,14 @@ html.locked #lockScreen::before{
       don't want to budget it — one-off bills like rent are better as recurring entries.
     </div>
     <div id="budRows" style="margin-top:12px"></div>
+
+    <div class="budadd" id="budAddWrap">
+      <select class="inp" id="budPick" aria-label="Category to budget"></select>
+      <button class="shopadd-b" id="budAdd" aria-label="Add this category">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+
     <button class="btn sm" id="budSave" style="margin-top:14px">Save budgets</button>
   </div>
 </section>
@@ -1722,8 +1767,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.0.3";
-const APP_BUILT = "2026-08-22";
+const APP_VERSION = "1.0.4";
+const APP_BUILT = "2026-08-23";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -1777,9 +1822,28 @@ const CATS = {
     {id:"other_in",   n:"Other",       h:210}
   ]
 };
-const CAT_BY_ID = {};
-[...CATS.expense, ...CATS.income].forEach(c => { CAT_BY_ID[c.id] = c; });
+/* Built-ins above; anything the user adds lives in state.cats and is merged in
+   here, so every list, chart and lookup picks it up without special-casing. */
+let CAT_BY_ID = {};
+function customCats(type){
+  return (state.cats && Array.isArray(state.cats[type])) ? state.cats[type] : [];
+}
+function allCats(type){ return CATS[type].concat(customCats(type)); }
+function refreshCats(){
+  CAT_BY_ID = {};
+  allCats("expense").concat(allCats("income")).forEach(c => { CAT_BY_ID[c.id] = c; });
+}
 function catOf(id){ return CAT_BY_ID[id] || {id:"other", n:"Other", h:210}; }
+
+/** Spread new categories around the wheel so neighbours stay distinguishable. */
+function nextCatHue(){
+  const used = allCats("expense").concat(allCats("income")).map(c => c.h);
+  for (let step = 0; step < 360; step += 24){
+    const h = (step * 7) % 360;
+    if (!used.some(u => Math.abs(u - h) < 14)) return h;
+  }
+  return Math.floor(Math.random() * 360);
+}
 
 const FREQ_LABEL = {
   weekly:"Weekly", monthly:"Monthly", bimonthly:"Every 2 months",
@@ -1815,6 +1879,7 @@ const ICON = {
   topriya:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0114 0"/>',
   toindia:'<path d="M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/>',
   other:'<circle cx="5.6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.4" cy="12" r="1.3"/>',
+  custom:'<path d="M20.6 13.4L12.4 21.6a2 2 0 01-2.8 0l-7.2-7.2a2 2 0 01-.6-1.4V4a2 2 0 012-2h9a2 2 0 011.4.6l6.4 6.4a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.4"/>',
   salary:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 10v4M18 10v4"/>',
   kindergeld:'<circle cx="8.5" cy="7.5" r="2.8"/><path d="M3.5 20a5 5 0 0110 0"/><circle cx="17" cy="10" r="2.2"/><path d="M13.6 20a3.6 3.6 0 017.2 0"/>',
   freelance:'<rect x="2.5" y="7" width="19" height="13" rx="2.5"/><path d="M8.5 7V5.5a2 2 0 012-2h3a2 2 0 012 2V7"/><path d="M2.5 12.6h19"/>',
@@ -1824,9 +1889,11 @@ const ICON = {
   other_in:'<circle cx="5.6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.4" cy="12" r="1.3"/>'
 };
 function iconSvg(catId, size){
+  /* user-made categories have no drawing of their own, so they get a tag */
+  const glyph = ICON[catId] || (String(catId).indexOf("c_") === 0 ? ICON.custom : ICON.other);
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
     'stroke-linecap="round" stroke-linejoin="round" width="' + size + '" height="' + size +
-    '" aria-hidden="true">' + (ICON[catId] || ICON.other) + '</svg>';
+    '" aria-hidden="true">' + glyph + '</svg>';
 }
 
 /* ---------- money ---------- */
@@ -1980,7 +2047,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], shop:null, budgets:{} };
+let state = { v:1, txns:[], rules:[], skips:[], shop:null, budgets:{}, cats:{ expense:[], income:[] } };
 let view = periodOf(todayISO());
 let filter = "all";
 let editing = null;
@@ -1991,6 +2058,14 @@ function uid(){ return Math.random().toString(36).slice(2, 10) + Date.now().toSt
 
 /** The first real edit retires the "example data" banner for good. */
 function userTouched(){ if (state.demo){ delete state.demo; } }
+
+/** Custom categories arrived after v1, so older saved states have none. */
+function normaliseCats(c){
+  const ok = a => (Array.isArray(a) ? a : []).filter(x =>
+    x && typeof x.id === "string" && typeof x.n === "string")
+    .map(x => ({ id:x.id, n:x.n, h:Number(x.h) || 210, custom:true }));
+  return { expense: ok(c && c.expense), income: ok(c && c.income) };
+}
 
 /** Shopping lists were added after v1, so older saved states arrive without them. */
 function normaliseShop(s){
@@ -2025,6 +2100,8 @@ function load(){
   }catch(e){ /* corrupt or unavailable storage — start clean */ }
   if (!state.shop) state.shop = normaliseShop(null);
   if (!state.budgets) state.budgets = {};
+  if (!state.cats) state.cats = normaliseCats(null);
+  refreshCats();
 }
 function save(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -2251,7 +2328,7 @@ function render(){
    ========================================================================= */
 
 /** Categories that can hold an envelope at all — see the noBudget note above. */
-function budgetableCats(){ return CATS.expense.filter(c => !c.noBudget); }
+function budgetableCats(){ return allCats("expense").filter(c => !c.noBudget); }
 
 /** Only categories carrying an amount are envelopes; the rest are untouched. */
 function budgetList(){
@@ -2411,12 +2488,27 @@ $("#envAdd").addEventListener("click", envQuickAdd);
 $("#envAmt").addEventListener("keydown", e => { if (e.key === "Enter") envQuickAdd(); });
 $("#envNote").addEventListener("keydown", e => { if (e.key === "Enter") envQuickAdd(); });
 
-/* ---------- budget editor ---------- */
-function openBudgetEditor(){
+/* ---------- budget editor ----------
+   Only the categories actually being budgeted get a row; the rest are one
+   dropdown away. Listing all 20-odd made managing four of them a hunt. */
+let budDraft = {};   /* catId -> raw input text, so it survives a re-render */
+
+function budCapture(){
+  $$("#budRows .br-a").forEach(inp => { budDraft[inp.dataset.cat] = inp.value; });
+}
+
+function renderBudRows(){
   const dark = isDark();
   const host = $("#budRows");
   host.innerHTML = "";
-  budgetableCats().forEach(c => {
+
+  const chosen = budgetableCats().filter(c => Object.prototype.hasOwnProperty.call(budDraft, c.id));
+
+  if (!chosen.length){
+    host.appendChild(el("div", "note", "No budgets yet — pick a category below to add one."));
+  }
+
+  chosen.forEach(c => {
     const row = el("div", "budrow");
     const ic = el("div", "br-ic");
     ic.innerHTML = iconSvg(c.id, 15);
@@ -2428,24 +2520,67 @@ function openBudgetEditor(){
     const inp = el("input", "inp br-a");
     inp.type = "text";
     inp.inputMode = "decimal";
-    inp.placeholder = "—";
+    inp.placeholder = "€ 0,00";
     inp.dataset.cat = c.id;
-    const cur = state.budgets[c.id] || 0;
-    inp.value = cur ? (cur / 100).toFixed(2).replace(".", ",") : "";
+    inp.value = budDraft[c.id] || "";
     inp.setAttribute("aria-label", "Budget for " + c.n);
     row.appendChild(inp);
+
+    const x = el("button", "si-x");
+    x.type = "button";
+    x.setAttribute("aria-label", "Remove " + c.n + " budget");
+    x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+    x.addEventListener("click", () => {
+      budCapture();
+      delete budDraft[c.id];
+      renderBudRows();
+    });
+    row.appendChild(x);
+
     host.appendChild(row);
   });
+
+  /* the picker offers only what isn't already listed */
+  const remaining = budgetableCats().filter(c => !Object.prototype.hasOwnProperty.call(budDraft, c.id));
+  const pick = $("#budPick");
+  pick.innerHTML = "";
+  remaining.forEach(c => {
+    const o = document.createElement("option");
+    o.value = c.id;
+    o.textContent = c.n;
+    pick.appendChild(o);
+  });
+  $("#budAddWrap").hidden = remaining.length === 0;
+}
+
+function openBudgetEditor(){
+  budDraft = {};
+  budgetableCats().forEach(c => {
+    const cur = state.budgets[c.id] || 0;
+    if (cur > 0) budDraft[c.id] = (cur / 100).toFixed(2).replace(".", ",");
+  });
+  renderBudRows();
   sheetOpen("#shBudget");
 }
 $("#budgetEdit").addEventListener("click", openBudgetEditor);
 $("#budgetStart").addEventListener("click", openBudgetEditor);
 
+$("#budAdd").addEventListener("click", () => {
+  const id = $("#budPick").value;
+  if (!id) return;
+  budCapture();
+  budDraft[id] = "";
+  renderBudRows();
+  const fresh = $$("#budRows .br-a").filter(i => i.dataset.cat === id)[0];
+  if (fresh) fresh.focus();
+});
+
 $("#budSave").addEventListener("click", () => {
+  budCapture();
   const next = {};
-  $$("#budRows .br-a").forEach(inp => {
-    const cents = Math.abs(parseAmount(inp.value) || 0);
-    if (cents > 0) next[inp.dataset.cat] = cents;
+  Object.keys(budDraft).forEach(id => {
+    const cents = Math.abs(parseAmount(budDraft[id]) || 0);
+    if (cents > 0) next[id] = cents;
   });
   state.budgets = next;
   save(); render(); sheetClose();
@@ -2600,7 +2735,7 @@ function renderCharts(all){
 
   const pct = (a, b) => b > 0 ? Math.round(a / b * 100) + "%" : "—";
 
-  host.appendChild(chartBlock("This period", HEALTH_LABEL[band], [
+  host.appendChild(chartBlock("Money in, money out", HEALTH_LABEL[band], [
     { label:"Income",          value:s.income,     color:"var(--pos)",
       sub:"Everything expected in, planned and received." },
     { label:"Planned expense", value:s.plannedExp, color:"var(--warn)",
@@ -2762,7 +2897,7 @@ function renderCatChips(){
   const host = $("#eCats");
   host.innerHTML = "";
   const dark = isDark();
-  CATS[draft.type].forEach(c => {
+  allCats(draft.type).forEach(c => {
     const b = el("button", "chip");
     b.type = "button";
     const ic = el("span", "cic");
@@ -2777,7 +2912,85 @@ function renderCatChips(){
     });
     host.appendChild(b);
   });
+
+  /* trailing chip so a missing category can be made where it's noticed */
+  const add = el("button", "chip chip-add");
+  add.type = "button";
+  add.innerHTML = '<span class="cic"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span>New category</span>';
+  add.addEventListener("click", () => openCatAdd(draft.type));
+  host.appendChild(add);
 }
+
+/* ---------- adding a category ---------- */
+let catAddType = "expense";
+
+function openCatAdd(type){
+  catAddType = type;
+  $("#catAddTitle").textContent = type === "income" ? "New income category" : "New expense category";
+  $("#catName").value = "";
+  renderCatManage();
+  sheetOpen("#shCat");
+  setTimeout(() => $("#catName").focus(), 80);
+}
+
+function renderCatManage(){
+  const host = $("#catManage");
+  const dark = isDark();
+  host.innerHTML = "";
+  const mine = customCats(catAddType);
+  if (!mine.length){
+    host.appendChild(el("div", "note", "Your own categories will be listed here."));
+    return;
+  }
+  mine.forEach(c => {
+    const row = el("div", "budrow");
+    const ic = el("div", "br-ic");
+    ic.innerHTML = iconSvg(c.id, 15);
+    ic.style.background = tint(c.h, dark);
+    ic.style.color = tintInk(c.h, dark);
+    row.appendChild(ic);
+    row.appendChild(el("div", "br-n", c.n));
+
+    const used = state.txns.some(t => t.category === c.id) ||
+                 state.rules.some(r => r.category === c.id);
+    const x = el("button", "si-x");
+    x.type = "button";
+    x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+    x.setAttribute("aria-label", "Delete " + c.n);
+    x.addEventListener("click", () => {
+      /* deleting one that's in use would orphan those entries */
+      if (used){ toast("In use — retag those entries first"); return; }
+      state.cats[catAddType] = customCats(catAddType).filter(o => o.id !== c.id);
+      delete state.budgets[c.id];
+      refreshCats(); save(); render(); renderCatManage();
+      toast("Category deleted");
+    });
+    if (used) x.style.opacity = ".4";
+    row.appendChild(x);
+    host.appendChild(row);
+  });
+}
+
+function addCategory(){
+  const name = $("#catName").value.trim().replace(/\s+/g, " ");
+  if (!name){ toast("Give it a name"); return; }
+  const clash = allCats(catAddType).some(c => c.n.toLowerCase() === name.toLowerCase());
+  if (clash){ toast("That category already exists"); return; }
+
+  const cat = { id: "c_" + uid(), n: name, h: nextCatHue(), custom: true };
+  state.cats[catAddType].push(cat);
+  refreshCats(); save();
+
+  /* select it straight away if the entry sheet is what opened this */
+  if (draft && draft.type === catAddType) draft.category = cat.id;
+  $("#catName").value = "";
+  renderCatManage();
+  if (draft) renderCatChips();
+  render();
+  toast('Added "' + name + '"');
+}
+$("#catAdd").addEventListener("click", addCategory);
+$("#catName").addEventListener("keydown", e => { if (e.key === "Enter") addCategory(); });
 function syncEntryUI(){
   $$("#eType button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === draft.type)));
   $$("#eStatus button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === draft.status)));
@@ -3261,8 +3474,10 @@ $("#doRestore").addEventListener("click", () => {
       rules: Array.isArray(p.rules) ? p.rules : [],
       skips: Array.isArray(p.skips) ? p.skips : [],
       shop: normaliseShop(p.shop),
-      budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {}
+      budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
+      cats: normaliseCats(p.cats)
     };
+    refreshCats();
     materialise(); save(); render(); renderShop(); sheetClose();
     toast("Restored " + state.txns.length + " entries");
   }catch(e){
@@ -3271,7 +3486,7 @@ $("#doRestore").addEventListener("click", () => {
 });
 $("#wipe").addEventListener("click", function(){
   if (this.dataset.armed){
-    state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {} };
+    state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, cats: state.cats || normaliseCats(null) };
     save(); render(); sheetClose();
     delete this.dataset.armed;
     this.textContent = "Delete all entries";
@@ -3287,7 +3502,7 @@ $("#wipe").addEventListener("click", function(){
 });
 
 $("#clearDemo").addEventListener("click", () => {
-  state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {} };
+  state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, cats: state.cats || normaliseCats(null) };
   view = periodOf(todayISO());
   save(); render(); renderShop();
   toast("Cleared — the book is yours now");
@@ -4171,9 +4386,11 @@ async function ghPullNow(){
       rules: Array.isArray(p.rules) ? p.rules : [],
       skips: Array.isArray(p.skips) ? p.skips : [],
       shop: normaliseShop(p.shop),
-      budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {}
+      budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
+      cats: normaliseCats(p.cats)
     };
     if (p.demo) state.demo = true;
+    refreshCats();
     materialise();
     save(); render(); renderShop(); renderGhSettings();
     /* Spell out what arrived — a pull that lands the same example data looks
