@@ -2625,6 +2625,46 @@
       "date": "2027-08-03",
       "status": "planned",
       "ruleId": "sxk2o5shfz16"
+    },
+    {
+      "id": "f7jxg9idlaen",
+      "type": "expense",
+      "amount": 9600,
+      "category": "c_u0u8o3m6f802",
+      "note": "Swimming",
+      "date": "2026-10-07",
+      "status": "done",
+      "ruleId": "jy2v2i20lael"
+    },
+    {
+      "id": "0vtz2icnlaen",
+      "type": "expense",
+      "amount": 9600,
+      "category": "c_u0u8o3m6f802",
+      "note": "Swimming",
+      "date": "2027-01-07",
+      "status": "planned",
+      "ruleId": "jy2v2i20lael"
+    },
+    {
+      "id": "8ahzx8mklaen",
+      "type": "expense",
+      "amount": 9600,
+      "category": "c_u0u8o3m6f802",
+      "note": "Swimming",
+      "date": "2027-04-07",
+      "status": "planned",
+      "ruleId": "jy2v2i20lael"
+    },
+    {
+      "id": "0ru30bd1laen",
+      "type": "expense",
+      "amount": 9600,
+      "category": "c_u0u8o3m6f802",
+      "note": "Swimming",
+      "date": "2027-07-07",
+      "status": "planned",
+      "ruleId": "jy2v2i20lael"
     }
   ],
   "rules": [
@@ -2836,6 +2876,16 @@
       "note": "",
       "freq": "monthly",
       "anchor": "2026-09-03",
+      "active": true
+    },
+    {
+      "id": "jy2v2i20lael",
+      "type": "expense",
+      "amount": 9600,
+      "category": "c_u0u8o3m6f802",
+      "note": "Swimming",
+      "freq": "quarterly",
+      "anchor": "2026-10-07",
       "active": true
     }
   ],
