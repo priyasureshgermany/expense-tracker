@@ -2306,6 +2306,146 @@
       "date": "2027-08-01",
       "status": "planned",
       "ruleId": "11j7m9lmmy6f"
+    },
+    {
+      "id": "jux8vffhpjnm",
+      "type": "expense",
+      "amount": 128000,
+      "category": "rent",
+      "note": "",
+      "date": "2026-09-02",
+      "status": "planned",
+      "ruleId": "5q98aay2rqyf"
+    },
+    {
+      "id": "r7zr9oyhpjnn",
+      "type": "expense",
+      "amount": 500,
+      "category": "subs",
+      "note": "Phone recharge - Hasini",
+      "date": "2026-08-22",
+      "status": "planned",
+      "ruleId": "b687bcbvxt8c"
+    },
+    {
+      "id": "i50exxwipjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2026-09-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "uzvjfy9epjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2026-10-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "b7mvou0kpjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2026-11-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "mqqj2wawpjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2026-12-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "mgi7l5qvpjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2027-01-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "foyigxavpjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2027-02-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "yguvda0xpjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2027-03-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "a2p3a4ntpjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2027-04-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "0lle2vgvpjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2027-05-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "5qbx64xepjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2027-06-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "p6byjzgtpjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2027-07-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
+    },
+    {
+      "id": "8yqyv1drpjnn",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2027-08-03",
+      "status": "planned",
+      "ruleId": "j9kso8pzpjnm"
     }
   ],
   "rules": [
@@ -2497,6 +2637,16 @@
       "note": "Personal Loan - Commerzbank",
       "freq": "monthly",
       "anchor": "2026-09-01",
+      "active": true
+    },
+    {
+      "id": "j9kso8pzpjnm",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "freq": "monthly",
+      "anchor": "2026-09-03",
       "active": true
     }
   ],
