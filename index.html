@@ -1490,7 +1490,12 @@ html.locked #lockScreen::before{
       <label>GitHub sync</label>
       <div class="note" id="ghStatus">Off — data stays only in this browser.</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-        <input class="inp" id="ghToken" type="password" placeholder="GitHub token (repo contents: read & write)" autocomplete="off">
+        <div style="display:flex;gap:7px">
+          <input class="inp" id="ghToken" type="password" placeholder="GitHub token (repo contents: read &amp; write)" autocomplete="off" style="flex:1;min-width:0">
+          <button class="iconbtn" id="ghTokenEye" type="button" title="Show token" aria-label="Show token" aria-pressed="false" style="flex:none;border:1px solid var(--line);width:44px;height:auto">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
         <input class="inp" id="ghRepo" type="text" placeholder="owner/repo" autocomplete="off">
         <input class="inp" id="ghPath" type="text" placeholder="data path, e.g. data/panappai-backup.json" autocomplete="off">
         <button class="btn ghost sm" id="ghSave">Save &amp; enable auto-sync</button>
@@ -3647,6 +3652,8 @@ function renderGhSettings(){
   const path = localStorage.getItem(GH_PATH_KEY) || GH_DEFAULT_PATH;
   const last = localStorage.getItem(GH_LASTSYNC_KEY);
   $("#ghToken").value = localStorage.getItem(GH_TOKEN_KEY) || "";
+  $("#ghToken").type = "password";           /* never left revealed between visits */
+  $("#ghTokenEye").setAttribute("aria-pressed", "false");
   $("#ghRepo").value = repo;
   $("#ghPath").value = path;
   $("#ghStatus").textContent = on
@@ -3735,6 +3742,15 @@ $("#ghSave").addEventListener("click", () => {
   renderGhSettings();
   toast("GitHub sync enabled");
   ghSyncNow();
+});
+/* Lets the stored token be read back to copy into another browser. It reveals
+   only on an explicit tap, and flips back when the sheet is next opened. */
+$("#ghTokenEye").addEventListener("click", () => {
+  const f = $("#ghToken");
+  const show = f.type === "password";
+  f.type = show ? "text" : "password";
+  $("#ghTokenEye").setAttribute("aria-pressed", String(show));
+  $("#ghTokenEye").title = show ? "Hide token" : "Show token";
 });
 $("#ghSyncNow").addEventListener("click", ghSyncNow);
 $("#ghPull").addEventListener("click", function(){
