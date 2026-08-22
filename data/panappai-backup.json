@@ -2514,5 +2514,9 @@
     "groceries_de": 20000,
     "groceries_in": 20000,
     "nonveg": 10000
+  },
+  "cats": {
+    "expense": [],
+    "income": []
   }
 }
