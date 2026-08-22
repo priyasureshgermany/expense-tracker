@@ -11,15 +11,6 @@
       "status": "done"
     },
     {
-      "id": "l1j7da0tobpm",
-      "type": "income",
-      "amount": 4500,
-      "category": "refund",
-      "note": "Amazon return refund",
-      "date": "2026-08-21",
-      "status": "planned"
-    },
-    {
       "id": "4y4ivvweobpm",
       "type": "income",
       "amount": 550000,
