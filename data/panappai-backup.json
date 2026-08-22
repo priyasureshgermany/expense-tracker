@@ -2425,6 +2425,15 @@
       "note": "Lidl",
       "date": "2026-08-17",
       "status": "done"
+    },
+    {
+      "id": "ha56kfsuut6m",
+      "type": "expense",
+      "amount": 2160,
+      "category": "nonveg",
+      "note": "",
+      "date": "2026-08-17",
+      "status": "done"
     }
   ],
   "rules": [
