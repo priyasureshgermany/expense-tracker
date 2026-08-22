@@ -27,10 +27,18 @@ Open `index.html` in any browser, or host the file anywhere static.
 - **A colourful, tactile feel** throughout — rich category colours, gradient
   buttons, a count-up animation on the headline figures, a small confetti burst
   when you mark something paid, and a soft fade between views.
-- **Budget envelopes** for money spent bit by bit. A planned entry is one dated
-  amount that's either pending or settled — right for rent, wrong for a €200
-  grocery allowance spent across a dozen trips. Set a per-period amount for a
-  category in **Budgets** and every expense in it draws the envelope down:
+- **Custom categories.** The built-in list is a starting point — the dashed
+  **+ New category** chip at the end of the category list in a new entry adds
+  your own, for income or expenses. They work everywhere the built-ins do:
+  entries, recurring rules, budgets and charts. Colours are assigned spaced
+  around the wheel so a new one doesn't look like an existing one, duplicate
+  names are refused, and a category already used by an entry can't be deleted
+  until those entries are retagged.
+- **Budget envelopes** ("What's left to spend") for money spent bit by bit. A
+  planned entry is one dated amount that's either pending or settled — right
+  for rent, wrong for a €200 grocery allowance spent across a dozen trips. Set
+  a per-period amount for a category and every expense in it draws the
+  envelope down:
   - Each envelope shows spent, left, a percentage and a bar, going yellow near
     the limit, orange when well ahead of an even spend, red once over.
   - A faint marker on each bar is where an even spend would be *today*, so
