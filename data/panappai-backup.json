@@ -2910,15 +2910,7 @@
   "shop": {
     "lists": {
       "de": [],
-      "in": [
-        {
-          "id": "rp67bhthyy5b",
-          "name": "Coriander powder",
-          "qty": "",
-          "price": 0,
-          "done": false
-        }
-      ]
+      "in": []
     },
     "history": [
       {
