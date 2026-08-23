@@ -2349,7 +2349,14 @@
     "buffer": 50000
   },
   "cats": {
-    "expense": [],
+    "expense": [
+      {
+        "id": "c_fdot68q2dao3",
+        "n": "Fitness",
+        "h": 72,
+        "custom": true
+      }
+    ],
     "income": []
   }
 }
