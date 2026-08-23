@@ -3,6 +3,10 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → Release notes**.
 
+## 1.0.7 — 2026-08-23
+- Added Settings → Leave a note, which parks thoughts in FEEDBACK.md in the synced repo
+- Notes are queued locally and only cleared once GitHub has them, so writing one offline never loses it
+
 ## 1.0.6 — 2026-08-23
 - Renamed the Expenses tab to வரவு செலவு
 - Made the Income and Expenses totals on the dashboard tappable, opening the entries behind them
