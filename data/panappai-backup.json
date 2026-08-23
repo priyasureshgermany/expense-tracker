@@ -1078,16 +1078,6 @@
       "ruleId": "0oe9xoy9ijf4"
     },
     {
-      "id": "r5qykp54jidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2026-10-14",
-      "status": "done",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
       "id": "mpce238qjidn",
       "type": "expense",
       "amount": 10000,
@@ -2896,7 +2886,8 @@
     "5q98aay2rqyf|2026-09-02",
     "b687bcbvxt8c|2026-09-05",
     "8mofd0hyjidm|2026-08-17",
-    "0oe9xoy9ijf4|2026-10-14"
+    "0oe9xoy9ijf4|2026-10-14",
+    "8mofd0hyjidm|2026-10-14"
   ],
   "shop": {
     "lists": {
