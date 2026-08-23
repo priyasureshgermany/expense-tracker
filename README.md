@@ -189,6 +189,16 @@ the install prompt.
 
 Run the tests with `node test.mjs` (needs Playwright installed).
 
+## Leaving a note
+
+**Settings → Leave a note** writes to `FEEDBACK.md` in the synced repo, stamped
+with the time and the app version it was written on. It's for parking a thought
+on the phone when it occurs, rather than holding on to it.
+
+Notes are queued in the browser first and only cleared once GitHub has them, so
+writing one offline — or before sync is set up — never loses it. Whatever is
+waiting goes out on the next app open, or via **Try sending again**.
+
 ## Naming the parts
 
 Every region has a stable name, so a change can be asked for precisely —
