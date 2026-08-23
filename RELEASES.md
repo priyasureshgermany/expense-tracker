@@ -1,0 +1,49 @@
+# Release notes
+
+Newest first. One line per change. Written by `tools/bump-version.mjs` on each
+release, and shown in the app under **Settings → About → Release notes**.
+
+## 1.0.6 — 2026-08-23
+- Renamed the Expenses tab to வரவு செலவு
+- Made the Income and Expenses totals on the dashboard tappable, opening the entries behind them
+- Added release notes, viewable in the app under Settings → About
+
+## 1.0.5 — 2026-08-23
+- Removed the tick on each budget bar that looked like a rendering glitch; the card footer now states used-versus-elapsed in words
+
+## 1.0.4 — 2026-08-23
+- Added custom income and expense categories, created from a chip at the end of the category list
+- Moved the income/expense chart above the budgets card so the overall picture reads first
+- Renamed "This period" to "Money in, money out" and "Budgets this period" to "What's left to spend"
+
+## 1.0.3 — 2026-08-22
+- Removed the Groceries and Misc buffer charts, which budgets already covered
+- Kept EMI out of budgets, since a fixed amount on a known date belongs in a recurring entry
+
+## 1.0.2 — 2026-08-22
+- Added budget envelopes: a per-period allowance per category that every expense draws down
+- Added Groceries — German, Groceries — Indian, Non-Veg, EMI and Buffer categories
+- A saved shop now posts to the grocery category matching its store
+
+## 1.0.1 — 2026-08-22
+- Stopped the version hook from sweeping unstaged edits into a release commit
+
+## 1.0.0 — 2026-08-22
+- Added Kindergeld to the income categories
+- Added Settings → About showing the deployed version and whether this device is running it
+- Started versioning: major on a new month, middle on the first release of a Monday, minor otherwise
+- Renamed the tabs to Expenses and Shopping cart, and gave each shopping item a quantity box
+- Showed "In the account now" always, from settled income minus settled expenses
+- Added Cash Withdrawal, Credit card payment, Investment, To Priya and To India categories
+- Reported the real reason GitHub sync fails instead of one catch-all message
+- Stopped an empty browser from overwriting a good backup, and added "Pull onto this device"
+- Made saved purchases tappable, with an editable total that posts to the ledger
+- Simplified the shopping cart: tap-to-add staples, no per-item price, one total bill at the end
+- Added receipt-text scanning that fills prices and appends unmatched items
+- Added the shopping cart with German and Indian store checklists
+- Switched budget periods to run the 15th to the 14th
+- Added the lock screen banner, a PIN with security-question recovery, and re-locking after 5 minutes idle
+- Hid amounts behind •••• by default, revealed by the eye button
+- Fixed the service worker pinning devices to the first build they ever cached
+- Made the app installable as a PWA, with correct install steps on iOS
+- Renamed the app to பணப்பை

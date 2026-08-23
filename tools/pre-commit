@@ -1,11 +1,14 @@
 #!/bin/sh
-# Bumps the app version on every code commit, so a release can't ship
-# without its version moving. Install with: tools/install-hooks.sh
+# Guards releases. Install with: sh tools/install-hooks.sh
 #
-# Skipped for:
-#   - rebases and merges, where commits are replays rather than new releases
-#   - commits that only touch data/ (the app's own backup pushes) or the
-#     version files themselves
+# The bump used to happen here, but a release now needs a note, and a hook
+# can't invent one. So this only checks that a release was prepared, and
+# refuses the commit otherwise:
+#
+#   node tools/bump-version.mjs --note "What changed in one line"
+#
+# Skipped for rebases and merges (replays, not releases) and for commits that
+# only touch data/, tools/ or the release files themselves.
 
 if [ -d "$(git rev-parse --git-path rebase-merge 2>/dev/null)" ] ||
    [ -d "$(git rev-parse --git-path rebase-apply 2>/dev/null)" ] ||
@@ -16,22 +19,18 @@ fi
 staged=$(git diff --cached --name-only)
 [ -z "$staged" ] && exit 0
 
-# anything staged that isn't data/, version.json or tools/ counts as a release
-if ! echo "$staged" | grep -qvE '^(data/|version\.json$|tools/)'; then
+if ! echo "$staged" | grep -qvE '^(data/|tools/|version\.json$|RELEASES\.md$)'; then
   exit 0
 fi
 
-# The bump rewrites index.html and sw.js, and they then have to be staged.
-# If either already carries unstaged edits, that "git add" would sweep them
-# into this commit as a side effect — so stop and say so instead.
-dirty=$(git diff --name-only -- index.html sw.js)
-if [ -n "$dirty" ]; then
-  echo "pre-commit: unstaged changes in:" >&2
-  echo "$dirty" | sed 's/^/  /' >&2
-  echo "Stage or stash them first — bumping the version would otherwise commit them too." >&2
+committed=$(git show HEAD:version.json 2>/dev/null | sed -n 's/.*"version"[^"]*"\([^"]*\)".*/\1/p')
+current=$(sed -n 's/.*"version"[^"]*"\([^"]*\)".*/\1/p' version.json)
+
+if [ -n "$committed" ] && [ "$committed" = "$current" ]; then
+  echo "pre-commit: version is still $current — prepare a release first:" >&2
+  echo "  node tools/bump-version.mjs --note \"What changed in one line\"" >&2
   exit 1
 fi
 
-node tools/bump-version.mjs || exit 1
-git add version.json index.html sw.js
+git add version.json index.html sw.js RELEASES.md
 exit 0
