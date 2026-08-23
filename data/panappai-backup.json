@@ -1078,106 +1078,6 @@
       "ruleId": "0oe9xoy9ijf4"
     },
     {
-      "id": "mpce238qjidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2026-11-14",
-      "status": "planned",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
-      "id": "rjpnx070jidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2026-12-14",
-      "status": "planned",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
-      "id": "05j6bg99jidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2027-01-14",
-      "status": "planned",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
-      "id": "q435ikz3jidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2027-02-14",
-      "status": "planned",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
-      "id": "mitf0q7hjidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2027-03-14",
-      "status": "planned",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
-      "id": "uianky0ljidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2027-04-14",
-      "status": "planned",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
-      "id": "3f7pt1nvjidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2027-05-14",
-      "status": "planned",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
-      "id": "dvzbxc8njidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2027-06-14",
-      "status": "planned",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
-      "id": "0138mruwjidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2027-07-14",
-      "status": "planned",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
-      "id": "5lqk1i75jidn",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
-      "date": "2027-08-14",
-      "status": "planned",
-      "ruleId": "8mofd0hyjidm"
-    },
-    {
       "id": "pijndrtym0rq",
       "type": "expense",
       "amount": 6300,
@@ -2734,16 +2634,6 @@
       "amount": 20000,
       "category": "groceries",
       "note": "Jaffna - Indian grocery",
-      "freq": "monthly",
-      "anchor": "2026-09-14",
-      "active": true
-    },
-    {
-      "id": "8mofd0hyjidm",
-      "type": "expense",
-      "amount": 10000,
-      "category": "groceries",
-      "note": "Non-Veg",
       "freq": "monthly",
       "anchor": "2026-09-14",
       "active": true
