@@ -1846,7 +1846,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.0.10";
+const APP_VERSION = "1.0.11";
 const APP_BUILT = "2026-08-23";
 
 const KEY = "panappai.v1";
@@ -2127,7 +2127,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], shop:null, budgets:{}, catchAll:null, cats:{ expense:[], income:[] } };
+let state = { v:1, txns:[], rules:[], skips:[], shop:null, budgets:{}, catchAll:null, balance:null, cats:{ expense:[], income:[] } };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -2139,6 +2139,13 @@ function uid(){ return Math.random().toString(36).slice(2, 10) + Date.now().toSt
 
 /** The first real edit retires the "example data" banner for good. */
 function userTouched(){ if (state.demo){ delete state.demo; } }
+
+/** The starting balance is {amount in cents, date}; anything else is ignored. */
+function normaliseBalance(b){
+  return (b && Number.isFinite(Number(b.amount)) && typeof b.date === "string" && b.date)
+    ? { amount: Math.round(Number(b.amount)), date: b.date }
+    : null;
+}
 
 /** Custom categories arrived after v1, so older saved states have none. */
 function normaliseCats(c){
@@ -2175,6 +2182,7 @@ function load(){
           shop: normaliseShop(p.shop),
           budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
           catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
+          balance: normaliseBalance(p.balance),
           cats: normaliseCats(p.cats)
         };
         if (p.demo) state.demo = true;
@@ -2188,6 +2196,7 @@ function load(){
      Misc envelope counting only entries tagged Misc rather than absorbing the
      ad-hoc spending it's there for. */
   if (!state.catchAll && state.budgets && state.budgets.buffer > 0) state.catchAll = "buffer";
+  migrateBalance();
   refreshCats();
 }
 function save(){
@@ -2908,13 +2917,29 @@ $("#abNotes").addEventListener("click", async () => {
    ACCOUNT BALANCE — a starting figure plus everything settled since.
    Only *done* entries count: planned ones haven't touched the bank yet.
    ========================================================================= */
-const BAL_AMT_KEY = "panappai.balance.amount";
+/* Kept in state, not in its own localStorage key: it's financial data like any
+   entry, so it has to travel in the backup. Living outside state meant it never
+   synced, and a pull onto another device silently left it behind. */
+const BAL_AMT_KEY = "panappai.balance.amount";   /* pre-sync keys, migrated below */
 const BAL_DATE_KEY = "panappai.balance.date";
 
 function balanceSetting(){
-  const amt = parseInt(localStorage.getItem(BAL_AMT_KEY) || "", 10);
-  const date = localStorage.getItem(BAL_DATE_KEY) || "";
-  return Number.isFinite(amt) && date ? { amount: amt, date: date } : null;
+  const b = state.balance;
+  return (b && Number.isFinite(b.amount) && b.date) ? b : null;
+}
+
+/** Adopts a balance set before it was part of the synced state. */
+function migrateBalance(){
+  if (state.balance) return;
+  try{
+    const amt = parseInt(localStorage.getItem(BAL_AMT_KEY) || "", 10);
+    const date = localStorage.getItem(BAL_DATE_KEY) || "";
+    if (Number.isFinite(amt) && date){
+      state.balance = { amount: amt, date: date };
+      localStorage.removeItem(BAL_AMT_KEY);
+      localStorage.removeItem(BAL_DATE_KEY);
+    }
+  }catch(e){}
 }
 
 /** Always visible: a starting balance is optional, and without one this is
@@ -2945,15 +2970,13 @@ $("#balSave").addEventListener("click", () => {
   const amt = parseAmount($("#balAmt").value);
   const date = $("#balDate").value || todayISO();
   if (amt == null){ toast("Enter the amount currently in the account"); return; }
-  localStorage.setItem(BAL_AMT_KEY, String(Math.round(amt)));
-  localStorage.setItem(BAL_DATE_KEY, date);
-  renderBalanceSettings(); render();
+  state.balance = { amount: Math.round(amt), date: date };
+  save(); renderBalanceSettings(); render();
   toast("Balance saved");
 });
 $("#balClear").addEventListener("click", () => {
-  localStorage.removeItem(BAL_AMT_KEY);
-  localStorage.removeItem(BAL_DATE_KEY);
-  renderBalanceSettings(); render();
+  state.balance = null;
+  save(); renderBalanceSettings(); render();
   toast("Balance removed");
 });
 function renderBalanceSettings(){
@@ -3773,6 +3796,7 @@ $("#doRestore").addEventListener("click", () => {
       shop: normaliseShop(p.shop),
       budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
       catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
+      balance: normaliseBalance(p.balance),
       cats: normaliseCats(p.cats)
     };
     refreshCats();
@@ -3784,7 +3808,7 @@ $("#doRestore").addEventListener("click", () => {
 });
 $("#wipe").addEventListener("click", function(){
   if (this.dataset.armed){
-    state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, catchAll: state.catchAll || null, cats: state.cats || normaliseCats(null) };
+    state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, catchAll: state.catchAll || null, balance: state.balance || null, cats: state.cats || normaliseCats(null) };
     save(); render(); sheetClose();
     delete this.dataset.armed;
     this.textContent = "Delete all entries";
@@ -3800,7 +3824,7 @@ $("#wipe").addEventListener("click", function(){
 });
 
 $("#clearDemo").addEventListener("click", () => {
-  state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, catchAll: state.catchAll || null, cats: state.cats || normaliseCats(null) };
+  state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, catchAll: state.catchAll || null, balance: state.balance || null, cats: state.cats || normaliseCats(null) };
   view = periodOf(todayISO());
   save(); render(); renderShop();
   toast("Cleared — the book is yours now");
@@ -4713,6 +4737,7 @@ async function ghPullNow(){
       shop: normaliseShop(p.shop),
       budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
       catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
+      balance: normaliseBalance(p.balance),
       cats: normaliseCats(p.cats)
     };
     if (p.demo) state.demo = true;

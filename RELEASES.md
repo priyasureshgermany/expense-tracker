@@ -3,6 +3,9 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → Release notes**.
 
+## 1.0.11 — 2026-08-23
+- Fixed the starting balance never syncing — it lived outside the backup, so a pull left it behind and In the account now ignored it
+
 ## 1.0.10 — 2026-08-23
 - Expenses is the ledger again — paid plus planned, with budgets no longer folded in on top
 - Renamed the budgets card to Budget, and the Buffer category to Misc
