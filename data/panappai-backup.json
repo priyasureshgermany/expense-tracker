@@ -2085,6 +2085,136 @@
       "date": "2027-08-15",
       "status": "planned",
       "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "gqc6f1y3ikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2026-08-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "y14s2xlvikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2026-09-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "jjznkv3mikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2026-10-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "y8bdcjmzikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2026-11-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "ldgtf6vqikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2026-12-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "to6ornooikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2027-01-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "l13tmps3ikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2027-02-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "m6a2dfx2ikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2027-03-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "ry4rnp5dikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2027-04-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "p30l8es7ikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2027-05-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "6uj412icikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2027-06-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "9thim8pwikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2027-07-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
+    },
+    {
+      "id": "f744cwd8ikmb",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "date": "2027-08-05",
+      "status": "planned",
+      "ruleId": "o3c24zevikma"
     }
   ],
   "rules": [
@@ -2256,6 +2386,16 @@
       "note": "From DB",
       "freq": "monthly",
       "anchor": "2026-08-15",
+      "active": true
+    },
+    {
+      "id": "o3c24zevikma",
+      "type": "expense",
+      "amount": 2508,
+      "category": "c_fdot68q2dao3",
+      "note": "For McFit",
+      "freq": "monthly",
+      "anchor": "2026-08-05",
       "active": true
     }
   ],
