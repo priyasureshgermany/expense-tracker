@@ -1688,16 +1688,6 @@
       "ruleId": "b687bcbvxt8c"
     },
     {
-      "id": "x5zygfx1z3vp",
-      "type": "expense",
-      "amount": 222000,
-      "category": "other",
-      "note": "EMI - Commerzbank",
-      "date": "2026-09-22",
-      "status": "planned",
-      "ruleId": "9trvq5n4z3vo"
-    },
-    {
       "id": "t1ac7xjxz3vp",
       "type": "expense",
       "amount": 222000,
@@ -2539,7 +2529,8 @@
     "0oe9xoy9ijf4|2026-10-14",
     "8mofd0hyjidm|2026-10-14",
     "fnnbex1yl1xh|2026-08-15",
-    "eymjctxoorfb|2026-09-15"
+    "eymjctxoorfb|2026-09-15",
+    "9trvq5n4z3vo|2026-09-22"
   ],
   "shop": {
     "lists": {
