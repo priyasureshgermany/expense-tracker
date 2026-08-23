@@ -1846,7 +1846,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.0.8";
+const APP_VERSION = "1.0.9";
 const APP_BUILT = "2026-08-23";
 
 const KEY = "panappai.v1";
@@ -4522,6 +4522,14 @@ const GH_REPO_KEY = "panappai.gh.repo";
 const GH_PATH_KEY = "panappai.gh.path";
 const GH_ENABLED_KEY = "panappai.gh.enabled";
 const GH_LASTSYNC_KEY = "panappai.gh.lastSync";
+/* Set once this browser has reconciled with the backup — by pulling it down, or
+   by the user knowingly pushing over it. Until then an automatic push can't
+   replace a backup that already holds data: a browser opening the app for the
+   first time is full of example entries, which would otherwise overwrite real
+   ones the moment anything is tapped. */
+const GH_RECONCILED_KEY = "panappai.gh.reconciled";
+function ghReconciled(){ return localStorage.getItem(GH_RECONCILED_KEY) === "1"; }
+function ghMarkReconciled(){ try{ localStorage.setItem(GH_RECONCILED_KEY, "1"); }catch(e){} }
 const GH_DEFAULT_PATH = "data/panappai-backup.json";
 
 function ghEnabled(){ return localStorage.getItem(GH_ENABLED_KEY) === "1"; }
@@ -4571,7 +4579,7 @@ async function ghExplain(res){
   return res.status + " — unexpected GitHub error." + tail;
 }
 
-async function ghSyncNow(){
+async function ghSyncNow(force){
   if (ghSyncing) return;
   const token = localStorage.getItem(GH_TOKEN_KEY) || "";
   const repo = localStorage.getItem(GH_REPO_KEY) || "";
@@ -4594,19 +4602,22 @@ async function ghSyncNow(){
       const meta = await getRes.json();
       sha = meta.sha;
 
-      /* A brand-new browser starts empty. Without this guard its first save
-         uploads that emptiness over a good backup, and the pull that follows
-         then returns nothing — which is exactly how data gets lost here. */
-      if (!state.txns.length && !state.rules.length){
-        let remoteHasData = false;
+      /* Never let a browser that hasn't seen the backup replace it. Checking
+         only for an *empty* browser wasn't enough: a fresh one is seeded with
+         example entries, so it looked like real data and overwrote the real
+         thing. Reconciling first — a pull, or a deliberate push — is the only
+         way past this. */
+      if (!force && !ghReconciled()){
+        let remoteCount = 0;
         try{
           const prev = JSON.parse(decodeURIComponent(escape(atob(String(meta.content || "").replace(/\s/g, "")))));
-          remoteHasData = (Array.isArray(prev.txns) && prev.txns.length > 0) ||
-                          (Array.isArray(prev.rules) && prev.rules.length > 0);
+          remoteCount = (Array.isArray(prev.txns) ? prev.txns.length : 0) +
+                        (Array.isArray(prev.rules) ? prev.rules.length : 0);
         }catch(e){}
-        if (remoteHasData){
+        if (remoteCount > 0){
           if (statusEl) statusEl.textContent =
-            "Push blocked · this browser has no entries yet, and the backup does. Tap \"Pull onto this device\" first — pushing now would erase it.";
+            "Push blocked · the backup holds " + remoteCount + " items and this device hasn't pulled yet. " +
+            "Tap \"Pull onto this device\" to bring them in — or \"Push now\" twice if this device really has the version you want to keep.";
           return;
         }
       }
@@ -4627,6 +4638,7 @@ async function ghSyncNow(){
     if (!putRes.ok) throw new Error(await ghExplain(putRes));
 
     localStorage.setItem(GH_LASTSYNC_KEY, new Date().toISOString());
+    ghMarkReconciled();   /* this browser and the backup now agree */
     renderGhSettings();
   }catch(e){
     /* Network/CORS failures arrive as a bare TypeError with no status. */
@@ -4706,6 +4718,7 @@ async function ghPullNow(){
     };
     if (p.demo) state.demo = true;
     refreshCats();
+    ghMarkReconciled();   /* set before save(), which triggers a sync */
     materialise();
     save(); render(); renderShop(); renderGhSettings();
     /* Spell out what arrived — a pull that lands the same example data looks
@@ -4777,7 +4790,24 @@ $("#ghTokenEye").addEventListener("click", () => {
   $("#ghTokenEye").setAttribute("aria-pressed", String(show));
   $("#ghTokenEye").title = show ? "Hide token" : "Show token";
 });
-$("#ghSyncNow").addEventListener("click", ghSyncNow);
+/* Push now is the deliberate override, so it arms rather than firing at once
+   when this device hasn't reconciled with the backup yet. */
+$("#ghSyncNow").addEventListener("click", function(){
+  if (ghReconciled()){ ghSyncNow(true); return; }
+  if (this.dataset.armed){
+    delete this.dataset.armed;
+    this.textContent = "Push now";
+    ghMarkReconciled();
+    ghSyncNow(true);
+  } else {
+    this.dataset.armed = "1";
+    this.textContent = "Tap again — this replaces the backup";
+    setTimeout(() => {
+      delete this.dataset.armed;
+      this.textContent = "Push now";
+    }, 4000);
+  }
+});
 $("#ghPull").addEventListener("click", function(){
   if (this.dataset.armed){
     delete this.dataset.armed;

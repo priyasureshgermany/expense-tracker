@@ -3,6 +3,10 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → Release notes**.
 
+## 1.0.9 — 2026-08-23
+- Fixed a device that has never pulled being able to overwrite the backup — a fresh browser is full of example entries, which replaced real data
+- Push now asks twice before replacing a backup this device hasn't reconciled with
+
 ## 1.0.8 — 2026-08-23
 - Froze the first period at 15 Aug 2026; the back arrow stops there
 - One budget can now be the catch-all, absorbing any spend that isn't a recurring bill and has no budget of its own, while keeping its real category
