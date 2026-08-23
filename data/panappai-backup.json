@@ -11,16 +11,6 @@
       "status": "done"
     },
     {
-      "id": "xmer8zjjl1xk",
-      "type": "income",
-      "amount": 552000,
-      "category": "salary",
-      "note": "From DB",
-      "date": "2026-08-15",
-      "status": "done",
-      "ruleId": "fnnbex1yl1xh"
-    },
-    {
       "id": "madb1xeqlzu3",
       "type": "income",
       "amount": 51800,
@@ -2537,7 +2527,8 @@
     "b687bcbvxt8c|2026-09-05",
     "8mofd0hyjidm|2026-08-17",
     "0oe9xoy9ijf4|2026-10-14",
-    "8mofd0hyjidm|2026-10-14"
+    "8mofd0hyjidm|2026-10-14",
+    "fnnbex1yl1xh|2026-08-15"
   ],
   "shop": {
     "lists": {
