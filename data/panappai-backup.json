@@ -2197,16 +2197,6 @@
       "ruleId": "jy2v2i20lael"
     },
     {
-      "id": "rc8cjp1morfb",
-      "type": "income",
-      "amount": 504500,
-      "category": "salary",
-      "note": "",
-      "date": "2026-09-15",
-      "status": "done",
-      "ruleId": "eymjctxoorfb"
-    },
-    {
       "id": "td6x7fbirhex",
       "type": "income",
       "amount": 554000,
@@ -2548,7 +2538,8 @@
     "8mofd0hyjidm|2026-08-17",
     "0oe9xoy9ijf4|2026-10-14",
     "8mofd0hyjidm|2026-10-14",
-    "fnnbex1yl1xh|2026-08-15"
+    "fnnbex1yl1xh|2026-08-15",
+    "eymjctxoorfb|2026-09-15"
   ],
   "shop": {
     "lists": {
