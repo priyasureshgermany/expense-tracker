@@ -2087,16 +2087,6 @@
       "ruleId": "bk0qrzhxrhex"
     },
     {
-      "id": "gqc6f1y3ikmb",
-      "type": "expense",
-      "amount": 2508,
-      "category": "c_fdot68q2dao3",
-      "note": "For McFit",
-      "date": "2026-08-05",
-      "status": "planned",
-      "ruleId": "o3c24zevikma"
-    },
-    {
       "id": "y14s2xlvikmb",
       "type": "expense",
       "amount": 2508,
@@ -2423,7 +2413,8 @@
     "9trvq5n4z3vo|2026-09-22",
     "pqouodf8hgzf|2026-09-22",
     "9trvq5n4z3vo|2026-10-22",
-    "pqouodf8hgzf|2026-10-22"
+    "pqouodf8hgzf|2026-10-22",
+    "o3c24zevikma|2026-08-05"
   ],
   "shop": {
     "lists": {
