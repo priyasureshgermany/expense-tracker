@@ -978,106 +978,6 @@
       "ruleId": "pqouodf8hgzf"
     },
     {
-      "id": "q42znatzijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2026-11-14",
-      "status": "planned",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
-      "id": "rjh9pi1cijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2026-12-14",
-      "status": "planned",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
-      "id": "jgyw281dijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2027-01-14",
-      "status": "planned",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
-      "id": "y7sit0srijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2027-02-14",
-      "status": "planned",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
-      "id": "7l4yedw8ijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2027-03-14",
-      "status": "planned",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
-      "id": "g7idrbxbijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2027-04-14",
-      "status": "planned",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
-      "id": "h5rjbqh7ijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2027-05-14",
-      "status": "planned",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
-      "id": "w27kq8hiijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2027-06-14",
-      "status": "planned",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
-      "id": "wb1ezy3rijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2027-07-14",
-      "status": "planned",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
-      "id": "tize3y5qijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2027-08-14",
-      "status": "planned",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
       "id": "pijndrtym0rq",
       "type": "expense",
       "amount": 6300,
@@ -2626,16 +2526,6 @@
       "note": "Lidl",
       "freq": "monthly",
       "anchor": "2026-08-22",
-      "active": true
-    },
-    {
-      "id": "0oe9xoy9ijf4",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "freq": "monthly",
-      "anchor": "2026-09-14",
       "active": true
     },
     {
