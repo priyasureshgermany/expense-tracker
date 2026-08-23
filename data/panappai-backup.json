@@ -2205,6 +2205,136 @@
       "date": "2026-09-15",
       "status": "done",
       "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "td6x7fbirhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2026-08-15",
+      "status": "done",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "ruebbf1brhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2026-09-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "my54ywgdrhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2026-10-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "eiy6xxbkrhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2026-11-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "nfd5j2ffrhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2026-12-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "wdviqia3rhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-01-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "0bywnvrjrhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-02-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "g9tstxs2rhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-03-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "s72jxwaurhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-04-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "rqo31e63rhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-05-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "17ggzcj3rhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-06-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "1re4a7txrhey",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-07-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
+    },
+    {
+      "id": "qyx603zsrhey",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "date": "2027-08-15",
+      "status": "planned",
+      "ruleId": "bk0qrzhxrhex"
     }
   ],
   "rules": [
@@ -2386,6 +2516,16 @@
       "note": "Swimming",
       "freq": "quarterly",
       "anchor": "2026-10-07",
+      "active": true
+    },
+    {
+      "id": "bk0qrzhxrhex",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "From DB",
+      "freq": "monthly",
+      "anchor": "2026-08-15",
       "active": true
     }
   ],
