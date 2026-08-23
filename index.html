@@ -181,6 +181,7 @@ button{cursor:pointer;background:none;border:none;padding:0}
 html.amounts-shown #btnEye .eye-off{display:none}
 html.amounts-shown #btnEye .eye-on{display:block}
 html.amounts-shown #btnEye{color:var(--accent)}
+.nav-off{visibility:hidden;pointer-events:none}
 .iconbtn{
   width:36px;height:36px;border-radius:10px;
   display:grid;place-items:center;color:var(--ink-2);
@@ -438,6 +439,11 @@ button.tile:hover .tile-go{color:var(--accent)}
 .sp-d{font-family:var(--mono);font-size:11px;color:var(--ink-3);flex:none;width:62px}
 .sp-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sp-a{font-family:var(--mono);font-size:12.5px;font-weight:600;flex:none;font-variant-numeric:tabular-nums}
+.sp-c{
+  display:inline-block;margin-left:7px;padding:1px 7px;border-radius:5px;
+  background:var(--surface-2);color:var(--ink-3);
+  font-size:10.5px;font-weight:600;vertical-align:1px;
+}
 
 /* ---------- Dashboard bar charts ---------- */
 .chartblock{
@@ -1603,6 +1609,18 @@ html.locked #lockScreen::before{
       </button>
     </div>
 
+    <div class="field" style="margin-top:18px">
+      <label for="budCatch">Everything else counts against</label>
+      <select class="inp" id="budCatch"></select>
+      <div class="note" style="margin-top:6px">
+        Any expense that isn't a recurring bill and has no budget of its own is
+        drawn from this one — so Education, a card payment or a shop you've no
+        category for all come out of it, while keeping their own category on the entry.
+        Being the cushion, it's the one budget whose unspent part <b>isn't</b> counted
+        as expected spending on the dashboard.
+      </div>
+    </div>
+
     <button class="btn sm" id="budSave" style="margin-top:14px">Save budgets</button>
   </div>
 </section>
@@ -1828,7 +1846,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.0.7";
+const APP_VERSION = "1.0.8";
 const APP_BUILT = "2026-08-23";
 
 const KEY = "panappai.v1";
@@ -1848,7 +1866,6 @@ const THEME_KEY = "panappai.theme";
 /* ---------- categories ---------- */
 const CATS = {
   expense: [
-    {id:"groceries",    n:"Groceries",           h:152},
     {id:"groceries_de", n:"Groceries — German",  h:140},
     {id:"groceries_in", n:"Groceries — Indian",  h:36},
     {id:"nonveg",       n:"Non-Veg",             h:8},
@@ -2048,6 +2065,8 @@ function monthTitle(ym){
    15 Aug 2026 → 14 Sep 2026. Period keys are still YYYY-MM strings, so
    shiftMonth() works on them unchanged.                                      */
 const PERIOD_START_DAY = 15;
+/* Nothing was tracked before this, so there's nowhere useful to go back to. */
+const FIRST_PERIOD = "2026-08";
 function periodOf(iso){
   const d = +iso.slice(8, 10);
   const ym = iso.slice(0, 7);
@@ -2108,7 +2127,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], shop:null, budgets:{}, cats:{ expense:[], income:[] } };
+let state = { v:1, txns:[], rules:[], skips:[], shop:null, budgets:{}, catchAll:null, cats:{ expense:[], income:[] } };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -2154,7 +2173,9 @@ function load(){
           rules: Array.isArray(p.rules) ? p.rules : [],
           skips: Array.isArray(p.skips) ? p.skips : [],
           shop: normaliseShop(p.shop),
-          budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {}
+          budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
+          catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
+          cats: normaliseCats(p.cats)
         };
         if (p.demo) state.demo = true;
       }
@@ -2308,6 +2329,8 @@ function render(){
 
   $("#mLabel").innerHTML = esc(periodTitle(view)) +
     (view === periodOf(todayISO()) ? ' <span class="today-chip">Now</span>' : "");
+  /* kept in the layout, just not usable, so the title stays centred */
+  $("#prevM").classList.toggle("nav-off", view <= FIRST_PERIOD);
 
   /* --- totals --- */
   let inDone = 0, inPlan = 0, outDone = 0, outPlan = 0;
@@ -2316,6 +2339,17 @@ function render(){
     if (t.type === "income"){ done ? inDone += t.amount : inPlan += t.amount; }
     else { done ? outDone += t.amount : outPlan += t.amount; }
   });
+  /* A budget is money already committed for the period, it just hasn't been
+     spent yet. Counting only what's spent so far would flatter the totals and
+     make Net look healthier than it is, so whatever is left in each envelope
+     counts as still to pay — the same role a planned entry plays for a bill.
+     The catch-all is the exception: it's the cushion for whatever comes up,
+     not a commitment, so only what's actually been spent from it counts. */
+  const budgetLeft = budgetList()
+    .filter(b => b.cat.id !== state.catchAll)
+    .reduce((s, b) => s + Math.max(0, b.planned - envSpent(b.cat.id, view)), 0);
+  outPlan += budgetLeft;
+
   const net = (inDone + inPlan) - (outDone + outPlan);
 
   const netEl = $("#netVal");
@@ -2328,7 +2362,9 @@ function render(){
   animateValue(inValEl, inDone + inPlan, v => { inValEl.textContent = fmt(v); });
   animateValue(outValEl, outDone + outPlan, v => { outValEl.textContent = fmt(v); });
   $("#inSub").textContent  = inPlan  > 0 ? fmt(inPlan) + " still expected"  : (inDone  ? "all received" : "nothing yet");
-  $("#outSub").textContent = outPlan > 0 ? fmt(outPlan) + " still to pay"   : (outDone ? "all paid"     : "nothing yet");
+  $("#outSub").textContent = outPlan > 0
+    ? fmt(outPlan) + " still to pay" + (budgetLeft > 0 ? ", incl. budgets" : "")
+    : (outDone ? "all paid" : "nothing yet");
 
   /* --- meter --- */
   const totOut = outDone + outPlan;
@@ -2383,7 +2419,7 @@ function render(){
   }
 
   renderBreakdown(all, dark);
-  renderCharts(all);
+  renderCharts(all, budgetLeft);
   renderBudgets();
   renderBalance();
   renderMonthStrip();
@@ -2409,12 +2445,32 @@ function budgetList(){
     .map(c => ({ cat:c, planned: state.budgets[c.id] }));
 }
 
-function envSpent(catId, p){
-  let spent = 0;
-  periodTxns(p).forEach(t => {
-    if (t.type === "expense" && t.category === catId && t.status === "done") spent += t.amount;
+/* Categories that already have an envelope of their own, so the catch-all
+   shouldn't also absorb them. */
+function coveredCats(){
+  return Object.keys(state.budgets).filter(id => id !== state.catchAll && state.budgets[id] > 0);
+}
+
+/**
+ * Spends drawn from one envelope. A normal envelope takes only its own
+ * category. The catch-all also takes everything no other envelope covers —
+ * excluding recurring bills, which are a plan of their own — so ad-hoc
+ * spending lands there while keeping its real category on the entry.
+ */
+function envSpends(catId, p){
+  const isCatch = state.catchAll === catId;
+  const covered = isCatch ? coveredCats() : null;
+  return periodTxns(p).filter(t => {
+    if (t.type !== "expense" || t.status !== "done") return false;
+    if (t.category === catId) return true;
+    if (!isCatch) return false;
+    if (t.ruleId) return false;
+    return covered.indexOf(t.category) === -1;
   });
-  return spent;
+}
+
+function envSpent(catId, p){
+  return envSpends(catId, p).reduce((s, t) => s + t.amount, 0);
 }
 
 /** How far through the period we are — 0 before it starts, 1 once it's over. */
@@ -2485,7 +2541,9 @@ function renderBudgets(){
     track.appendChild(fill);
     row.appendChild(track);
 
-    row.appendChild(el("div", "env-sub", fmt(spent) + " of " + fmt(planned) + " · " + pct + "%"));
+    row.appendChild(el("div", "env-sub",
+      fmt(spent) + " of " + fmt(planned) + " · " + pct + "%" +
+      (state.catchAll === cat.id ? " · takes everything not budgeted" : "")));
     row.setAttribute("aria-label", cat.n + ", " + pct + "% used");
     row.addEventListener("click", () => openEnvelope(cat.id));
     host.appendChild(row);
@@ -2521,9 +2579,7 @@ function openEnvelope(catId){
 
   const host = $("#envSpends");
   host.innerHTML = "";
-  const spends = periodTxns(view)
-    .filter(t => t.type === "expense" && t.category === catId && t.status === "done")
-    .sort((a, b) => a.date < b.date ? 1 : -1);
+  const spends = envSpends(catId, view).sort((a, b) => a.date < b.date ? 1 : -1);
 
   if (!spends.length){
     host.appendChild(el("div", "note", "Nothing spent from this budget yet this period."));
@@ -2531,7 +2587,14 @@ function openEnvelope(catId){
     spends.forEach(t => {
       const r = el("div", "spendrow");
       r.appendChild(el("span", "sp-d", dayTitle(t.date)));
-      r.appendChild(el("span", "sp-n", t.note || cat.n));
+      const label = el("span", "sp-n");
+      label.textContent = t.note || catOf(t.category).n;
+      /* the catch-all pulls in other categories, so name them or the list is a mystery */
+      if (t.category !== catId){
+        const tag = el("span", "sp-c", catOf(t.category).n);
+        label.appendChild(tag);
+      }
+      r.appendChild(label);
       r.appendChild(el("span", "sp-a", fmt(t.amount)));
       host.appendChild(r);
     });
@@ -2622,6 +2685,20 @@ function renderBudRows(){
     pick.appendChild(o);
   });
   $("#budAddWrap").hidden = remaining.length === 0;
+
+  /* the catch-all can only be one of the envelopes actually being budgeted */
+  const sel = $("#budCatch");
+  const prev = sel.value || state.catchAll || "";
+  sel.innerHTML = "";
+  const none = document.createElement("option");
+  none.value = ""; none.textContent = "Nothing — each budget stands alone";
+  sel.appendChild(none);
+  chosen.forEach(c => {
+    const o = document.createElement("option");
+    o.value = c.id; o.textContent = c.n;
+    sel.appendChild(o);
+  });
+  sel.value = chosen.some(c => c.id === prev) ? prev : "";
 }
 
 function openBudgetEditor(){
@@ -2654,6 +2731,8 @@ $("#budSave").addEventListener("click", () => {
     if (cents > 0) next[id] = cents;
   });
   state.budgets = next;
+  const catch_ = $("#budCatch").value;
+  state.catchAll = (catch_ && next[catch_]) ? catch_ : null;
   save(); render(); sheetClose();
   const n = Object.keys(next).length;
   toast(n ? n + " budget" + (n === 1 ? "" : "s") + " saved" : "Budgets cleared");
@@ -2939,8 +3018,10 @@ function chartBlock(title, note, rows){
   return block;
 }
 
-function renderCharts(all){
+function renderCharts(all, budgetLeft){
   const s = periodStats(all);
+  /* keep this in step with the Expenses tile, which also counts unspent budget */
+  s.plannedExp += (budgetLeft || 0);
   const band = healthBand(s.income, s.plannedExp);
   document.documentElement.style.setProperty("--health-color", "var(" + HEALTH_VAR[band] + ")");
 
@@ -2953,7 +3034,8 @@ function renderCharts(all){
     { label:"Income",          value:s.income,     color:"var(--pos)",
       sub:"Everything expected in, planned and received." },
     { label:"Planned expense", value:s.plannedExp, color:"var(--warn)",
-      sub:"Every expense entered for this period — " + pct(s.plannedExp, s.income) + " of income." },
+      sub:"Everything entered, plus whatever is still unspent in your budgets — " +
+          pct(s.plannedExp, s.income) + " of income." },
     { label:"Actual expense",  value:s.actualExp,  color:"var(--neg)",
       sub:fmt(s.plannedExp - s.actualExp) + " of the plan still unpaid." }
   ]));
@@ -2968,6 +3050,7 @@ function renderMonthStrip(){
   const center = periodOf(todayISO());
   for (let n = -3; n <= 2; n++){
     const ym = shiftPeriod(center, n);
+    if (ym < FIRST_PERIOD) continue;
     const { inc, exp } = monthTotals(ym);
     const band = healthBand(inc, exp);
     const chip = el("button", "monthchip");
@@ -3227,7 +3310,7 @@ function openEntry(txn){
     $("#eDeleteWrap").style.display = "";
     $("#eSave").textContent = "Save changes";
   } else {
-    draft = { type:"expense", category:"groceries", status:"done" };
+    draft = { type:"expense", category:"groceries_de", status:"done" };
     $("#entryTitle").textContent = "New entry";
     $("#eAmt").value = "";
     $("#eNote").value = "";
@@ -3449,7 +3532,7 @@ function detectBank(text){
 }
 
 const RULES_CAT = [
-  [/rewe|edeka|aldi|lidl|penny|netto|kaufland|real markt|dm filiale|rossmann|denns|alnatura|tegut|nahkauf|supermarkt|hit markt/, "groceries"],
+  [/rewe|edeka|aldi|lidl|penny|netto|kaufland|real markt|dm filiale|rossmann|denns|alnatura|tegut|nahkauf|supermarkt|hit markt/, "groceries_de"],
   [/miete|rent|hausverwaltung|vermieter|wohnung|nebenkosten|hausgeld/, "rent"],
   [/stadtwerke|vattenfall|e\.?on|enbw|rwe|gasag|strom|energie|telekom|vodafone|o2|1und1|1&1|pyur|unitymedia|gez|rundfunk|wasserwerk|entsorgung/, "utilities"],
   [/deutsche bahn|db vertrieb|db fern|deutschlandticket|bahncard|\bbahn\b|bvg|rmv|hvv|mvg|vrr|vrs|kvb|tankstelle|aral|shell|esso|jet |total |uber|freenow|bolt |flixbus|adac|parkhaus|park |tankst|nextbike|lime |tier /, "transport"],
@@ -3690,6 +3773,7 @@ $("#doRestore").addEventListener("click", () => {
       skips: Array.isArray(p.skips) ? p.skips : [],
       shop: normaliseShop(p.shop),
       budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
+      catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
       cats: normaliseCats(p.cats)
     };
     refreshCats();
@@ -3701,7 +3785,7 @@ $("#doRestore").addEventListener("click", () => {
 });
 $("#wipe").addEventListener("click", function(){
   if (this.dataset.armed){
-    state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, cats: state.cats || normaliseCats(null) };
+    state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, catchAll: state.catchAll || null, cats: state.cats || normaliseCats(null) };
     save(); render(); sheetClose();
     delete this.dataset.armed;
     this.textContent = "Delete all entries";
@@ -3717,7 +3801,7 @@ $("#wipe").addEventListener("click", function(){
 });
 
 $("#clearDemo").addEventListener("click", () => {
-  state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, cats: state.cats || normaliseCats(null) };
+  state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, catchAll: state.catchAll || null, cats: state.cats || normaliseCats(null) };
   view = periodOf(todayISO());
   save(); render(); renderShop();
   toast("Cleared — the book is yours now");
@@ -3900,7 +3984,7 @@ $("#purchSave").addEventListener("click", () => {
   } else if (total > 0){
     userTouched();
     const t = {
-      id: uid(), type:"expense", amount: total, category: STORE_CAT[h.store] || "groceries",
+      id: uid(), type:"expense", amount: total, category: STORE_CAT[h.store] || "groceries_de",
       note: (STORE_LABEL[h.store] || "").replace(" stores", "") + " shopping",
       date: h.date, status:"done"
     };
@@ -4123,7 +4207,7 @@ $("#shopDone").addEventListener("click", () => {
   if ($("#shopLogExpense").checked && total > 0){
     userTouched();
     const t = {
-      id: uid(), type:"expense", amount: total, category: STORE_CAT[store] || "groceries",
+      id: uid(), type:"expense", amount: total, category: STORE_CAT[store] || "groceries_de",
       note: STORE_LABEL[store].replace(" stores", "") + " shopping", date: date, status:"done"
     };
     state.txns.push(t);
@@ -4141,7 +4225,10 @@ $("#shopDone").addEventListener("click", () => {
 /* =========================================================================
    NAV
    ========================================================================= */
-$("#prevM").addEventListener("click", () => { view = shiftPeriod(view, -1); render(); });
+$("#prevM").addEventListener("click", () => {
+  if (view <= FIRST_PERIOD) return;
+  view = shiftPeriod(view, -1); render();
+});
 $("#nextM").addEventListener("click", () => { view = shiftPeriod(view, 1); render(); });
 $("#mLabel").addEventListener("click", () => { view = periodOf(todayISO()); render(); });
 $$("#viewEntries .seg button").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; render(); }));
@@ -4205,10 +4292,10 @@ function seed(){
     { id:uid(), type:"expense", amount:1299,   category:"subs",      note:"Netflix",             freq:"monthly",   anchor:rel(8),  active:true }
   ];
   state.txns = [
-    { id:uid(), type:"expense", amount:6742, category:"groceries", note:"REWE",                 date:rel(-9) },
+    { id:uid(), type:"expense", amount:6742, category:"groceries_de", note:"REWE",              date:rel(-9) },
     { id:uid(), type:"expense", amount:2390, category:"dining",    note:"Lunch — Kantine",      date:rel(-7) },
     { id:uid(), type:"expense", amount:5500, category:"transport", note:"Deutschlandticket",    date:rel(-6) },
-    { id:uid(), type:"expense", amount:8915, category:"groceries", note:"Edeka weekly shop",    date:rel(-4) },
+    { id:uid(), type:"expense", amount:8915, category:"groceries_de", note:"Edeka weekly shop", date:rel(-4) },
     { id:uid(), type:"expense", amount:3499, category:"shopping",  note:"Amazon.de order",      date:rel(-3) },
     { id:uid(), type:"income",  amount:4500, category:"refund",    note:"Amazon return refund", date:rel(-1) }
   ].map(t => Object.assign(t, { id:uid(), status: t.date <= today ? "done" : "planned" }));
@@ -4614,6 +4701,7 @@ async function ghPullNow(){
       skips: Array.isArray(p.skips) ? p.skips : [],
       shop: normaliseShop(p.shop),
       budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
+      catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
       cats: normaliseCats(p.cats)
     };
     if (p.demo) state.demo = true;
