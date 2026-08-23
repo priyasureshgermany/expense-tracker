@@ -728,16 +728,6 @@
       "status": "done"
     },
     {
-      "id": "t6d1ibc5hgzh",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Lidl",
-      "date": "2026-10-22",
-      "status": "planned",
-      "ruleId": "pqouodf8hgzf"
-    },
-    {
       "id": "e8ccjh2chgzh",
       "type": "expense",
       "amount": 20000,
@@ -2512,7 +2502,8 @@
     "eymjctxoorfb|2026-09-15",
     "9trvq5n4z3vo|2026-09-22",
     "pqouodf8hgzf|2026-09-22",
-    "9trvq5n4z3vo|2026-10-22"
+    "9trvq5n4z3vo|2026-10-22",
+    "pqouodf8hgzf|2026-10-22"
   ],
   "shop": {
     "lists": {
