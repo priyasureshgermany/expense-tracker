@@ -978,16 +978,6 @@
       "ruleId": "pqouodf8hgzf"
     },
     {
-      "id": "fknv8p33ijf5",
-      "type": "expense",
-      "amount": 20000,
-      "category": "groceries",
-      "note": "Jaffna - Indian grocery",
-      "date": "2026-10-14",
-      "status": "done",
-      "ruleId": "0oe9xoy9ijf4"
-    },
-    {
       "id": "q42znatzijf5",
       "type": "expense",
       "amount": 20000,
@@ -2905,7 +2895,8 @@
     "b687bcbvxt8c|2026-08-22",
     "5q98aay2rqyf|2026-09-02",
     "b687bcbvxt8c|2026-09-05",
-    "8mofd0hyjidm|2026-08-17"
+    "8mofd0hyjidm|2026-08-17",
+    "0oe9xoy9ijf4|2026-10-14"
   ],
   "shop": {
     "lists": {
