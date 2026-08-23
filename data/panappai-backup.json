@@ -2909,50 +2909,7 @@
   ],
   "shop": {
     "lists": {
-      "de": [
-        {
-          "id": "2by8d8rppuxb",
-          "name": "Äpfel",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "rf0gqou8pvb2",
-          "name": "Bananen",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "g88a0za5pvpe",
-          "name": "Tomaten",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "o4fd9mrtpwe0",
-          "name": "Kartoffeln",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "vpochayxpwjw",
-          "name": "Zwiebeln",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "molenjtfpwwh",
-          "name": "Gurke",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "oxfh2imspxk4",
-          "name": "Trauben",
-          "price": 0,
-          "done": false
-        }
-      ],
+      "de": [],
       "in": []
     },
     "history": [
