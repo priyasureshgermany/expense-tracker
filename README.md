@@ -49,6 +49,16 @@ Open `index.html` in any browser, or host the file anywhere static.
     *Groceries — Indian* automatically, by store.
   - **EMI** is deliberately not budgetable: a fixed amount on a known date is
     a recurring entry, not an envelope drawn down unpredictably.
+  - One envelope can be the **catch-all** (*Everything else counts against*).
+    Any expense that isn't a recurring bill and has no budget of its own is
+    drawn from it, while keeping its real category on the entry — so a Buffer
+    absorbs Education, a card payment or a one-off shop without you having to
+    retag anything.
+- **Budgets count as expected spending.** Whatever is still unspent in a budget
+  is added to Expenses and subtracted from Net this period, since it's money
+  already committed — no need to pre-enter dated entries for spending that
+  happens unpredictably. The catch-all is the exception: as the cushion, only
+  what's actually been spent from it counts.
 - **Planned vs. filled** — every entry is either *planned* (still to come) or
   *filled* (settled). Tap the circle on a row to flip it.
 - **Recurring entries** at weekly / monthly / every-2-months / quarterly /

@@ -3,6 +3,14 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → Release notes**.
 
+## 1.0.8 — 2026-08-23
+- Froze the first period at 15 Aug 2026; the back arrow stops there
+- One budget can now be the catch-all, absorbing any spend that isn't a recurring bill and has no budget of its own, while keeping its real category
+- Unspent budget now counts as expected spending in Expenses and Net this period, so committed money isn't missing from the totals
+- The catch-all is excluded from that, being a cushion rather than a commitment
+- Removed the old general Groceries category, now covered by the German and Indian ones
+- Fixed custom categories being lost on reload, because load() never read them back
+
 ## 1.0.7 — 2026-08-23
 - Added Settings → Leave a note, which parks thoughts in FEEDBACK.md in the synced repo
 - Notes are queued locally and only cleared once GitHub has them, so writing one offline never loses it
