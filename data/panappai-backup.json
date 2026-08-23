@@ -2205,6 +2205,126 @@
       "date": "2027-07-07",
       "status": "planned",
       "ruleId": "jy2v2i20lael"
+    },
+    {
+      "id": "rc8cjp1morfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2026-09-15",
+      "status": "done",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "6nvcmnayorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2026-10-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "pb37k4cyorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2026-11-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "iyt5uz4oorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2026-12-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "su07ns6qorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2027-01-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "eqnvtstsorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2027-02-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "issz1btlorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2027-03-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "c1kcukvborfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2027-04-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "2jxnbhqlorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2027-05-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "7s8oh6clorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2027-06-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "g6rvdovxorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2027-07-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
+    },
+    {
+      "id": "4c2q43seorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "date": "2027-08-15",
+      "status": "planned",
+      "ruleId": "eymjctxoorfb"
     }
   ],
   "rules": [
@@ -2386,6 +2506,16 @@
       "note": "Swimming",
       "freq": "quarterly",
       "anchor": "2026-10-07",
+      "active": true
+    },
+    {
+      "id": "eymjctxoorfb",
+      "type": "income",
+      "amount": 504500,
+      "category": "salary",
+      "note": "",
+      "freq": "monthly",
+      "anchor": "2026-09-15",
       "active": true
     }
   ],
