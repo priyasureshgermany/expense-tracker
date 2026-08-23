@@ -739,6 +739,7 @@
     ]
   },
   "budgets": {},
+  "catchAll": null,
   "cats": {
     "expense": [],
     "income": []
