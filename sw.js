@@ -1,12 +1,13 @@
 /* Bump VERSION on every release: activate() purges any cache that isn't the
    current one, which is what lets a new build actually replace the old one. */
-const VERSION = "1.0.5";
+const VERSION = "1.0.6";
 const CACHE = "panappai-" + VERSION;
 
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
+  "./RELEASES.md",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",

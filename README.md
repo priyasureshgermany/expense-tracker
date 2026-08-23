@@ -189,6 +189,40 @@ the install prompt.
 
 Run the tests with `node test.mjs` (needs Playwright installed).
 
+## Naming the parts
+
+Every region has a stable name, so a change can be asked for precisely —
+"the balance card shows the wrong figure" beats "the blue box at the top".
+
+**Always on**
+
+| Name | What it is |
+|---|---|
+| Top bar | Brand, ↻ recurring, 👁 show/hide amounts, ⚙ settings |
+| Period bar | `‹ 15 Aug – 14 Sept 2026 ›` |
+| Tabs | Dashboard · வரவு செலவு · Shopping cart |
+| Dock | The floating **Add entry** button |
+
+**Dashboard**, top to bottom
+
+| Name | What it is |
+|---|---|
+| Balance card | "In the account now" |
+| Statement | "Net this period", the Income/Expenses tiles and the paid meter |
+| Money in, money out | Income vs planned vs actual bars |
+| What's left to spend | The budget envelopes |
+| Period health | The scrollable strip of periods |
+| Where the money goes | Spending by category |
+
+**வரவு செலவு**: the status tabs (All / Planned / Filled), the type pill
+("Showing income only") and the entry rows.
+
+**Shopping cart**: store tabs, **Add items**, the item list, **Scan receipt**,
+the save block, **Recent purchases**.
+
+**Sheets** (the panels that slide up): New entry, Recurring entries, Settings &
+backup, Budgets, Add items, Scan receipt, Purchase, Release notes, New category.
+
 ## Versioning
 
 **Settings → About** shows the deployed version, when it was deployed, and
