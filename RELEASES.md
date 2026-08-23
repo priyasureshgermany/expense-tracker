@@ -3,6 +3,11 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → Release notes**.
 
+## 1.0.10 — 2026-08-23
+- Expenses is the ledger again — paid plus planned, with budgets no longer folded in on top
+- Renamed the budgets card to Budget, and the Buffer category to Misc
+- Misc now absorbs ad-hoc spending on backups saved before the catch-all existed, instead of counting only entries tagged Misc
+
 ## 1.0.9 — 2026-08-23
 - Fixed a device that has never pulled being able to overwrite the backup — a fresh browser is full of example entries, which replaced real data
 - Push now asks twice before replacing a backup this device hasn't reconciled with

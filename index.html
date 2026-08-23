@@ -1288,7 +1288,7 @@ html.locked #lockScreen::before{
 
     <section class="budgetcard" id="budgetCard" hidden>
       <div class="bc-head">
-        <div class="bc-t">What's left to spend</div>
+        <div class="bc-t">Budget</div>
         <button class="bc-edit" id="budgetEdit">Edit</button>
       </div>
       <div id="budgetRows"></div>
@@ -1846,7 +1846,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.0.9";
+const APP_VERSION = "1.0.10";
 const APP_BUILT = "2026-08-23";
 
 const KEY = "panappai.v1";
@@ -1872,7 +1872,7 @@ const CATS = {
     /* noBudget: a fixed amount on a known date belongs in a recurring entry,
        not an envelope you draw down unpredictably */
     {id:"emi",          n:"EMI",                 h:248, noBudget:true},
-    {id:"buffer",       n:"Buffer",              h:288},
+    {id:"buffer",       n:"Misc",                h:288},
     {id:"rent",      n:"Rent",      h:220},
     {id:"utilities", n:"Utilities", h:196},
     {id:"transport", n:"Transport", h:255},
@@ -2184,6 +2184,10 @@ function load(){
   if (!state.shop) state.shop = normaliseShop(null);
   if (!state.budgets) state.budgets = {};
   if (!state.cats) state.cats = normaliseCats(null);
+  /* Backups written before the catch-all existed have none set, which left the
+     Misc envelope counting only entries tagged Misc rather than absorbing the
+     ad-hoc spending it's there for. */
+  if (!state.catchAll && state.budgets && state.budgets.buffer > 0) state.catchAll = "buffer";
   refreshCats();
 }
 function save(){
@@ -2339,16 +2343,12 @@ function render(){
     if (t.type === "income"){ done ? inDone += t.amount : inPlan += t.amount; }
     else { done ? outDone += t.amount : outPlan += t.amount; }
   });
-  /* A budget is money already committed for the period, it just hasn't been
-     spent yet. Counting only what's spent so far would flatter the totals and
-     make Net look healthier than it is, so whatever is left in each envelope
-     counts as still to pay — the same role a planned entry plays for a bill.
-     The catch-all is the exception: it's the cushion for whatever comes up,
-     not a commitment, so only what's actually been spent from it counts. */
-  const budgetLeft = budgetList()
-    .filter(b => b.cat.id !== state.catchAll)
-    .reduce((s, b) => s + Math.max(0, b.planned - envSpent(b.cat.id, view)), 0);
-  outPlan += budgetLeft;
+  /* Expenses is the ledger and nothing else: what's been paid plus what's been
+     entered as still to come. Budgets used to be folded in on top, which read
+     as counting the same spending twice even though only the unspent part was
+     added. Expected budget spend lives in the Budget card, where it can't be
+     confused with an amount from the ledger. */
+  const budgetLeft = 0;
 
   const net = (inDone + inPlan) - (outDone + outPlan);
 
@@ -2363,7 +2363,7 @@ function render(){
   animateValue(outValEl, outDone + outPlan, v => { outValEl.textContent = fmt(v); });
   $("#inSub").textContent  = inPlan  > 0 ? fmt(inPlan) + " still expected"  : (inDone  ? "all received" : "nothing yet");
   $("#outSub").textContent = outPlan > 0
-    ? fmt(outPlan) + " still to pay" + (budgetLeft > 0 ? ", incl. budgets" : "")
+    ? fmt(outPlan) + " still to pay"
     : (outDone ? "all paid" : "nothing yet");
 
   /* --- meter --- */
@@ -3034,8 +3034,7 @@ function renderCharts(all, budgetLeft){
     { label:"Income",          value:s.income,     color:"var(--pos)",
       sub:"Everything expected in, planned and received." },
     { label:"Planned expense", value:s.plannedExp, color:"var(--warn)",
-      sub:"Everything entered, plus whatever is still unspent in your budgets — " +
-          pct(s.plannedExp, s.income) + " of income." },
+      sub:"Every expense entered for this period — " + pct(s.plannedExp, s.income) + " of income." },
     { label:"Actual expense",  value:s.actualExp,  color:"var(--neg)",
       sub:fmt(s.plannedExp - s.actualExp) + " of the plan still unpaid." }
   ]));
