@@ -2479,7 +2479,6 @@
     "nonveg": 10000,
     "buffer": 50000
   },
-  "catchAll": null,
   "cats": {
     "expense": [],
     "income": []
