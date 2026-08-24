@@ -3006,5 +3006,7 @@
   "cats": {
     "expense": [],
     "income": []
-  }
+  },
+  "accounts": [],
+  "profile": null
 }
