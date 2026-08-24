@@ -3007,6 +3007,12 @@
     "expense": [],
     "income": []
   },
-  "accounts": [],
+  "accounts": [
+    {
+      "id": "a_gch8xl46opp7",
+      "n": "Commerzbank",
+      "kind": "bank"
+    }
+  ],
   "profile": null
 }
