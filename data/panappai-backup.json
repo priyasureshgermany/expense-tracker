@@ -145,7 +145,7 @@
       "type": "expense",
       "amount": 128000,
       "category": "rent",
-      "note": "",
+      "note": "House Rent",
       "date": "2026-09-01",
       "status": "planned",
       "ruleId": "5q98aay2rqyf"
@@ -1917,46 +1917,6 @@
       "status": "done"
     },
     {
-      "id": "f7jxg9idlaen",
-      "type": "expense",
-      "amount": 9600,
-      "category": "c_u0u8o3m6f802",
-      "note": "Swimming",
-      "date": "2026-10-07",
-      "status": "planned",
-      "ruleId": "jy2v2i20lael"
-    },
-    {
-      "id": "0vtz2icnlaen",
-      "type": "expense",
-      "amount": 9600,
-      "category": "c_u0u8o3m6f802",
-      "note": "Swimming",
-      "date": "2027-01-07",
-      "status": "planned",
-      "ruleId": "jy2v2i20lael"
-    },
-    {
-      "id": "8ahzx8mklaen",
-      "type": "expense",
-      "amount": 9600,
-      "category": "c_u0u8o3m6f802",
-      "note": "Swimming",
-      "date": "2027-04-07",
-      "status": "planned",
-      "ruleId": "jy2v2i20lael"
-    },
-    {
-      "id": "0ru30bd1laen",
-      "type": "expense",
-      "amount": 9600,
-      "category": "c_u0u8o3m6f802",
-      "note": "Swimming",
-      "date": "2027-07-07",
-      "status": "planned",
-      "ruleId": "jy2v2i20lael"
-    },
-    {
       "id": "td6x7fbirhex",
       "type": "income",
       "amount": 554000,
@@ -2087,124 +2047,191 @@
       "ruleId": "bk0qrzhxrhex"
     },
     {
-      "id": "y14s2xlvikmb",
+      "id": "bxzlm0c491qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2026-09-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "jjznkv3mikmb",
+      "id": "neixg1ek91qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2026-10-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "y8bdcjmzikmb",
+      "id": "p1uoffci91qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2026-11-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "ldgtf6vqikmb",
+      "id": "jfucfpvj91qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2026-12-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "to6ornooikmb",
+      "id": "430cvtyc91qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2027-01-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "l13tmps3ikmb",
+      "id": "a36kqdr991qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2027-02-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "m6a2dfx2ikmb",
+      "id": "4xa04j2z91qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2027-03-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "ry4rnp5dikmb",
+      "id": "ahuof23p91qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2027-04-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "p30l8es7ikmb",
+      "id": "3z34fn3f91qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2027-05-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "6uj412icikmb",
+      "id": "bngup7ua91qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2027-06-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "9thim8pwikmb",
+      "id": "mny6rio591qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2027-07-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
     },
     {
-      "id": "f744cwd8ikmb",
+      "id": "ja77xv8w91qh",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "date": "2027-08-05",
       "status": "planned",
-      "ruleId": "o3c24zevikma"
+      "ruleId": "ep2y84vu91qg"
+    },
+    {
+      "id": "x8572yemc2j0",
+      "type": "expense",
+      "amount": 9600,
+      "category": "subs",
+      "note": "Swimming club",
+      "date": "2026-10-07",
+      "status": "planned",
+      "ruleId": "hw1leafxc2iz"
+    },
+    {
+      "id": "l2c8ppscc2j0",
+      "type": "expense",
+      "amount": 9600,
+      "category": "subs",
+      "note": "Swimming club",
+      "date": "2027-01-07",
+      "status": "planned",
+      "ruleId": "hw1leafxc2iz"
+    },
+    {
+      "id": "tkfle4vpc2j0",
+      "type": "expense",
+      "amount": 9600,
+      "category": "subs",
+      "note": "Swimming club",
+      "date": "2027-04-07",
+      "status": "planned",
+      "ruleId": "hw1leafxc2iz"
+    },
+    {
+      "id": "v7lqykjlc2j0",
+      "type": "expense",
+      "amount": 9600,
+      "category": "subs",
+      "note": "Swimming club",
+      "date": "2027-07-07",
+      "status": "planned",
+      "ruleId": "hw1leafxc2iz"
+    },
+    {
+      "id": "brsz1ge1e8cu",
+      "type": "expense",
+      "amount": 1045,
+      "category": "groceries_de",
+      "note": "Lidl",
+      "date": "2026-08-24",
+      "status": "done"
+    },
+    {
+      "id": "zfoktsaubhd5",
+      "type": "expense",
+      "amount": 2078,
+      "category": "groceries_de",
+      "note": "Lidl",
+      "date": "2026-08-24",
+      "status": "done"
+    },
+    {
+      "id": "v900hgbxbsnu",
+      "type": "expense",
+      "amount": 89,
+      "category": "groceries_de",
+      "note": "Lidl",
+      "date": "2026-08-24",
+      "status": "done"
     }
   ],
   "rules": [
@@ -2359,16 +2386,6 @@
       "active": true
     },
     {
-      "id": "jy2v2i20lael",
-      "type": "expense",
-      "amount": 9600,
-      "category": "c_u0u8o3m6f802",
-      "note": "Swimming",
-      "freq": "quarterly",
-      "anchor": "2026-10-07",
-      "active": true
-    },
-    {
       "id": "bk0qrzhxrhex",
       "type": "income",
       "amount": 504500,
@@ -2379,13 +2396,23 @@
       "active": true
     },
     {
-      "id": "o3c24zevikma",
+      "id": "ep2y84vu91qg",
       "type": "expense",
       "amount": 2508,
-      "category": "c_fdot68q2dao3",
+      "category": "subs",
       "note": "For McFit",
       "freq": "monthly",
-      "anchor": "2026-08-05",
+      "anchor": "2026-09-05",
+      "active": true
+    },
+    {
+      "id": "hw1leafxc2iz",
+      "type": "expense",
+      "amount": 9600,
+      "category": "subs",
+      "note": "Swimming club",
+      "freq": "quarterly",
+      "anchor": "2026-10-07",
       "active": true
     }
   ],
@@ -2419,7 +2446,155 @@
   "shop": {
     "lists": {
       "de": [],
-      "in": []
+      "in": [
+        {
+          "id": "qe1lzuj1vvmm",
+          "name": "Toor dal",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "d5y925x7vvt4",
+          "name": "Moong dal",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "6lchzu3ivvzm",
+          "name": "Chana dal",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "2q32ql1mvw9a",
+          "name": "Urad dal",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "6a51lcn9vwfb",
+          "name": "Masoor dal",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "wsxk8tx3vwlb",
+          "name": "Rajma",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "sxq2pqaevwu5",
+          "name": "Kabuli chana",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "8c420eg4vx81",
+          "name": "Basmati rice",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "nx4ktbitvxe2",
+          "name": "Sona masoori rice",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "kpe7ph9uvxlh",
+          "name": "Idli rice",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "dfjfnposvxwm",
+          "name": "Atta",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "2zc61dpkvy2m",
+          "name": "Besan",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "zjrmrwgcvy9j",
+          "name": "Rava / sooji",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "5y8nzxorvyfz",
+          "name": "Poha",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "9lszoq8svywa",
+          "name": "Rice flour",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "erst0ly4w047",
+          "name": "Turmeric powder",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "by6fq773w0ap",
+          "name": "Chilli powder",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "2v1xww8yw0im",
+          "name": "Coriander powder",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "42k8f6m8w0om",
+          "name": "Cumin seeds",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "ej5w4bbqw0w0",
+          "name": "Mustard seeds",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "gucs1klqw11j",
+          "name": "Garam masala",
+          "qty": "",
+          "price": 0,
+          "done": false
+        }
+      ]
     },
     "history": [
       {
@@ -2478,6 +2653,11 @@
     "groceries_in": 20000,
     "nonveg": 10000,
     "buffer": 50000
+  },
+  "catchAll": "buffer",
+  "balance": {
+    "amount": 84800,
+    "date": "2026-08-15"
   },
   "cats": {
     "expense": [],
