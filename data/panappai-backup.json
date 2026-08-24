@@ -3012,6 +3012,11 @@
       "id": "a_gch8xl46opp7",
       "n": "Commerzbank",
       "kind": "bank"
+    },
+    {
+      "id": "a_0mh73fi9ovlw",
+      "n": "Deutsche Bank",
+      "kind": "bank"
     }
   ],
   "profile": null
