@@ -1,7 +1,14 @@
 # Release notes
 
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
-release, and shown in the app under **Settings → About → Release notes**.
+release, and shown in the app under **Settings → About → What’s new**.
+
+## 1.1.1 — 2026-08-24
+- Fixed every date being a month ahead — a duplicate helper shadowed the original, so today, the current period and new entry dates were all wrong
+- New app icon: a brown leather wallet with a euro stamped in gold
+- The Today pill carries a curved arrow, and the + chooser slides up and back down instead of appearing
+- Renamed Release notes to What's new
+- Bigger icons on the settings tiles, with About spanning the row in its own shade
 
 ## 1.1.0 — 2026-08-24
 - Moved the tabs to a bar fixed along the bottom of the screen
