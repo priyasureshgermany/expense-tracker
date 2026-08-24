@@ -250,7 +250,7 @@ Every region has a stable name, so a change can be asked for precisely —
 the save block, **Recent purchases**.
 
 **Sheets** (the panels that slide up): New entry, Recurring entries, Settings,
-Budgets, Add items, Scan receipt, Purchase, Release notes, New category.
+Budgets, Add items, Scan receipt, Purchase, What’s new, New category.
 
 **Settings** opens on a grid of tiles rather than one long scroll — Your
 profile, Accounts, Recurring entries, Starting balance, App lock, Appearance,
