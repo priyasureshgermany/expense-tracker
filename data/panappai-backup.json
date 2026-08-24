@@ -3022,6 +3022,11 @@
       "id": "a_gb5m3hv9f7k6",
       "n": "Revolut",
       "kind": "bank"
+    },
+    {
+      "id": "a_rfaastsofs9u",
+      "n": "TF Bank",
+      "kind": "card"
     }
   ],
   "profile": null
