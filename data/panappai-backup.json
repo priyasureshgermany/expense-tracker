@@ -3032,6 +3032,11 @@
       "id": "a_qiwdi3xnpjw7",
       "n": "Paypal",
       "kind": "card"
+    },
+    {
+      "id": "a_ru9iu56tpvah",
+      "n": "Transfer",
+      "kind": "bank"
     }
   ],
   "profile": null
