@@ -168,20 +168,31 @@ button{cursor:pointer;background:none;border:none;padding:0}
   display:flex; align-items:center; gap:10px;
 }
 .brand{
-  display:flex; align-items:baseline; gap:7px; margin-right:auto; min-width:0;
+  display:flex; flex-direction:column; align-items:flex-start; gap:1px;
+  margin-right:auto; min-width:0; text-align:left;
+  padding:2px 6px 2px 0; border-radius:9px; transition:opacity .15s;
 }
+.brand:active{opacity:.6}
+.brand-top{display:flex; align-items:baseline; gap:7px; min-width:0}
 .brand b{
   font-size:16px; font-weight:600; letter-spacing:-.01em; white-space:nowrap;
 }
-.brand span{
+.brand-cur{
   font-size:10px; letter-spacing:.14em; text-transform:uppercase;
   color:var(--ink-3); font-weight:500; white-space:nowrap;
+}
+.brand-hi{
+  font-size:11.5px; color:var(--ink-3); font-weight:500;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
 }
 #btnEye .eye-on{display:none}
 html.amounts-shown #btnEye .eye-off{display:none}
 html.amounts-shown #btnEye .eye-on{display:block}
 html.amounts-shown #btnEye{color:var(--accent)}
 .nav-off{visibility:hidden;pointer-events:none}
+/* Several components below set display on a class, which silently beats the
+   hidden attribute; this keeps hidden meaning hidden everywhere. */
+[hidden]{display:none !important}
 .iconbtn{
   width:36px;height:36px;border-radius:10px;
   display:grid;place-items:center;color:var(--ink-2);
@@ -202,6 +213,13 @@ html.amounts-shown #btnEye{color:var(--accent)}
   flex:1;text-align:center;font-weight:600;font-size:14.5px;letter-spacing:-.005em;
   display:flex;align-items:center;justify-content:center;gap:8px;
 }
+.nowbtn{
+  flex:none;font-size:11px;font-weight:600;letter-spacing:.01em;
+  padding:5px 10px;border-radius:99px;
+  background:var(--accent-soft);color:var(--accent);
+  transition:filter .15s,transform .12s;
+}
+.nowbtn:active{transform:scale(.94)}
 .today-chip{
   font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
   color:var(--accent);background:var(--accent-soft);
@@ -586,7 +604,7 @@ button.tile:hover .tile-go{color:var(--accent)}
 .sf-k{font-size:12.5px;font-weight:600;color:var(--ink-2)}
 .sf-v{font-size:12.5px;color:var(--ink-2);font-family:var(--mono);font-variant-numeric:tabular-nums}
 /* the native date control has a wide intrinsic size — pin it so it can't overflow the card */
-.inp.sf-date{flex:none;width:160px;max-width:100%;padding:7px 10px}
+.sf-date-host{flex:none;width:168px;max-width:100%}
 .sf-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
 .sf-check input{width:16px;height:16px;accent-color:var(--accent)}
 .shophist{display:flex;flex-direction:column;gap:7px}
@@ -820,35 +838,72 @@ button.tile:hover .tile-go{color:var(--accent)}
 .empty p{margin:0;font-size:13px;line-height:1.55;max-width:31ch;margin-inline:auto}
 
 /* ---------- Bottom bar ---------- */
-.spacer{height:92px}
-.dock{
-  position:sticky;bottom:0;z-index:28;
+/* Clears the fixed tab bar plus the FAB sitting above it. */
+.spacer{height:calc(104px + env(safe-area-inset-bottom))}
+
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:28;
   max-width:var(--shell);margin:0 auto;
-  background:linear-gradient(to top,var(--ground) 0%,var(--ground) 74%,transparent 100%);
-  padding:18px 14px calc(12px + env(safe-area-inset-bottom));
-  display:flex;align-items:center;gap:9px;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  background:var(--surface);
+  border-top:1px solid var(--line);
+  padding:8px 6px calc(10px + env(safe-area-inset-bottom));
+  box-shadow:0 -1px 0 rgba(15,25,34,.04), 0 -10px 30px rgba(15,25,34,.06);
 }
-.dock .grow{flex:1}
-.dockbtn{
-  height:46px;padding:0 14px;border-radius:14px;
-  background:var(--surface);border:1px solid var(--line);
-  display:flex;align-items:center;gap:7px;
-  font-size:13px;font-weight:500;color:var(--ink-2);
-  box-shadow:var(--shadow-sm);transition:transform .12s,border-color .15s,color .15s;
+@supports (backdrop-filter:blur(20px)){
+  .tabbar{background:color-mix(in srgb, var(--surface) 86%, transparent);backdrop-filter:saturate(180%) blur(20px)}
 }
-.dockbtn:hover{color:var(--ink);border-color:var(--line-strong)}
-.dockbtn:active{transform:scale(.97)}
-.dockbtn svg{width:17px;height:17px;stroke-width:1.8}
-.addbtn{
-  height:46px;padding:0 20px;border-radius:14px;
+.tabbar button{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:5px 2px;border-radius:12px;
+  font-size:10px;font-weight:500;letter-spacing:.005em;line-height:1.2;
+  color:var(--ink-3);transition:color .18s,transform .12s;
+  text-align:center;
+}
+.tabbar button svg{width:21px;height:21px;flex:none;stroke-width:1.8}
+.tabbar button:active{transform:scale(.93)}
+.tabbar button[aria-selected="true"]{color:var(--accent);font-weight:600}
+.tabbar button[aria-selected="true"] svg{stroke-width:2.1}
+
+/* Add entry: a circle above the tab bar, opening a two-way chooser. */
+.fabwrap{
+  position:fixed;z-index:29;
+  right:max(18px, calc(50vw - var(--shell)/2 + 18px));
+  bottom:calc(80px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;align-items:flex-end;gap:10px;
+}
+.fab{
+  width:56px;height:56px;border-radius:50%;
   background:linear-gradient(135deg, var(--accent-mid), var(--accent));color:var(--accent-ink);
-  display:flex;align-items:center;gap:7px;
-  font-size:14px;font-weight:600;letter-spacing:-.005em;
-  box-shadow:var(--shadow-md);transition:transform .12s,filter .15s;
+  display:grid;place-items:center;
+  box-shadow:0 6px 20px rgba(15,25,34,.22), var(--shadow-md);
+  transition:transform .22s cubic-bezier(.2,.7,.3,1),filter .15s;
 }
-.addbtn:hover{filter:brightness(1.08)}
-.addbtn:active{transform:scale(.97)}
-.addbtn svg{width:18px;height:18px;stroke-width:2.4}
+.fab svg{width:26px;height:26px;stroke-width:2.6;transition:transform .22s cubic-bezier(.2,.7,.3,1)}
+.fab:hover{filter:brightness(1.08)}
+.fab:active{transform:scale(.92)}
+.fab[aria-expanded="true"] svg{transform:rotate(45deg)}
+.fabmenu{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.fabopt{
+  display:flex;align-items:center;gap:9px;
+  height:44px;padding:0 16px 0 13px;border-radius:99px;
+  font-size:13.5px;font-weight:600;letter-spacing:-.005em;
+  background:var(--surface);box-shadow:var(--shadow-md);
+  border:1px solid var(--line);
+  animation:fabIn .22s cubic-bezier(.2,.7,.3,1) backwards;
+  transition:transform .12s;
+}
+.fabopt:active{transform:scale(.95)}
+.fabopt .fo-ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none}
+.fabopt .fo-ic svg{width:14px;height:14px}
+.fabopt.out{color:var(--neg);animation-delay:.04s}
+.fabopt.out .fo-ic{background:var(--neg-soft)}
+.fabopt.in{color:var(--pos)}
+.fabopt.in .fo-ic{background:var(--pos-soft)}
+@keyframes fabIn{
+  from{opacity:0;transform:translateY(10px) scale(.9)}
+  to{opacity:1;transform:none}
+}
 
 /* ============================================================
    SHEETS
@@ -930,24 +985,194 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .toggle2 button.n[aria-pressed="true"]{color:var(--neg)}
 .toggle2 button.a[aria-pressed="true"]{color:var(--ink)}
 
-.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
 .chip{
-  padding:7px 11px;border-radius:99px;font-size:12.5px;font-weight:500;
+  padding:10px 14px;border-radius:14px;font-size:13px;font-weight:500;
   background:var(--surface-2);color:var(--ink-2);
   border:1.5px solid transparent;transition:all .15s;
-  display:flex;align-items:center;gap:6px;
+  display:flex;align-items:center;gap:8px;min-height:44px;
 }
+.chip:active{transform:scale(.96)}
 .chip:hover{background:var(--surface-sunk)}
 .chip-add{
   background:transparent;border:1.5px dashed var(--line-strong);color:var(--ink-3);
 }
 .chip-add:hover{border-color:var(--accent);color:var(--accent);background:transparent}
-.chip .cic{display:grid;place-items:center;flex:none}
+.chip .cic{
+  width:28px;height:28px;border-radius:9px;flex:none;
+  display:grid;place-items:center;background:var(--surface-sunk);
+  transition:background .15s;
+}
+.chip[aria-pressed="true"] .cic{background:var(--surface)}
 .chip .cic svg{display:block}
 .chip[aria-pressed="true"]{
   background:var(--accent-soft);color:var(--accent);border-color:var(--accent);font-weight:600;
 }
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* A picker, not a native select: the button shows the current choice, and the
+   list opens beneath it a few rows at a time with the rest fading off under a
+   mask, so it reads as "there is more here, scroll". */
+.pick{position:relative}
+.pk-btn{
+  width:100%;min-height:50px;padding:12px 14px;border-radius:14px;
+  display:flex;align-items:center;gap:9px;text-align:left;
+  background:var(--surface-2);border:1.5px solid var(--line);
+  font-size:14px;font-weight:500;color:var(--ink);
+  transition:border-color .15s,background .15s,box-shadow .15s;
+}
+.pk-btn:hover{border-color:var(--line-strong)}
+.pick.open .pk-btn{
+  border-color:var(--accent);background:var(--surface);
+  box-shadow:0 0 0 3.5px var(--accent-soft);
+}
+.pk-btn .pk-lab{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pk-btn .pk-lab.pk-empty{color:var(--ink-3);font-style:italic;font-weight:400}
+.pk-chev{width:17px;height:17px;flex:none;color:var(--ink-3);transition:transform .22s cubic-bezier(.2,.7,.3,1)}
+.pick.open .pk-chev{transform:rotate(180deg);color:var(--accent)}
+.pk-ic{
+  width:30px;height:30px;border-radius:9px;flex:none;
+  display:grid;place-items:center;background:var(--surface-sunk);
+}
+.pick.open .pk-ic{background:var(--surface-2)}
+
+.pk-wrap{
+  position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:12;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow-md), 0 14px 40px rgba(15,25,34,.16);
+  padding:6px;overflow:hidden;
+  animation:pkIn .18s cubic-bezier(.2,.7,.3,1);
+}
+@keyframes pkIn{
+  from{opacity:0;transform:translateY(-6px) scale(.99)}
+  to{opacity:1;transform:none}
+}
+/* ~4 rows tall; the mask fades whichever end still has more behind it, and is
+   lifted at an end once you have actually reached it. */
+.pk-list{
+  max-height:192px;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  mask-image:linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+}
+.pk-list::-webkit-scrollbar{display:none}
+.pk-list.at-top{
+  -webkit-mask-image:linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
+  mask-image:linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
+}
+.pk-list.at-bottom{
+  -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 24px);
+  mask-image:linear-gradient(to bottom, transparent 0, #000 24px);
+}
+.pk-list.at-top.at-bottom{-webkit-mask-image:none;mask-image:none}
+.pk-opt{
+  width:100%;min-height:46px;padding:9px 11px;border-radius:11px;
+  display:flex;align-items:center;gap:9px;text-align:left;
+  font-size:13.5px;font-weight:500;color:var(--ink-2);
+  transition:background .13s,color .13s;
+}
+.pk-opt:hover{background:var(--surface-2);color:var(--ink)}
+.pk-opt[aria-selected="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.pk-tick{width:16px;height:16px;flex:none;margin-left:auto;opacity:0}
+.pk-opt[aria-selected="true"] .pk-tick{opacity:1}
+.pk-opt.pk-none{font-style:italic;color:var(--ink-3)}
+.pk-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pk-empty-msg{font-size:12.5px;color:var(--ink-3);padding:13px 11px;line-height:1.5}
+
+/* ---------- Calendar ---------- */
+.cal{
+  position:absolute;left:0;z-index:14;top:calc(100% + 6px);
+  width:290px;max-width:calc(100vw - 44px);
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:18px;box-shadow:var(--shadow-md), 0 16px 44px rgba(15,25,34,.18);
+  padding:12px;
+  animation:pkIn .18s cubic-bezier(.2,.7,.3,1);
+}
+.pop-up{top:auto !important;bottom:calc(100% + 6px)}
+.cal-head{display:flex;align-items:center;gap:4px;margin-bottom:9px}
+.cal-title{flex:1;text-align:center;font-size:13.5px;font-weight:600;letter-spacing:-.005em}
+.cal-nav{
+  width:32px;height:32px;border-radius:10px;flex:none;
+  display:grid;place-items:center;color:var(--ink-2);
+  transition:background .15s,color .15s;
+}
+.cal-nav:hover{background:var(--surface-2);color:var(--ink)}
+.cal-nav svg{width:16px;height:16px;stroke-width:2.1}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px}
+.cal-dow span{
+  text-align:center;font-size:9.5px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--ink-3);padding:4px 0;
+}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-d{
+  aspect-ratio:1;border-radius:11px;
+  display:grid;place-items:center;
+  font-size:13px;font-weight:500;color:var(--ink-2);
+  font-family:var(--mono);
+  transition:background .13s,color .13s,transform .12s;
+}
+.cal-d:hover{background:var(--surface-2);color:var(--ink)}
+.cal-d:active{transform:scale(.9)}
+.cal-d.out{color:var(--ink-3);opacity:.4}
+.cal-d.today{color:var(--accent);font-weight:700;box-shadow:inset 0 0 0 1.5px var(--accent)}
+.cal-d.sel{
+  background:linear-gradient(135deg,var(--accent-mid),var(--accent));
+  color:var(--accent-ink);font-weight:700;box-shadow:var(--shadow-sm);
+}
+.cal-foot{display:flex;gap:6px;margin-top:9px}
+.cal-foot button{
+  flex:1;padding:9px;border-radius:11px;font-size:12.5px;font-weight:600;
+  background:var(--surface-2);color:var(--ink-2);transition:background .15s,color .15s;
+}
+.cal-foot button:hover{background:var(--surface-sunk);color:var(--ink)}
+
+/* Settings is a menu first, one topic at a time second - the flat list of a
+   dozen groups had grown past what a phone screen can hold. Two tiles to a row
+   fits every topic on one screen. */
+#setMenu{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start}
+.setrow{
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  padding:14px 13px;border-radius:16px;text-align:left;min-height:116px;
+  background:var(--surface-2);border:1px solid var(--line);
+  transition:background .15s,border-color .15s,transform .12s;
+}
+.setrow:hover{background:var(--surface-sunk);border-color:var(--line-strong)}
+.setrow:active{transform:scale(.97)}
+.setrow .sr-ic{
+  width:38px;height:38px;border-radius:12px;flex:none;
+  display:grid;place-items:center;
+  background:var(--accent-soft);color:var(--accent);
+}
+.setrow .sr-ic svg{width:20px;height:20px}
+.setrow .sr-t{display:flex;flex-direction:column;gap:2px;min-width:0;width:100%}
+.setrow .sr-t b{font-size:13.5px;font-weight:600;letter-spacing:-.005em;line-height:1.25}
+.setrow .sr-t span{font-size:11px;color:var(--ink-3);line-height:1.35}
+.setrow .sr-go{display:none}
+.setpane{animation:paneIn .26s cubic-bezier(.2,.7,.3,1)}
+@keyframes paneIn{
+  from{opacity:0;transform:translateX(14px)}
+  to{opacity:1;transform:none}
+}
+.setback{flex:none;margin-left:-6px}
+
+.acctlist{display:flex;flex-direction:column;gap:6px;margin-top:9px}
+.acctrow{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 10px 9px 12px;border-radius:11px;
+  background:var(--surface-2);border:1px solid var(--line);
+}
+.acctrow .ar-n{display:flex;align-items:baseline;gap:7px;flex:1;min-width:0}
+.acctrow .ar-n b{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acctrow .ar-k{
+  font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  color:var(--ink-3);flex:none;
+}
+.acctrow .ar-u{font-size:11px;color:var(--ink-3);flex:none}
+.acctrow .ar-x{
+  width:26px;height:26px;border-radius:8px;flex:none;
+  display:grid;place-items:center;color:var(--ink-3);
+}
+.acctrow .ar-x:hover{background:var(--neg-soft);color:var(--neg)}
 
 .btn{
   width:100%;padding:13px;border-radius:var(--r-md);
@@ -1198,11 +1423,9 @@ html.locked #lockScreen::before{
 
 <div class="shell">
   <header class="topbar">
-    <div class="brand">
-      <b>பணப்பை</b><span>EUR</span>
-    </div>
-    <button class="iconbtn" id="btnRules" title="Recurring entries" aria-label="Recurring entries">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg>
+    <button class="brand" id="btnBrand" type="button" title="Go to this month's dashboard">
+      <span class="brand-top"><b>பணப்பை</b><span class="brand-cur">EUR</span></span>
+      <span class="brand-hi" id="brandHi" hidden></span>
     </button>
     <button class="iconbtn" id="btnEye" title="Show amounts" aria-label="Show amounts" aria-pressed="false">
       <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg>
@@ -1218,25 +1441,12 @@ html.locked #lockScreen::before{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
     <div class="mlabel" id="mLabel" aria-live="polite"></div>
+    <button class="nowbtn" id="btnNow" type="button" hidden>Today</button>
     <button class="iconbtn" id="nextM" aria-label="Next month">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
   </nav>
 
-  <div class="viewtog" id="viewTog" role="tablist">
-    <button role="tab" data-view="dash" aria-selected="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-      Dashboard
-    </button>
-    <button role="tab" data-view="entries" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
-      வரவு செலவு
-    </button>
-    <button role="tab" data-view="shop" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 11.4a2 2 0 002 1.6h7.8a2 2 0 002-1.6L21 7H6.2"/></svg>
-      Shopping cart
-    </button>
-  </div>
 
   <div id="viewDash">
     <section class="balcard" id="balCard" hidden>
@@ -1367,7 +1577,7 @@ html.locked #lockScreen::before{
       </div>
       <div class="sf-row">
         <label class="sf-k" for="shopDate">Purchased on</label>
-        <input class="inp sf-date" id="shopDate" type="date">
+        <input class="sf-date" id="shopDate" type="date">
       </div>
       <label class="sf-check">
         <input type="checkbox" id="shopLogExpense" checked>
@@ -1384,10 +1594,34 @@ html.locked #lockScreen::before{
 
   <div class="spacer"></div>
 
-  <div class="dock">
-    <button class="addbtn" id="btnAdd" style="flex:1">
+  <div class="fabwrap" id="fabWrap">
+    <div class="fabmenu" id="fabMenu" hidden>
+      <button class="fabopt in" type="button" data-t="income">
+        <span class="fo-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg></span>
+        Income
+      </button>
+      <button class="fabopt out" type="button" data-t="expense">
+        <span class="fo-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg></span>
+        Expense
+      </button>
+    </div>
+    <button class="fab" id="btnAdd" type="button" aria-label="Add entry" aria-expanded="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-      Add entry
+    </button>
+  </div>
+
+  <div class="tabbar" id="viewTog" role="tablist">
+    <button role="tab" data-view="dash" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Dashboard
+    </button>
+    <button role="tab" data-view="entries" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      வரவு செலவு
+    </button>
+    <button role="tab" data-view="shop" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 11.4a2 2 0 002 1.6h7.8a2 2 0 002-1.6L21 7H6.2"/></svg>
+      Shopping cart
     </button>
   </div>
 </div>
@@ -1430,10 +1664,21 @@ html.locked #lockScreen::before{
       <label>Category</label>
       <div class="chips" id="eCats"></div>
     </div>
+    <div class="field" id="eFromWrap" hidden>
+      <label for="eFrom">From account</label>
+      <div class="pick" id="eFrom" role="listbox" aria-label="From account"></div>
+    </div>
+    <div class="field" id="eAcctWrap">
+      <label for="eAcct" id="eAcctLabel">Account</label>
+      <div class="pick" id="eAcct" role="listbox" aria-label="Account"></div>
+      <div class="note" id="eAcctNote" hidden style="margin-top:6px">
+        No accounts yet — add them in <b>Settings › Accounts</b>.
+      </div>
+    </div>
     <div class="row2">
       <div class="field">
         <label for="eDate">Date</label>
-        <input class="inp" id="eDate" type="date">
+        <input id="eDate" type="date">
       </div>
       <div class="field">
         <label>Status</label>
@@ -1445,15 +1690,7 @@ html.locked #lockScreen::before{
     </div>
     <div class="field">
       <label for="eFreq">Repeat</label>
-      <select class="inp" id="eFreq">
-        <option value="">Does not repeat</option>
-        <option value="weekly">Every week</option>
-        <option value="monthly">Every month</option>
-        <option value="bimonthly">Every 2 months</option>
-        <option value="quarterly">Every 3 months (quarterly)</option>
-        <option value="halfyearly">Every 6 months</option>
-        <option value="yearly">Every year</option>
-      </select>
+      <div class="pick" id="eFreq" role="listbox" aria-label="Repeat"></div>
     </div>
     <div class="field" id="repHint" style="display:none">
       <div class="note">Future entries are created automatically as <b>Planned</b>. Tick them off as you pay.</div>
@@ -1603,7 +1840,7 @@ html.locked #lockScreen::before{
     <div id="budRows" style="margin-top:12px"></div>
 
     <div class="budadd" id="budAddWrap">
-      <select class="inp" id="budPick" aria-label="Category to budget"></select>
+      <div class="pick" id="budPick" role="listbox" aria-label="Category to budget"></div>
       <button class="shopadd-b" id="budAdd" aria-label="Add this category">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -1611,7 +1848,7 @@ html.locked #lockScreen::before{
 
     <div class="field" style="margin-top:18px">
       <label for="budCatch">Everything else counts against</label>
-      <select class="inp" id="budCatch"></select>
+      <div class="pick" id="budCatch" role="listbox" aria-label="Everything else counts against"></div>
       <div class="note" style="margin-top:6px">
         Any expense that isn't a recurring bill and has no budget of its own is
         drawn from this one — so Education, a card payment or a shop you've no
@@ -1709,37 +1946,107 @@ html.locked #lockScreen::before{
 <!-- SETTINGS SHEET -->
 <section class="sheet" id="shSet" role="dialog" aria-modal="true" aria-labelledby="setTitle">
   <div class="sheet-head" style="position:relative">
-    <h2 id="setTitle">Settings &amp; backup</h2>
+    <button class="iconbtn setback" id="setBack" aria-label="Back to settings" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h2 id="setTitle">Settings</h2>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
   </div>
-  <div class="sheet-body">
-    <div class="field">
-      <label>Appearance</label>
-      <div class="toggle2" id="themeTog" style="grid-template-columns:repeat(3,1fr)">
-        <button class="a" data-v="system" aria-pressed="true">System</button>
-        <button class="a" data-v="light" aria-pressed="false">Light</button>
-        <button class="a" data-v="dark" aria-pressed="false">Dark</button>
+  <div class="sheet-body" id="setMenu">
+    <button class="setrow" type="button" data-pane="profile">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0115 0"/></svg></span>
+      <span class="sr-t"><b>Your profile</b><span>Name and email</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="accounts">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d='M3 9.5L12 4l9 5.5'/><path d='M5 10.5v7M9.7 10.5v7M14.3 10.5v7M19 10.5v7'/><path d='M3 20.5h18'/></svg></span>
+      <span class="sr-t"><b>Accounts</b><span>Where your money sits</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="rules">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg></span>
+      <span class="sr-t"><b>Recurring entries</b><span>Rent, salary, subscriptions</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="balance">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.4"/></svg></span>
+      <span class="sr-t"><b>Starting balance</b><span>What the account already holds</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="lock">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg></span>
+      <span class="sr-t"><b>App lock</b><span>PIN and recovery question</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="theme">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/></svg></span>
+      <span class="sr-t"><b>Appearance</b><span>Light, dark or system</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="github">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 00-1.3-3.2 4.3 4.3 0 00-.1-3.2s-1.1-.3-3.5 1.3a12 12 0 00-6.2 0C6.5 2.7 5.4 3 5.4 3a4.3 4.3 0 00-.1 3.2A4.6 4.6 0 004 9.4c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></span>
+      <span class="sr-t"><b>GitHub sync</b><span>Back up and move between devices</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="data">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></svg></span>
+      <span class="sr-t"><b>Data & backup</b><span>Import, copy, restore, wipe</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="about">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8h.01"/></svg></span>
+      <span class="sr-t"><b>About</b><span>Version and release notes</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body setpane" id="setPane_profile" hidden>
+<div class="field">
+      <div class="row2">
+        <input class="inp" id="pfFirst" type="text" placeholder="First name" autocomplete="given-name">
+        <input class="inp" id="pfLast" type="text" placeholder="Last name" autocomplete="family-name">
       </div>
+      <input class="inp" id="pfEmail" type="email" placeholder="Email address" autocomplete="email"
+             autocapitalize="none" spellcheck="false" style="margin-top:8px">
+      <button class="btn ghost sm" id="pfSave" style="margin-top:8px">Save profile</button>
+      <div class="note" style="margin-top:6px">Your first name greets you under the title.</div>
     </div>
-    <div class="field">
+  </div>
+  <div class="sheet-body setpane" id="setPane_accounts" hidden>
+<div class="field">
+      <div class="note">Where money sits. Every entry can say which account it moved through.</div>
+      <div class="acctlist" id="acctList"></div>
+      <input class="inp" id="acctName" type="text" placeholder="e.g. Commerzbank" autocomplete="off" style="margin-top:8px">
+      <div class="pick" id="acctKind" role="listbox" aria-label="Account type" style="margin-top:8px"></div>
+      <button class="btn ghost sm" id="acctAdd" style="margin-top:8px">Add account</button>
+    </div>
+  </div>
+  <div class="sheet-body setpane" id="setPane_rules" hidden>
+<div class="field">
+      <div class="note" id="rulesCount">—</div>
+      <button class="btn ghost sm" id="btnRules" style="margin-top:8px">Manage recurring entries</button>
+    </div>
+  </div>
+  <div class="sheet-body setpane" id="setPane_balance" hidden>
+<div class="field">
       <label for="balAmt">Money already in the account</label>
       <div class="note">
         What your account holds right now, as a starting point. The dashboard then tracks
         it forward: this balance, plus income received, minus expenses paid from that date on.
       </div>
-      <div style="display:flex;gap:7px;margin-top:8px">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
         <input class="inp" id="balAmt" type="text" inputmode="decimal" placeholder="€ 0,00" autocomplete="off" style="flex:1;text-align:right;font-family:var(--mono);font-weight:600">
-        <input class="inp" id="balDate" type="date" style="flex:none;width:160px">
+        <input id="balDate" type="date">
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
         <button class="btn ghost sm" id="balSave">Save balance</button>
         <button class="btn danger sm" id="balClear" hidden>Remove balance</button>
       </div>
     </div>
-    <div class="field">
-      <label>App lock</label>
+  </div>
+  <div class="sheet-body setpane" id="setPane_lock" hidden>
+<div class="field">
       <div class="note" id="lockStatus">Off — anyone with this device can open the app.</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
         <button class="btn ghost sm" id="lockSetPin">Set a 4-digit PIN</button>
@@ -1756,25 +2063,18 @@ html.locked #lockScreen::before{
       </div>
       <div class="note" style="margin-top:6px">Locks the screen only — it does not encrypt the data stored on this device.</div>
     </div>
-    <div class="field">
-      <label>Your data</label>
-      <div class="note" id="statLine">—</div>
-    </div>
-    <div class="field">
-      <label>Import a bank statement</label>
-      <button class="btn ghost sm" id="btnImport">Import CSV…</button>
-      <div class="note" style="margin-top:6px">Commerzbank and Deutsche Bank CSV exports, plus most other German bank formats.</div>
-    </div>
-    <div class="field">
-      <label>Backup</label>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="btn ghost sm" id="copyBackup">Copy backup to clipboard</button>
-        <textarea class="inp" id="restoreBox" placeholder="Paste a backup here to restore…"></textarea>
-        <button class="btn ghost sm" id="doRestore">Restore from pasted backup</button>
+  </div>
+  <div class="sheet-body setpane" id="setPane_theme" hidden>
+<div class="field">
+      <div class="toggle2" id="themeTog" style="grid-template-columns:repeat(3,1fr)">
+        <button class="a" data-v="system" aria-pressed="true">System</button>
+        <button class="a" data-v="light" aria-pressed="false">Light</button>
+        <button class="a" data-v="dark" aria-pressed="false">Dark</button>
       </div>
     </div>
-    <div class="field">
-      <label>GitHub sync</label>
+  </div>
+  <div class="sheet-body setpane" id="setPane_github" hidden>
+<div class="field">
       <div class="note" id="ghStatus">Off — data stays only in this browser.</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
         <div style="display:flex;gap:7px">
@@ -1797,31 +2097,37 @@ html.locked #lockScreen::before{
         never a broad classic token.
       </div>
     </div>
-    <div class="field">
+  </div>
+  <div class="sheet-body setpane" id="setPane_data" hidden>
+<div class="field">
+      <label>Your data</label>
+      <div class="note" id="statLine">—</div>
+    </div>
+<div class="field">
+      <label>Import a bank statement</label>
+      <button class="btn ghost sm" id="btnImport">Import CSV…</button>
+      <div class="note" style="margin-top:6px">Commerzbank and Deutsche Bank CSV exports, plus most other German bank formats.</div>
+    </div>
+<div class="field">
+      <label>Backup</label>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn ghost sm" id="copyBackup">Copy backup to clipboard</button>
+        <textarea class="inp" id="restoreBox" placeholder="Paste a backup here to restore…"></textarea>
+        <button class="btn ghost sm" id="doRestore">Restore from pasted backup</button>
+      </div>
+    </div>
+<div class="field">
       <label>Start over</label>
       <button class="btn danger sm" id="wipe">Delete all entries</button>
     </div>
     <div class="note" style="margin-top:6px">
-      Data lives in this browser on this device by default. Turn on GitHub sync above to also
-      keep a backup copy in your repo, or use the backup box to move data to another device by hand.
+      Data lives in this browser on this device by default. Turn on <b>Settings › GitHub sync</b>
+      to also keep a backup copy in your repo, or use the backup box above to move data to
+      another device by hand.
     </div>
-
-    <div class="field" style="margin-top:20px">
-      <label for="fbText">Leave a note</label>
-      <div class="note" id="fbStatus">—</div>
-      <textarea class="inp" id="fbText" style="min-height:82px;margin-top:8px" placeholder="Something to change, an idea, a bug you spotted…"></textarea>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-        <button class="btn ghost sm" id="fbSend">Save note</button>
-        <button class="btn ghost sm" id="fbRetry" hidden>Try sending again</button>
-      </div>
-      <div class="note" style="margin-top:6px">
-        Notes go to <b>FEEDBACK.md</b> in your synced repo, so they're waiting next
-        time we pick this up. Needs GitHub sync set up above.
-      </div>
-    </div>
-
-    <div class="field" style="margin-top:20px">
-      <label>About</label>
+  </div>
+  <div class="sheet-body setpane" id="setPane_about" hidden>
+<div class="field" style="margin-top:20px">
       <div class="aboutbox">
         <div class="ab-row"><span>பணப்பை</span><b id="abName">Expense tracker</b></div>
         <div class="ab-row"><span>Version</span><b id="abVersion">—</b></div>
@@ -1836,6 +2142,8 @@ html.locked #lockScreen::before{
     </div>
   </div>
 </section>
+  </div>
+</section>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -1846,8 +2154,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.0.11";
-const APP_BUILT = "2026-08-23";
+const APP_VERSION = "1.1.0";
+const APP_BUILT = "2026-08-24";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -1869,35 +2177,38 @@ const CATS = {
     {id:"groceries_de", n:"Groceries — German",  h:140},
     {id:"groceries_in", n:"Groceries — Indian",  h:36},
     {id:"nonveg",       n:"Non-Veg",             h:8},
-    /* noBudget: a fixed amount on a known date belongs in a recurring entry,
-       not an envelope you draw down unpredictably */
-    {id:"emi",          n:"EMI",                 h:248, noBudget:true},
+    {id:"transport",    n:"Transport",           h:255},
+    {id:"health",       n:"Health",              h:340},
+    {id:"dining",       n:"Dining",              h:22},
+    {id:"shopping",     n:"Shopping",            h:44},
+    {id:"education",    n:"Education",           h:174},
+    {id:"cash",         n:"Cash",                h:190},
+    {id:"cardpay",      n:"Credit Card Payment", h:264},
+    {id:"invest",       n:"Investment",          h:130},
+    {id:"topriya",      n:"To Priya",            h:330},
+    {id:"toindia",      n:"To India",            h:32},
     {id:"buffer",       n:"Misc",                h:288},
-    {id:"rent",      n:"Rent",      h:220},
-    {id:"utilities", n:"Utilities", h:196},
-    {id:"transport", n:"Transport", h:255},
-    {id:"insurance", n:"Insurance", h:280},
-    {id:"health",    n:"Health",    h:340},
-    {id:"dining",    n:"Dining",    h:22},
-    {id:"shopping",  n:"Shopping",  h:44},
-    {id:"subs",      n:"Subscriptions", h:310},
-    {id:"education", n:"Education", h:174},
-    {id:"family",    n:"Family",    h:6},
-    {id:"cash",      n:"Cash Withdrawal",   h:190},
-    {id:"cardpay",   n:"Credit card payment", h:264},
-    {id:"invest",    n:"Investment", h:130},
-    {id:"topriya",   n:"To Priya",   h:330},
-    {id:"toindia",   n:"To India",   h:32},
-    {id:"other",     n:"Other",      h:210}
+    /* retired: still label existing entries and recurring bills, but no longer
+       offered when adding, so the picker stays short. noBudget on EMI because a
+       fixed amount on a known date belongs in a recurring entry, not an envelope. */
+    {id:"emi",       n:"EMI",           h:248, noBudget:true, retired:true},
+    {id:"rent",      n:"Rent",          h:220, retired:true},
+    {id:"utilities", n:"Utilities",     h:196, retired:true},
+    {id:"insurance", n:"Insurance",     h:280, retired:true},
+    {id:"subs",      n:"Subscriptions", h:310, retired:true},
+    {id:"family",    n:"Family",        h:6,   retired:true},
+    {id:"other",     n:"Other",         h:210, retired:true}
   ],
   income: [
-    {id:"salary",     n:"Salary",      h:152},
-    {id:"kindergeld", n:"Kindergeld",  h:96},
-    {id:"freelance",  n:"Freelance",   h:196},
-    {id:"refund",     n:"Refund",      h:44},
-    {id:"interest",   n:"Interest",    h:255},
-    {id:"gift",       n:"Gift",        h:310},
-    {id:"other_in",   n:"Other",       h:210}
+    {id:"salary",       n:"Salary",        h:152},
+    {id:"banktransfer", n:"Bank Transfer", h:205},
+    {id:"refund",       n:"Refund",        h:44},
+    {id:"taxreturn",    n:"Tax return",    h:96},
+    {id:"gift",         n:"Gift",          h:310},
+    {id:"kindergeld", n:"Kindergeld", h:120, retired:true},
+    {id:"freelance",  n:"Freelance",  h:196, retired:true},
+    {id:"interest",   n:"Interest",   h:255, retired:true},
+    {id:"other_in",   n:"Other",      h:210, retired:true}
   ]
 };
 /* Built-ins above; anything the user adds lives in state.cats and is merged in
@@ -1907,6 +2218,8 @@ function customCats(type){
   return (state.cats && Array.isArray(state.cats[type])) ? state.cats[type] : [];
 }
 function allCats(type){ return CATS[type].concat(customCats(type)); }
+/** What the entry sheet offers. Retired built-ins still resolve for old entries. */
+function pickableCats(type){ return allCats(type).filter(c => !c.retired); }
 function refreshCats(){
   CAT_BY_ID = {};
   allCats("expense").concat(allCats("income")).forEach(c => { CAT_BY_ID[c.id] = c; });
@@ -1964,6 +2277,8 @@ const ICON = {
   refund:'<path d="M4 9h11a5.5 5.5 0 010 11H8.5"/><path d="M8.5 4.5L4 9l4.5 4.5"/>',
   interest:'<path d="M3 16.5l6-6 4 4 8-8"/><path d="M15.6 6.5H21V12"/>',
   gift:'<rect x="3" y="9.5" width="18" height="11" rx="2"/><path d="M2 9.5h20"/><path d="M12 9.5V20.5"/><path d="M12 9.5S9.6 4.2 7.2 5.6s1 3.9 4.8 3.9z"/><path d="M12 9.5s2.4-5.3 4.8-3.9-1 3.9-4.8 3.9z"/>',
+  banktransfer:'<rect x="2.5" y="9" width="19" height="10.5" rx="2"/><path d="M12 3.2L21.5 9h-19z"/><path d="M6.5 12.4v4M12 12.4v4M17.5 12.4v4"/>',
+  taxreturn:'<path d="M6 3h8.5L19 7.5V21H6z"/><path d="M14 3v4.5h5"/><path d="M9.5 16.5l5-5"/><path d="M10 12h.01M14 16h.01"/>',
   other_in:'<circle cx="5.6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.4" cy="12" r="1.3"/>'
 };
 function iconSvg(catId, size){
@@ -2127,12 +2442,13 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], shop:null, budgets:{}, catchAll:null, balance:null, cats:{ expense:[], income:[] } };
+let state = { v:1, txns:[], rules:[], skips:[], shop:null, budgets:{}, catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
 let editing = null;
 let draft = null;
+let freqLocked = false;
 let pending = null;
 
 function uid(){ return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
@@ -2155,6 +2471,33 @@ function normaliseCats(c){
   return { expense: ok(c && c.expense), income: ok(c && c.income) };
 }
 
+/** Accounts are where money sits; entries point at one by id. */
+function normaliseAccounts(a){
+  return (Array.isArray(a) ? a : []).filter(x => x && typeof x.id === "string" && typeof x.n === "string")
+    .map(x => ({ id:x.id, n:x.n, kind: x.kind === "cash" || x.kind === "card" ? x.kind : "bank" }));
+}
+function normaliseProfile(pr){
+  if (!pr || typeof pr !== "object") return null;
+  const t = v => (typeof v === "string" ? v.trim() : "");
+  const out = { first:t(pr.first), last:t(pr.last), email:t(pr.email) };
+  return (out.first || out.last || out.email) ? out : null;
+}
+/** வணக்கம் — a Tamil hello, shown under the title once a name is saved. */
+function renderGreeting(){
+  const el = document.getElementById("brandHi");
+  if (!el) return;
+  const first = state.profile && state.profile.first;
+  el.hidden = !first;
+  if (first) el.textContent = "வணக்கம் " + first;
+}
+function defaultAccountId(){
+  const a = accountsOf();
+  return a.length ? a[0].id : null;
+}
+function accountsOf(){ return Array.isArray(state.accounts) ? state.accounts : []; }
+function accountById(id){ return accountsOf().find(a => a.id === id) || null; }
+function accountName(id){ const a = accountById(id); return a ? a.n : ""; }
+
 /** Shopping lists were added after v1, so older saved states arrive without them. */
 function normaliseShop(s){
   const base = { lists:{ de:[], in:[] }, history:[] };
@@ -2166,6 +2509,18 @@ function normaliseShop(s){
     },
     history: Array.isArray(s.history) ? s.history : []
   };
+}
+
+/* Custom categories were saved but never read back before 1.0.8, so backups from
+   then carry entries pointing at c_* ids that no longer exist. Nothing can resolve
+   them, so they fold into the catch-all rather than rendering blank forever. */
+function migrateLostCats(){
+  const known = new Set(allCats("expense").concat(allCats("income")).map(c => c.id));
+  const lost = id => typeof id === "string" && id.indexOf("c_") === 0 && !known.has(id);
+  let n = 0;
+  state.txns.forEach(t => { if (lost(t.category)){ t.category = "buffer"; n++; } });
+  state.rules.forEach(r => { if (lost(r.category)){ r.category = "buffer"; n++; } });
+  if (n) try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
 }
 
 function load(){
@@ -2183,7 +2538,9 @@ function load(){
           budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
           catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
           balance: normaliseBalance(p.balance),
-          cats: normaliseCats(p.cats)
+          cats: normaliseCats(p.cats),
+          accounts: normaliseAccounts(p.accounts),
+          profile: normaliseProfile(p.profile)
         };
         if (p.demo) state.demo = true;
       }
@@ -2196,7 +2553,9 @@ function load(){
      Misc envelope counting only entries tagged Misc rather than absorbing the
      ad-hoc spending it's there for. */
   if (!state.catchAll && state.budgets && state.budgets.buffer > 0) state.catchAll = "buffer";
+  if (!Array.isArray(state.accounts)) state.accounts = [];
   migrateBalance();
+  migrateLostCats();
   refreshCats();
 }
 function save(){
@@ -2225,7 +2584,8 @@ function materialise(){
       existing.add(k);
       state.txns.push({
         id: uid(), type: rule.type, amount: rule.amount, category: rule.category,
-        note: rule.note, date: d, status:"planned", ruleId: rule.id
+        note: rule.note, date: d, status:"planned", ruleId: rule.id,
+        account: rule.account || null, fromAccount: rule.fromAccount || null
       });
     }
   });
@@ -2340,10 +2700,14 @@ function render(){
     a.date === b.date ? (a.status === b.status ? 0 : a.status === "planned" ? -1 : 1)
                       : (a.date < b.date ? 1 : -1));
 
+  const onNow = view === periodOf(todayISO());
   $("#mLabel").innerHTML = esc(periodTitle(view)) +
-    (view === periodOf(todayISO()) ? ' <span class="today-chip">Now</span>' : "");
+    (onNow ? ' <span class="today-chip">Now</span>' : "");
+  /* a way back once you've navigated off the current period */
+  $("#btnNow").hidden = onNow;
   /* kept in the layout, just not usable, so the title stays centred */
   $("#prevM").classList.toggle("nav-off", view <= FIRST_PERIOD);
+  renderGreeting();
 
   /* --- totals --- */
   let inDone = 0, inPlan = 0, outDone = 0, outPlan = 0;
@@ -2445,7 +2809,7 @@ function render(){
    ========================================================================= */
 
 /** Categories that can hold an envelope at all — see the noBudget note above. */
-function budgetableCats(){ return allCats("expense").filter(c => !c.noBudget); }
+function budgetableCats(){ return pickableCats("expense").filter(c => !c.noBudget); }
 
 /** Only categories carrying an amount are envelopes; the rest are untouched. */
 function budgetList(){
@@ -2654,7 +3018,7 @@ function renderBudRows(){
   chosen.forEach(c => {
     const row = el("div", "budrow");
     const ic = el("div", "br-ic");
-    ic.innerHTML = iconSvg(c.id, 15);
+    ic.innerHTML = iconSvg(c.id, 19);
     ic.style.background = tint(c.h, dark);
     ic.style.color = tintInk(c.h, dark);
     row.appendChild(ic);
@@ -2685,33 +3049,24 @@ function renderBudRows(){
 
   /* the picker offers only what isn't already listed */
   const remaining = budgetableCats().filter(c => !Object.prototype.hasOwnProperty.call(budDraft, c.id));
-  const pick = $("#budPick");
-  pick.innerHTML = "";
-  remaining.forEach(c => {
-    const o = document.createElement("option");
-    o.value = c.id;
-    o.textContent = c.n;
-    pick.appendChild(o);
-  });
+  if (!remaining.some(c => c.id === budPickId)) budPickId = remaining.length ? remaining[0].id : "";
+  renderChoice($("#budPick"),
+    remaining.map(c => ({ v:c.id, n:c.n, ic:iconSvg(c.id, 16) })),
+    budPickId, v => { budPickId = v; budCapture(); renderBudRows(); });
   $("#budAddWrap").hidden = remaining.length === 0;
 
   /* the catch-all can only be one of the envelopes actually being budgeted */
-  const sel = $("#budCatch");
-  const prev = sel.value || state.catchAll || "";
-  sel.innerHTML = "";
-  const none = document.createElement("option");
-  none.value = ""; none.textContent = "Nothing — each budget stands alone";
-  sel.appendChild(none);
-  chosen.forEach(c => {
-    const o = document.createElement("option");
-    o.value = c.id; o.textContent = c.n;
-    sel.appendChild(o);
-  });
-  sel.value = chosen.some(c => c.id === prev) ? prev : "";
+  if (!chosen.some(c => c.id === budCatchId)) budCatchId = "";
+  renderChoice($("#budCatch"),
+    [{ v:"", n:"Nothing — each stands alone", none:true }]
+      .concat(chosen.map(c => ({ v:c.id, n:c.n, ic:iconSvg(c.id, 16) }))),
+    budCatchId, v => { budCatchId = v; budCapture(); renderBudRows(); });
 }
 
+let budPickId = "", budCatchId = "";
 function openBudgetEditor(){
   budDraft = {};
+  budCatchId = state.catchAll || "";
   budgetableCats().forEach(c => {
     const cur = state.budgets[c.id] || 0;
     if (cur > 0) budDraft[c.id] = (cur / 100).toFixed(2).replace(".", ",");
@@ -2723,7 +3078,7 @@ $("#budgetEdit").addEventListener("click", openBudgetEditor);
 $("#budgetStart").addEventListener("click", openBudgetEditor);
 
 $("#budAdd").addEventListener("click", () => {
-  const id = $("#budPick").value;
+  const id = budPickId;
   if (!id) return;
   budCapture();
   budDraft[id] = "";
@@ -2740,7 +3095,7 @@ $("#budSave").addEventListener("click", () => {
     if (cents > 0) next[id] = cents;
   });
   state.budgets = next;
-  const catch_ = $("#budCatch").value;
+  const catch_ = budCatchId;
   state.catchAll = (catch_ && next[catch_]) ? catch_ : null;
   save(); render(); sheetClose();
   const n = Object.keys(next).length;
@@ -2769,108 +3124,6 @@ function renderAbout(){
     })
     .catch(() => {});
 }
-
-/* =========================================================================
-   FEEDBACK NOTES
-   Jotted on the phone, parked in FEEDBACK.md in the synced repo. Notes are
-   queued locally first and only cleared once GitHub has them, so writing one
-   offline — or with sync not yet set up — never loses it.
-   ========================================================================= */
-const FB_KEY = "panappai.feedback.pending";
-const FB_PATH = "FEEDBACK.md";
-
-function fbPending(){
-  try{ const a = JSON.parse(localStorage.getItem(FB_KEY) || "[]"); return Array.isArray(a) ? a : []; }
-  catch(e){ return []; }
-}
-function fbSetPending(a){
-  try{ localStorage.setItem(FB_KEY, JSON.stringify(a)); }catch(e){}
-}
-
-function renderFeedback(){
-  const n = fbPending().length;
-  const configured = !!(localStorage.getItem(GH_TOKEN_KEY) && localStorage.getItem(GH_REPO_KEY));
-  const st = $("#fbStatus");
-  if (!configured){
-    st.textContent = n
-      ? n + " note" + (n === 1 ? "" : "s") + " saved here — set up GitHub sync above to send them."
-      : "Set up GitHub sync above and your notes will be sent to the repo.";
-  } else if (n){
-    st.textContent = n + " note" + (n === 1 ? "" : "s") + " waiting to send.";
-  } else {
-    st.textContent = "Notes go to the repo as you write them.";
-  }
-  $("#fbRetry").hidden = !(n && configured);
-}
-
-async function fbFlush(){
-  const pending = fbPending();
-  if (!pending.length) return;
-  const token = localStorage.getItem(GH_TOKEN_KEY) || "";
-  const repo = localStorage.getItem(GH_REPO_KEY) || "";
-  if (!token || !repo || !GH_REPO_RE.test(repo)) return;
-
-  const st = $("#fbStatus");
-  st.textContent = "Sending…";
-  try{
-    const api = "https://api.github.com/repos/" + repo + "/contents/" + FB_PATH;
-    let sha = null, existing = "# Notes\n";
-    const get = await fetch(api, { headers: ghHeaders(token), cache:"no-store" });
-    if (get.ok){
-      const meta = await get.json();
-      sha = meta.sha;
-      existing = decodeURIComponent(escape(atob(String(meta.content || "").replace(/\s/g, ""))));
-    } else if (get.status !== 404){
-      throw new Error(await ghExplain(get));
-    }
-
-    const block = pending.map(p =>
-      "## " + p.at + " · v" + p.version + "\n" + p.text + "\n"
-    ).join("\n");
-
-    /* newest first, under whatever intro the file already carries */
-    const at = existing.indexOf("\n## ");
-    const next = at === -1
-      ? existing.trimEnd() + "\n\n" + block
-      : existing.slice(0, at + 1) + block + "\n" + existing.slice(at + 1);
-
-    const put = await fetch(api, {
-      method:"PUT",
-      headers: Object.assign({ "Content-Type":"application/json" }, ghHeaders(token)),
-      body: JSON.stringify({
-        message: "Note from the app — " + new Date().toISOString(),
-        content: b64EncodeUtf8(next),
-        sha: sha || undefined
-      })
-    });
-    if (!put.ok) throw new Error(await ghExplain(put));
-
-    fbSetPending([]);
-    renderFeedback();
-    toast("Note sent");
-  }catch(e){
-    const msg = (e && e.message) ? e.message : "unknown error";
-    st.textContent = "Couldn't send · " + (/^\d/.test(msg) ? msg : "no connection — it's saved and will go next time.");
-    $("#fbRetry").hidden = false;
-  }
-}
-
-$("#fbSend").addEventListener("click", () => {
-  const text = $("#fbText").value.trim();
-  if (!text){ toast("Write something first"); return; }
-  const list = fbPending();
-  list.push({
-    at: new Date().toLocaleString("en-GB", { dateStyle:"medium", timeStyle:"short" }),
-    version: APP_VERSION,
-    text: text
-  });
-  fbSetPending(list);
-  $("#fbText").value = "";
-  renderFeedback();
-  toast("Note saved");
-  fbFlush();
-});
-$("#fbRetry").addEventListener("click", fbFlush);
 
 /** Parses just the two shapes RELEASES.md uses: "## 1.2.3 — date" and "- item". */
 function parseReleases(md){
@@ -2979,10 +3232,79 @@ $("#balClear").addEventListener("click", () => {
   save(); renderBalanceSettings(); render();
   toast("Balance removed");
 });
+function renderProfileSettings(){
+  const pr = state.profile || { first:"", last:"", email:"" };
+  $("#pfFirst").value = pr.first || "";
+  $("#pfLast").value = pr.last || "";
+  $("#pfEmail").value = pr.email || "";
+}
+$("#pfSave").addEventListener("click", () => {
+  const email = $("#pfEmail").value.trim();
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    toast("That email doesn't look right"); $("#pfEmail").focus(); return;
+  }
+  state.profile = normaliseProfile({
+    first: $("#pfFirst").value, last: $("#pfLast").value, email: email
+  });
+  save(); renderGreeting();
+  toast(state.profile ? "Profile saved" : "Profile cleared");
+});
+
+const ACCT_KIND = { bank:"Bank", card:"Card", cash:"Cash" };
+let acctKind = "bank";
+function renderAcctKind(){
+  renderChoice($("#acctKind"),
+    Object.keys(ACCT_KIND).map(k => ({ v:k, n:ACCT_KIND[k], ic:ACCT_ICON[k] })),
+    acctKind, v => { acctKind = v; renderAcctKind(); });
+}
+function renderAccountSettings(){
+  renderAcctKind();
+  const host = $("#acctList");
+  host.innerHTML = "";
+  const list = accountsOf();
+  if (!list.length){
+    host.innerHTML = '<div class="note" style="margin-top:8px">No accounts yet.</div>';
+    return;
+  }
+  list.forEach(a => {
+    const row = el("div", "acctrow");
+    const name = el("div", "ar-n");
+    name.appendChild(el("b", null, a.n));
+    name.appendChild(el("span", "ar-k", ACCT_KIND[a.kind] || "Bank"));
+    row.appendChild(name);
+    const used = state.txns.filter(t => t.account === a.id || t.fromAccount === a.id).length;
+    if (used) row.appendChild(el("span", "ar-u", used + " entr" + (used === 1 ? "y" : "ies")));
+    const del = el("button", "ar-x");
+    del.type = "button";
+    del.setAttribute("aria-label", "Remove " + a.n);
+    del.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+    del.addEventListener("click", () => {
+      /* an account still on entries would leave them pointing at nothing */
+      if (used){ toast("Used by " + used + " entr" + (used === 1 ? "y" : "ies") + " — retag those first"); return; }
+      state.accounts = accountsOf().filter(x => x.id !== a.id);
+      save(); renderAccountSettings(); toast("Account removed");
+    });
+    row.appendChild(del);
+    host.appendChild(row);
+  });
+}
+$("#acctAdd").addEventListener("click", () => {
+  const n = $("#acctName").value.trim();
+  if (!n){ toast("Give the account a name"); $("#acctName").focus(); return; }
+  if (accountsOf().some(a => a.n.toLowerCase() === n.toLowerCase())){
+    toast("You already have an account with that name"); return;
+  }
+  state.accounts = accountsOf().concat([{ id:"a_" + uid(), n:n, kind:acctKind }]);
+  save();
+  $("#acctName").value = "";
+  renderAccountSettings();
+  toast("Account added");
+});
+
 function renderBalanceSettings(){
   const b = balanceSetting();
   $("#balAmt").value = b ? (b.amount / 100).toFixed(2).replace(".", ",") : "";
-  $("#balDate").value = b ? b.date : todayISO();
+  setDateVal("#balDate", b ? b.date : todayISO());
   $("#balClear").hidden = !b;
 }
 
@@ -3216,18 +3538,20 @@ function renderCatChips(){
   const host = $("#eCats");
   host.innerHTML = "";
   const dark = isDark();
-  allCats(draft.type).forEach(c => {
+  pickableCats(draft.type).forEach(c => {
     const b = el("button", "chip");
     b.type = "button";
     const ic = el("span", "cic");
-    ic.innerHTML = iconSvg(c.id, 15);
+    ic.innerHTML = iconSvg(c.id, 19);
     ic.style.color = draft.category === c.id ? "currentColor" : tintInk(c.h, dark);
     b.appendChild(ic);
     b.appendChild(el("span", null, c.n));
     b.setAttribute("aria-pressed", String(draft.category === c.id));
     b.addEventListener("click", () => {
       draft.category = c.id;
+      if (draft.category !== "banktransfer") draft.fromAccount = null;
       renderCatChips();
+      renderAccountFields();
     });
     host.appendChild(b);
   });
@@ -3235,9 +3559,302 @@ function renderCatChips(){
   /* trailing chip so a missing category can be made where it's noticed */
   const add = el("button", "chip chip-add");
   add.type = "button";
-  add.innerHTML = '<span class="cic"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span>New category</span>';
+  add.innerHTML = '<span class="cic"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span>New category</span>';
   add.addEventListener("click", () => openCatAdd(draft.type));
   host.appendChild(add);
+}
+
+const TICK_SVG = '<svg class="pk-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+const CHEV_SVG = '<svg class="pk-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+
+/* Only one picker or calendar may be open at a time. */
+let openPop = null;
+function closePop(){
+  if (!openPop) return;
+  openPop.host.classList.remove("open");
+  if (openPop.node && openPop.node.parentNode) openPop.node.parentNode.removeChild(openPop.node);
+  openPop = null;
+}
+document.addEventListener("click", e => {
+  if (openPop && !openPop.host.contains(e.target)) closePop();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && openPop) closePop(); });
+
+/**
+ * Sheets scroll their own body, so a popover hanging below the fold is simply
+ * clipped. Flip it above the field when there's room up there, and otherwise
+ * scroll it into view.
+ */
+function placePop(host, node){
+  const box = host.closest(".sheet-body");
+  const limit = box ? box.getBoundingClientRect() : { top:0, bottom:window.innerHeight };
+  const hostR = host.getBoundingClientRect();
+  let r = node.getBoundingClientRect();
+
+  /* flip above when it won't fit below but will fit above */
+  if (r.bottom > limit.bottom - 8 && hostR.top - r.height - 8 > limit.top){
+    node.classList.add("pop-up");
+    r = node.getBoundingClientRect();
+  }
+  if (!box) return;
+  /* whichever way it ended up, bring it fully inside */
+  if (r.bottom > limit.bottom - 8) box.scrollTop += (r.bottom - limit.bottom) + 12;
+  else if (r.top < limit.top + 8) box.scrollTop -= (limit.top - r.top) + 12;
+}
+
+/** Fades whichever end of the list still has rows behind it. */
+function pkFade(list){
+  const top = list.scrollTop <= 2;
+  const bottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 2;
+  list.classList.toggle("at-top", top);
+  list.classList.toggle("at-bottom", bottom);
+}
+
+/**
+ * Paints a picker into `host`.
+ * opts: [{v, n, ic?, none?}] - onPick receives the chosen value.
+ */
+function renderChoice(host, opts, value, onPick){
+  host.classList.add("pick");
+  host.classList.remove("open");
+  host.innerHTML = "";
+
+  const chosen = opts.find(o => o.v === value && !o.none);
+  const btn = el("button", "pk-btn");
+  btn.type = "button";
+  btn.setAttribute("aria-haspopup", "listbox");
+  if (chosen && chosen.ic){
+    const i = el("span", "pk-ic");
+    i.innerHTML = chosen.ic;
+    btn.appendChild(i);
+  }
+  const lab = el("span", "pk-lab");
+  if (chosen){
+    lab.textContent = chosen.n;
+  } else {
+    const blank = opts.find(o => o.none);
+    lab.textContent = blank ? blank.n : (host.dataset.empty || "Choose...");
+    lab.classList.add("pk-empty");
+  }
+  btn.appendChild(lab);
+  btn.insertAdjacentHTML("beforeend", CHEV_SVG);
+  host.appendChild(btn);
+
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    if (openPop && openPop.host === host){ closePop(); return; }
+    closePop();
+    host.classList.add("open");
+
+    const wrap = el("div", "pk-wrap");
+    const list = el("div", "pk-list");
+    list.setAttribute("role", "listbox");
+
+    if (!opts.length){
+      list.appendChild(el("div", "pk-empty-msg", host.dataset.empty || "Nothing to choose from yet."));
+    }
+    opts.forEach(o => {
+      const b = el("button", "pk-opt" + (o.none ? " pk-none" : ""));
+      b.type = "button";
+      b.setAttribute("role", "option");
+      b.setAttribute("aria-selected", String(o.v === value));
+      if (o.ic){
+        const i = el("span", "pk-ic");
+        i.innerHTML = o.ic;
+        b.appendChild(i);
+      }
+      b.appendChild(el("span", "pk-t", o.n));
+      b.insertAdjacentHTML("beforeend", TICK_SVG);
+      b.addEventListener("click", ev => {
+        ev.stopPropagation();
+        closePop();
+        onPick(o.v);
+      });
+      list.appendChild(b);
+    });
+
+    wrap.appendChild(list);
+    host.appendChild(wrap);
+    openPop = { host: host, node: wrap };
+
+    placePop(host, wrap);
+    list.addEventListener("scroll", () => pkFade(list));
+    /* only scroll when the choice is actually below the fold, so a selection
+       near the top doesn't leave the list nudged off zero and wearing a fade */
+    const sel = list.querySelector('[aria-selected="true"]');
+    if (sel && sel.offsetTop + sel.offsetHeight > list.clientHeight){
+      list.scrollTop = Math.max(0, sel.offsetTop - 46);
+    }
+    pkFade(list);
+  });
+}
+
+/* =========================================================================
+   CALENDAR - a month grid instead of the browser's own date control, which
+   looks different on every platform and cannot be themed.
+   ========================================================================= */
+const CAL_DOW = ["Mo","Tu","We","Th","Fr","Sa","Su"];
+const CAL_MONTHS = ["January","February","March","April","May","June",
+  "July","August","September","October","November","December"];
+
+function isoOf(y, m, d){
+  return String(y) + "-" + String(m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+}
+function prettyDate(iso){
+  if (!iso) return "";
+  const parts = iso.split("-").map(Number);
+  return String(parts[2]).padStart(2, "0") + " " + CAL_MONTHS[parts[1] - 1].slice(0, 3) + " " + parts[0];
+}
+
+/**
+ * Turns an <input type="date"> into a themed button plus month grid. The input
+ * is kept (hidden) so every existing .value read and write still works; call
+ * setDateVal() when writing one from code so the button label follows.
+ */
+function attachCalendar(input){
+  const host = el("div", "pick cal-host");
+  input.parentNode.insertBefore(host, input);
+  host.appendChild(input);
+  input.hidden = true;
+
+  const btn = el("button", "pk-btn");
+  btn.type = "button";
+  btn.innerHTML =
+    '<span class="pk-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>' +
+    '<span class="pk-lab"></span>' + CHEV_SVG;
+  host.appendChild(btn);
+
+  const lab = btn.querySelector(".pk-lab");
+  function refresh(){
+    const v = input.value;
+    lab.textContent = v ? prettyDate(v) : "Pick a date";
+    lab.classList.toggle("pk-empty", !v);
+  }
+  input._refresh = refresh;
+  refresh();
+
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    if (openPop && openPop.host === host){ closePop(); return; }
+    closePop();
+    host.classList.add("open");
+
+    const start = (input.value || todayISO()).split("-").map(Number);
+    let vy = start[0], vm = start[1] - 1;
+
+    const cal = el("div", "cal");
+    host.appendChild(cal);
+    openPop = { host: host, node: cal };
+
+    function choose(iso){
+      input.value = iso;
+      refresh();
+      closePop();
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    function paint(){
+      cal.innerHTML = "";
+      const head = el("div", "cal-head");
+      const prev = el("button", "cal-nav");
+      prev.type = "button";
+      prev.setAttribute("aria-label", "Previous month");
+      prev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+      prev.addEventListener("click", ev => { ev.stopPropagation(); vm--; if (vm < 0){ vm = 11; vy--; } paint(); });
+      const title = el("div", "cal-title", CAL_MONTHS[vm] + " " + vy);
+      const next = el("button", "cal-nav");
+      next.type = "button";
+      next.setAttribute("aria-label", "Next month");
+      next.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+      next.addEventListener("click", ev => { ev.stopPropagation(); vm++; if (vm > 11){ vm = 0; vy++; } paint(); });
+      head.appendChild(prev); head.appendChild(title); head.appendChild(next);
+      cal.appendChild(head);
+
+      const dow = el("div", "cal-dow");
+      CAL_DOW.forEach(d => dow.appendChild(el("span", null, d)));
+      cal.appendChild(dow);
+
+      const grid = el("div", "cal-grid");
+      /* Monday-first, matching how the rest of the app reads dates */
+      const lead = (new Date(vy, vm, 1).getDay() + 6) % 7;
+      const days = new Date(vy, vm + 1, 0).getDate();
+      const prevDays = new Date(vy, vm, 0).getDate();
+      const today = todayISO();
+
+      for (let i = 0; i < lead; i++){
+        const d = prevDays - lead + 1 + i;
+        const b = el("button", "cal-d out", String(d));
+        b.type = "button";
+        const pm = vm === 0 ? 11 : vm - 1, py = vm === 0 ? vy - 1 : vy;
+        b.addEventListener("click", ev => { ev.stopPropagation(); choose(isoOf(py, pm, d)); });
+        grid.appendChild(b);
+      }
+      for (let d = 1; d <= days; d++){
+        const iso = isoOf(vy, vm, d);
+        const cls = "cal-d" + (iso === input.value ? " sel" : (iso === today ? " today" : ""));
+        const b = el("button", cls, String(d));
+        b.type = "button";
+        b.addEventListener("click", ev => { ev.stopPropagation(); choose(iso); });
+        grid.appendChild(b);
+      }
+      const tail = (7 - ((lead + days) % 7)) % 7;
+      for (let i = 1; i <= tail; i++){
+        const b = el("button", "cal-d out", String(i));
+        b.type = "button";
+        const nm = vm === 11 ? 0 : vm + 1, ny = vm === 11 ? vy + 1 : vy;
+        b.addEventListener("click", ev => { ev.stopPropagation(); choose(isoOf(ny, nm, i)); });
+        grid.appendChild(b);
+      }
+      cal.appendChild(grid);
+
+      const foot = el("div", "cal-foot");
+      const tBtn = el("button", null, "Today");
+      tBtn.type = "button";
+      tBtn.addEventListener("click", ev => { ev.stopPropagation(); choose(today); });
+      foot.appendChild(tBtn);
+      cal.appendChild(foot);
+      placePop(host, cal);
+    }
+    paint();
+  });
+}
+
+/** Set a date field from code and keep its button label in step. */
+function setDateVal(sel, iso){
+  const n = $(sel);
+  n.value = iso;
+  if (n._refresh) n._refresh();
+}
+
+/** Fills a picker with the saved accounts, keeping `sel` chosen if it's still there. */
+const ACCT_ICON = {
+  bank:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 4l9 5.5"/><path d="M5 10.5v7M9.7 10.5v7M14.3 10.5v7M19 10.5v7"/><path d="M3 20.5h18"/></svg>',
+  card:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19"/><path d="M6 14.5h4"/></svg>',
+  cash:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><circle cx="12" cy="12" r="2.4"/></svg>'
+};
+function fillAccountSelect(node, sel, placeholder){
+  const list = accountsOf();
+  node.dataset.empty = "No accounts yet — add them in Settings › Accounts.";
+  const opts = list.map(a => ({ v:a.id, n:a.n, ic:ACCT_ICON[a.kind] || ACCT_ICON.bank }));
+  if (opts.length) opts.unshift({ v:"", n:placeholder, none:true });
+  renderChoice(node, opts, list.some(a => a.id === sel) ? sel : "", v => {
+    const isFrom = node.id === "eFrom";
+    if (isFrom) draft.fromAccount = v || null; else draft.account = v || null;
+    renderAccountFields();
+  });
+}
+
+/* Bank Transfer income is money arriving from another account of yours, so it
+   needs both ends; everything else only needs the account it touched. */
+function renderAccountFields(){
+  const wantsFrom = draft.type === "income" && draft.category === "banktransfer";
+  $("#eFromWrap").hidden = !wantsFrom;
+  if (wantsFrom) fillAccountSelect($("#eFrom"), draft.fromAccount, "Choose the sending account…");
+  $("#eAcctLabel").textContent =
+    draft.type === "income" ? (wantsFrom ? "To account" : "Paid into") : "Paid from";
+  fillAccountSelect($("#eAcct"), draft.account,
+    draft.type === "income" ? "Choose where it landed…" : "Choose where it came from…");
+  $("#eAcctNote").hidden = true;   /* the rail says so itself when empty */
 }
 
 /* ---------- adding a category ---------- */
@@ -3264,7 +3881,7 @@ function renderCatManage(){
   mine.forEach(c => {
     const row = el("div", "budrow");
     const ic = el("div", "br-ic");
-    ic.innerHTML = iconSvg(c.id, 15);
+    ic.innerHTML = iconSvg(c.id, 19);
     ic.style.background = tint(c.h, dark);
     ic.style.color = tintInk(c.h, dark);
     row.appendChild(ic);
@@ -3314,51 +3931,87 @@ function syncEntryUI(){
   $$("#eType button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === draft.type)));
   $$("#eStatus button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === draft.status)));
   $("#amtWrap").className = "amtfield " + (draft.type === "income" ? "in" : "out");
-  $("#repHint").style.display = $("#eFreq").value ? "" : "none";
   renderCatChips();
 }
-function openEntry(txn){
+function openEntry(txn, type){
   editing = txn || null;
   if (txn){
     draft = {
-      type: txn.type, category: txn.category, status: txn.status
+      type: txn.type, category: txn.category, status: txn.status,
+      account: txn.account || null, fromAccount: txn.fromAccount || null
     };
     $("#entryTitle").textContent = "Edit entry";
     $("#eAmt").value = (txn.amount / 100).toFixed(2).replace(".", ",");
     $("#eNote").value = txn.note || "";
-    $("#eDate").value = txn.date;
-    $("#eFreq").value = "";
-    $("#eFreq").disabled = !!txn.ruleId;
+    setDateVal("#eDate", txn.date);
+    draft.freq = "";
+    freqLocked = !!txn.ruleId;
     $("#eDeleteWrap").style.display = "";
     $("#eSave").textContent = "Save changes";
   } else {
-    draft = { type:"expense", category:"groceries_de", status:"done" };
+    const t = type === "income" ? "income" : "expense";
+    draft = { type:t, category: pickableCats(t)[0].id, status:"done",
+              account: defaultAccountId(), fromAccount:null };
     $("#entryTitle").textContent = "New entry";
     $("#eAmt").value = "";
     $("#eNote").value = "";
-    $("#eDate").value = view === periodOf(todayISO()) ? todayISO() : periodStart(view);
-    $("#eFreq").value = "";
-    $("#eFreq").disabled = false;
+    setDateVal("#eDate", view === periodOf(todayISO()) ? todayISO() : periodStart(view));
+    draft.freq = "";
+    freqLocked = false;
     $("#eDeleteWrap").style.display = "none";
     $("#eSave").textContent = "Save entry";
   }
   syncEntryUI();
+  renderAccountFields();
+  renderFreq();
   sheetOpen("#shEntry");
   if (!txn) setTimeout(() => $("#eAmt").focus(), 340);
 }
-$("#btnAdd").addEventListener("click", () => openEntry(null));
+function fabClose(){
+  $("#fabMenu").hidden = true;
+  $("#btnAdd").setAttribute("aria-expanded", "false");
+}
+$("#btnAdd").addEventListener("click", e => {
+  e.stopPropagation();
+  const open = $("#fabMenu").hidden;
+  $("#fabMenu").hidden = !open;
+  $("#btnAdd").setAttribute("aria-expanded", String(open));
+});
+$$("#fabMenu .fabopt").forEach(b => b.addEventListener("click", () => {
+  fabClose();
+  openEntry(null, b.dataset.t);
+}));
+document.addEventListener("click", e => {
+  if (!$("#fabMenu").hidden && !$("#fabWrap").contains(e.target)) fabClose();
+});
 $$("#eType button").forEach(b => b.addEventListener("click", () => {
   draft.type = b.dataset.v;
-  draft.category = CATS[draft.type][0].id;
+  draft.category = pickableCats(draft.type)[0].id;
+  draft.fromAccount = null;
   syncEntryUI();
+  renderAccountFields();
 }));
 $$("#eStatus button").forEach(b => b.addEventListener("click", () => {
   draft.status = b.dataset.v;
   syncEntryUI();
 }));
-$("#eFreq").addEventListener("change", () => {
-  $("#repHint").style.display = $("#eFreq").value ? "" : "none";
-});
+const FREQ_OPTS = [
+  { v:"", n:"Does not repeat", none:true },
+  { v:"weekly", n:"Weekly" }, { v:"monthly", n:"Monthly" },
+  { v:"bimonthly", n:"Every 2 months" }, { v:"quarterly", n:"Every 3 months" },
+  { v:"halfyearly", n:"Every 6 months" }, { v:"yearly", n:"Every year" }
+];
+function renderFreq(){
+  const host = $("#eFreq");
+  /* an entry already spun off a rule; changing its cadence happens in Recurring entries */
+  host.classList.toggle("pk-locked", !!freqLocked);
+  renderChoice(host, freqLocked ? [FREQ_OPTS[0]] : FREQ_OPTS, draft.freq || "", v => {
+    draft.freq = v;
+    renderFreq();
+    $("#repHint").style.display = v ? "" : "none";
+  });
+  $("#repHint").style.display = draft.freq ? "" : "none";
+}
 
 $("#eSave").addEventListener("click", () => {
   const cents = parseAmount($("#eAmt").value);
@@ -3374,15 +4027,18 @@ $("#eSave").addEventListener("click", () => {
     editing.status = draft.status;
     editing.date = date;
     editing.note = note;
+    editing.account = draft.account || null;
+    editing.fromAccount = draft.fromAccount || null;
     save(); render(); sheetClose(); toast("Entry updated");
     return;
   }
 
-  const freq = $("#eFreq").value;
+  const freq = draft.freq || "";
   if (freq){
     const rule = {
       id: uid(), type: draft.type, amount: cents, category: draft.category,
-      note: note, freq: freq, anchor: date, active: true
+      note: note, freq: freq, anchor: date, active: true,
+      account: draft.account || null, fromAccount: draft.fromAccount || null
     };
     state.rules.push(rule);
     materialise();
@@ -3396,7 +4052,8 @@ $("#eSave").addEventListener("click", () => {
 
   state.txns.push({
     id: uid(), type: draft.type, amount: cents, category: draft.category,
-    note: note, date: date, status: draft.status
+    note: note, date: date, status: draft.status,
+    account: draft.account || null, fromAccount: draft.fromAccount || null
   });
   save();
   if (periodOf(date) !== view) view = periodOf(date);
@@ -3467,7 +4124,7 @@ function nextDue(rule){
   }
   return null;
 }
-$("#btnRules").addEventListener("click", () => { renderRules(); sheetOpen("#shRules"); });
+$("#btnRules").addEventListener("click", () => { sheetClose(); renderRules(); sheetOpen("#shRules"); });
 
 /* =========================================================================
    CSV IMPORT
@@ -3759,6 +4416,24 @@ function applyTheme(v){
 }
 $$("#themeTog button").forEach(b => b.addEventListener("click", () => applyTheme(b.dataset.v)));
 
+const SET_TITLES = {
+  profile:"Your profile", accounts:"Accounts", rules:"Recurring entries",
+  balance:"Starting balance", lock:"App lock", theme:"Appearance",
+  github:"GitHub sync", data:"Data & backup", about:"About"
+};
+let setPane = null;
+function showSetPane(key){
+  setPane = key;
+  $("#setMenu").hidden = !!key;
+  $$(".setpane").forEach(p => { p.hidden = p.id !== "setPane_" + key; });
+  $("#setBack").hidden = !key;
+  $("#setTitle").textContent = key ? SET_TITLES[key] : "Settings";
+  const body = key ? $("#setPane_" + key) : $("#setMenu");
+  if (body) body.scrollTop = 0;
+}
+$$("#setMenu .setrow").forEach(b => b.addEventListener("click", () => showSetPane(b.dataset.pane)));
+$("#setBack").addEventListener("click", () => showSetPane(null));
+
 $("#btnMenu").addEventListener("click", () => {
   const periods = new Set(state.txns.map(t => periodOf(t.date)));
   $("#statLine").innerHTML =
@@ -3768,8 +4443,13 @@ $("#btnMenu").addEventListener("click", () => {
   renderLockSettings();
   renderBalanceSettings();
   renderGhSettings();
-  renderFeedback();
+  renderProfileSettings();
+  renderAccountSettings();
+  $("#rulesCount").textContent = state.rules.length
+    ? state.rules.length + " active repeating entr" + (state.rules.length === 1 ? "y" : "ies") + "."
+    : "Nothing repeats yet — rent, salary, subscriptions.";
   renderAbout();
+  showSetPane(null);
   sheetOpen("#shSet");
 });
 $("#copyBackup").addEventListener("click", async () => {
@@ -3888,7 +4568,7 @@ function updateShopSummary(){
   const checked = shopList().filter(i => i.done);
   $("#shopFinish").hidden = checked.length === 0;
   $("#sfCount").textContent = checked.length;
-  if (!$("#shopDate").value) $("#shopDate").value = todayISO();
+  if (!$("#shopDate").value) setDateVal("#shopDate", todayISO());
 }
 
 function shopRow(item){
@@ -4239,7 +4919,7 @@ $("#shopDone").addEventListener("click", () => {
   }
 
   state.shop.lists[store] = arr.filter(i => !i.done);
-  $("#shopDate").value = todayISO();
+  setDateVal("#shopDate", todayISO());
   $("#shopTotal").value = "";
   save(); render(); renderShop();
   toast("Saved " + checked.length + " item" + (checked.length === 1 ? "" : "s") + " · " + fmt(total));
@@ -4253,7 +4933,18 @@ $("#prevM").addEventListener("click", () => {
   view = shiftPeriod(view, -1); render();
 });
 $("#nextM").addEventListener("click", () => { view = shiftPeriod(view, 1); render(); });
-$("#mLabel").addEventListener("click", () => { view = periodOf(todayISO()); render(); });
+function goNow(){ view = periodOf(todayISO()); render(); }
+$("#mLabel").addEventListener("click", goNow);
+$("#btnNow").addEventListener("click", goNow);
+/* the title is the way back to where you started */
+$("#btnBrand").addEventListener("click", () => {
+  fabClose();
+  view = periodOf(todayISO());
+  setPanel("dash");
+  typeFilter = null;
+  render();
+  window.scrollTo({ top:0, behavior:"smooth" });
+});
 $$("#viewEntries .seg button").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; render(); }));
 
 /* ---------- Dashboard / Tracker / Shop panel switch ---------- */
@@ -4263,9 +4954,10 @@ function setPanel(p){
   $("#viewDash").hidden = p !== "dash";
   $("#viewEntries").hidden = p !== "entries";
   $("#viewShop").hidden = p !== "shop";
-  /* the month bar and ledger dock drive the ledger only; shopping lists aren't period-scoped */
+  /* the month bar and add button drive the ledger only; shopping lists aren't period-scoped */
   $(".monthbar").style.display = p === "shop" ? "none" : "";
-  $(".dock").style.display = p === "shop" ? "none" : "";
+  $("#fabWrap").style.display = p === "shop" ? "none" : "";
+  fabClose();
   $$("#viewTog button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.view === p)));
   if (p === "shop") renderShop();
 }
@@ -4867,11 +5559,11 @@ $("#ghDisable").addEventListener("click", () => {
   save();
   render();
   renderShop();
+  ["#eDate", "#balDate", "#shopDate"].forEach(sel => attachCalendar($(sel)));
   syncEyeBtn();
   syncThemeColorMeta();
   if (lockEnabled()) lockOpenUnlock(); else document.documentElement.classList.remove("locked");
   lockResetIdle();
-  fbFlush();   /* anything written while offline goes out now */
 })();
 
 if ("serviceWorker" in navigator) {
