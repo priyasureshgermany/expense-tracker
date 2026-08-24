@@ -3017,6 +3017,11 @@
       "id": "a_5eqhcxgtf0q2",
       "n": "Deutsche Bank",
       "kind": "bank"
+    },
+    {
+      "id": "a_gb5m3hv9f7k6",
+      "n": "Revolut",
+      "kind": "bank"
     }
   ],
   "profile": null
