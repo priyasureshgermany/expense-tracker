@@ -3017,6 +3017,11 @@
       "id": "a_0mh73fi9ovlw",
       "n": "Deutsche Bank",
       "kind": "bank"
+    },
+    {
+      "id": "a_9gbih0jvp6la",
+      "n": "Revolet Bank",
+      "kind": "bank"
     }
   ],
   "profile": null
