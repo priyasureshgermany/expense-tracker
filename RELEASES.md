@@ -3,6 +3,23 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → Release notes**.
 
+## 1.1.0 — 2026-08-24
+- Moved the tabs to a bar fixed along the bottom of the screen
+- Add entry is now a round + above the tab bar, offering Income or Expense first
+- Tapping the title returns to this period's dashboard, and a Today pill appears once you navigate away
+- Added Settings > Your profile; your first name greets you under the title
+- Added Settings > Accounts, so an entry can record which account it moved through
+- Bank Transfer income now records both the sending and the receiving account
+- Trimmed the category pickers to the ones in use; retired ones still label existing entries
+- Moved Recurring entries into Settings and removed Leave a note
+- Settings opens on a grid of tiles, one topic per pane, instead of one long scroll
+- Replaced every dropdown with a list that shows about four rows and fades the rest
+- Replaced the browser's date control with the app's own calendar, the same on every device
+- Bigger category buttons, each with its icon in a tile
+- New app icon: a wallet with a euro coin
+- Folded 16 entries pointing at custom categories lost to the old save bug into Misc
+- Fixed the hidden attribute being ignored wherever a class set display
+
 ## 1.0.11 — 2026-08-23
 - Fixed the starting balance never syncing — it lived outside the backup, so a pull left it behind and In the account now ignored it
 

@@ -10,9 +10,12 @@ Open `index.html` in any browser, or host the file anywhere static.
 - **Budget periods run the 15th to the 14th**, not calendar months — so a
   period reads as e.g. *15 Aug – 14 Sept*. Every total, filter, chart and the
   ◀ ▶ navigation follows that cycle.
-- **Three views**, switched by the toggle under the period bar:
-  **Dashboard** (charts), **Expenses** (the date-by-date ledger) and
+- **Three views**, switched by the tab bar fixed along the bottom of the screen:
+  **Dashboard** (charts), **வரவு செலவு** (the date-by-date ledger) and
   **Shopping cart** (grocery checklists).
+- **Accounts.** Entries can name the account the money moved through, so you
+  know where a payment came from or where income landed. Bank Transfer income
+  records both ends. See *Your profile and accounts* below.
 - **Dashboard chart.** *This period* compares income, planned expense and
   actual expense; each bar is tappable for a plain-English explanation of the
   number. (Groceries and Misc buffer charts used to sit alongside it — budget
@@ -199,15 +202,21 @@ the install prompt.
 
 Run the tests with `node test.mjs` (needs Playwright installed).
 
-## Leaving a note
+## Your profile and accounts
 
-**Settings → Leave a note** writes to `FEEDBACK.md` in the synced repo, stamped
-with the time and the app version it was written on. It's for parking a thought
-on the phone when it occurs, rather than holding on to it.
+**Settings → Your profile** holds a first name, last name and email. The first
+name is the only one that shows: the title bar greets you with
+*வணக்கம் ‹first name›* once it's set.
 
-Notes are queued in the browser first and only cleared once GitHub has them, so
-writing one offline — or before sync is set up — never loses it. Whatever is
-waiting goes out on the next app open, or via **Try sending again**.
+**Settings → Accounts** is the list of places money actually sits — a bank, a
+card, cash in a wallet. Every entry can name the account it moved through, so
+the ledger answers *where did this come from* rather than only *what was it
+for*. An expense asks **Paid from**; income asks **Paid into**. An account still
+attached to entries can't be removed until those entries are retagged.
+
+**Bank Transfer** income is the one case with two ends — it's your own money
+moving between your own accounts — so it asks **From account** as well as
+**To account**. Picking any other income category hides the from-field again.
 
 ## Naming the parts
 
@@ -218,10 +227,10 @@ Every region has a stable name, so a change can be asked for precisely —
 
 | Name | What it is |
 |---|---|
-| Top bar | Brand, ↻ recurring, 👁 show/hide amounts, ⚙ settings |
-| Period bar | `‹ 15 Aug – 14 Sept 2026 ›` |
-| Tabs | Dashboard · வரவு செலவு · Shopping cart |
-| Dock | The floating **Add entry** button |
+| Top bar | Brand + greeting (tap to return to this period's dashboard), 👁 show/hide amounts, ⚙ settings |
+| Period bar | `‹ 15 Aug – 14 Sept 2026 ›`, plus a **Today** pill once you've navigated away |
+| Tab bar | Fixed along the bottom: Dashboard · வரவு செலவு · Shopping cart |
+| Add button | The round **+** above the tab bar; tapping it offers Income then Expense |
 
 **Dashboard**, top to bottom
 
@@ -240,8 +249,23 @@ Every region has a stable name, so a change can be asked for precisely —
 **Shopping cart**: store tabs, **Add items**, the item list, **Scan receipt**,
 the save block, **Recent purchases**.
 
-**Sheets** (the panels that slide up): New entry, Recurring entries, Settings &
-backup, Budgets, Add items, Scan receipt, Purchase, Release notes, New category.
+**Sheets** (the panels that slide up): New entry, Recurring entries, Settings,
+Budgets, Add items, Scan receipt, Purchase, Release notes, New category.
+
+**Settings** opens on a grid of tiles rather than one long scroll — Your
+profile, Accounts, Recurring entries, Starting balance, App lock, Appearance,
+GitHub sync, Data & backup, About. Tapping one opens that pane; ‹ goes back.
+
+**Choosing things.** There are no native dropdowns. Anywhere you pick one of a
+set — account, repeat cadence, account type, which category to budget — the
+field shows the current choice, and tapping it opens a list beneath showing
+about four rows, with whichever end has more behind it fading out. The popover
+flips above the field when there isn't room below.
+
+**Dates** use the app's own calendar rather than the browser's: a rounded month
+grid, Monday-first, with the selected day filled, today outlined, and a
+**Today** shortcut. It looks the same on every device, which the native control
+does not.
 
 ## Versioning
 
