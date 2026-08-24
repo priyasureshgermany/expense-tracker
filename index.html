@@ -215,10 +215,12 @@ html.amounts-shown #btnEye{color:var(--accent)}
 }
 .nowbtn{
   flex:none;font-size:11px;font-weight:600;letter-spacing:.01em;
-  padding:5px 10px;border-radius:99px;
+  padding:5px 10px 5px 8px;border-radius:99px;
+  display:flex;align-items:center;gap:4px;
   background:var(--accent-soft);color:var(--accent);
   transition:filter .15s,transform .12s;
 }
+.nowbtn svg{width:13px;height:13px;flex:none}
 .nowbtn:active{transform:scale(.94)}
 .today-chip{
   font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
@@ -883,27 +885,35 @@ button.tile:hover .tile-go{color:var(--accent)}
 .fab:hover{filter:brightness(1.08)}
 .fab:active{transform:scale(.92)}
 .fab[aria-expanded="true"] svg{transform:rotate(45deg)}
-.fabmenu{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+/* Kept in the layout and animated rather than hidden, so it slides away on
+   close instead of vanishing. */
+.fabmenu{
+  display:flex;flex-direction:column;gap:8px;align-items:flex-end;
+  pointer-events:none;
+}
+.fabmenu.open{pointer-events:auto}
 .fabopt{
   display:flex;align-items:center;gap:9px;
   height:44px;padding:0 16px 0 13px;border-radius:99px;
   font-size:13.5px;font-weight:600;letter-spacing:-.005em;
   background:var(--surface);box-shadow:var(--shadow-md);
   border:1px solid var(--line);
-  animation:fabIn .22s cubic-bezier(.2,.7,.3,1) backwards;
-  transition:transform .12s;
+  opacity:0;transform:translateY(16px) scale(.94);
+  transition:opacity .2s ease, transform .26s cubic-bezier(.2,.9,.3,1);
 }
+.fabmenu.open .fabopt{opacity:1;transform:none}
+/* the nearer option leads on the way up and trails on the way down */
+.fabmenu .fabopt.out{transition-delay:0s}
+.fabmenu .fabopt.in{transition-delay:.05s}
+.fabmenu.open .fabopt.out{transition-delay:.05s}
+.fabmenu.open .fabopt.in{transition-delay:0s}
 .fabopt:active{transform:scale(.95)}
 .fabopt .fo-ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none}
 .fabopt .fo-ic svg{width:14px;height:14px}
-.fabopt.out{color:var(--neg);animation-delay:.04s}
+.fabopt.out{color:var(--neg)}
 .fabopt.out .fo-ic{background:var(--neg-soft)}
 .fabopt.in{color:var(--pos)}
 .fabopt.in .fo-ic{background:var(--pos-soft)}
-@keyframes fabIn{
-  from{opacity:0;transform:translateY(10px) scale(.9)}
-  to{opacity:1;transform:none}
-}
 
 /* ============================================================
    SHEETS
@@ -1131,23 +1141,38 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
    fits every topic on one screen. */
 #setMenu{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start}
 .setrow{
-  display:flex;flex-direction:column;align-items:flex-start;gap:8px;
-  padding:14px 13px;border-radius:16px;text-align:left;min-height:116px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:10px;
+  padding:15px 14px;border-radius:16px;text-align:left;min-height:132px;
   background:var(--surface-2);border:1px solid var(--line);
   transition:background .15s,border-color .15s,transform .12s;
 }
 .setrow:hover{background:var(--surface-sunk);border-color:var(--line-strong)}
 .setrow:active{transform:scale(.97)}
 .setrow .sr-ic{
-  width:38px;height:38px;border-radius:12px;flex:none;
+  width:52px;height:52px;border-radius:15px;flex:none;
   display:grid;place-items:center;
   background:var(--accent-soft);color:var(--accent);
 }
-.setrow .sr-ic svg{width:20px;height:20px}
+.setrow .sr-ic svg{width:28px;height:28px;stroke-width:1.6}
 .setrow .sr-t{display:flex;flex-direction:column;gap:2px;min-width:0;width:100%}
 .setrow .sr-t b{font-size:13.5px;font-weight:600;letter-spacing:-.005em;line-height:1.25}
 .setrow .sr-t span{font-size:11px;color:var(--ink-3);line-height:1.35}
 .setrow .sr-go{display:none}
+
+/* About closes the grid off across both columns, in its own shade so it reads
+   as an end-piece rather than another topic. */
+.setrow-wide{
+  grid-column:1 / -1;min-height:0;
+  flex-direction:row;align-items:center;gap:13px;
+  background:var(--accent-soft);border-color:transparent;
+}
+.setrow-wide:hover{background:var(--accent-soft);border-color:var(--accent)}
+.setrow-wide .sr-ic{background:var(--surface);width:46px;height:46px;border-radius:14px}
+.setrow-wide .sr-ic svg{width:25px;height:25px}
+.setrow-wide .sr-t{flex:1}
+.setrow-wide .sr-t b{color:var(--accent)}
+.setrow-wide .sr-t span{color:var(--accent);opacity:.72}
+.setrow-wide .sr-go{display:block;width:18px;height:18px;flex:none;color:var(--accent);opacity:.7}
 .setpane{animation:paneIn .26s cubic-bezier(.2,.7,.3,1)}
 @keyframes paneIn{
   from{opacity:0;transform:translateX(14px)}
@@ -1441,7 +1466,10 @@ html.locked #lockScreen::before{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
     <div class="mlabel" id="mLabel" aria-live="polite"></div>
-    <button class="nowbtn" id="btnNow" type="button" hidden>Today</button>
+    <button class="nowbtn" id="btnNow" type="button" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11a9 9 0 1 1 2.6 6.4"/><path d="M3 16.5V11h5.5"/></svg>
+      Today
+    </button>
     <button class="iconbtn" id="nextM" aria-label="Next month">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
@@ -1595,7 +1623,7 @@ html.locked #lockScreen::before{
   <div class="spacer"></div>
 
   <div class="fabwrap" id="fabWrap">
-    <div class="fabmenu" id="fabMenu" hidden>
+    <div class="fabmenu" id="fabMenu">
       <button class="fabopt in" type="button" data-t="income">
         <span class="fo-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg></span>
         Income
@@ -1785,7 +1813,7 @@ html.locked #lockScreen::before{
 <!-- RELEASE NOTES SHEET -->
 <section class="sheet" id="shNotes" role="dialog" aria-modal="true" aria-labelledby="notesTitle">
   <div class="sheet-head" style="position:relative">
-    <h2 id="notesTitle">Release notes</h2>
+    <h2 id="notesTitle">What’s new</h2>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
@@ -1995,9 +2023,9 @@ html.locked #lockScreen::before{
       <span class="sr-t"><b>Data & backup</b><span>Import, copy, restore, wipe</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
-    <button class="setrow" type="button" data-pane="about">
+    <button class="setrow setrow-wide" type="button" data-pane="about">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8h.01"/></svg></span>
-      <span class="sr-t"><b>About</b><span>Version and release notes</span></span>
+      <span class="sr-t"><b>About</b><span>Version and what’s new</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
   </div>
@@ -2134,7 +2162,7 @@ html.locked #lockScreen::before{
         <div class="ab-row"><span>Deployed</span><b id="abBuilt">—</b></div>
         <div class="ab-row"><span>Running</span><b id="abRunning">—</b></div>
       </div>
-      <button class="btn ghost sm" id="abNotes" style="margin-top:10px">Release notes</button>
+      <button class="btn ghost sm" id="abNotes" style="margin-top:10px">What’s new</button>
       <div class="note" style="margin-top:6px">
         "Running" is the copy this device has cached. If it lags behind the version above,
         close the app fully and reopen it to pick up the newer build.
@@ -2154,7 +2182,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.1.1";
 const APP_BUILT = "2026-08-24";
 
 const KEY = "panappai.v1";
@@ -3697,9 +3725,6 @@ const CAL_DOW = ["Mo","Tu","We","Th","Fr","Sa","Su"];
 const CAL_MONTHS = ["January","February","March","April","May","June",
   "July","August","September","October","November","December"];
 
-function isoOf(y, m, d){
-  return String(y) + "-" + String(m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
-}
 function prettyDate(iso){
   if (!iso) return "";
   const parts = iso.split("-").map(Number);
@@ -3786,11 +3811,11 @@ function attachCalendar(input){
         const b = el("button", "cal-d out", String(d));
         b.type = "button";
         const pm = vm === 0 ? 11 : vm - 1, py = vm === 0 ? vy - 1 : vy;
-        b.addEventListener("click", ev => { ev.stopPropagation(); choose(isoOf(py, pm, d)); });
+        b.addEventListener("click", ev => { ev.stopPropagation(); choose(isoOf(py, pm + 1, d)); });
         grid.appendChild(b);
       }
       for (let d = 1; d <= days; d++){
-        const iso = isoOf(vy, vm, d);
+        const iso = isoOf(vy, vm + 1, d);
         const cls = "cal-d" + (iso === input.value ? " sel" : (iso === today ? " today" : ""));
         const b = el("button", cls, String(d));
         b.type = "button";
@@ -3802,7 +3827,7 @@ function attachCalendar(input){
         const b = el("button", "cal-d out", String(i));
         b.type = "button";
         const nm = vm === 11 ? 0 : vm + 1, ny = vm === 11 ? vy + 1 : vy;
-        b.addEventListener("click", ev => { ev.stopPropagation(); choose(isoOf(ny, nm, i)); });
+        b.addEventListener("click", ev => { ev.stopPropagation(); choose(isoOf(ny, nm + 1, i)); });
         grid.appendChild(b);
       }
       cal.appendChild(grid);
@@ -3968,13 +3993,13 @@ function openEntry(txn, type){
   if (!txn) setTimeout(() => $("#eAmt").focus(), 340);
 }
 function fabClose(){
-  $("#fabMenu").hidden = true;
+  $("#fabMenu").classList.remove("open");
   $("#btnAdd").setAttribute("aria-expanded", "false");
 }
 $("#btnAdd").addEventListener("click", e => {
   e.stopPropagation();
-  const open = $("#fabMenu").hidden;
-  $("#fabMenu").hidden = !open;
+  const open = !$("#fabMenu").classList.contains("open");
+  $("#fabMenu").classList.toggle("open", open);
   $("#btnAdd").setAttribute("aria-expanded", String(open));
 });
 $$("#fabMenu .fabopt").forEach(b => b.addEventListener("click", () => {
@@ -3982,7 +4007,7 @@ $$("#fabMenu .fabopt").forEach(b => b.addEventListener("click", () => {
   openEntry(null, b.dataset.t);
 }));
 document.addEventListener("click", e => {
-  if (!$("#fabMenu").hidden && !$("#fabWrap").contains(e.target)) fabClose();
+  if ($("#fabMenu").classList.contains("open") && !$("#fabWrap").contains(e.target)) fabClose();
 });
 $$("#eType button").forEach(b => b.addEventListener("click", () => {
   draft.type = b.dataset.v;
