@@ -4576,7 +4576,11 @@ function openRule(rule){
   if (rule){
     rDraft = {
       type: rule.type, category: rule.category, freq: rule.freq,
-      account: rule.account || null, fromAccount: rule.fromAccount || null
+      /* Rules predating accounts carry none. Offer the default rather than an
+         empty picker, so opening one and saving is enough to tag it — nothing
+         is written until you do save. */
+      account: rule.account || defaultAccountId(),
+      fromAccount: rule.fromAccount || null
     };
     $("#ruleTitle").textContent = "Recurring entry";
     $("#rAmt").value = (rule.amount / 100).toFixed(2).replace(".", ",");
