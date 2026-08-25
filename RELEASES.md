@@ -3,6 +3,10 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.16 — 2026-08-25
+- An entry using a retired category now shows it, selected, instead of appearing to have none
+- Recurring entries follow the same rule, and no longer offer retired categories when adding a new one
+
 ## 1.1.15 — 2026-08-25
 - The ledger tabs sit on one row again; the fourth had been pushed onto a line of its own
 
