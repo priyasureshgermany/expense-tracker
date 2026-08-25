@@ -1335,6 +1335,11 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
   color:var(--ink-3);flex:none;
 }
+.acctrow .ar-b{font-family:var(--mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto;padding:0 10px}
+.balrow{display:flex;align-items:center;gap:10px;padding:7px 0}
+.balrow .bl-ic{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--surface-sunk);color:var(--ink-2)}
+.balrow .bl-n{flex:1;min-width:0;font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.balrow .bl-a{flex:none;width:118px;text-align:right;font-family:var(--mono);font-weight:600}
 .acctrow .ar-u{font-size:11px;color:var(--ink-3);flex:none}
 .acctrow .ar-x{
   width:26px;height:26px;border-radius:8px;flex:none;
@@ -1603,6 +1608,7 @@ html.locked #lockScreen::before{
       </button>
     </div>
     <button class="lock-forgot" id="lockForgot">Forgot PIN?</button>
+    <button class="lock-forgot" id="lockCancel" hidden>Cancel</button>
   </div>
 </div>
 
@@ -1937,6 +1943,9 @@ html.locked #lockScreen::before{
 <!-- RULES SHEET -->
 <section class="sheet" id="shRules" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
   <div class="sheet-head" style="position:relative">
+    <button class="iconbtn setback" id="rulesBack" type="button" aria-label="Back to settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
     <h2 id="rulesTitle">Recurring entries</h2>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -1979,6 +1988,9 @@ html.locked #lockScreen::before{
 <!-- RECURRING ENTRY EDITOR -->
 <section class="sheet" id="shRule" role="dialog" aria-modal="true" aria-labelledby="ruleTitle">
   <div class="sheet-head" style="position:relative">
+    <button class="iconbtn setback" id="ruleBack" type="button" aria-label="Back to recurring entries">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
     <h2 id="ruleTitle">New recurring entry</h2>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -2309,19 +2321,21 @@ html.locked #lockScreen::before{
     </div>
   </div>
   <div class="sheet-body setpane" id="setPane_balance" hidden>
-<div class="field">
-      <label for="balAmt">Money already in the account</label>
+    <div class="field">
+      <label>What each account holds</label>
       <div class="note">
-        What your account holds right now, as a starting point. The dashboard then tracks
-        it forward: this balance, plus income received, minus expenses paid from that date on.
+        A starting point per account. Each one is then tracked forward: this
+        balance, plus income received into it, minus expenses paid from it since
+        that date.
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-        <input class="inp" id="balAmt" type="text" inputmode="decimal" placeholder="€ 0,00" autocomplete="off" style="flex:1;text-align:right;font-family:var(--mono);font-weight:600">
+      <div id="balRows" style="margin-top:12px"></div>
+      <div class="field" style="margin-top:14px">
+        <label for="balDate">Balances are as of</label>
         <input id="balDate" type="date">
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-        <button class="btn ghost sm" id="balSave">Save balance</button>
-        <button class="btn danger sm" id="balClear" hidden>Remove balance</button>
+        <button class="btn ghost sm" id="balSave">Save balances</button>
+        <button class="btn danger sm" id="balClear" hidden>Clear all balances</button>
       </div>
     </div>
   </div>
@@ -2464,7 +2478,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.12";
+const APP_VERSION = "1.1.13";
 const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
@@ -2786,7 +2800,40 @@ function normaliseCats(c){
 /** Accounts are where money sits; entries point at one by id. */
 function normaliseAccounts(a){
   return (Array.isArray(a) ? a : []).filter(x => x && typeof x.id === "string" && typeof x.n === "string")
-    .map(x => ({ id:x.id, n:x.n, kind: x.kind === "cash" || x.kind === "card" ? x.kind : "bank" }));
+    .map(x => {
+      const out = { id:x.id, n:x.n, kind: x.kind === "cash" || x.kind === "card" ? x.kind : "bank" };
+      const st = normaliseBalance(x.start);
+      if (st) out.start = st;
+      return out;
+    });
+}
+
+/**
+ * What an account holds now: what it opened with, plus everything settled that
+ * has touched it since. Only settled entries count — a planned one hasn't moved
+ * any money yet. Transfers land on `account` and leave `fromAccount`.
+ */
+function accountBalance(id){
+  const a = accountById(id);
+  if (!a) return null;
+  const from = a.start ? a.start.date : null;
+  let bal = a.start ? a.start.amount : 0;
+  state.txns.forEach(t => {
+    if (t.status !== "done") return;
+    if (from && t.date < from) return;
+    if (t.account === id) bal += (t.type === "income" ? t.amount : -t.amount);
+    /* the sending side of a transfer between your own accounts */
+    if (t.fromAccount === id && t.type === "income") bal -= t.amount;
+  });
+  return bal;
+}
+/** Every opening balance added up, which is what the dashboard starts from. */
+function startingTotal(){
+  return accountsOf().reduce((n, a) => n + (a.start ? a.start.amount : 0), 0);
+}
+function earliestStart(){
+  const ds = accountsOf().filter(a => a.start).map(a => a.start.date).sort();
+  return ds.length ? ds[0] : null;
 }
 function normaliseProfile(pr){
   if (!pr || typeof pr !== "object") return null;
@@ -2895,6 +2942,7 @@ function load(){
   if (!state.catchAll && state.budgets && state.budgets.buffer > 0) state.catchAll = "buffer";
   if (!Array.isArray(state.accounts)) state.accounts = [];
   migrateBalance();
+  migrateBalanceToAccounts();
   migrateLostCats();
   refreshCats();
 }
@@ -3525,9 +3573,33 @@ $("#abNotes").addEventListener("click", async () => {
 const BAL_AMT_KEY = "panappai.balance.amount";   /* pre-sync keys, migrated below */
 const BAL_DATE_KEY = "panappai.balance.date";
 
+/**
+ * The book's overall starting point: every account's opening balance added up.
+ * Falls back to the single figure kept before balances were per-account, which
+ * a backup written then still carries.
+ */
 function balanceSetting(){
+  if (accountsOf().some(a => a.start)){
+    return { amount: startingTotal(), date: earliestStart() };
+  }
   const b = state.balance;
   return (b && Number.isFinite(b.amount) && b.date) ? b : null;
+}
+
+/**
+ * One figure for the whole book became one per account. The old figure is put
+ * on the default account, being where it most likely came from, rather than
+ * dropped — it can be moved in Settings, and doing nothing leaves the dashboard
+ * reading exactly as before.
+ */
+function migrateBalanceToAccounts(){
+  if (!state.balance) return;
+  if (accountsOf().some(a => a.start)) return;
+  const id = defaultAccountId();
+  if (!id) return;                       /* no accounts yet: leave it as it was */
+  const a = accountById(id);
+  a.start = { amount: state.balance.amount, date: state.balance.date };
+  state.balance = null;
 }
 
 /** Adopts a balance set before it was part of the synced state. */
@@ -3563,23 +3635,64 @@ function renderBalance(){
 
   const el2 = $("#balNow");
   animateValue(el2, now, v => { el2.textContent = fmt(v); });
+  const n = accountsOf().filter(a => a.start).length;
   $("#balSub").textContent = b
-    ? "From " + fmt(base) + " on " + dayTitle(b.date) + " · " + fmt(inc) + " in, " + fmt(exp) + " out since"
-    : fmt(inc) + " received, " + fmt(exp) + " paid so far · set a starting balance in Settings";
+    ? "From " + fmt(base) + (n > 1 ? " across " + n + " accounts" : "") + " on " + dayTitle(b.date) +
+      " · " + fmt(inc) + " in, " + fmt(exp) + " out since"
+    : fmt(inc) + " received, " + fmt(exp) + " paid so far · set starting balances in Settings";
+}
+
+function renderBalanceRows(){
+  const host = $("#balRows");
+  host.innerHTML = "";
+  const list = accountsOf();
+  if (!list.length){
+    host.innerHTML = '<div class="note">No accounts yet — add them in Settings › Accounts first.</div>';
+    $("#balSave").hidden = true;
+    return;
+  }
+  $("#balSave").hidden = false;
+  const dark = isDark();
+  list.forEach(a => {
+    const row = el("div", "balrow");
+    const ic = el("span", "bl-ic");
+    ic.innerHTML = ACCT_ICON[a.kind] || ACCT_ICON.bank;
+    row.appendChild(ic);
+    row.appendChild(el("div", "bl-n", a.n));
+    const inp = el("input", "inp bl-a");
+    inp.type = "text";
+    inp.inputMode = "decimal";
+    inp.placeholder = "0,00";
+    inp.autocomplete = "off";
+    inp.dataset.acct = a.id;
+    if (a.start) inp.value = (a.start.amount / 100).toFixed(2).replace(".", ",");
+    row.appendChild(inp);
+    host.appendChild(row);
+  });
 }
 
 $("#balSave").addEventListener("click", () => {
-  const amt = parseAmount($("#balAmt").value);
   const date = $("#balDate").value || todayISO();
-  if (amt == null){ toast("Enter the amount currently in the account"); return; }
-  state.balance = { amount: Math.round(amt), date: date };
-  save(); renderBalanceSettings(); render();
-  toast("Balance saved");
+  let set = 0;
+  $$("#balRows .bl-a").forEach(inp => {
+    const a = accountById(inp.dataset.acct);
+    if (!a) return;
+    const raw = inp.value.trim();
+    if (!raw){ delete a.start; return; }
+    const amt = parseAmount(raw);
+    if (amt == null){ delete a.start; return; }
+    a.start = { amount: Math.round(amt), date: date };
+    set++;
+  });
+  state.balance = null;   /* superseded by the per-account figures */
+  save(); renderBalanceSettings(); renderAccountSettings(); render();
+  toast(set ? set + " balance" + (set === 1 ? "" : "s") + " saved" : "Balances cleared");
 });
 $("#balClear").addEventListener("click", () => {
+  accountsOf().forEach(a => { delete a.start; });
   state.balance = null;
-  save(); renderBalanceSettings(); render();
-  toast("Balance removed");
+  save(); renderBalanceSettings(); renderAccountSettings(); render();
+  toast("Balances cleared");
 });
 function renderProfileSettings(){
   const pr = state.profile || { first:"", last:"", email:"" };
@@ -3621,6 +3734,13 @@ function renderAccountSettings(){
     name.appendChild(el("b", null, a.n));
     name.appendChild(el("span", "ar-k", ACCT_KIND[a.kind] || "Bank"));
     row.appendChild(name);
+    const bal = accountBalance(a.id);
+    const bEl = el("div", "ar-b", fmt(bal));
+    bEl.style.color = bal < 0 ? "var(--neg)" : "var(--ink)";
+    bEl.title = a.start
+      ? "From " + fmt(a.start.amount) + " on " + dayTitle(a.start.date)
+      : "No starting balance set — this is only what has moved through it";
+    row.appendChild(bEl);
     const used = state.txns.filter(t => t.account === a.id || t.fromAccount === a.id).length;
     if (used) row.appendChild(el("span", "ar-u", used + " entr" + (used === 1 ? "y" : "ies")));
     const del = el("button", "ar-x");
@@ -3636,6 +3756,18 @@ function renderAccountSettings(){
     row.appendChild(del);
     host.appendChild(row);
   });
+
+  /* Settled entries with no account are in the dashboard total but in none of
+     these, so the two won't add up until they're tagged. Better said than left
+     as a discrepancy to puzzle over. */
+  const loose = state.txns.filter(t => t.status === "done" && !t.account && !t.fromAccount).length;
+  if (loose){
+    const n = el("div", "note");
+    n.style.marginTop = "10px";
+    n.innerHTML = "<b>" + loose + "</b> settled entr" + (loose === 1 ? "y is" : "ies are") +
+      " not tagged with an account, so they count on the dashboard but in none of these.";
+    host.appendChild(n);
+  }
 }
 $("#acctAdd").addEventListener("click", () => {
   const n = $("#acctName").value.trim();
@@ -3651,10 +3783,10 @@ $("#acctAdd").addEventListener("click", () => {
 });
 
 function renderBalanceSettings(){
-  const b = balanceSetting();
-  $("#balAmt").value = b ? (b.amount / 100).toFixed(2).replace(".", ",") : "";
-  setDateVal("#balDate", b ? b.date : todayISO());
-  $("#balClear").hidden = !b;
+  renderBalanceRows();
+  const any = accountsOf().some(a => a.start);
+  setDateVal("#balDate", earliestStart() || todayISO());
+  $("#balClear").hidden = !any;
 }
 
 /**
@@ -4677,6 +4809,11 @@ $$("#rType .a").forEach(b => b.addEventListener("click", () => {
 }));
 
 $("#ruleAdd").addEventListener("click", () => openRule(null));
+$("#ruleBack").addEventListener("click", () => { renderRules(); sheetOpen("#shRules"); });
+$("#rulesBack").addEventListener("click", () => {
+  sheetClose();
+  $("#btnMenu").click();
+});
 
 /**
  * Rewrites a rule's future occurrences. Anything already settled stays put —
@@ -5117,8 +5254,13 @@ $("#doRestore").addEventListener("click", () => {
     toast("That doesn't look like a பணப்பை backup");
   }
 });
-$("#wipe").addEventListener("click", function(){
+$("#wipe").addEventListener("click", async function(){
   if (this.dataset.armed){
+    if (!(await lockConfirm("Enter your PIN to delete every entry"))){
+      delete this.dataset.armed;
+      this.textContent = "Delete all entries";
+      return;
+    }
     state = stateCleared();
     save(); render(); sheetClose();
     delete this.dataset.armed;
@@ -5703,6 +5845,30 @@ function unlockApp(){
   lockResetIdle();
 }
 
+/* Confirming a destructive action reuses the lock screen: same keypad, same
+   hash, but it resolves a promise instead of unlocking the app. */
+let lockConfirmResolve = null;
+function lockConfirm(what){
+  if (!lockEnabled()) return Promise.resolve(true);   /* no PIN set, nothing to check */
+  document.documentElement.classList.add("locked");
+  lockMode = "confirm"; lockBuf = ""; lockFirstPin = "";
+  $("#lockSub").textContent = what;
+  $("#lockForgot").hidden = true;
+  $("#lockRecover").hidden = true;
+  $("#lockPad").hidden = false;
+  $("#lockDots").hidden = false;
+  $("#lockCancel").hidden = false;
+  lockRenderDots();
+  return new Promise(res => { lockConfirmResolve = res; });
+}
+function lockConfirmEnd(ok){
+  $("#lockCancel").hidden = true;
+  document.documentElement.classList.remove("locked");
+  const r = lockConfirmResolve;
+  lockConfirmResolve = null;
+  if (r) r(ok);
+}
+
 function lockOpenUnlock(){
   document.documentElement.classList.add("locked");
   lockMode = "unlock"; lockBuf = ""; lockFirstPin = "";
@@ -5733,6 +5899,10 @@ async function lockDigit(k){
   if (lockMode === "unlock"){
     const ok = (await pinHash(lockBuf)) === localStorage.getItem(LOCK_HASH_KEY);
     if (ok) unlockApp();
+    else{ lockShake(); setTimeout(() => { lockBuf = ""; lockRenderDots(); }, 380); }
+  } else if (lockMode === "confirm"){
+    const ok = (await pinHash(lockBuf)) === localStorage.getItem(LOCK_HASH_KEY);
+    if (ok) lockConfirmEnd(true);
     else{ lockShake(); setTimeout(() => { lockBuf = ""; lockRenderDots(); }, 380); }
   } else if (lockMode === "setup1"){
     lockFirstPin = lockBuf; lockBuf = "";
@@ -5777,6 +5947,7 @@ function lockShowRecovery(){
   $("#lockRecover").hidden = false;
   setTimeout(() => $("#lockAnswer").focus(), 80);
 }
+$("#lockCancel").addEventListener("click", () => lockConfirmEnd(false));
 $("#lockForgot").addEventListener("click", lockShowRecovery);
 $("#lockRecoverBack").addEventListener("click", lockOpenUnlock);
 
@@ -6342,7 +6513,8 @@ $("#ghPull").addEventListener("click", function(){
     }, 4000);
   }
 });
-$("#ghDisable").addEventListener("click", () => {
+$("#ghDisable").addEventListener("click", async () => {
+  if (!(await lockConfirm("Enter your PIN to turn off backup"))) return;
   localStorage.removeItem(GH_ENABLED_KEY);
   renderGhSettings();
   toast("GitHub sync disabled");

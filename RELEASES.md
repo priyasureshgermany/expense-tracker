@@ -3,6 +3,12 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.13 — 2026-08-25
+- Starting balances are per account, so each bank and card carries its own opening figure
+- Settings > Accounts shows what each account holds now, tracked from its opening balance
+- Deleting all entries and turning off backup ask for your PIN when one is set
+- Added back buttons to the recurring entries list and editor
+
 ## 1.1.12 — 2026-08-25
 - The unpushed count is a real comparison against the backup now, not a tally of saves — opening the app no longer looked like a change
 - An eye button beside Push now lists exactly what would be pushed, added, changed and deleted
