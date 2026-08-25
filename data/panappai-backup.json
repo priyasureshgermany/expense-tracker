@@ -1731,7 +1731,9 @@
       "note": "Shakthi lunch",
       "date": "2026-09-03",
       "status": "planned",
-      "ruleId": "j9kso8pzpjnm"
+      "ruleId": "j9kso8pzpjnm",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "uzvjfy9epjnn",
