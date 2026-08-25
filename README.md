@@ -314,11 +314,26 @@ The hook skips rebases and merges, and commits that only touch `data/` (the
 app's own backup pushes) or `tools/`. Use `node tools/bump-version.mjs --dry`
 to see what the next version would be without writing anything.
 
-Two things worth knowing:
+### One version per branch, not per commit
 
-- It bumps per **commit**, not per push. In practice each release here is one
-  commit followed by one push, so the two coincide; batching several commits
-  into one push would advance the version several times.
-- If `index.html` or `sw.js` have unstaged edits, the hook **stops the commit**
-  rather than bumping. It has to stage those two files after rewriting them,
-  and doing so would otherwise pull unrelated working-tree changes in with it.
+The hook compares `version.json` against **what is released on `origin/main`**,
+not against the previous commit. So a branch needs exactly one bump however many
+commits it takes, and a round of review feedback no longer costs a version
+number. Anything reaching `main` still carries a version `main` has never seen,
+which is the guarantee that actually matters.
+
+When more work lands on a branch whose release is already prepared, add to that
+version rather than cutting another:
+
+```bash
+node tools/bump-version.mjs --amend --note "Found in review"
+```
+
+`--amend` refuses when the current version is the released one — nothing has
+been prepared on that branch yet, and amending would rewrite the notes of the
+live release instead.
+
+One thing worth knowing: if `index.html` or `sw.js` have unstaged edits, the
+hook **stops the commit** rather than bumping. It has to stage those two files
+after rewriting them, and doing so would otherwise pull unrelated working-tree
+changes in with it.
