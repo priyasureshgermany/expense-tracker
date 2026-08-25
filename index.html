@@ -2408,7 +2408,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.5";
+const APP_VERSION = "1.1.6";
 const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
@@ -2776,26 +2776,54 @@ function migrateLostCats(){
   if (n) try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
 }
 
+/**
+ * Rebuilds state from a parsed backup.
+ *
+ * Every reader of a backup goes through here — load, pull and restore. Three
+ * separate copies of this object literal is precisely how custom categories,
+ * then the starting balance, then accounts and the profile each got silently
+ * dropped by whichever copy nobody remembered to update. A field added here is
+ * now read back everywhere by construction.
+ */
+function stateFromPayload(p){
+  const st = {
+    v: 1,
+    txns: Array.isArray(p.txns) ? p.txns : [],
+    rules: Array.isArray(p.rules) ? p.rules : [],
+    skips: Array.isArray(p.skips) ? p.skips : [],
+    shop: normaliseShop(p.shop),
+    budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
+    catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
+    balance: normaliseBalance(p.balance),
+    cats: normaliseCats(p.cats),
+    accounts: normaliseAccounts(p.accounts),
+    profile: normaliseProfile(p.profile)
+  };
+  if (p.demo) st.demo = true;
+  return st;
+}
+
+/** An emptied book that keeps your setup: accounts, budgets, categories, you. */
+function stateCleared(){
+  return {
+    v:1, txns:[], rules:[], skips:[],
+    shop: state.shop || normaliseShop(null),
+    budgets: state.budgets || {},
+    catchAll: state.catchAll || null,
+    balance: state.balance || null,
+    cats: state.cats || normaliseCats(null),
+    accounts: normaliseAccounts(state.accounts),
+    profile: state.profile || null
+  };
+}
+
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
     if (raw){
       const p = JSON.parse(raw);
       if (p && Array.isArray(p.txns)){
-        state = {
-          v:1,
-          txns: p.txns,
-          rules: Array.isArray(p.rules) ? p.rules : [],
-          skips: Array.isArray(p.skips) ? p.skips : [],
-          shop: normaliseShop(p.shop),
-          budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
-          catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
-          balance: normaliseBalance(p.balance),
-          cats: normaliseCats(p.cats),
-          accounts: normaliseAccounts(p.accounts),
-          profile: normaliseProfile(p.profile)
-        };
-        if (p.demo) state.demo = true;
+        state = stateFromPayload(p);
       }
     }
   }catch(e){ /* corrupt or unavailable storage — start clean */ }
@@ -4993,16 +5021,7 @@ $("#doRestore").addEventListener("click", () => {
   try{
     const p = JSON.parse(t);
     if (!p || !Array.isArray(p.txns)) throw new Error("shape");
-    state = {
-      v:1, txns:p.txns,
-      rules: Array.isArray(p.rules) ? p.rules : [],
-      skips: Array.isArray(p.skips) ? p.skips : [],
-      shop: normaliseShop(p.shop),
-      budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
-      catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
-      balance: normaliseBalance(p.balance),
-      cats: normaliseCats(p.cats)
-    };
+    state = stateFromPayload(p);
     refreshCats();
     materialise(); save(); render(); renderShop(); sheetClose();
     toast("Restored " + state.txns.length + " entries");
@@ -5012,7 +5031,7 @@ $("#doRestore").addEventListener("click", () => {
 });
 $("#wipe").addEventListener("click", function(){
   if (this.dataset.armed){
-    state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, catchAll: state.catchAll || null, balance: state.balance || null, cats: state.cats || normaliseCats(null) };
+    state = stateCleared();
     save(); render(); sheetClose();
     delete this.dataset.armed;
     this.textContent = "Delete all entries";
@@ -5028,7 +5047,7 @@ $("#wipe").addEventListener("click", function(){
 });
 
 $("#clearDemo").addEventListener("click", () => {
-  state = { v:1, txns:[], rules:[], skips:[], shop: state.shop || normaliseShop(null), budgets: state.budgets || {}, catchAll: state.catchAll || null, balance: state.balance || null, cats: state.cats || normaliseCats(null) };
+  state = stateCleared();
   view = periodOf(todayISO());
   save(); render(); renderShop();
   toast("Cleared — the book is yours now");
@@ -5946,16 +5965,7 @@ async function ghPullNow(){
     const p = JSON.parse(json);
     if (!p || !Array.isArray(p.txns)) throw new Error("shape");
 
-    state = {
-      v:1, txns:p.txns,
-      rules: Array.isArray(p.rules) ? p.rules : [],
-      skips: Array.isArray(p.skips) ? p.skips : [],
-      shop: normaliseShop(p.shop),
-      budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
-      catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
-      balance: normaliseBalance(p.balance),
-      cats: normaliseCats(p.cats)
-    };
+    state = stateFromPayload(p);
     if (p.demo) state.demo = true;
     refreshCats();
     ghMarkReconciled();   /* set before save(), which triggers a sync */
