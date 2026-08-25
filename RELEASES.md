@@ -3,6 +3,12 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.7 — 2026-08-25
+- Nothing is ever pushed automatically — push is a button you press, and the app never writes to your repo on its own
+- A pull no longer pushes straight back, which is how a pull that dropped accounts erased them from the repo without anyone pressing push
+- Added a backup button to the top bar, carrying a dot while there are changes you haven't pushed
+- Restored the six accounts and the profile again
+
 ## 1.1.6 — 2026-08-25
 - Fixed a pull wiping your accounts and profile — the pull rebuilt state without them, and the next sync wrote that back
 - Every backup is now read through one function, so a new field can't be dropped by whichever copy nobody updated

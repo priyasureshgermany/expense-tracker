@@ -150,7 +150,7 @@ into the other browser's restore box, or set up GitHub sync in both and use
 ### GitHub sync (optional)
 
 **Settings → GitHub sync** can push a JSON backup file to a repo of your own
-after every change, called directly from your browser via the GitHub REST
+when you press Push, called directly from your browser via the GitHub REST
 API — no server involved. Because it's a static page, the token has to live
 in the browser to make those calls, which means:
 
@@ -163,7 +163,7 @@ in the browser to make those calls, which means:
   computer, and revoke the token from GitHub if you ever stop using it.
 
 Fill in the token, the repo as `owner/repo`, and a file path (defaults to
-`data/panappai-backup.json`), then **Save & enable auto-sync**. Sync is
+`data/panappai-backup.json`), then **Save & enable backup**. Sync is
 debounced a few seconds after each change so a burst of edits doesn't fire an
 API call per row.
 
