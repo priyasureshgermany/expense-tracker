@@ -3,6 +3,11 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.14 — 2026-08-25
+- Added Self transfer: your own money moving between your own accounts, absent from every dashboard total and moving only the two balances
+- Added a Transfers tab to வரவு செலவு
+- Retired Bank Transfer from the income categories, replaced by Self transfer
+
 ## 1.1.13 — 2026-08-25
 - Starting balances are per account, so each bank and card carries its own opening figure
 - Settings > Accounts shows what each account holds now, tracked from its opening balance

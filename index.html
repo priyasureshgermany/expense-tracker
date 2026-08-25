@@ -769,7 +769,7 @@ button.tile:hover .tile-go{color:var(--accent)}
   font-variant-numeric:tabular-nums;white-space:nowrap;flex:none;
   letter-spacing:-.02em;
 }
-.amt.in{color:var(--pos)} .amt.out{color:var(--neg)}
+.amt.in{color:var(--pos)} .amt.out{color:var(--neg)} .amt.xf{color:var(--ink-2)}
 .row.planned .amt,.row.planned .t1{opacity:.72}
 
 .pill{
@@ -967,15 +967,18 @@ button.tile:hover .tile-go{color:var(--accent)}
 .fabmenu.open .fabopt{opacity:1;transform:none}
 /* the nearer option leads on the way up and trails on the way down */
 .fabmenu .fabopt.out{transition-delay:0s}
-.fabmenu .fabopt.in{transition-delay:.05s}
+.fabmenu .fabopt.in{transition-delay:.1s}
+.fabmenu .fabopt.xfer{transition-delay:.05s}
 .fabmenu.open .fabopt.out{transition-delay:.05s}
 .fabmenu.open .fabopt.in{transition-delay:0s}
+.fabmenu.open .fabopt.xfer{transition-delay:.05s}
 .fabopt:active{transform:scale(.95)}
 .fabopt .fo-ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none}
 .fabopt .fo-ic svg{width:14px;height:14px}
 .fabopt.out{color:var(--neg)}
 .fabopt.out .fo-ic{background:var(--neg-soft)}
 .fabopt.in{color:var(--pos)}
+.fabopt.xfer{color:var(--accent)}
 .fabopt.in .fo-ic{background:var(--pos-soft)}
 
 /* ============================================================
@@ -1057,6 +1060,7 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .toggle2 button.p[aria-pressed="true"]{color:var(--pos)}
 .toggle2 button.n[aria-pressed="true"]{color:var(--neg)}
 .toggle2 button.a[aria-pressed="true"]{color:var(--ink)}
+.toggle2 button.x[aria-pressed="true"]{color:var(--accent)}
 
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chip{
@@ -1727,6 +1731,7 @@ html.locked #lockScreen::before{
         <button role="tab" data-f="all" aria-selected="true">All <span class="n" id="cAll">0</span></button>
         <button role="tab" data-f="planned" aria-selected="false">Planned <span class="n" id="cPlan">0</span></button>
         <button role="tab" data-f="done" aria-selected="false">Filled <span class="n" id="cDone">0</span></button>
+        <button role="tab" data-f="transfer" aria-selected="false">Transfers <span class="n" id="cXfer">0</span></button>
       </div>
     </div>
 
@@ -1798,6 +1803,10 @@ html.locked #lockScreen::before{
         <span class="fo-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg></span>
         Income
       </button>
+      <button class="fabopt xfer" type="button" data-t="transfer">
+        <span class="fo-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg></span>
+        Self transfer
+      </button>
       <button class="fabopt out" type="button" data-t="expense">
         <span class="fo-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg></span>
         Expense
@@ -1836,7 +1845,7 @@ html.locked #lockScreen::before{
   </div>
   <div class="sheet-body">
     <div class="field">
-      <div class="toggle2" id="eType">
+      <div class="toggle2" id="eType" style="grid-template-columns:repeat(3,1fr)">
         <button class="n" data-v="expense" aria-pressed="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg>
           Expense
@@ -1844,6 +1853,10 @@ html.locked #lockScreen::before{
         <button class="p" data-v="income" aria-pressed="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg>
           Income
+        </button>
+        <button class="x" data-v="transfer" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg>
+          Transfer
         </button>
       </div>
     </div>
@@ -1858,7 +1871,7 @@ html.locked #lockScreen::before{
       <label for="eNote">Description</label>
       <input class="inp" id="eNote" type="text" placeholder="e.g. Rewe groceries" autocomplete="off">
     </div>
-    <div class="field">
+    <div class="field" id="eCatWrap">
       <label>Category</label>
       <div class="chips" id="eCats"></div>
     </div>
@@ -1878,7 +1891,7 @@ html.locked #lockScreen::before{
         <label for="eDate">Date</label>
         <input id="eDate" type="date">
       </div>
-      <div class="field">
+      <div class="field" id="eStatusWrap">
         <label>Status</label>
         <div class="toggle2" id="eStatus">
           <button class="a" data-v="done" aria-pressed="true">Paid</button>
@@ -2478,7 +2491,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.13";
+const APP_VERSION = "1.1.14";
 const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
@@ -2525,7 +2538,8 @@ const CATS = {
   ],
   income: [
     {id:"salary",       n:"Salary",        h:152},
-    {id:"banktransfer", n:"Bank Transfer", h:205},
+    /* superseded by Self transfer, which moves money without counting as income */
+    {id:"banktransfer", n:"Bank Transfer", h:205, retired:true},
     {id:"refund",       n:"Refund",        h:44},
     {id:"taxreturn",    n:"Tax return",    h:96},
     {id:"gift",         n:"Gift",          h:310},
@@ -2821,8 +2835,14 @@ function accountBalance(id){
   state.txns.forEach(t => {
     if (t.status !== "done") return;
     if (from && t.date < from) return;
+    if (isTransfer(t)){
+      /* leaves one account and lands in the other, netting to nothing overall */
+      if (t.account === id) bal += t.amount;
+      if (t.fromAccount === id) bal -= t.amount;
+      return;
+    }
     if (t.account === id) bal += (t.type === "income" ? t.amount : -t.amount);
-    /* the sending side of a transfer between your own accounts */
+    /* the sending side of a Bank Transfer income entry */
     if (t.fromAccount === id && t.type === "income") bal -= t.amount;
   });
   return bal;
@@ -3060,8 +3080,19 @@ function isDark(){
 /* =========================================================================
    RENDER
    ========================================================================= */
+/**
+ * A self transfer is your own money moving between your own accounts: nothing
+ * earned, nothing spent. Counting it either way would inflate both sides of the
+ * dashboard, so it is filtered out here — the single gate every total, chart,
+ * envelope and ledger row passes through — rather than at each of them.
+ */
+function isTransfer(t){ return t.type === "transfer"; }
 function periodTxns(p){
-  return state.txns.filter(t => periodOf(t.date) === p);
+  return state.txns.filter(t => periodOf(t.date) === p && !isTransfer(t));
+}
+/** Transfers for a period, which only the Transfers tab and balances want. */
+function periodTransfers(p){
+  return state.txns.filter(t => periodOf(t.date) === p && isTransfer(t));
 }
 
 /* ---------- period health (income vs. expense) ---------- */
@@ -3147,14 +3178,17 @@ function render(){
   const counted = all.filter(t => !typeFilter || t.type === typeFilter);
   const nPlan = counted.filter(t => t.status === "planned").length;
   const nDone = counted.length - nPlan;
+  const xfers = periodTransfers(view).slice().sort((a, b) => a.date < b.date ? 1 : -1);
   $("#cAll").textContent = counted.length;
   $("#cPlan").textContent = nPlan;
   $("#cDone").textContent = nDone;
+  $("#cXfer").textContent = xfers.length;
 
   /* --- list --- */
-  const shown = all
-    .filter(t => filter === "all" || t.status === filter)
-    .filter(t => !typeFilter || t.type === typeFilter);
+  const shown = filter === "transfer"
+    ? xfers
+    : all.filter(t => filter === "all" || t.status === filter)
+         .filter(t => !typeFilter || t.type === typeFilter);
 
   const pill = $("#typePill");
   pill.hidden = !typeFilter;
@@ -3177,8 +3211,11 @@ function render(){
       const g = el("section", "daygroup");
       const head = el("div", "dayhead");
       head.appendChild(el("span", "d", dayTitle(date)));
-      const dayNet = items.reduce((s, t) => s + (t.type === "income" ? t.amount : -t.amount), 0);
-      head.appendChild(el("span", "t", (dayNet > 0 ? "+" : "") + fmt(dayNet)));
+      /* transfers net to nothing, so they leave the day's figure alone */
+      const dayNet = items.reduce((s, t) =>
+        isTransfer(t) ? s : s + (t.type === "income" ? t.amount : -t.amount), 0);
+      const allXfer = items.every(isTransfer);
+      head.appendChild(el("span", "t", allXfer ? "" : (dayNet > 0 ? "+" : "") + fmt(dayNet)));
       g.appendChild(head);
 
       const rows = el("div", "rows");
@@ -3626,7 +3663,7 @@ function renderBalance(){
 
   let inc = 0, exp = 0;
   state.txns.forEach(t => {
-    if (t.status !== "done") return;
+    if (t.status !== "done" || isTransfer(t)) return;
     if (from && t.date < from) return;
     if (t.type === "income") inc += t.amount; else exp += t.amount;
   });
@@ -3904,21 +3941,26 @@ function emptyState(monthCount){
 }
 
 function txnRow(t, dark){
-  const c = catOf(t.category);
+  const xfer = isTransfer(t);
+  const c = xfer ? { id:"transfer", n:"Self transfer", h:200 } : catOf(t.category);
   const row = el("div", "row" + (t.status === "planned" ? " planned" : ""));
 
   const sw = el("div", "mono");
-  sw.innerHTML = iconSvg(c.id, 18);
+  sw.innerHTML = xfer
+    ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg>'
+    : iconSvg(c.id, 18);
   sw.style.background = tint(c.h, dark);
   sw.style.color = tintInk(c.h, dark);
   row.appendChild(sw);
 
   const main = el("div", "rowmain");
-  const t1 = el("div", "t1", t.note || c.n);
+  const t1 = el("div", "t1", t.note || (xfer ? accountName(t.fromAccount) + " → " + accountName(t.account) : c.n));
   main.appendChild(t1);
 
   const t2 = el("div", "t2");
-  t2.appendChild(el("span", "cn", c.n));
+  t2.appendChild(el("span", "cn", xfer
+    ? (t.note ? accountName(t.fromAccount) + " → " + accountName(t.account) : "Self transfer")
+    : c.n));
   if (t.status === "planned"){
     const late = t.date < todayISO();
     const p = el("span", "pill " + (late ? "late" : "due"), late ? "Overdue" : "Due");
@@ -3939,8 +3981,8 @@ function txnRow(t, dark){
   open.addEventListener("click", () => openEntry(t));
   row.appendChild(open);
 
-  const amt = el("div", "amt " + (t.type === "income" ? "in" : "out"),
-    (t.type === "income" ? "+" : "−") + fmt(t.amount).replace("-", ""));
+  const amt = el("div", "amt " + (xfer ? "xf" : (t.type === "income" ? "in" : "out")),
+    (xfer ? "" : (t.type === "income" ? "+" : "−")) + fmt(t.amount).replace("-", ""));
   row.appendChild(amt);
 
   const tick = el("button", "tick" + (t.status === "done" ? " on" : ""));
@@ -4325,13 +4367,14 @@ function fillAccountSelect(node, sel, placeholder){
 /* Bank Transfer income is money arriving from another account of yours, so it
    needs both ends; everything else only needs the account it touched. */
 function renderAccountFields(){
-  const wantsFrom = draft.type === "income" && draft.category === "banktransfer";
+  const xfer = draft.type === "transfer";
+  const wantsFrom = xfer || (draft.type === "income" && draft.category === "banktransfer");
   $("#eFromWrap").hidden = !wantsFrom;
   if (wantsFrom) fillAccountSelect($("#eFrom"), draft.fromAccount, "Choose the sending account…");
-  $("#eAcctLabel").textContent =
-    draft.type === "income" ? (wantsFrom ? "To account" : "Paid into") : "Paid from";
+  $("#eAcctLabel").textContent = xfer ? "To account"
+    : (draft.type === "income" ? (wantsFrom ? "To account" : "Paid into") : "Paid from");
   fillAccountSelect($("#eAcct"), draft.account,
-    draft.type === "income" ? "Choose where it landed…" : "Choose where it came from…");
+    (xfer || draft.type === "income") ? "Choose where it landed…" : "Choose where it came from…");
   $("#eAcctNote").hidden = true;   /* the rail says so itself when empty */
 }
 
@@ -4406,10 +4449,19 @@ function addCategory(){
 $("#catAdd").addEventListener("click", addCategory);
 $("#catName").addEventListener("keydown", e => { if (e.key === "Enter") addCategory(); });
 function syncEntryUI(){
+  const xfer = draft.type === "transfer";
   $$("#eType button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === draft.type)));
   $$("#eStatus button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === draft.status)));
-  $("#amtWrap").className = "amtfield " + (draft.type === "income" ? "in" : "out");
-  renderCatChips();
+  $("#amtWrap").className = "amtfield " + (xfer ? "" : (draft.type === "income" ? "in" : "out"));
+  /* A transfer has no category and no status: it is money you already had,
+     moving, and it either happened or it isn't an entry yet. */
+  $("#eCatWrap").hidden = xfer;
+  $("#eStatusWrap").hidden = xfer;
+  $("#entryTitle").textContent = editing
+    ? (xfer ? "Edit transfer" : "Edit entry")
+    : (xfer ? "Self transfer" : "New entry");
+  if (!xfer) renderCatChips();
+  renderAccountFields();
 }
 function openEntry(txn, type){
   editing = txn || null;
@@ -4428,15 +4480,22 @@ function openEntry(txn, type){
     $("#eDeleteWrap").style.display = "";
     $("#eSave").textContent = "Save changes";
   } else {
-    const t = type === "income" ? "income" : "expense";
-    draft = { type:t, category: pickableCats(t)[0].id, status:"done",
-              account: defaultAccountId(), fromAccount:null };
+    const t = (type === "income" || type === "transfer") ? type : "expense";
+    draft = {
+      type: t,
+      category: t === "transfer" ? null : pickableCats(t)[0].id,
+      status: "done",
+      account: defaultAccountId(),
+      /* a transfer needs both ends, so the second one starts filled too */
+      fromAccount: t === "transfer" ? defaultAccountId() : null
+    };
     $("#entryTitle").textContent = "New entry";
     $("#eAmt").value = "";
     $("#eNote").value = "";
     setDateVal("#eDate", view === periodOf(todayISO()) ? todayISO() : periodStart(view));
     $("#eDeleteWrap").style.display = "none";
-    $("#eSave").textContent = "Save entry";
+    $("#eSave").textContent = draft.type === "transfer" ? "Save transfer" : "Save entry";
+    if (draft.type === "transfer" && !draft.fromAccount) draft.fromAccount = defaultAccountId();
   }
   syncEntryUI();
   renderAccountFields();
@@ -4462,10 +4521,15 @@ document.addEventListener("click", e => {
 });
 $$("#eType button").forEach(b => b.addEventListener("click", () => {
   draft.type = b.dataset.v;
-  draft.category = pickableCats(draft.type)[0].id;
-  draft.fromAccount = null;
+  if (draft.type === "transfer"){
+    draft.category = null;
+    draft.status = "done";           /* a transfer has either happened or not */
+    if (!draft.fromAccount) draft.fromAccount = defaultAccountId();
+  } else {
+    draft.category = pickableCats(draft.type)[0].id;
+    draft.fromAccount = null;
+  }
   syncEntryUI();
-  renderAccountFields();
 }));
 $$("#eStatus button").forEach(b => b.addEventListener("click", () => {
   draft.status = b.dataset.v;
@@ -4498,9 +4562,20 @@ $("#eSave").addEventListener("click", () => {
     return;
   }
 
+  if (draft.type === "transfer"){
+    if (!draft.fromAccount || !draft.account){
+      toast("Pick both accounts"); return;
+    }
+    if (draft.fromAccount === draft.account){
+      toast("Pick two different accounts"); return;
+    }
+  }
+
   state.txns.push({
-    id: uid(), type: draft.type, amount: cents, category: draft.category,
-    note: note, date: date, status: draft.status,
+    id: uid(), type: draft.type, amount: cents,
+    category: draft.type === "transfer" ? null : draft.category,
+    note: note, date: date,
+    status: draft.type === "transfer" ? "done" : draft.status,
     account: draft.account || null, fromAccount: draft.fromAccount || null
   });
   save();
