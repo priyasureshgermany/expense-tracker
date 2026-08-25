@@ -546,16 +546,6 @@
       "ruleId": "w09yr4drm0rp"
     },
     {
-      "id": "wyqg94kcm0rq",
-      "type": "expense",
-      "amount": 6300,
-      "category": "transport",
-      "note": "Deutschland Ticket - Priya",
-      "date": "2027-01-01",
-      "status": "planned",
-      "ruleId": "w09yr4drm0rp"
-    },
-    {
       "id": "vdd4c2gsm0rq",
       "type": "expense",
       "amount": 6300,
@@ -668,16 +658,6 @@
       "ruleId": "rbx4wt3np9ur"
     },
     {
-      "id": "iq6fils3p9ut",
-      "type": "expense",
-      "amount": 5985,
-      "category": "transport",
-      "note": "Deutschland Ticket - Suresh",
-      "date": "2027-01-01",
-      "status": "planned",
-      "ruleId": "rbx4wt3np9ur"
-    },
-    {
       "id": "32kd7559p9ut",
       "type": "expense",
       "amount": 5985,
@@ -786,16 +766,6 @@
       "category": "education",
       "note": "For Hort - Shakthi",
       "date": "2026-12-03",
-      "status": "planned",
-      "ruleId": "nzysz1jsslx6"
-    },
-    {
-      "id": "992txkn2slx8",
-      "type": "expense",
-      "amount": 12300,
-      "category": "education",
-      "note": "For Hort - Shakthi",
-      "date": "2027-01-03",
       "status": "planned",
       "ruleId": "nzysz1jsslx6"
     },
@@ -1034,16 +1004,6 @@
       "ruleId": "11j7m9lmmy6f"
     },
     {
-      "id": "oqqxl4iumy6g",
-      "type": "expense",
-      "amount": 222000,
-      "category": "emi",
-      "note": "Personal Loan - Commerzbank",
-      "date": "2027-01-01",
-      "status": "planned",
-      "ruleId": "11j7m9lmmy6f"
-    },
-    {
       "id": "p3v388n0my6g",
       "type": "expense",
       "amount": 222000,
@@ -1152,16 +1112,6 @@
       "category": "dining",
       "note": "Shakthi lunch",
       "date": "2026-12-03",
-      "status": "planned",
-      "ruleId": "j9kso8pzpjnm"
-    },
-    {
-      "id": "mgi7l5qvpjnn",
-      "type": "expense",
-      "amount": 6000,
-      "category": "dining",
-      "note": "Shakthi lunch",
-      "date": "2027-01-03",
       "status": "planned",
       "ruleId": "j9kso8pzpjnm"
     },
@@ -1642,18 +1592,6 @@
       "date": "2027-09-03",
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "qs3uuletyimh",
-      "type": "expense",
-      "amount": 4495,
-      "category": "subs",
-      "note": "Internet",
-      "date": "2026-13-05",
-      "status": "planned",
-      "ruleId": "soeg7dlmttqu",
       "account": null,
       "fromAccount": null
     },
@@ -2234,18 +2172,6 @@
       "fromAccount": null
     },
     {
-      "id": "mf0bozltjuhy",
-      "type": "expense",
-      "amount": 128000,
-      "category": "rent",
-      "note": "",
-      "date": "2027-01-02",
-      "status": "planned",
-      "ruleId": "5q98aay2rqyf",
-      "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
-    },
-    {
       "id": "xhx7wa19juhy",
       "type": "expense",
       "amount": 128000,
@@ -2819,6 +2745,17 @@
       "status": "done",
       "account": "a_gch8xl46opp7",
       "fromAccount": "a_0mh73fi9ovlw"
+    },
+    {
+      "id": "6n2tbqr4dls8",
+      "type": "expense",
+      "amount": 128000,
+      "category": "groceries_de",
+      "note": "Rent",
+      "date": "2027-01-02",
+      "status": "planned",
+      "account": "a_0mh73fi9ovlw",
+      "fromAccount": null
     }
   ],
   "rules": [
@@ -3051,7 +2988,14 @@
     "pqouodf8hgzf|2026-09-22",
     "9trvq5n4z3vo|2026-10-22",
     "pqouodf8hgzf|2026-10-22",
-    "o3c24zevikma|2026-08-05"
+    "o3c24zevikma|2026-08-05",
+    "11j7m9lmmy6f|2027-01-01",
+    "rbx4wt3np9ur|2027-01-01",
+    "w09yr4drm0rp|2027-01-01",
+    "j9kso8pzpjnm|2027-01-03",
+    "nzysz1jsslx6|2027-01-03",
+    "soeg7dlmttqu|2026-13-05",
+    "5q98aay2rqyf|2027-01-02"
   ],
   "shop": {
     "lists": {
