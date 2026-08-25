@@ -3,6 +3,9 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.15 — 2026-08-25
+- The ledger tabs sit on one row again; the fourth had been pushed onto a line of its own
+
 ## 1.1.14 — 2026-08-25
 - Added Self transfer: your own money moving between your own accounts, absent from every dashboard total and moving only the two balances
 - Added a Transfers tab to வரவு செலவு
