@@ -1595,7 +1595,9 @@
       "note": "Phone recharge - Hasini",
       "date": "2026-09-07",
       "status": "planned",
-      "ruleId": "b687bcbvxt8c"
+      "ruleId": "b687bcbvxt8c",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "puo0ke9qmy6g",
