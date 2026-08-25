@@ -531,7 +531,9 @@
       "category": "education",
       "note": "VHS",
       "date": "2026-08-20",
-      "status": "done"
+      "status": "done",
+      "account": "a_0mh73fi9ovlw",
+      "fromAccount": null
     },
     {
       "id": "g1cqcyfeyfpq",
