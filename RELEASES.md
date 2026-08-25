@@ -3,6 +3,9 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.9 — 2026-08-25
+- The amount box on a recurring entry is styled like the one on a normal entry, reading green or red as you type instead of plain white
+
 ## 1.1.8 — 2026-08-25
 - Removed the backup button from the top bar; whether anything is unpushed is said in Settings instead
 - Recurring amounts take the income and expense colours the ledger uses, rather than plain white
