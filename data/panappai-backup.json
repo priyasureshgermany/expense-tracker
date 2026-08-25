@@ -2102,7 +2102,9 @@
       "note": "For McFit",
       "date": "2026-09-05",
       "status": "planned",
-      "ruleId": "ep2y84vu91qg"
+      "ruleId": "ep2y84vu91qg",
+      "account": "a_0mh73fi9ovlw",
+      "fromAccount": null
     },
     {
       "id": "neixg1ek91qh",
