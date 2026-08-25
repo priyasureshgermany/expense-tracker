@@ -3,6 +3,12 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.12 — 2026-08-25
+- The unpushed count is a real comparison against the backup now, not a tally of saves — opening the app no longer looked like a change
+- An eye button beside Push now lists exactly what would be pushed, added, changed and deleted
+- Push asks twice, as pull does, since it replaces the backup outright
+- Restored the September rent again, overwritten by a single-tap push from a device that had not pulled
+
 ## 1.1.11 — 2026-08-25
 - Restored the September rent, whose occurrence had been deleted and so suppressed for good
 - Saving a recurring entry now clears its future skips, so a month deleted by mistake comes back; past ones stand as history

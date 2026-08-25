@@ -1255,6 +1255,24 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   animation:dotIn .3s cubic-bezier(.2,.9,.3,1);
 }
 
+.pushrow{display:flex;gap:7px;align-items:stretch}
+.chrow{
+  display:flex;align-items:center;gap:10px;padding:11px 2px;
+}
+.chrow + .chrow{border-top:1px solid var(--line)}
+.chrow .ck{
+  flex:none;min-width:58px;text-align:center;
+  font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:4px 7px;border-radius:99px;
+}
+.chrow .ck.new{background:var(--pos-soft, rgba(63,203,146,.16));color:var(--pos)}
+.chrow .ck.edited{background:var(--accent-soft);color:var(--accent)}
+.chrow .ck.deleted{background:rgba(255,127,107,.16);color:var(--neg)}
+.chrow .cm{flex:1;min-width:0}
+.chrow .ct{font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chrow .cs{font-size:11.5px;color:var(--ink-3)}
+.chrow .ca{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;font-weight:600}
+
 /* the count that rides on the Push now button */
 .bub{
   display:inline-grid;place-items:center;
@@ -1930,6 +1948,23 @@ html.locked #lockScreen::before{
   </button>
 </section>
 
+<!-- WHAT WOULD BE PUSHED -->
+<section class="sheet" id="shChanges" role="dialog" aria-modal="true" aria-labelledby="chTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="chTitle">Not yet pushed</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="note" style="margin-bottom:12px">
+      What this device holds that the backup does not. Pushing replaces the
+      backup with this device's copy.
+    </div>
+    <div id="ghChangesBody"></div>
+  </div>
+</section>
+
 <!-- REMINDERS -->
 <section class="sheet" id="shBell" role="dialog" aria-modal="true" aria-labelledby="bellTitle">
   <div class="sheet-head" style="position:relative">
@@ -2356,7 +2391,12 @@ html.locked #lockScreen::before{
         <input class="inp" id="ghRepo" type="text" placeholder="owner/repo" autocomplete="off">
         <input class="inp" id="ghPath" type="text" placeholder="data path, e.g. data/panappai-backup.json" autocomplete="off">
         <button class="btn ghost sm" id="ghSave">Save &amp; enable backup</button>
-        <button class="btn ghost sm" id="ghSyncNow" hidden>Push now</button>
+        <div class="pushrow">
+          <button class="btn ghost sm" id="ghSyncNow" hidden style="flex:1;min-width:0">Push now</button>
+          <button class="iconbtn" id="ghReview" type="button" hidden title="See what would be pushed" aria-label="See what would be pushed" style="flex:none;border:1px solid var(--line);width:44px;height:auto">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
         <button class="btn ghost sm" id="ghPull" hidden>Pull onto this device</button>
         <button class="btn danger sm" id="ghDisable" hidden>Disable sync</button>
       </div>
@@ -2424,7 +2464,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.11";
+const APP_VERSION = "1.1.12";
 const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
@@ -5857,17 +5897,119 @@ let ghSyncing = false;
 
 /* Local edits that the repo hasn't been told about. Tracked so the app can say
    so plainly, rather than pushing on your behalf to keep the two in step. */
-const GH_DIRTY_KEY = "panappai.gh.dirty";
-const GH_NUDGE_KEY = "panappai.gh.nudged";   /* the count we last nudged at */
-const GH_NUDGE_AT = 20;
-function ghUnpushed(){ return Math.max(0, parseInt(localStorage.getItem(GH_DIRTY_KEY) || "0", 10) || 0); }
+/* -------------------------------------------------------------------------
+   WHAT IS UNPUSHED
+
+   Counting save() calls was wrong: save() runs on every boot, so merely opening
+   the app twice reported two changes nobody had made. What is outstanding is a
+   property of the data, not of how often it was written, so it is worked out by
+   comparing the book against a fingerprint of whatever was last pushed.
+   ------------------------------------------------------------------------- */
+const GH_SNAP_KEY = "panappai.gh.snapshot";
+
+/** Everything about an entry that a push would carry. */
+function txnSig(t){
+  return [t.type, t.amount, t.category, t.date, t.status,
+          t.note || "", t.account || "", t.fromAccount || ""].join("|");
+}
+function ruleSig(r){
+  return [r.type, r.amount, r.category, r.freq, r.anchor, r.note || "",
+          r.active === false ? "off" : "on", r.account || "", r.fromAccount || ""].join("|");
+}
+
+/** A compact index of the book: ids to signatures, small enough to keep. */
+function ghFingerprint(){
+  const t = {}, r = {};
+  state.txns.forEach(x => { t[x.id] = txnSig(x); });
+  state.rules.forEach(x => { r[x.id] = ruleSig(x); });
+  return {
+    t: t, r: r,
+    misc: JSON.stringify([state.budgets, state.catchAll, state.balance,
+                          state.accounts, state.profile, state.cats, (state.skips || []).length])
+  };
+}
+function ghSaveSnapshot(){
+  try{ localStorage.setItem(GH_SNAP_KEY, JSON.stringify(ghFingerprint())); }
+  catch(e){ /* storage full: the count degrades, the data does not */ }
+}
+function ghSnapshot(){
+  try{ return JSON.parse(localStorage.getItem(GH_SNAP_KEY) || "null"); }
+  catch(e){ return null; }
+}
+
+/**
+ * What this device holds that the backup does not.
+ * Each entry is { kind, what, when, amount, type }.
+ */
+function ghChanges(){
+  if (!ghEnabled()) return [];
+  const snap = ghSnapshot();
+  const out = [];
+  const label = x => x.note || (catOf(x.category) || {}).n || "Entry";
+
+  if (!snap){
+    /* Never pushed from this device, so there is nothing to compare against
+       and everything counts as outstanding. */
+    state.txns.forEach(x => out.push({ kind:"new", what:label(x), when:x.date,
+      amount:x.amount, type:x.type }));
+    state.rules.forEach(x => out.push({ kind:"new", what:label(x) + " · repeating",
+      when:x.anchor, amount:x.amount, type:x.type }));
+    return out;
+  }
+
+  const seenT = {};
+  state.txns.forEach(x => {
+    seenT[x.id] = true;
+    const was = snap.t ? snap.t[x.id] : undefined;
+    const sig = txnSig(x);
+    if (was === undefined) out.push({ kind:"new", what:label(x), when:x.date, amount:x.amount, type:x.type });
+    else if (was !== sig) out.push({ kind:"edited", what:label(x), when:x.date, amount:x.amount, type:x.type });
+  });
+  Object.keys(snap.t || {}).forEach(id => {
+    if (!seenT[id]){
+      const parts = String(snap.t[id]).split("|");
+      out.push({ kind:"deleted", what: parts[5] || (catOf(parts[2]) || {}).n || "Entry",
+                 when: parts[3], amount: +parts[1] || 0, type: parts[0] });
+    }
+  });
+
+  const seenR = {};
+  state.rules.forEach(x => {
+    seenR[x.id] = true;
+    const was = snap.r ? snap.r[x.id] : undefined;
+    const sig = ruleSig(x);
+    if (was === undefined) out.push({ kind:"new", what:label(x) + " · repeating", when:x.anchor, amount:x.amount, type:x.type });
+    else if (was !== sig) out.push({ kind:"edited", what:label(x) + " · repeating", when:x.anchor, amount:x.amount, type:x.type });
+  });
+  Object.keys(snap.r || {}).forEach(id => {
+    if (!seenR[id]){
+      const parts = String(snap.r[id]).split("|");
+      out.push({ kind:"deleted", what: (parts[5] || "Entry") + " · repeating",
+                 when: parts[4], amount: +parts[1] || 0, type: parts[0] });
+    }
+  });
+
+  const misc = JSON.stringify([state.budgets, state.catchAll, state.balance,
+                               state.accounts, state.profile, state.cats, (state.skips || []).length]);
+  if (misc !== snap.misc){
+    out.push({ kind:"edited", what:"Settings — budgets, accounts, categories or balance",
+               when:"", amount:0, type:"" });
+  }
+
+  out.sort((a, b) => (b.when || "").localeCompare(a.when || ""));
+  return out;
+}
+
+function ghUnpushed(){ return ghChanges().length; }
 function ghDirty(){ return ghUnpushed() > 0; }
+
+/* Nudge once on crossing the line, then again every twenty after — a reminder
+   on every save past twenty is one you learn to dismiss. */
+const GH_NUDGE_KEY = "panappai.gh.nudged";
+const GH_NUDGE_AT = 20;
 function ghMarkDirty(){
   if (!ghEnabled()) return;
-  const n = ghUnpushed() + 1;
-  localStorage.setItem(GH_DIRTY_KEY, String(n));
-  /* Nudge once on crossing the line, then again every 20 after — a reminder on
-     every save past twenty would just be noise you learn to dismiss. */
+  const n = ghUnpushed();
   const nudged = parseInt(localStorage.getItem(GH_NUDGE_KEY) || "0", 10) || 0;
   if (n >= GH_NUDGE_AT && n - nudged >= GH_NUDGE_AT){
     localStorage.setItem(GH_NUDGE_KEY, String(n));
@@ -5876,20 +6018,47 @@ function ghMarkDirty(){
   renderGhCount();
 }
 function ghMarkClean(){
-  localStorage.removeItem(GH_DIRTY_KEY);
+  ghSaveSnapshot();
   localStorage.removeItem(GH_NUDGE_KEY);
   renderGhCount();
 }
-/** The count on the Push now button, so the number is where the action is. */
+
+/** The count on Push now, and whether the review button has anything to show. */
 function renderGhCount(){
   const b = $("#ghSyncNow");
   if (!b) return;
   const n = ghEnabled() ? ghUnpushed() : 0;
-  b.textContent = "Push now";
-  if (n){
-    const c = el("span", "bub", String(n));
-    b.appendChild(c);
+  if (!b.dataset.armed) b.textContent = "Push now";
+  if (n && !b.dataset.armed) b.appendChild(el("span", "bub", String(n)));
+  const rev = $("#ghReview");
+  if (rev) rev.hidden = !ghEnabled() || !n;
+}
+
+/** The list itself, so a push is never a leap of faith. */
+function renderGhChanges(){
+  const host = $("#ghChangesBody");
+  host.innerHTML = "";
+  const list = ghChanges();
+  if (!list.length){
+    host.innerHTML = '<div class="empty" style="padding:30px 10px"><h4>Nothing to push</h4>' +
+      '<p>This device and the backup hold the same thing.</p></div>';
+    return;
   }
+  const KIND = { new:"Added", edited:"Changed", deleted:"Deleted" };
+  list.forEach(c => {
+    const row = el("div", "chrow");
+    row.appendChild(el("span", "ck " + c.kind, KIND[c.kind]));
+    const m = el("div", "cm");
+    m.appendChild(el("div", "ct", c.what));
+    if (c.when) m.appendChild(el("div", "cs", dayTitle(c.when)));
+    row.appendChild(m);
+    if (c.amount){
+      const a = el("div", "ca", (c.type === "income" ? "+" : "−") + fmt(c.amount));
+      a.style.color = c.type === "income" ? "var(--pos)" : "var(--neg)";
+      row.appendChild(a);
+    }
+    host.appendChild(row);
+  });
 }
 /* Whether there is anything unpushed is said in Settings › GitHub sync rather
    than by an icon in the top bar, which earned its place less than the space
@@ -6137,19 +6306,25 @@ $("#ghTokenEye").addEventListener("click", () => {
 });
 /* Push now is the deliberate override, so it arms rather than firing at once
    when this device hasn't reconciled with the backup yet. */
+$("#ghReview").addEventListener("click", () => { renderGhChanges(); sheetOpen("#shChanges"); });
+
+/* Always two taps, as pull is: a push replaces the backup outright, and doing
+   that from a single tap is how a stray press costs you the other device's
+   work. */
 $("#ghSyncNow").addEventListener("click", function(){
-  if (ghReconciled()){ ghSyncNow(true); return; }
   if (this.dataset.armed){
     delete this.dataset.armed;
-    this.textContent = "Push now";
     ghMarkReconciled();
     ghSyncNow(true);
+    renderGhCount();
   } else {
     this.dataset.armed = "1";
-    this.textContent = "Tap again — this replaces the backup";
+    const n = ghUnpushed();
+    this.textContent = "Tap again to replace the backup with " +
+      (n ? n + " change" + (n === 1 ? "" : "s") : "this device's copy");
     setTimeout(() => {
       delete this.dataset.armed;
-      this.textContent = "Push now";
+      renderGhCount();
     }, 4000);
   }
 });
