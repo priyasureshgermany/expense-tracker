@@ -3,6 +3,15 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.3 — 2026-08-25
+- The + button is glass now, tinted and blurred rather than solid
+- Recurring entries opens straight from Settings, with no step in between
+- Recurring entries are editable: tap one to change it, pause it or delete it, and + adds a new one
+- Editing a recurring entry rewrites only what is still ahead; anything already paid stays put
+- Removed Repeat from the entry sheet, cadence living on the recurring page now
+- Added Settings > Notifications: in-app reminders for recurring entries due within three days
+- A bell beside the settings cog carries the reminders, counted from 8am and cleared when opened
+
 ## 1.1.2 — 2026-08-24
 - New app icon: the whole tile is dark distressed leather, with Sansad Bhavan and a euro tooled into it
 - Added tools/make-icons.py, which draws the icon set from scratch
