@@ -695,18 +695,21 @@ button.tile:hover .tile-go{color:var(--accent)}
 
 /* ---------- Segmented ---------- */
 .segwrap{padding:14px 14px 0;background:var(--ground)}
+/* One row whatever the count: the columns follow the buttons rather than being
+   fixed at three, which is what sent a fourth tab onto a line of its own. */
 .seg{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:3px;
+  display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;
   background:var(--surface-sunk);padding:3px;border-radius:var(--r-md);
 }
 .seg button{
-  padding:8px 4px;border-radius:9px;font-size:12.5px;font-weight:500;
+  padding:8px 3px;border-radius:9px;font-size:12px;font-weight:500;
   color:var(--ink-2);transition:background .18s,color .18s,box-shadow .18s;
-  display:flex;align-items:center;justify-content:center;gap:5px;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  min-width:0;white-space:nowrap;
 }
 .seg button .n{
-  font-family:var(--mono);font-size:10.5px;font-variant-numeric:tabular-nums;
-  color:var(--ink-3);
+  font-family:var(--mono);font-size:10px;font-variant-numeric:tabular-nums;
+  color:var(--ink-3);flex:none;
 }
 .seg button[aria-selected="true"]{
   background:var(--surface);color:var(--ink);font-weight:600;
@@ -2491,7 +2494,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.14";
+const APP_VERSION = "1.1.15";
 const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
