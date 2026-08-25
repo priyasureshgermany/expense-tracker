@@ -1859,7 +1859,9 @@
       "category": "buffer",
       "note": "Viswanathan & sons Movie - Cinestar",
       "date": "2026-08-19",
-      "status": "done"
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "ajpu3uuqzugh",
