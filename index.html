@@ -1246,9 +1246,22 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 /* ---------- Reminders ---------- */
 .bell{position:relative}
 .belldot{
-  position:absolute;top:6px;right:6px;width:9px;height:9px;border-radius:50%;
-  background:var(--neg);border:2px solid var(--ground);
+  position:absolute;top:3px;right:2px;
+  min-width:17px;height:17px;padding:0 4px;border-radius:99px;
+  display:grid;place-items:center;
+  background:var(--neg);color:#fff;
+  font-size:10px;font-weight:700;line-height:1;
+  border:2px solid var(--ground);
   animation:dotIn .3s cubic-bezier(.2,.9,.3,1);
+}
+
+/* the count that rides on the Push now button */
+.bub{
+  display:inline-grid;place-items:center;
+  min-width:19px;height:19px;padding:0 5px;margin-left:7px;border-radius:99px;
+  background:var(--neg);color:#fff;
+  font-size:11px;font-weight:700;line-height:1;
+  font-variant-numeric:tabular-nums;vertical-align:middle;
 }
 @keyframes dotIn{from{transform:scale(0)}to{transform:none}}
 
@@ -2411,7 +2424,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.9";
+const APP_VERSION = "1.1.10";
 const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
@@ -2494,11 +2507,11 @@ function nextCatHue(){
 }
 
 const FREQ_LABEL = {
-  weekly:"Weekly", monthly:"Monthly", bimonthly:"Every 2 months",
+  weekly:"Weekly", days28:"Every 28 days", monthly:"Monthly", bimonthly:"Every 2 months",
   quarterly:"Quarterly", halfyearly:"Every 6 months", yearly:"Yearly"
 };
 const FREQ_SHORT = {
-  weekly:"1W", monthly:"1M", bimonthly:"2M",
+  weekly:"1W", days28:"28D", monthly:"1M", bimonthly:"2M",
   quarterly:"3M", halfyearly:"6M", yearly:"1Y"
 };
 const FREQ_MONTHS = { monthly:1, bimonthly:2, quarterly:3, halfyearly:6, yearly:12 };
@@ -2672,11 +2685,14 @@ function dayTitle(iso){
   return dt.toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short"});
 }
 /** nth occurrence from an anchor, keeping the anchor's day-of-month. */
+const FREQ_DAYS = { weekly:7, days28:28 };
 function occurrence(anchor, freq, n){
   const [y, m, d] = anchor.split("-").map(Number);
-  if (freq === "weekly"){
+  /* Cadences counted in days drift through the calendar — a 28-day recharge
+     falls earlier each month — so they step by days rather than by month. */
+  if (FREQ_DAYS[freq]){
     const dt = new Date(Date.UTC(y, m - 1, d));
-    dt.setUTCDate(dt.getUTCDate() + 7 * n);
+    dt.setUTCDate(dt.getUTCDate() + FREQ_DAYS[freq] * n);
     return isoOf(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate());
   }
   const step = FREQ_MONTHS[freq] || 1;
@@ -4228,7 +4244,10 @@ function openEntry(txn, type){
   if (txn){
     draft = {
       type: txn.type, category: txn.category, status: txn.status,
-      account: txn.account || null, fromAccount: txn.fromAccount || null
+      /* entries predating accounts carry none; offer the default rather than an
+         empty picker, and write nothing to the entry until you save it */
+      account: txn.account || defaultAccountId(),
+      fromAccount: txn.fromAccount || null
     };
     $("#entryTitle").textContent = "Edit entry";
     $("#eAmt").value = (txn.amount / 100).toFixed(2).replace(".", ",");
@@ -4282,7 +4301,8 @@ $$("#eStatus button").forEach(b => b.addEventListener("click", () => {
 }));
 const FREQ_OPTS = [
   { v:"", n:"Does not repeat", none:true },
-  { v:"weekly", n:"Weekly" }, { v:"monthly", n:"Monthly" },
+  { v:"weekly", n:"Weekly" }, { v:"days28", n:"Every 28 days" },
+  { v:"monthly", n:"Monthly" },
   { v:"bimonthly", n:"Every 2 months" }, { v:"quarterly", n:"Every 3 months" },
   { v:"halfyearly", n:"Every 6 months" }, { v:"yearly", n:"Every year" }
 ];
@@ -4438,6 +4458,7 @@ function syncBell(){
   const unseen = list.length > 0 && notifSeen() !== notifDay();
   $("#btnBell").hidden = !notifOn();
   $("#bellDot").hidden = !unseen;
+  $("#bellDot").textContent = unseen ? (list.length > 9 ? "9+" : String(list.length)) : "";
   $("#btnBell").setAttribute("aria-label",
     list.length ? list.length + " reminder" + (list.length === 1 ? "" : "s") : "Reminders");
 }
@@ -5828,13 +5849,38 @@ let ghSyncing = false;
 /* Local edits that the repo hasn't been told about. Tracked so the app can say
    so plainly, rather than pushing on your behalf to keep the two in step. */
 const GH_DIRTY_KEY = "panappai.gh.dirty";
-function ghDirty(){ return localStorage.getItem(GH_DIRTY_KEY) === "1"; }
+const GH_NUDGE_KEY = "panappai.gh.nudged";   /* the count we last nudged at */
+const GH_NUDGE_AT = 20;
+function ghUnpushed(){ return Math.max(0, parseInt(localStorage.getItem(GH_DIRTY_KEY) || "0", 10) || 0); }
+function ghDirty(){ return ghUnpushed() > 0; }
 function ghMarkDirty(){
   if (!ghEnabled()) return;
-  localStorage.setItem(GH_DIRTY_KEY, "1");
+  const n = ghUnpushed() + 1;
+  localStorage.setItem(GH_DIRTY_KEY, String(n));
+  /* Nudge once on crossing the line, then again every 20 after — a reminder on
+     every save past twenty would just be noise you learn to dismiss. */
+  const nudged = parseInt(localStorage.getItem(GH_NUDGE_KEY) || "0", 10) || 0;
+  if (n >= GH_NUDGE_AT && n - nudged >= GH_NUDGE_AT){
+    localStorage.setItem(GH_NUDGE_KEY, String(n));
+    toast(n + " changes not backed up — push them in Settings");
+  }
+  renderGhCount();
 }
 function ghMarkClean(){
   localStorage.removeItem(GH_DIRTY_KEY);
+  localStorage.removeItem(GH_NUDGE_KEY);
+  renderGhCount();
+}
+/** The count on the Push now button, so the number is where the action is. */
+function renderGhCount(){
+  const b = $("#ghSyncNow");
+  if (!b) return;
+  const n = ghEnabled() ? ghUnpushed() : 0;
+  b.textContent = "Push now";
+  if (n){
+    const c = el("span", "bub", String(n));
+    b.appendChild(c);
+  }
 }
 /* Whether there is anything unpushed is said in Settings › GitHub sync rather
    than by an icon in the top bar, which earned its place less than the space
@@ -5956,6 +6002,7 @@ function renderGhSettings(){
   $("#ghSyncNow").hidden = !on;
   $("#ghPull").hidden = !on;
   $("#ghDisable").hidden = !on;
+  renderGhCount();
 }
 
 /**
