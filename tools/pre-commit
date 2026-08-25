@@ -7,6 +7,13 @@
 #
 #   node tools/bump-version.mjs --note "What changed in one line"
 #
+# The comparison is against what is RELEASED (origin/main), not against the
+# previous commit. One bump therefore covers a whole branch however many commits
+# it takes, so a round of review feedback no longer burns a version number. Add
+# to the version already prepared with:
+#
+#   node tools/bump-version.mjs --amend --note "And this too"
+#
 # Skipped for rebases and merges (replays, not releases) and for commits that
 # only touch data/, tools/ or the release files themselves.
 
@@ -23,12 +30,17 @@ if ! echo "$staged" | grep -qvE '^(data/|tools/|version\.json$|RELEASES\.md$)'; 
   exit 0
 fi
 
-committed=$(git show HEAD:version.json 2>/dev/null | sed -n 's/.*"version"[^"]*"\([^"]*\)".*/\1/p')
+base=$(git rev-parse --verify -q origin/main 2>/dev/null \
+     || git rev-parse --verify -q main 2>/dev/null \
+     || git rev-parse --verify -q HEAD 2>/dev/null)
+released=$(git show "$base":version.json 2>/dev/null | sed -n 's/.*"version"[^"]*"\([^"]*\)".*/\1/p')
 current=$(sed -n 's/.*"version"[^"]*"\([^"]*\)".*/\1/p' version.json)
 
-if [ -n "$committed" ] && [ "$committed" = "$current" ]; then
-  echo "pre-commit: version is still $current — prepare a release first:" >&2
+if [ -n "$released" ] && [ "$released" = "$current" ]; then
+  echo "pre-commit: version is still $current, the same as released — prepare a release first:" >&2
   echo "  node tools/bump-version.mjs --note \"What changed in one line\"" >&2
+  echo "(already bumped on this branch? add to that version instead:" >&2
+  echo "  node tools/bump-version.mjs --amend --note \"And this too\")" >&2
   exit 1
 fi
 
