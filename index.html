@@ -874,17 +874,80 @@ button.tile:hover .tile-go{color:var(--accent)}
   bottom:calc(80px + env(safe-area-inset-bottom));
   display:flex;flex-direction:column;align-items:flex-end;gap:10px;
 }
+/* Real glass rather than a tinted disc. The transparency lives in the fill,
+   not in element opacity — fading the whole button would fade the icon with it,
+   which is what capped how far this could go before. The page is blurred and
+   over-saturated behind it, a bright rim runs the top edge, and a specular cap
+   and hot spot sit on the surface. */
 .fab{
+  position:relative;isolation:isolate;
   width:56px;height:56px;border-radius:50%;
-  background:linear-gradient(135deg, var(--accent-mid), var(--accent));color:var(--accent-ink);
+  background:
+    radial-gradient(125% 105% at 30% 10%,
+      rgba(255,255,255,.18) 0%, rgba(255,255,255,.03) 40%, rgba(255,255,255,0) 62%),
+    linear-gradient(150deg,
+      color-mix(in srgb, var(--accent-mid) 9%, transparent),
+      color-mix(in srgb, var(--accent) 15%, transparent));
+  color:var(--ink);
+  -webkit-backdrop-filter:blur(24px) saturate(2.2) brightness(1.04);
+  backdrop-filter:blur(24px) saturate(2.2) brightness(1.04);
+  border:1px solid var(--fab-rim);
   display:grid;place-items:center;
-  box-shadow:0 6px 20px rgba(15,25,34,.22), var(--shadow-md);
-  transition:transform .22s cubic-bezier(.2,.7,.3,1),filter .15s;
+  box-shadow:
+    0 10px 28px rgba(15,25,34,.26),
+    inset 0 1.5px 1.5px rgba(255,255,255,.66),
+    inset 0 -12px 20px rgba(0,0,0,.11),
+    inset 0 0 18px rgba(255,255,255,.06);
+  transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .2s,backdrop-filter .2s;
 }
-.fab svg{width:26px;height:26px;stroke-width:2.6;transition:transform .22s cubic-bezier(.2,.7,.3,1)}
-.fab:hover{filter:brightness(1.08)}
+/* the specular cap across the dome */
+.fab::after{
+  content:"";position:absolute;left:12%;right:12%;top:4%;height:42%;
+  border-radius:50%;
+  background:linear-gradient(to bottom,
+    rgba(255,255,255,.42), rgba(255,255,255,.08) 55%, rgba(255,255,255,0));
+  pointer-events:none;
+}
+/* the hot spot, and a caustic arc where light bounces off the far wall */
+.fab::before{
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:
+    radial-gradient(circle at 30% 17%, rgba(255,255,255,.62) 0%, rgba(255,255,255,0) 24%),
+    radial-gradient(120% 60% at 50% 108%, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 52%);
+  filter:blur(.6px);
+}
+/* the glyph stays fully opaque, so a see-through button is still readable */
+.fab svg{
+  width:28px;height:28px;stroke-width:1.15;position:relative;z-index:1;
+  filter:drop-shadow(0 1px 2.5px rgba(8,18,26,.4));
+  transition:transform .22s cubic-bezier(.2,.7,.3,1);
+}
+.fab:hover{
+  -webkit-backdrop-filter:blur(22px) saturate(2.2) brightness(1.1);
+  backdrop-filter:blur(22px) saturate(2.2) brightness(1.1);
+  box-shadow:
+    0 12px 32px rgba(15,25,34,.28),
+    inset 0 1.5px 1.5px rgba(255,255,255,.78),
+    inset 0 -12px 20px rgba(0,0,0,.13),
+    inset 0 0 18px rgba(255,255,255,.11);
+}
 .fab:active{transform:scale(.92)}
 .fab[aria-expanded="true"] svg{transform:rotate(45deg)}
+/* Near-clear glass has no fill to define it, so the rim carries the shape. A
+   white rim vanishes on a light page, so it is drawn in ink there and only
+   turns white where the page behind it is dark. */
+:root{ --fab-rim:rgba(15,25,34,.16) }
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --fab-rim:rgba(255,255,255,.46) }
+}
+:root[data-theme="dark"]{ --fab-rim:rgba(255,255,255,.46) }
+@supports not (backdrop-filter:blur(2px)){
+  /* nothing blurred behind it means a see-through fill just looks washed out */
+  .fab{
+    background:linear-gradient(135deg, var(--accent-mid), var(--accent));
+    border-color:rgba(255,255,255,.3);
+  }
+}
 /* Kept in the layout and animated rather than hidden, so it slides away on
    close instead of vanishing. */
 .fabmenu{
@@ -1172,13 +1235,62 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .setrow-wide .sr-t{flex:1}
 .setrow-wide .sr-t b{color:var(--accent)}
 .setrow-wide .sr-t span{color:var(--accent);opacity:.72}
-.setrow-wide .sr-go{display:block;width:18px;height:18px;flex:none;color:var(--accent);opacity:.7}
+.setrow-wide .sr-go{display:none}
 .setpane{animation:paneIn .26s cubic-bezier(.2,.7,.3,1)}
 @keyframes paneIn{
   from{opacity:0;transform:translateX(14px)}
   to{opacity:1;transform:none}
 }
 .setback{flex:none;margin-left:-6px}
+
+/* ---------- Reminders ---------- */
+.bell{position:relative}
+.belldot{
+  position:absolute;top:6px;right:6px;width:9px;height:9px;border-radius:50%;
+  background:var(--neg);border:2px solid var(--ground);
+  animation:dotIn .3s cubic-bezier(.2,.9,.3,1);
+}
+@keyframes dotIn{from{transform:scale(0)}to{transform:none}}
+
+.togrow{display:flex;align-items:center;gap:12px}
+.togrow .tr-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.togrow .tr-t b{font-size:14px;font-weight:600;letter-spacing:-.005em}
+.togrow .tr-t span{font-size:11.5px;color:var(--ink-3);line-height:1.4}
+.switch{
+  flex:none;width:50px;height:30px;border-radius:99px;padding:3px;
+  background:var(--surface-sunk);border:1px solid var(--line);
+  transition:background .2s,border-color .2s;
+}
+.switch .knob{
+  display:block;width:22px;height:22px;border-radius:50%;
+  background:var(--surface);box-shadow:var(--shadow-sm);
+  transition:transform .22s cubic-bezier(.2,.8,.3,1);
+}
+.switch[aria-checked="true"]{background:var(--accent);border-color:var(--accent)}
+.switch[aria-checked="true"] .knob{transform:translateX(20px)}
+
+.legend{
+  display:flex;flex-direction:column;gap:5px;margin-top:12px;
+  font-size:12px;color:var(--ink-2);
+}
+.legend div{display:flex;align-items:center;gap:7px}
+/* the same three tones in the legend and on every reminder row */
+.hb{font-size:13px;line-height:1}
+.hb.g, .nh.g{color:var(--pos)}
+.hb.y, .nh.y{color:#D9A417}
+.hb.r, .nh.r{color:var(--neg)}
+
+.nrow{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  padding:12px 4px;border-radius:12px;transition:background .14s;
+}
+.nrow:hover{background:var(--surface-2)}
+.nrow + .nrow{border-top:1px solid var(--line)}
+.nrow .nh{font-size:16px;line-height:1;flex:none;width:20px;text-align:center}
+.nrow .nm{flex:1;min-width:0}
+.nrow .nt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nrow .ns{font-size:11.5px;color:var(--ink-3)}
+.nrow .na{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;font-weight:500}
 
 .acctlist{display:flex;flex-direction:column;gap:6px;margin-top:9px}
 .acctrow{
@@ -1253,10 +1365,25 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .prow .pa.in{color:var(--pos)} .prow .pa.out{color:var(--neg)}
 
 .rulerow{
-  display:flex;align-items:center;gap:10px;padding:11px 0;
-  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  padding:11px 4px;border-radius:12px;
+  transition:background .14s;
 }
-.rulerow:last-child{border-bottom:none}
+.rulerow:hover{background:var(--surface-2)}
+.rulerow:active{transform:scale(.995)}
+.rulerow + .rulerow{border-top:1px solid var(--line)}
+.rulerow .rgo{width:16px;height:16px;flex:none;color:var(--ink-3)}
+.rulerow.off{opacity:.5}
+.rulerow.off .rt{text-decoration:line-through}
+
+/* A sheet scrolls its own body, so its add button anchors to the sheet rather
+   than the page — bottom right, clear of the content. */
+.sheetfab{
+  position:absolute;right:18px;z-index:6;
+  bottom:calc(18px + env(safe-area-inset-bottom));
+  width:52px;height:52px;
+}
+.sheetfab svg{width:24px;height:24px}
 .rulerow .rm{flex:1;min-width:0}
 .rulerow .rt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rulerow .rs{font-size:11.5px;color:var(--ink-3)}
@@ -1455,6 +1582,10 @@ html.locked #lockScreen::before{
     <button class="iconbtn" id="btnEye" title="Show amounts" aria-label="Show amounts" aria-pressed="false">
       <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg>
       <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <button class="iconbtn bell" id="btnBell" title="Reminders" aria-label="Reminders">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+      <span class="belldot" id="bellDot" hidden></span>
     </button>
     <button class="iconbtn" id="btnMenu" title="Settings" aria-label="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -1716,13 +1847,6 @@ html.locked #lockScreen::before{
         </div>
       </div>
     </div>
-    <div class="field">
-      <label for="eFreq">Repeat</label>
-      <div class="pick" id="eFreq" role="listbox" aria-label="Repeat"></div>
-    </div>
-    <div class="field" id="repHint" style="display:none">
-      <div class="note">Future entries are created automatically as <b>Planned</b>. Tick them off as you pay.</div>
-    </div>
     <button class="btn" id="eSave">Save entry</button>
     <div id="eDeleteWrap" style="display:none;margin-top:9px">
       <button class="btn danger sm" id="eDelete">Delete this entry</button>
@@ -1786,6 +1910,89 @@ html.locked #lockScreen::before{
     </button>
   </div>
   <div class="sheet-body"><div id="rulesBody"></div></div>
+  <button class="fab sheetfab" id="ruleAdd" type="button" aria-label="Add a recurring entry">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+</section>
+
+<!-- REMINDERS -->
+<section class="sheet" id="shBell" role="dialog" aria-modal="true" aria-labelledby="bellTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="bellTitle">Reminders</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body"><div id="bellBody"></div></div>
+</section>
+
+<!-- RECURRING ENTRY EDITOR -->
+<section class="sheet" id="shRule" role="dialog" aria-modal="true" aria-labelledby="ruleTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="ruleTitle">New recurring entry</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="seg" id="rType" role="tablist">
+      <button class="a out" data-t="expense" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg>
+        Expense
+      </button>
+      <button class="a in" data-t="income" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg>
+        Income
+      </button>
+    </div>
+
+    <div class="field">
+      <label for="rAmt">Amount</label>
+      <div class="amtwrap"><span class="cur">€</span>
+        <input class="amt" id="rAmt" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="rNote">Description</label>
+      <input class="inp" id="rNote" type="text" placeholder="e.g. Rent" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label>Category</label>
+      <div class="chips" id="rCats"></div>
+    </div>
+
+    <div class="field" id="rFromWrap" hidden>
+      <label>From account</label>
+      <div class="pick" id="rFrom" role="listbox" aria-label="From account"></div>
+    </div>
+    <div class="field">
+      <label id="rAcctLab">Paid from</label>
+      <div class="pick" id="rAcct" role="listbox" aria-label="Account"></div>
+    </div>
+
+    <div class="field">
+      <label for="rFreq">Repeats</label>
+      <div class="pick" id="rFreq" role="listbox" aria-label="Repeats"></div>
+    </div>
+
+    <div class="field">
+      <label for="rDate">Starting from</label>
+      <input id="rDate" type="date">
+      <div class="note" style="margin-top:6px">
+        Sets the day of the cycle — a monthly entry starting on the 3rd falls due
+        on the 3rd of every month. Occurrences appear as <b>Planned</b>; tick them
+        off as you pay.
+      </div>
+    </div>
+
+    <button class="btn" id="rSave">Save recurring entry</button>
+    <div id="rDeleteWrap" style="display:none;margin-top:9px">
+      <button class="btn ghost sm" id="rPause">Pause this entry</button>
+      <button class="btn danger sm" id="rDelete" style="margin-top:7px">Delete this recurring entry</button>
+    </div>
+  </div>
 </section>
 
 <!-- ITEM PICKER SHEET -->
@@ -1995,7 +2202,7 @@ html.locked #lockScreen::before{
     </button>
     <button class="setrow" type="button" data-pane="rules">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg></span>
-      <span class="sr-t"><b>Recurring entries</b><span>Rent, salary, subscriptions</span></span>
+      <span class="sr-t"><b>Recurring entries</b><span id="setRulesSub">Rent, salary, subscriptions</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow" type="button" data-pane="balance">
@@ -2008,9 +2215,9 @@ html.locked #lockScreen::before{
       <span class="sr-t"><b>App lock</b><span>PIN and recovery question</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
-    <button class="setrow" type="button" data-pane="theme">
-      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/></svg></span>
-      <span class="sr-t"><b>Appearance</b><span>Light, dark or system</span></span>
+    <button class="setrow" type="button" data-pane="prefs">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></span>
+      <span class="sr-t"><b>Notifications &amp; appearance</b><span id="setPrefsSub">Reminders, light or dark</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow" type="button" data-pane="github">
@@ -2050,12 +2257,6 @@ html.locked #lockScreen::before{
       <button class="btn ghost sm" id="acctAdd" style="margin-top:8px">Add account</button>
     </div>
   </div>
-  <div class="sheet-body setpane" id="setPane_rules" hidden>
-<div class="field">
-      <div class="note" id="rulesCount">—</div>
-      <button class="btn ghost sm" id="btnRules" style="margin-top:8px">Manage recurring entries</button>
-    </div>
-  </div>
   <div class="sheet-body setpane" id="setPane_balance" hidden>
 <div class="field">
       <label for="balAmt">Money already in the account</label>
@@ -2092,8 +2293,33 @@ html.locked #lockScreen::before{
       <div class="note" style="margin-top:6px">Locks the screen only — it does not encrypt the data stored on this device.</div>
     </div>
   </div>
-  <div class="sheet-body setpane" id="setPane_theme" hidden>
-<div class="field">
+  <div class="sheet-body setpane" id="setPane_prefs" hidden>
+    <div class="field">
+      <label>Notifications</label>
+      <div class="togrow">
+        <div class="tr-t">
+          <b>Recurring payment reminders</b>
+          <span>A reminder for anything due in the next three days.</span>
+        </div>
+        <button class="switch" id="notifTog" type="button" role="switch" aria-checked="false">
+          <span class="knob"></span>
+        </button>
+      </div>
+      <div class="note" style="margin-top:10px">
+        Reminders appear on the bell in the top bar, and are counted from
+        <b>8am</b> on the day they start. They stay there until you open the
+        bell. Nothing leaves this device and nothing is sent to your phone —
+        the app has to be open to show them.
+      </div>
+      <div class="legend">
+        <div><span class="hb g">♥</span> three days away</div>
+        <div><span class="hb y">♥</span> two days away</div>
+        <div><span class="hb r">♥</span> tomorrow, today, or overdue</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:22px;padding-top:18px;border-top:1px solid var(--line)">
+      <label>Appearance</label>
       <div class="toggle2" id="themeTog" style="grid-template-columns:repeat(3,1fr)">
         <button class="a" data-v="system" aria-pressed="true">System</button>
         <button class="a" data-v="light" aria-pressed="false">Light</button>
@@ -2182,8 +2408,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.2";
-const APP_BUILT = "2026-08-24";
+const APP_VERSION = "1.1.5";
+const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -2476,7 +2702,6 @@ let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
 let editing = null;
 let draft = null;
-let freqLocked = false;
 let pending = null;
 
 function uid(){ return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
@@ -2736,6 +2961,7 @@ function render(){
   /* kept in the layout, just not usable, so the title stays centred */
   $("#prevM").classList.toggle("nav-off", view <= FIRST_PERIOD);
   renderGreeting();
+  syncBell();
 
   /* --- totals --- */
   let inDone = 0, inPlan = 0, outDone = 0, outPlan = 0;
@@ -3969,8 +4195,6 @@ function openEntry(txn, type){
     $("#eAmt").value = (txn.amount / 100).toFixed(2).replace(".", ",");
     $("#eNote").value = txn.note || "";
     setDateVal("#eDate", txn.date);
-    draft.freq = "";
-    freqLocked = !!txn.ruleId;
     $("#eDeleteWrap").style.display = "";
     $("#eSave").textContent = "Save changes";
   } else {
@@ -3981,14 +4205,11 @@ function openEntry(txn, type){
     $("#eAmt").value = "";
     $("#eNote").value = "";
     setDateVal("#eDate", view === periodOf(todayISO()) ? todayISO() : periodStart(view));
-    draft.freq = "";
-    freqLocked = false;
     $("#eDeleteWrap").style.display = "none";
     $("#eSave").textContent = "Save entry";
   }
   syncEntryUI();
   renderAccountFields();
-  renderFreq();
   sheetOpen("#shEntry");
   if (!txn) setTimeout(() => $("#eAmt").focus(), 340);
 }
@@ -4026,18 +4247,6 @@ const FREQ_OPTS = [
   { v:"bimonthly", n:"Every 2 months" }, { v:"quarterly", n:"Every 3 months" },
   { v:"halfyearly", n:"Every 6 months" }, { v:"yearly", n:"Every year" }
 ];
-function renderFreq(){
-  const host = $("#eFreq");
-  /* an entry already spun off a rule; changing its cadence happens in Recurring entries */
-  host.classList.toggle("pk-locked", !!freqLocked);
-  renderChoice(host, freqLocked ? [FREQ_OPTS[0]] : FREQ_OPTS, draft.freq || "", v => {
-    draft.freq = v;
-    renderFreq();
-    $("#repHint").style.display = v ? "" : "none";
-  });
-  $("#repHint").style.display = draft.freq ? "" : "none";
-}
-
 $("#eSave").addEventListener("click", () => {
   const cents = parseAmount($("#eAmt").value);
   if (!cents || cents <= 0){ toast("Enter an amount greater than zero"); $("#eAmt").focus(); return; }
@@ -4055,23 +4264,6 @@ $("#eSave").addEventListener("click", () => {
     editing.account = draft.account || null;
     editing.fromAccount = draft.fromAccount || null;
     save(); render(); sheetClose(); toast("Entry updated");
-    return;
-  }
-
-  const freq = draft.freq || "";
-  if (freq){
-    const rule = {
-      id: uid(), type: draft.type, amount: cents, category: draft.category,
-      note: note, freq: freq, anchor: date, active: true,
-      account: draft.account || null, fromAccount: draft.fromAccount || null
-    };
-    state.rules.push(rule);
-    materialise();
-    // the occurrence on the anchor date inherits the status chosen in the form
-    const first = state.txns.find(t => t.ruleId === rule.id && t.date === date);
-    if (first) first.status = draft.status;
-    save(); render(); sheetClose();
-    toast("Repeating entry added · " + FREQ_LABEL[freq].toLowerCase());
     return;
   }
 
@@ -4101,14 +4293,15 @@ function renderRules(){
   if (!state.rules.length){
     host.innerHTML =
       '<div class="empty" style="padding:30px 10px"><h4>No repeating entries yet</h4>' +
-      '<p>When you add an entry, pick a repeat interval — monthly rent, a quarterly insurance premium, ' +
-      'a bill every 2 months — and future ones appear automatically as planned.</p></div>';
+      '<p>Rent, salary, an insurance premium every three months — add one with the ' +
+      '<b>+</b> button and every future one appears automatically as planned.</p></div>';
     return;
   }
   const dark = isDark();
   state.rules.slice().sort((a, b) => b.amount - a.amount).forEach(r => {
     const c = catOf(r.category);
-    const row = el("div", "rulerow");
+    const row = el("button", "rulerow" + (r.active === false ? " off" : ""));
+    row.type = "button";
 
     const sw = el("div", "mono");
     sw.innerHTML = iconSvg(c.id, 18);
@@ -4119,24 +4312,16 @@ function renderRules(){
     const m = el("div", "rm");
     m.appendChild(el("div", "rt", r.note || c.n));
     const next = nextDue(r);
-    m.appendChild(el("div", "rs",
-      FREQ_LABEL[r.freq] + (next ? " · next " + dayTitle(next).toLowerCase() : "")));
+    m.appendChild(el("div", "rs", r.active === false
+      ? "Paused"
+      : FREQ_LABEL[r.freq] + (next ? " · next " + dayTitle(next).toLowerCase() : "")));
     row.appendChild(m);
 
-    row.appendChild(el("div", "ra " + (r.type === "income" ? "" : ""),
-      (r.type === "income" ? "+" : "−") + fmt(r.amount)));
+    row.appendChild(el("div", "ra", (r.type === "income" ? "+" : "−") + fmt(r.amount)));
+    row.insertAdjacentHTML("beforeend",
+      '<svg class="rgo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>');
 
-    const del = el("button", "iconbtn");
-    del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>';
-    del.setAttribute("aria-label", "Delete repeating entry");
-    del.addEventListener("click", () => {
-      userTouched();
-      state.rules = state.rules.filter(x => x.id !== r.id);
-      state.txns = state.txns.filter(t => !(t.ruleId === r.id && t.status === "planned"));
-      save(); renderRules(); render();
-      toast("Repeating entry removed");
-    });
-    row.appendChild(del);
+    row.addEventListener("click", () => openRule(r));
     host.appendChild(row);
   });
 }
@@ -4149,7 +4334,314 @@ function nextDue(rule){
   }
   return null;
 }
-$("#btnRules").addEventListener("click", () => { sheetClose(); renderRules(); sheetOpen("#shRules"); });
+/* =========================================================================
+   REMINDERS — in-app only, because a page that isn't open cannot wake itself
+   without a push server. A reminder for a given day counts from 8am that day;
+   the bell keeps its dot until the panel is opened, and the day it was last
+   cleared is remembered so a new one shows up tomorrow morning.
+   ========================================================================= */
+const NOTIF_ON_KEY  = "panappai.notif.on";
+const NOTIF_SEEN_KEY = "panappai.notif.seen";   /* the last day cleared, ISO */
+const NOTIF_HOUR = 8;
+
+function notifOn(){ return localStorage.getItem(NOTIF_ON_KEY) === "1"; }
+function notifSetOn(v){ localStorage.setItem(NOTIF_ON_KEY, v ? "1" : "0"); }
+function notifSeen(){ return localStorage.getItem(NOTIF_SEEN_KEY) || ""; }
+function notifMarkSeen(){ localStorage.setItem(NOTIF_SEEN_KEY, todayISO()); }
+
+/** The day reminders are live for: today once it's 8am, else yesterday's. */
+function notifDay(){
+  const now = new Date();
+  if (now.getHours() >= NOTIF_HOUR) return todayISO();
+  const y = new Date(now);
+  y.setDate(y.getDate() - 1);
+  return isoOf(y.getFullYear(), y.getMonth() + 1, y.getDate());
+}
+
+/** Whole days from today to `iso`; negative once it's past. */
+function daysUntil(iso){
+  const a = new Date(todayISO() + "T00:00:00");
+  const b = new Date(iso + "T00:00:00");
+  return Math.round((b - a) / 86400000);
+}
+
+/**
+ * Everything still unpaid and due within three days, plus anything overdue.
+ * Reads the ledger rather than the rules, so an occurrence ticked off as paid
+ * drops out and one you edited keeps whatever date you gave it.
+ */
+function dueSoon(){
+  if (!notifOn()) return [];
+  const ruleIds = new Set(state.rules.filter(r => r.active !== false).map(r => r.id));
+  return state.txns
+    .filter(t => t.ruleId && ruleIds.has(t.ruleId) && t.status === "planned")
+    .map(t => ({ t: t, d: daysUntil(t.date) }))
+    .filter(o => o.d <= 3)
+    .sort((a, b) => a.d - b.d || b.t.amount - a.t.amount);
+}
+
+/** Green three days out, amber two, red from tomorrow on. */
+function dueTone(d){
+  if (d >= 3) return "g";
+  if (d === 2) return "y";
+  return "r";
+}
+function dueWords(d){
+  if (d < 0) return d === -1 ? "Overdue by a day" : "Overdue by " + (-d) + " days";
+  if (d === 0) return "Due today";
+  if (d === 1) return "Due tomorrow";
+  return "Due in " + d + " days";
+}
+
+function syncBell(){
+  const list = dueSoon();
+  const unseen = list.length > 0 && notifSeen() !== notifDay();
+  $("#btnBell").hidden = !notifOn();
+  $("#bellDot").hidden = !unseen;
+  $("#btnBell").setAttribute("aria-label",
+    list.length ? list.length + " reminder" + (list.length === 1 ? "" : "s") : "Reminders");
+}
+
+function renderBell(){
+  const host = $("#bellBody");
+  host.innerHTML = "";
+  const list = dueSoon();
+  if (!list.length){
+    host.innerHTML =
+      '<div class="empty" style="padding:30px 10px"><h4>Nothing due</h4>' +
+      '<p>Recurring entries show up here from three days before they fall due, ' +
+      'and stay until you tick them off as paid.</p></div>';
+    return;
+  }
+  const dark = isDark();
+  list.forEach(o => {
+    const c = catOf(o.t.category);
+    const row = el("button", "nrow");
+    row.type = "button";
+    row.appendChild(el("span", "nh " + dueTone(o.d), "♥"));
+
+    const m = el("div", "nm");
+    m.appendChild(el("div", "nt", o.t.note || c.n));
+    m.appendChild(el("div", "ns", dueWords(o.d) + " · " + dayTitle(o.t.date).toLowerCase()));
+    row.appendChild(m);
+
+    const a = el("div", "na", (o.t.type === "income" ? "+" : "−") + fmt(o.t.amount));
+    a.style.color = o.t.type === "income" ? "var(--pos)" : "var(--ink)";
+    row.appendChild(a);
+
+    /* tapping opens the entry, which is where it gets ticked off as paid */
+    row.addEventListener("click", () => { sheetClose(); openEntry(o.t); });
+    host.appendChild(row);
+  });
+}
+
+$("#btnBell").addEventListener("click", () => {
+  notifMarkSeen();
+  syncBell();
+  renderBell();
+  sheetOpen("#shBell");
+});
+
+function renderNotifSettings(){
+  const on = notifOn();
+  $("#notifTog").setAttribute("aria-checked", String(on));
+  const n = on ? dueSoon().length : 0;
+  $("#setPrefsSub").textContent = !on ? "Reminders off"
+    : (n ? n + " due soon" : "Reminders on");
+}
+
+$("#notifTog").addEventListener("click", () => {
+  const on = !notifOn();
+  notifSetOn(on);
+  /* turning it on shouldn't silently swallow today's reminder */
+  if (on) localStorage.removeItem(NOTIF_SEEN_KEY);
+  renderNotifSettings();
+  syncBell();
+  toast(on ? "Reminders on" : "Reminders off");
+});
+
+/* =========================================================================
+   RECURRING ENTRY EDITOR — rules are created and changed here rather than as a
+   side effect of adding a one-off entry, so the cadence lives in one place.
+   ========================================================================= */
+let ruleEditing = null;   /* the rule being changed, or null when adding */
+let rDraft = null;
+
+function renderRuleCats(){
+  const host = $("#rCats");
+  host.innerHTML = "";
+  const dark = isDark();
+  allCats(rDraft.type).forEach(c => {
+    const b = el("button", "chip");
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(c.id === rDraft.category));
+    const ic = el("span", "cic");
+    ic.innerHTML = iconSvg(c.id, 19);
+    ic.style.color = tintInk(c.h, dark);
+    b.appendChild(ic);
+    b.appendChild(el("span", null, c.n));
+    if (c.id === rDraft.category){
+      b.style.background = tint(c.h, dark);
+      b.style.color = tintInk(c.h, dark);
+      b.style.borderColor = tintInk(c.h, dark);
+    }
+    b.addEventListener("click", () => {
+      rDraft.category = c.id;
+      renderRuleCats();
+      renderRuleAccounts();
+    });
+    host.appendChild(b);
+  });
+}
+
+/* Bank Transfer income moves between two of your own accounts, so it needs
+   both ends; everything else only needs the one it touched. */
+function renderRuleAccounts(){
+  const wantsFrom = rDraft.type === "income" && rDraft.category === "banktransfer";
+  $("#rFromWrap").hidden = !wantsFrom;
+  $("#rAcctLab").textContent = rDraft.type === "income"
+    ? (wantsFrom ? "To account" : "Paid into") : "Paid from";
+  fillRuleAccount($("#rFrom"), rDraft.fromAccount, "Choose the sending account…", "fromAccount");
+  fillRuleAccount($("#rAcct"), rDraft.account, rDraft.type === "income"
+    ? "Choose where it lands…" : "Choose where it comes from…", "account");
+}
+
+function fillRuleAccount(node, sel, placeholder, key){
+  const list = accountsOf();
+  node.dataset.empty = "No accounts yet — add them in Settings › Accounts.";
+  const opts = list.map(a => ({ v:a.id, n:a.n, ic:ACCT_ICON[a.kind] || ACCT_ICON.bank }));
+  if (opts.length) opts.unshift({ v:"", n:placeholder, none:true });
+  renderChoice(node, opts, list.some(a => a.id === sel) ? sel : "", v => {
+    rDraft[key] = v || null;
+    renderRuleAccounts();
+  });
+}
+
+function renderRuleFreq(){
+  renderChoice($("#rFreq"), FREQ_OPTS.filter(o => o.v), rDraft.freq, v => {
+    rDraft.freq = v;
+    renderRuleFreq();
+  });
+}
+
+function syncRuleType(){
+  $$("#rType .a").forEach(b => b.setAttribute("aria-selected", String(b.dataset.t === rDraft.type)));
+  $("#rType").dataset.t = rDraft.type;
+}
+
+function openRule(rule){
+  ruleEditing = rule || null;
+  if (rule){
+    rDraft = {
+      type: rule.type, category: rule.category, freq: rule.freq,
+      account: rule.account || null, fromAccount: rule.fromAccount || null
+    };
+    $("#ruleTitle").textContent = "Recurring entry";
+    $("#rAmt").value = (rule.amount / 100).toFixed(2).replace(".", ",");
+    $("#rNote").value = rule.note || "";
+    setDateVal("#rDate", rule.anchor);
+    $("#rDeleteWrap").style.display = "";
+    $("#rPause").textContent = rule.active === false ? "Resume this entry" : "Pause this entry";
+  } else {
+    rDraft = {
+      type: "expense", category: allCats("expense")[0].id, freq: "monthly",
+      account: defaultAccountId(), fromAccount: null
+    };
+    $("#ruleTitle").textContent = "New recurring entry";
+    $("#rAmt").value = "";
+    $("#rNote").value = "";
+    setDateVal("#rDate", todayISO());
+    $("#rDeleteWrap").style.display = "none";
+  }
+  syncRuleType();
+  renderRuleCats();
+  renderRuleAccounts();
+  renderRuleFreq();
+  sheetOpen("#shRule");
+}
+
+$$("#rType .a").forEach(b => b.addEventListener("click", () => {
+  if (rDraft.type === b.dataset.t) return;
+  rDraft.type = b.dataset.t;
+  rDraft.category = allCats(rDraft.type)[0].id;
+  syncRuleType();
+  renderRuleCats();
+  renderRuleAccounts();
+}));
+
+$("#ruleAdd").addEventListener("click", () => openRule(null));
+
+/**
+ * Rewrites a rule's future occurrences. Anything already settled stays put —
+ * changing the rent from next month shouldn't rewrite what you actually paid
+ * last month — so only planned entries from today forward are dropped and
+ * regenerated.
+ */
+function respinRule(id){
+  const t = todayISO();
+  state.txns = state.txns.filter(x =>
+    !(x.ruleId === id && x.status === "planned" && x.date >= t));
+  materialise();
+}
+
+$("#rSave").addEventListener("click", () => {
+  const cents = parseAmount($("#rAmt").value);
+  if (!cents || cents <= 0){ toast("Enter an amount greater than zero"); $("#rAmt").focus(); return; }
+  if (!rDraft.freq){ toast("Pick how often it repeats"); return; }
+  const date = $("#rDate").value || todayISO();
+  const note = $("#rNote").value.trim();
+  userTouched();
+
+  if (ruleEditing){
+    Object.assign(ruleEditing, {
+      type: rDraft.type, amount: cents, category: rDraft.category, note: note,
+      freq: rDraft.freq, anchor: date,
+      account: rDraft.account || null, fromAccount: rDraft.fromAccount || null
+    });
+    respinRule(ruleEditing.id);
+    save(); renderRules(); render(); sheetClose();
+    toast("Recurring entry updated");
+    return;
+  }
+
+  const rule = {
+    id: uid(), type: rDraft.type, amount: cents, category: rDraft.category,
+    note: note, freq: rDraft.freq, anchor: date, active: true,
+    account: rDraft.account || null, fromAccount: rDraft.fromAccount || null
+  };
+  state.rules.push(rule);
+  materialise();
+  save(); renderRules(); render(); sheetClose();
+  toast("Repeating entry added · " + FREQ_LABEL[rule.freq].toLowerCase());
+});
+
+$("#rPause").addEventListener("click", () => {
+  if (!ruleEditing) return;
+  userTouched();
+  const paused = ruleEditing.active === false;
+  ruleEditing.active = paused;
+  if (!paused){
+    /* pausing clears what hasn't happened yet, leaving history alone */
+    const t = todayISO();
+    state.txns = state.txns.filter(x =>
+      !(x.ruleId === ruleEditing.id && x.status === "planned" && x.date >= t));
+  } else {
+    materialise();
+  }
+  save(); renderRules(); render(); sheetClose();
+  toast(paused ? "Recurring entry resumed" : "Recurring entry paused");
+});
+
+$("#rDelete").addEventListener("click", () => {
+  if (!ruleEditing) return;
+  userTouched();
+  const id = ruleEditing.id;
+  state.rules = state.rules.filter(x => x.id !== id);
+  state.txns = state.txns.filter(t => !(t.ruleId === id && t.status === "planned"));
+  save(); renderRules(); render(); sheetClose();
+  toast("Repeating entry removed");
+});
+
 
 /* =========================================================================
    CSV IMPORT
@@ -4442,8 +4934,9 @@ function applyTheme(v){
 $$("#themeTog button").forEach(b => b.addEventListener("click", () => applyTheme(b.dataset.v)));
 
 const SET_TITLES = {
-  profile:"Your profile", accounts:"Accounts", rules:"Recurring entries",
-  balance:"Starting balance", lock:"App lock", theme:"Appearance",
+  profile:"Your profile", accounts:"Accounts",
+  balance:"Starting balance", lock:"App lock",
+  prefs:"Notifications & appearance",
   github:"GitHub sync", data:"Data & backup", about:"About"
 };
 let setPane = null;
@@ -4456,7 +4949,11 @@ function showSetPane(key){
   const body = key ? $("#setPane_" + key) : $("#setMenu");
   if (body) body.scrollTop = 0;
 }
-$$("#setMenu .setrow").forEach(b => b.addEventListener("click", () => showSetPane(b.dataset.pane)));
+$$("#setMenu .setrow").forEach(b => b.addEventListener("click", () => {
+  /* Recurring entries has no settings of its own — the tile is the page */
+  if (b.dataset.pane === "rules"){ sheetClose(); renderRules(); sheetOpen("#shRules"); return; }
+  showSetPane(b.dataset.pane);
+}));
 $("#setBack").addEventListener("click", () => showSetPane(null));
 
 $("#btnMenu").addEventListener("click", () => {
@@ -4470,9 +4967,11 @@ $("#btnMenu").addEventListener("click", () => {
   renderGhSettings();
   renderProfileSettings();
   renderAccountSettings();
-  $("#rulesCount").textContent = state.rules.length
-    ? state.rules.length + " active repeating entr" + (state.rules.length === 1 ? "y" : "ies") + "."
-    : "Nothing repeats yet — rent, salary, subscriptions.";
+  renderNotifSettings();
+  const live = state.rules.filter(r => r.active !== false).length;
+  $("#setRulesSub").textContent = live
+    ? live + " entr" + (live === 1 ? "y" : "ies") + " repeating"
+    : "Rent, salary, subscriptions";
   renderAbout();
   showSetPane(null);
   sheetOpen("#shSet");
@@ -5584,7 +6083,7 @@ $("#ghDisable").addEventListener("click", () => {
   save();
   render();
   renderShop();
-  ["#eDate", "#balDate", "#shopDate"].forEach(sel => attachCalendar($(sel)));
+  ["#eDate", "#balDate", "#shopDate", "#rDate"].forEach(sel => attachCalendar($(sel)));
   syncEyeBtn();
   syncThemeColorMeta();
   if (lockEnabled()) lockOpenUnlock(); else document.documentElement.classList.remove("locked");
