@@ -1387,7 +1387,9 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .rulerow .rm{flex:1;min-width:0}
 .rulerow .rt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rulerow .rs{font-size:11.5px;color:var(--ink-3)}
-.rulerow .ra{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;font-weight:500}
+.rulerow .ra{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;font-weight:600}
+.rulerow .ra.in{color:var(--pos)}
+.rulerow .ra.out{color:var(--neg)}
 
 .toast{
   position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));
@@ -1582,10 +1584,6 @@ html.locked #lockScreen::before{
     <button class="iconbtn" id="btnEye" title="Show amounts" aria-label="Show amounts" aria-pressed="false">
       <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg>
       <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-    </button>
-    <button class="iconbtn bell" id="btnSync" type="button" title="Backup" aria-label="Backup" hidden>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 01-9 9 9 9 0 01-7.6-4.2"/><path d="M3 12a9 9 0 019-9 9 9 0 017.6 4.2"/><path d="M17 3.5V8h-4.5"/><path d="M7 20.5V16h4.5"/></svg>
-      <span class="belldot" id="syncDot" hidden></span>
     </button>
     <button class="iconbtn bell" id="btnBell" title="Reminders" aria-label="Reminders">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
@@ -2412,7 +2410,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.7";
+const APP_VERSION = "1.1.8";
 const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
@@ -3002,7 +3000,6 @@ function render(){
   $("#prevM").classList.toggle("nav-off", view <= FIRST_PERIOD);
   renderGreeting();
   syncBell();
-  syncSyncBtn();
 
   /* --- totals --- */
   let inDone = 0, inPlan = 0, outDone = 0, outPlan = 0;
@@ -4358,7 +4355,8 @@ function renderRules(){
       : FREQ_LABEL[r.freq] + (next ? " · next " + dayTitle(next).toLowerCase() : "")));
     row.appendChild(m);
 
-    row.appendChild(el("div", "ra", (r.type === "income" ? "+" : "−") + fmt(r.amount)));
+    row.appendChild(el("div", "ra " + (r.type === "income" ? "in" : "out"),
+      (r.type === "income" ? "+" : "−") + fmt(r.amount)));
     row.insertAdjacentHTML("beforeend",
       '<svg class="rgo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>');
 
@@ -4475,11 +4473,6 @@ function renderBell(){
     host.appendChild(row);
   });
 }
-
-$("#btnSync").addEventListener("click", () => {
-  $("#btnMenu").click();
-  showSetPane("github");
-});
 
 $("#btnBell").addEventListener("click", () => {
   notifMarkSeen();
@@ -5832,22 +5825,13 @@ function ghDirty(){ return localStorage.getItem(GH_DIRTY_KEY) === "1"; }
 function ghMarkDirty(){
   if (!ghEnabled()) return;
   localStorage.setItem(GH_DIRTY_KEY, "1");
-  syncSyncBtn();
 }
 function ghMarkClean(){
   localStorage.removeItem(GH_DIRTY_KEY);
-  syncSyncBtn();
 }
-/** The top-bar button carries a dot while there is something unpushed. */
-function syncSyncBtn(){
-  const b = $("#btnSync");
-  if (!b) return;
-  b.hidden = !ghEnabled();
-  const dirty = ghEnabled() && ghDirty();
-  $("#syncDot").hidden = !dirty;
-  b.setAttribute("aria-label", dirty ? "Changes not yet pushed" : "Backup up to date");
-  b.title = dirty ? "Changes not yet pushed" : "Backup up to date";
-}
+/* Whether there is anything unpushed is said in Settings › GitHub sync rather
+   than by an icon in the top bar, which earned its place less than the space
+   it took. */
 
 /** "owner/repo" — anything else produces a confusing network error instead of a 404. */
 const GH_REPO_RE = /^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/;
@@ -5965,7 +5949,6 @@ function renderGhSettings(){
   $("#ghSyncNow").hidden = !on;
   $("#ghPull").hidden = !on;
   $("#ghDisable").hidden = !on;
-  syncSyncBtn();
 }
 
 /**
