@@ -3074,42 +3074,5 @@
   "cats": {
     "expense": [],
     "income": []
-  },
-  "accounts": [
-    {
-      "id": "a_gch8xl46opp7",
-      "n": "Commerzbank",
-      "kind": "bank"
-    },
-    {
-      "id": "a_0mh73fi9ovlw",
-      "n": "Deutsche Bank",
-      "kind": "bank"
-    },
-    {
-      "id": "a_9gbih0jvp6la",
-      "n": "Revolet Bank",
-      "kind": "bank"
-    },
-    {
-      "id": "a_1tmxcwoupfng",
-      "n": "TF Bank",
-      "kind": "card"
-    },
-    {
-      "id": "a_qiwdi3xnpjw7",
-      "n": "Paypal",
-      "kind": "card"
-    },
-    {
-      "id": "a_ru9iu56tpvah",
-      "n": "Transfer",
-      "kind": "bank"
-    }
-  ],
-  "profile": {
-    "first": "Suresh",
-    "last": "Chandramohan",
-    "email": "sureshcgermany@gmail.com"
   }
 }
