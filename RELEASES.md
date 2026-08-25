@@ -3,6 +3,12 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.6 — 2026-08-25
+- Fixed a pull wiping your accounts and profile — the pull rebuilt state without them, and the next sync wrote that back
+- Every backup is now read through one function, so a new field can't be dropped by whichever copy nobody updated
+- Deleting all entries keeps your accounts and profile, as it already did for budgets and categories
+- Restored the six accounts and the profile lost this morning
+
 ## 1.1.5 — 2026-08-25
 - The + is near-clear glass: the tint barely colours it and the blur, rim and specular carry the shape
 - Thinned the + itself, and drew it in the theme's ink so it stays readable through glass
