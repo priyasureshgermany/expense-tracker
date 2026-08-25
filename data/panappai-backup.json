@@ -272,7 +272,9 @@
       "note": "Gas",
       "date": "2026-08-15",
       "status": "done",
-      "ruleId": "lr83cp4ussun"
+      "ruleId": "lr83cp4ussun",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "w5dlf2o3ssun",
