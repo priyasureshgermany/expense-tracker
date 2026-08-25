@@ -265,6 +265,15 @@ right adds a new one. Editing rewrites only the occurrences still ahead of you �
 anything already ticked off as paid stays exactly as it was. Because cadence
 lives here, the entry sheet has no Repeat field.
 
+**Starting balances are per account.** Each account gets its own opening
+figure, and **Settings → Accounts** shows what each holds now — that opening
+balance plus everything settled that has touched it since. Entries with no
+account tagged count on the dashboard but in none of the accounts, which the
+Accounts pane says out loud rather than leaving as a discrepancy.
+
+**Deleting all entries and turning off backup ask for your PIN**, when one is
+set. Both are irreversible and neither should rest on a double-tap alone.
+
 **Reminders** (Settings → Notifications & appearance, off by default) put a dot on the bell
 in the top bar for anything recurring that's due within three days: a green
 heart at three days, amber at two, red from tomorrow onward, staying red while
