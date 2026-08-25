@@ -3,6 +3,12 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.17 — 2026-08-25
+- Retagged the entries on retired categories: Gas, Electricity and ARD Radio stay on Utilities, which is offered again
+- Internet and the three phone recharges moved to a new Telecom category
+- McFit and the swimming club moved to Health, the personal loan to a new Loan category, and Kindergeld to a new Benefits
+- Rent stays as it was
+
 ## 1.1.16 — 2026-08-25
 - An entry using a retired category now shows it, selected, instead of appearing to have none
 - Recurring entries follow the same rule, and no longer offer retired categories when adding a new one
