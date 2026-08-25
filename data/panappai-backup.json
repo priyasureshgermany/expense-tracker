@@ -1231,7 +1231,9 @@
       "note": "Phone recharge - Suresh",
       "date": "2026-09-07",
       "status": "planned",
-      "ruleId": "k87e26jiwknw"
+      "ruleId": "k87e26jiwknw",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "7cj3ygorwkny",
