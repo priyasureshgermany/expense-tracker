@@ -1617,7 +1617,9 @@
       "note": "Personal Loan - Commerzbank",
       "date": "2026-09-01",
       "status": "planned",
-      "ruleId": "11j7m9lmmy6f"
+      "ruleId": "11j7m9lmmy6f",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "xiped4mcmy6g",
