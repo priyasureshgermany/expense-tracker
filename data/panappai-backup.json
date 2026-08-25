@@ -1870,7 +1870,9 @@
       "category": "groceries_de",
       "note": "Lidl",
       "date": "2026-08-19",
-      "status": "done"
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "y91obng30s3b",
