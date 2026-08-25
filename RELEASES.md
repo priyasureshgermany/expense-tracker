@@ -3,6 +3,10 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.11 — 2026-08-25
+- Restored the September rent, whose occurrence had been deleted and so suppressed for good
+- Saving a recurring entry now clears its future skips, so a month deleted by mistake comes back; past ones stand as history
+
 ## 1.1.10 — 2026-08-25
 - Added an Every 28 days cadence, which is how mobile recharges actually run
 - Set every existing recurring entry to Commerzbank
