@@ -1915,7 +1915,9 @@
       "category": "buffer",
       "note": "Tedi",
       "date": "2026-08-21",
-      "status": "done"
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "w55br0xla1f8",
