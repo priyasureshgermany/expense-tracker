@@ -3,6 +3,10 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.5 — 2026-08-25
+- The + is near-clear glass: the tint barely colours it and the blur, rim and specular carry the shape
+- Thinned the + itself, and drew it in the theme's ink so it stays readable through glass
+
 ## 1.1.4 — 2026-08-25
 - Notifications and appearance share one settings panel, each being a single control
 - The + button is glossier and sits at 90% opacity
