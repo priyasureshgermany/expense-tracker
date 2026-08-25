@@ -254,8 +254,8 @@ the save block, **Recent purchases**.
 Budgets, Add items, Scan receipt, Purchase, What’s new, New category.
 
 **Settings** opens on a grid of tiles rather than one long scroll — Your
-profile, Accounts, Recurring entries, Starting balance, App lock, Notifications,
-Appearance, GitHub sync, Data & backup, About. Tapping one opens that pane; ‹
+profile, Accounts, Recurring entries, Starting balance, App lock, Notifications
+& appearance, GitHub sync, Data & backup, About. Tapping one opens that pane; ‹
 goes back. **Recurring entries** is the exception: it has no settings of its own,
 so its tile opens the list itself.
 
@@ -265,7 +265,7 @@ right adds a new one. Editing rewrites only the occurrences still ahead of you �
 anything already ticked off as paid stays exactly as it was. Because cadence
 lives here, the entry sheet has no Repeat field.
 
-**Reminders** (Settings → Notifications, off by default) put a dot on the bell
+**Reminders** (Settings → Notifications & appearance, off by default) put a dot on the bell
 in the top bar for anything recurring that's due within three days: a green
 heart at three days, amber at two, red from tomorrow onward, staying red while
 overdue until you tick it off. A day's reminders count from **8am**, and the dot
