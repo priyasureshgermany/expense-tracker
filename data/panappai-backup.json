@@ -1353,7 +1353,9 @@
       "note": "Phone recharge - Priya",
       "date": "2026-09-07",
       "status": "planned",
-      "ruleId": "0h08ylyuxbhc"
+      "ruleId": "0h08ylyuxbhc",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "x9qpq29ixbhd",
