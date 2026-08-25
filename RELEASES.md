@@ -7,6 +7,7 @@ release, and shown in the app under **Settings → About → What’s new**.
 - Removed the backup button from the top bar; whether anything is unpushed is said in Settings instead
 - Recurring amounts take the income and expense colours the ledger uses, rather than plain white
 - Restored the six accounts and the profile, overwritten again by a device still running the old build
+- Restored the profile as well, lost with the accounts to the same overwrite
 
 ## 1.1.7 — 2026-08-25
 - Nothing is ever pushed automatically — push is a button you press, and the app never writes to your repo on its own
