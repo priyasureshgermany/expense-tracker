@@ -1904,7 +1904,9 @@
       "category": "groceries_in",
       "note": "Spice land",
       "date": "2026-08-21",
-      "status": "done"
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "10jw6pcg3rz1",
