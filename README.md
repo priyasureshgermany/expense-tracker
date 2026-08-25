@@ -265,6 +265,13 @@ right adds a new one. Editing rewrites only the occurrences still ahead of you �
 anything already ticked off as paid stays exactly as it was. Because cadence
 lives here, the entry sheet has no Repeat field.
 
+**Self transfers** move your own money between your own accounts. They carry an
+amount, both accounts and a date — no category, no status — and are deliberately
+absent from every dashboard total, since nothing was earned or spent. They show
+under **Transfers** in the ledger, and they move the two account balances. Bank
+Transfer has been retired from the income categories, which this replaces;
+existing entries using it still read correctly.
+
 **Starting balances are per account.** Each account gets its own opening
 figure, and **Settings → Accounts** shows what each holds now — that opening
 balance plus everything settled that has touched it since. Entries with no
