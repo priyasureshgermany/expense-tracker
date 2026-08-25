@@ -152,7 +152,9 @@
       "note": "House Rent",
       "date": "2026-09-01",
       "status": "planned",
-      "ruleId": "5q98aay2rqyf"
+      "ruleId": "5q98aay2rqyf",
+      "account": "a_0mh73fi9ovlw",
+      "fromAccount": null
     },
     {
       "id": "3xmmtvz6rqyf",
