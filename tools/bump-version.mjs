@@ -15,10 +15,18 @@
  * Settings → About. Notes are required: a release nobody can describe in one
  * line is one nobody will be able to identify later either.
  *
+ * One bump covers a whole branch. When review turns up more work, add notes to
+ * the version already prepared rather than cutting another one — a round of
+ * feedback shouldn't consume a version number. The pre-commit hook compares
+ * against what is released rather than against the previous commit, so that it
+ * doesn't have to.
+ *
  *   node tools/bump-version.mjs --note "What changed" [--note "And this"]
+ *   node tools/bump-version.mjs --amend --note "Found in review"
  *   node tools/bump-version.mjs --dry                 print what would happen
  */
 import { readFileSync, writeFileSync } from "node:fs";
+import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -30,6 +38,7 @@ const NOTES_FILE = join(root, "RELEASES.md");
 
 const argv = process.argv.slice(2);
 const dry = argv.includes("--dry");
+const amend = argv.includes("--amend");
 const notes = argv.reduce((acc, a, i) => {
   if (a === "--note" && argv[i + 1]) acc.push(argv[i + 1].trim());
   return acc;
@@ -43,6 +52,61 @@ const todayISO = iso(today);
 const isMonday = today.getDay() === 1;
 
 const state = JSON.parse(readFileSync(VERSION_FILE, "utf8"));
+
+/** The version currently on main, or "" when it can't be determined. */
+function releasedVersion() {
+  for (const ref of ["origin/main", "main"]) {
+    try {
+      const raw = execSync(`git show ${ref}:version.json`, {
+        cwd: root, stdio: ["ignore", "pipe", "ignore"]
+      }).toString();
+      return String(JSON.parse(raw).version || "");
+    } catch { /* no such ref, or not a checkout — try the next */ }
+  }
+  return "";
+}
+
+/* --amend leaves the number alone and files the notes under it, for when more
+   work lands on a branch whose release was already prepared. */
+if (amend) {
+  if (!notes.length) {
+    console.error(
+      '--amend needs a note:\n' +
+      '  node tools/bump-version.mjs --amend --note "What else changed"'
+    );
+    process.exit(1);
+  }
+  /* Refuse to touch a version that has already shipped: without this, --amend
+     on a branch with nothing prepared silently rewrites the notes of the live
+     release instead of the one being worked on. */
+  if (state.version === releasedVersion()) {
+    console.error(
+      state.version + " is the released version — nothing is prepared on this branch yet.\n" +
+      "Cut the release first:\n" +
+      '  node tools/bump-version.mjs --note "What changed in one line"'
+    );
+    process.exit(1);
+  }
+  const src = readFileSync(NOTES_FILE, "utf8");
+  const at = src.indexOf("## " + state.version + " —");
+  if (at === -1) {
+    console.error(
+      "No section for " + state.version + " in RELEASES.md.\n" +
+      "Nothing has been prepared on this branch yet — bump without --amend first."
+    );
+    process.exit(1);
+  }
+  /* append inside that section, before the next heading or the end of file */
+  const nextAt = src.indexOf("\n## ", at + 1);
+  const end = nextAt === -1 ? src.length : nextAt;
+  const merged = src.slice(at, end).trimEnd() + "\n" +
+    notes.map(n => "- " + n).join("\n");
+  writeFileSync(NOTES_FILE, src.slice(0, at) + merged + "\n" + src.slice(end), "utf8");
+  console.log("Added to " + state.version + " (version unchanged):");
+  notes.forEach(n => console.log("  - " + n));
+  process.exit(0);
+}
+
 const [major, middle, minor] = String(state.version).split(".").map(Number);
 const last = state.lastRelease || "";
 
