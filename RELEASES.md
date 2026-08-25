@@ -10,6 +10,7 @@ release, and shown in the app under **Settings → About → What’s new**.
 - The Push now button carries a count of changes not yet backed up
 - A reminder appears once twenty changes are unpushed, and every twenty after
 - The bell shows how many reminders are waiting, not just that some are
+- Kept the four recurring entries already set to Deutsche Bank, setting only the other fourteen to Commerzbank
 
 ## 1.1.9 — 2026-08-25
 - The amount box on a recurring entry is styled like the one on a normal entry, reading green or red as you type instead of plain white
