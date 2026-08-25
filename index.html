@@ -2424,7 +2424,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.10";
+const APP_VERSION = "1.1.11";
 const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
@@ -4648,6 +4648,15 @@ function respinRule(id){
   const t = todayISO();
   state.txns = state.txns.filter(x =>
     !(x.ruleId === id && x.status === "planned" && x.date >= t));
+  /* Deleting a planned entry records a skip, which suppresses that date for
+     good — there is nothing in the app that shows a skip or takes one back, so
+     one deleted month silently vanishes from every total thereafter. Saving the
+     rule is the one moment you are restating its schedule, so future skips for
+     it are cleared here; past ones stand, being history. */
+  state.skips = (state.skips || []).filter(k => {
+    const bar = k.indexOf("|");
+    return !(k.slice(0, bar) === id && k.slice(bar + 1) >= t);
+  });
   materialise();
 }
 
