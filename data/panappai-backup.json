@@ -1882,7 +1882,9 @@
       "category": "groceries_in",
       "note": "Jaffna",
       "date": "2026-08-21",
-      "status": "done"
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "4b892qya23lt",
