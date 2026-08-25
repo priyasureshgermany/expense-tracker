@@ -684,7 +684,9 @@
       "note": "ARD Radio",
       "date": "2026-08-17",
       "status": "done",
-      "ruleId": "zdw0s17ya40v"
+      "ruleId": "zdw0s17ya40v",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "v8kz7ml6a40x",
