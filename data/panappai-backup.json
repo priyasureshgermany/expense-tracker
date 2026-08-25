@@ -2213,7 +2213,9 @@
       "category": "groceries_de",
       "note": "Lidl",
       "date": "2026-08-24",
-      "status": "done"
+      "status": "done",
+      "account": "a_9gbih0jvp6la",
+      "fromAccount": null
     },
     {
       "id": "zfoktsaubhd5",
