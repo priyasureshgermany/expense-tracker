@@ -2808,6 +2808,17 @@
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
       "fromAccount": null
+    },
+    {
+      "id": "nikfa4j7j36h",
+      "type": "transfer",
+      "amount": 100000,
+      "category": null,
+      "note": "Self",
+      "date": "2026-08-15",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": "a_0mh73fi9ovlw"
     }
   ],
   "rules": [
@@ -3106,10 +3117,7 @@
     "buffer": 50000
   },
   "catchAll": "buffer",
-  "balance": {
-    "amount": 84800,
-    "date": "2026-08-15"
-  },
+  "balance": null,
   "cats": {
     "expense": [],
     "income": []
@@ -3118,17 +3126,29 @@
     {
       "id": "a_gch8xl46opp7",
       "n": "Commerzbank",
-      "kind": "bank"
+      "kind": "bank",
+      "start": {
+        "amount": 80500,
+        "date": "2026-08-15"
+      }
     },
     {
       "id": "a_0mh73fi9ovlw",
       "n": "Deutsche Bank",
-      "kind": "bank"
+      "kind": "bank",
+      "start": {
+        "amount": 4500,
+        "date": "2026-08-15"
+      }
     },
     {
       "id": "a_9gbih0jvp6la",
       "n": "Revolet Bank",
-      "kind": "bank"
+      "kind": "bank",
+      "start": {
+        "amount": 8686,
+        "date": "2026-08-15"
+      }
     },
     {
       "id": "a_1tmxcwoupfng",
@@ -3138,7 +3158,11 @@
     {
       "id": "a_qiwdi3xnpjw7",
       "n": "Paypal",
-      "kind": "card"
+      "kind": "card",
+      "start": {
+        "amount": 11896,
+        "date": "2026-08-15"
+      }
     },
     {
       "id": "a_ru9iu56tpvah",
