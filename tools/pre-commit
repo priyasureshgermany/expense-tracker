@@ -26,7 +26,9 @@ fi
 staged=$(git diff --cached --name-only)
 [ -z "$staged" ] && exit 0
 
-if ! echo "$staged" | grep -qvE '^(data/|tools/|version\.json$|RELEASES\.md$)'; then
+# Markdown is documentation, not shipped code — README, RELEASES and FEEDBACK
+# all change without the app changing, so none of them should force a release.
+if ! echo "$staged" | grep -qvE '^(data/|tools/|version\.json$)|\.md$'; then
   exit 0
 fi
 
