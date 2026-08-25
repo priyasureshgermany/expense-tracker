@@ -189,6 +189,7 @@ API for personal accounts, and a static page cannot hold credentials safely.
 | `sw.js` | Service worker — caches the app shell for offline / installed use |
 | `icons/` | App icons (192, 512, maskable, apple-touch) |
 | `test.mjs` | Playwright test suite — 19 checks incl. both bank CSV formats |
+| `tools/make-icons.py` | Draws the icon set — a leather wallet with Sansad Bhavan and a euro tooled into it — and writes every size into `icons/`. Run `python tools/make-icons.py` from the repo root after changing it; needs Pillow |
 
 ## Installing it as an app
 

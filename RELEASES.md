@@ -3,6 +3,10 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.2 — 2026-08-24
+- New app icon: the whole tile is dark distressed leather, with Sansad Bhavan and a euro tooled into it
+- Added tools/make-icons.py, which draws the icon set from scratch
+
 ## 1.1.1 — 2026-08-24
 - Fixed every date being a month ahead — a duplicate helper shadowed the original, so today, the current period and new entry dates were all wrong
 - New app icon: a brown leather wallet with a euro stamped in gold
