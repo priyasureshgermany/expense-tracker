@@ -1,6 +1,6 @@
 /* Bump VERSION on every release: activate() purges any cache that isn't the
    current one, which is what lets a new build actually replace the old one. */
-const VERSION = "1.1.17";
+const VERSION = "1.1.18";
 const CACHE = "panappai-" + VERSION;
 
 const ASSETS = [

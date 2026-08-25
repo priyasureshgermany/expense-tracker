@@ -3,6 +3,10 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.18 — 2026-08-25
+- Telecom shows signal bars and Loan a coin, instead of the generic tag every custom category used to get
+- A category you create now takes a drawing guessed from its name, and can carry one at all
+
 ## 1.1.17 — 2026-08-25
 - Retagged the entries on retired categories: Gas, Electricity and ARD Radio stay on Utilities, which is offered again
 - Internet and the three phone recharges moved to a new Telecom category
