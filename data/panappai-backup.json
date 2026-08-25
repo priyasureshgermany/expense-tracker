@@ -1962,7 +1962,9 @@
       "note": "From DB",
       "date": "2026-08-15",
       "status": "done",
-      "ruleId": "bk0qrzhxrhex"
+      "ruleId": "bk0qrzhxrhex",
+      "account": "a_0mh73fi9ovlw",
+      "fromAccount": null
     },
     {
       "id": "ruebbf1brhex",
