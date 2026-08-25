@@ -2494,7 +2494,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.17";
+const APP_VERSION = "1.1.18";
 const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
@@ -2568,6 +2568,33 @@ function refreshCats(){
 function catOf(id){ return CAT_BY_ID[id] || {id:"other", n:"Other", h:210}; }
 
 /** Spread new categories around the wheel so neighbours stay distinguishable. */
+/**
+ * Picks a drawing for a new category from its name. A wrong guess is no worse
+ * than the generic tag it replaces, and the common cases land right.
+ */
+const ICON_HINTS = [
+  [/phone|mobile|telecom|sim|recharge|internet|broadband|wifi/i, "telecom"],
+  [/loan|emi|mortgage|debt|repay/i, "loan"],
+  [/rent|wohnung|miete|housing/i, "rent"],
+  [/gas|strom|electric|water|utilit|energie|heating/i, "utilities"],
+  [/gym|fitness|health|doctor|arzt|pharma|medic/i, "health"],
+  [/food|eat|restaurant|dining|cafe|lunch|dinner/i, "dining"],
+  [/travel|train|bus|bahn|ticket|fuel|petrol|car/i, "transport"],
+  [/school|course|tuition|class|book|educat/i, "education"],
+  [/insur|versicher/i, "insurance"],
+  [/salary|wage|payroll/i, "salary"],
+  [/gift|present/i, "gift"],
+  [/refund|cashback/i, "refund"],
+  [/card|kredit/i, "cardpay"],
+  [/invest|fund|stock|depot/i, "invest"],
+  [/shop|store|amazon|clothes/i, "shopping"],
+  [/benefit|kindergeld|allowance|pension/i, "family"]
+];
+function guessIcon(name){
+  for (const [re, id] of ICON_HINTS) if (re.test(name)) return id;
+  return null;
+}
+
 function nextCatHue(){
   const used = allCats("expense").concat(allCats("income")).map(c => c.h);
   for (let step = 0; step < 360; step += 24){
@@ -2611,6 +2638,8 @@ const ICON = {
   topriya:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0114 0"/>',
   toindia:'<path d="M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/>',
   other:'<circle cx="5.6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.4" cy="12" r="1.3"/>',
+  telecom:'<path d="M12 18.5h.01"/><path d="M8.6 15.1a5 5 0 016.8 0"/><path d="M5.2 11.7a10 10 0 0113.6 0"/><path d="M2 8.4a15 15 0 0120 0"/>',
+  loan:'<circle cx="12" cy="12" r="9"/><path d="M15 9.2a3.2 3.2 0 00-3-1.7c-1.7 0-3 .9-3 2.3 0 3 6 1.6 6 4.6 0 1.4-1.3 2.3-3 2.3a3.2 3.2 0 01-3-1.7"/><path d="M12 6v12"/>',
   custom:'<path d="M20.6 13.4L12.4 21.6a2 2 0 01-2.8 0l-7.2-7.2a2 2 0 01-.6-1.4V4a2 2 0 012-2h9a2 2 0 011.4.6l6.4 6.4a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.4"/>',
   salary:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 10v4M18 10v4"/>',
   kindergeld:'<circle cx="8.5" cy="7.5" r="2.8"/><path d="M3.5 20a5 5 0 0110 0"/><circle cx="17" cy="10" r="2.2"/><path d="M13.6 20a3.6 3.6 0 017.2 0"/>',
@@ -2622,9 +2651,15 @@ const ICON = {
   taxreturn:'<path d="M6 3h8.5L19 7.5V21H6z"/><path d="M14 3v4.5h5"/><path d="M9.5 16.5l5-5"/><path d="M10 12h.01M14 16h.01"/>',
   other_in:'<circle cx="5.6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.4" cy="12" r="1.3"/>'
 };
+/** A custom category may name a glyph; without one it falls back to the tag. */
+function customIcon(catId){
+  const c = (customCats("expense").concat(customCats("income")))
+    .find(x => x.id === catId);
+  return (c && c.icon && ICON[c.icon]) ? ICON[c.icon] : null;
+}
 function iconSvg(catId, size){
-  /* user-made categories have no drawing of their own, so they get a tag */
-  const glyph = ICON[catId] || (String(catId).indexOf("c_") === 0 ? ICON.custom : ICON.other);
+  const glyph = ICON[catId] || customIcon(catId) ||
+    (String(catId).indexOf("c_") === 0 ? ICON.custom : ICON.other);
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
     'stroke-linecap="round" stroke-linejoin="round" width="' + size + '" height="' + size +
     '" aria-hidden="true">' + glyph + '</svg>';
@@ -2810,7 +2845,11 @@ function normaliseBalance(b){
 function normaliseCats(c){
   const ok = a => (Array.isArray(a) ? a : []).filter(x =>
     x && typeof x.id === "string" && typeof x.n === "string")
-    .map(x => ({ id:x.id, n:x.n, h:Number(x.h) || 210, custom:true }));
+    .map(x => {
+      const out = { id:x.id, n:x.n, h:Number(x.h) || 210, custom:true };
+      if (typeof x.icon === "string" && ICON[x.icon]) out.icon = x.icon;
+      return out;
+    });
   return { expense: ok(c && c.expense), income: ok(c && c.income) };
 }
 
@@ -4447,6 +4486,8 @@ function addCategory(){
   if (clash){ toast("That category already exists"); return; }
 
   const cat = { id: "c_" + uid(), n: name, h: nextCatHue(), custom: true };
+  const guess = guessIcon(name);
+  if (guess) cat.icon = guess;
   state.cats[catAddType].push(cat);
   refreshCats(); save();
 
