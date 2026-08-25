@@ -875,7 +875,9 @@
       "note": "Deutschland Ticket - Suresh",
       "date": "2026-09-01",
       "status": "planned",
-      "ruleId": "rbx4wt3np9ur"
+      "ruleId": "rbx4wt3np9ur",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "z422npaxp9ut",
