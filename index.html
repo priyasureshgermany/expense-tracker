@@ -2494,7 +2494,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.15";
+const APP_VERSION = "1.1.16";
 const APP_BUILT = "2026-08-25";
 
 const KEY = "panappai.v1";
@@ -4064,7 +4064,15 @@ function renderCatChips(){
   const host = $("#eCats");
   host.innerHTML = "";
   const dark = isDark();
-  pickableCats(draft.type).forEach(c => {
+  /* A retired category is withheld from new entries but must still show on the
+     ones already filed under it — otherwise editing an old entry offers no
+     selection at all and looks as though it had no category. */
+  const list = pickableCats(draft.type).slice();
+  if (draft.category && !list.some(c => c.id === draft.category)){
+    const cur = allCats(draft.type).find(c => c.id === draft.category);
+    if (cur) list.push(Object.assign({}, cur, { legacy: true }));
+  }
+  list.forEach(c => {
     const b = el("button", "chip");
     b.type = "button";
     const ic = el("span", "cic");
@@ -4072,6 +4080,7 @@ function renderCatChips(){
     ic.style.color = draft.category === c.id ? "currentColor" : tintInk(c.h, dark);
     b.appendChild(ic);
     b.appendChild(el("span", null, c.n));
+    if (c.legacy) b.title = c.n + " is no longer offered for new entries, but stays on this one";
     b.setAttribute("aria-pressed", String(draft.category === c.id));
     b.addEventListener("click", () => {
       draft.category = c.id;
@@ -4782,10 +4791,18 @@ function renderRuleCats(){
   const host = $("#rCats");
   host.innerHTML = "";
   const dark = isDark();
-  allCats(rDraft.type).forEach(c => {
+  /* Same rule as the entry sheet: retired categories are not offered for new
+     ones, but a rule already using one keeps showing it. */
+  const list = pickableCats(rDraft.type).slice();
+  if (rDraft.category && !list.some(c => c.id === rDraft.category)){
+    const cur = allCats(rDraft.type).find(c => c.id === rDraft.category);
+    if (cur) list.push(Object.assign({}, cur, { legacy: true }));
+  }
+  list.forEach(c => {
     const b = el("button", "chip");
     b.type = "button";
     b.setAttribute("aria-pressed", String(c.id === rDraft.category));
+    if (c.legacy) b.title = c.n + " is no longer offered for new entries, but stays on this one";
     const ic = el("span", "cic");
     ic.innerHTML = iconSvg(c.id, 19);
     ic.style.color = tintInk(c.h, dark);
