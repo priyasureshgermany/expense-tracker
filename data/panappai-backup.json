@@ -404,7 +404,9 @@
       "note": "Electricity",
       "date": "2026-08-15",
       "status": "done",
-      "ruleId": "41nv5gwqtk16"
+      "ruleId": "41nv5gwqtk16",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "62e631qvtk16",
