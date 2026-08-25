@@ -678,7 +678,9 @@
       "category": "cardpay",
       "note": "",
       "date": "2026-08-15",
-      "status": "done"
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "c5bznjaza40x",
