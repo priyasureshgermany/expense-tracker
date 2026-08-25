@@ -753,7 +753,9 @@
       "note": "Deutschland Ticket - Priya",
       "date": "2026-09-01",
       "status": "planned",
-      "ruleId": "w09yr4drm0rp"
+      "ruleId": "w09yr4drm0rp",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "i7p5s11fm0rq",
