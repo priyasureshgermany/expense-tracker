@@ -2756,6 +2756,28 @@
       "status": "planned",
       "account": "a_0mh73fi9ovlw",
       "fromAccount": null
+    },
+    {
+      "id": "sz9pyoj50xgg",
+      "type": "expense",
+      "amount": 5836,
+      "category": "groceries_in",
+      "note": "Jaffna",
+      "date": "2026-08-26",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "10wexcs95ba8",
+      "type": "income",
+      "amount": 186500,
+      "category": "taxreturn",
+      "note": "",
+      "date": "2026-08-26",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     }
   ],
   "rules": [
@@ -3051,6 +3073,75 @@
           }
         ],
         "txnId": "fhumwps8em8p"
+      },
+      {
+        "id": "pp51aij00xgg",
+        "store": "in",
+        "date": "2026-08-26",
+        "total": 5836,
+        "items": [
+          {
+            "name": "Jaggery",
+            "qty": "2",
+            "price": 0
+          },
+          {
+            "name": "Tea powder",
+            "qty": "100g",
+            "price": 498
+          },
+          {
+            "name": "Chana dal",
+            "qty": "1kg",
+            "price": 330
+          },
+          {
+            "name": "Oil",
+            "qty": "3",
+            "price": 1980
+          },
+          {
+            "name": "Coriander leaves",
+            "qty": "1",
+            "price": 200
+          },
+          {
+            "name": "Pudina",
+            "qty": "1",
+            "price": 0
+          },
+          {
+            "name": "Guava",
+            "qty": "1",
+            "price": 0
+          },
+          {
+            "name": "Idli rice",
+            "qty": "10kg",
+            "price": 1699
+          },
+          {
+            "name": "Indian sweet",
+            "qty": "1",
+            "price": 350
+          },
+          {
+            "name": "GEMUSE",
+            "qty": "",
+            "price": 120
+          },
+          {
+            "name": "GEMUSE",
+            "qty": "",
+            "price": 260
+          },
+          {
+            "name": "DEV 7%",
+            "qty": "",
+            "price": 399
+          }
+        ],
+        "txnId": "sz9pyoj50xgg"
       }
     ]
   },
