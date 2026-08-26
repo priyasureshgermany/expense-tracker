@@ -2778,6 +2778,17 @@
       "status": "done",
       "account": "a_gch8xl46opp7",
       "fromAccount": null
+    },
+    {
+      "id": "3ct5rd3orm8m",
+      "type": "expense",
+      "amount": 2122,
+      "category": "groceries_de",
+      "note": "Lidl",
+      "date": "2026-08-26",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     }
   ],
   "rules": [
@@ -3143,6 +3154,35 @@
           }
         ],
         "txnId": "sz9pyoj50xgg"
+      },
+      {
+        "id": "hri98mslrm8m",
+        "store": "de",
+        "date": "2026-08-26",
+        "total": 2122,
+        "items": [
+          {
+            "name": "Bio-Eier OKT 10er",
+            "qty": "",
+            "price": 399
+          },
+          {
+            "name": "Colorwaschmittel",
+            "qty": "",
+            "price": 425
+          },
+          {
+            "name": "Hähn.Minutenschnittz",
+            "qty": "",
+            "price": 499
+          },
+          {
+            "name": "SweatshirtG -0514634",
+            "qty": "",
+            "price": 799
+          }
+        ],
+        "txnId": "3ct5rd3orm8m"
       }
     ]
   },
