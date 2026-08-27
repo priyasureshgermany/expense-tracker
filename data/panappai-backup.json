@@ -1243,9 +1243,9 @@
     {
       "id": "y91obng30s3b",
       "type": "expense",
-      "amount": 30000,
+      "amount": 20000,
       "category": "toindia",
-      "note": "For Amma and Loan",
+      "note": "For Loan",
       "date": "2026-08-21",
       "status": "done",
       "account": "a_gch8xl46opp7",
@@ -2789,6 +2789,172 @@
       "status": "done",
       "account": "a_gch8xl46opp7",
       "fromAccount": null
+    },
+    {
+      "id": "94zf6xtexjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2026-09-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "dfsprq5qxjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2026-10-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "l3u3mdslxjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2026-11-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "5dhkft2gxjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2026-12-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "v8ptkhmdxjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2027-01-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "seltpxfkxjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2027-02-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "qkex2qmbxjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2027-03-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "r55jmhsxxjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2027-04-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "84mp2wdcxjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2027-05-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "xzlg8h6txjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2027-06-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "x2im02wexjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2027-07-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "to7pyy1nxjki",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "date": "2027-08-01",
+      "status": "planned",
+      "ruleId": "by4k0ohgxjkg",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "nuw9k55fl2kf",
+      "type": "expense",
+      "amount": 50000,
+      "category": "invest",
+      "note": "For trade republic",
+      "date": "2026-08-27",
+      "status": "done",
+      "account": "a_0mh73fi9ovlw",
+      "fromAccount": null
+    },
+    {
+      "id": "zjff5c1wz1vv",
+      "type": "expense",
+      "amount": 5000,
+      "category": "cash",
+      "note": "",
+      "date": "2026-08-27",
+      "status": "done",
+      "account": "a_0mh73fi9ovlw",
+      "fromAccount": null
     }
   ],
   "rules": [
@@ -2996,6 +3162,18 @@
       "anchor": "2026-10-07",
       "active": true,
       "account": "a_gch8xl46opp7"
+    },
+    {
+      "id": "by4k0ohgxjkg",
+      "type": "expense",
+      "amount": 10000,
+      "category": "toindia",
+      "note": "For amma",
+      "freq": "monthly",
+      "anchor": "2026-09-01",
+      "active": true,
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     }
   ],
   "skips": [
