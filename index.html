@@ -1420,6 +1420,38 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .nrow .ns{font-size:11.5px;color:var(--ink-3)}
 .nrow .na{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;font-weight:500}
 
+/* ---------- Cropping a receipt photo ---------- */
+.cropstage{
+  position:relative;line-height:0;border-radius:var(--r-md);overflow:hidden;
+  background:#000;touch-action:none;user-select:none;-webkit-user-select:none;
+}
+.cropstage img{display:block;width:100%;height:auto;max-height:52vh;object-fit:contain}
+/* The dimming is one huge spread shadow rather than four overlay divs, so the
+   hole always matches the box exactly however it is dragged. */
+.cropbox{
+  position:absolute;box-sizing:border-box;
+  border:1.5px solid #fff;border-radius:2px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.6);
+  cursor:move;touch-action:none;
+}
+.cropbox .ch{
+  position:absolute;width:26px;height:26px;
+  background:transparent;touch-action:none;
+}
+/* the visible corner mark sits inside a much larger invisible touch target */
+.cropbox .ch::after{
+  content:"";position:absolute;width:12px;height:12px;
+  border:2.5px solid #fff;
+}
+.cropbox .ch.tl{top:-13px;left:-13px;cursor:nwse-resize}
+.cropbox .ch.tl::after{top:6px;left:6px;border-right:none;border-bottom:none}
+.cropbox .ch.tr{top:-13px;right:-13px;cursor:nesw-resize}
+.cropbox .ch.tr::after{top:6px;right:6px;border-left:none;border-bottom:none}
+.cropbox .ch.bl{bottom:-13px;left:-13px;cursor:nesw-resize}
+.cropbox .ch.bl::after{bottom:6px;left:6px;border-right:none;border-top:none}
+.cropbox .ch.br{bottom:-13px;right:-13px;cursor:nwse-resize}
+.cropbox .ch.br::after{bottom:6px;right:6px;border-left:none;border-top:none}
+
 .acctlist{display:flex;flex-direction:column;gap:6px;margin-top:9px}
 .acctrow{
   display:flex;align-items:center;gap:9px;
@@ -2342,12 +2374,30 @@ html.locked #lockScreen::before{
       Paste the receipt text and it will fill in the prices: each line is matched to an item on
       your list, and anything it can't match is added to the end of the list with its price.
     </div>
-    <input type="file" id="scanPhoto" accept="image/*" capture="environment" hidden>
+    <input type="file" id="scanPhoto" accept="image/*" hidden>
     <button class="btn" id="scanPhotoBtn" style="margin-top:12px">
       <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px"><path d="M4 8V6a2 2 0 012-2h1l1.4-1.6A2 2 0 019.9 2h4.2a2 2 0 011.5.7L17 4h1a2 2 0 012 2v2"/><path d="M2 8h20v11a2 2 0 01-2 2H4a2 2 0 01-2-2z"/><circle cx="12" cy="14" r="3.5"/></svg>
-      <span id="scanPhotoLabel">Take or choose a photo</span>
+      <span id="scanPhotoLabel">Select photo</span>
     </button>
     <div class="note" id="scanPhotoNote" style="margin-top:8px" hidden></div>
+
+    <div id="scanCrop" hidden style="margin-top:12px">
+      <div class="cropstage" id="cropStage">
+        <img id="cropImg" alt="The receipt you just took">
+        <div class="cropbox" id="cropBox">
+          <span class="ch tl"></span><span class="ch tr"></span>
+          <span class="ch bl"></span><span class="ch br"></span>
+        </div>
+      </div>
+      <div class="note" style="margin-top:8px">
+        Drag the box over the <b>item lines</b> only. Leaving out the shop name at the
+        top and the totals at the bottom keeps stray text from being read as an item.
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" id="cropRead" style="flex:1;min-width:0">Read this area</button>
+        <button class="btn ghost sm" id="cropCancel" style="flex:none;padding:0 16px">Cancel</button>
+      </div>
+    </div>
     <div class="field" style="margin-top:12px">
       <label for="scanText">Receipt text</label>
       <textarea class="inp" id="scanText" style="min-height:130px" placeholder="Milch 1L        1,19&#10;Vollkornbrot    2,49&#10;Äpfel 1kg       3,20"></textarea>
@@ -2366,7 +2416,8 @@ html.locked #lockScreen::before{
       <button class="btn sm" id="scanApply" style="margin-top:12px">Apply prices</button>
     </div>
     <div class="note" style="margin-top:14px">
-      A photo is read on this device — nothing is uploaded anywhere. The first photo on a device
+      <b>Select photo</b> offers the camera or your gallery, and either can be cropped before
+      it's read. A photo is read on this device — nothing is uploaded anywhere. The first one
       downloads a small text-recognition model, cached afterward for offline use. It sometimes
       misreads a digit or a squashed word, so check the text above before pressing
       <b>Read receipt</b>.
@@ -2615,7 +2666,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.24";
+const APP_VERSION = "1.1.25";
 const APP_BUILT = "2026-08-27";
 
 const KEY = "panappai.v1";
@@ -6128,6 +6179,8 @@ $("#shopScan").addEventListener("click", () => {
   $("#scanText").value = "";
   $("#scanResult").hidden = true;
   $("#scanPhotoNote").hidden = true;
+  cropShow(false);
+  cropFile = null;
   scanParsed = null;
   sheetOpen("#shScan");
 });
@@ -6162,43 +6215,184 @@ function scanPhotoNote(msg, isErr){
   n.style.color = isErr ? "var(--neg)" : "";
 }
 
+/* -------------------------------------------------------------------------
+   CROPPING THE PHOTO
+
+   A receipt is mostly not the bit you want. The shop's name, address and
+   slogan at the top and the totals, tax lines and card details at the bottom
+   all carry digits, and OCR reading them produces lines that look like priced
+   items to the parser. Narrowing to the item rows before reading is both more
+   accurate and quicker, since there is less image to recognise.
+
+   Coordinates are kept as fractions of the image rather than pixels: the
+   preview is scaled to fit the sheet, so a pixel on screen is not a pixel in
+   the photo, and a fraction survives the difference and any resize.
+   ------------------------------------------------------------------------- */
+let cropFile = null;                                  /* the photo awaiting a read */
+let cropRect = { x: 0.04, y: 0.18, w: 0.92, h: 0.6 }; /* fractions of the image */
+
+function cropShow(on){
+  $("#scanCrop").hidden = !on;
+  $("#scanPhotoBtn").hidden = on;
+}
+
+/** Lays the box over the preview from the stored fractions. */
+function cropPaint(){
+  const img = $("#cropImg");
+  const box = $("#cropBox");
+  const w = img.clientWidth, h = img.clientHeight;
+  if (!w || !h) return;
+  box.style.left   = (cropRect.x * w) + "px";
+  box.style.top    = (cropRect.y * h) + "px";
+  box.style.width  = (cropRect.w * w) + "px";
+  box.style.height = (cropRect.h * h) + "px";
+}
+
+/**
+ * Drag to move, corners to resize. Pointer events rather than touch or mouse
+ * ones, so a finger and a mouse take the same path — the same reason the
+ * receipt-line drag uses them.
+ */
+function cropBindDrag(){
+  const stage = $("#cropStage");
+  const box = $("#cropBox");
+  let mode = null, startX = 0, startY = 0, start = null;
+
+  const begin = (e, m) => {
+    mode = m;
+    startX = e.clientX; startY = e.clientY;
+    start = Object.assign({}, cropRect);
+    /* capture keeps the drag alive if the finger leaves the box; it throws when
+       the pointer has already gone, which must not take the drag down with it */
+    try{ e.target.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  box.addEventListener("pointerdown", e => {
+    if (e.target.classList.contains("ch")) return;   /* a corner handles itself */
+    begin(e, "move");
+  });
+  $$("#cropBox .ch").forEach(h => {
+    h.addEventListener("pointerdown", e => {
+      begin(e, h.classList.contains("tl") ? "tl"
+             : h.classList.contains("tr") ? "tr"
+             : h.classList.contains("bl") ? "bl" : "br");
+    });
+  });
+
+  const MIN = 0.06;   /* a box smaller than this reads nothing useful */
+
+  stage.addEventListener("pointermove", e => {
+    if (!mode) return;
+    const img = $("#cropImg");
+    const dx = (e.clientX - startX) / img.clientWidth;
+    const dy = (e.clientY - startY) / img.clientHeight;
+    const r = Object.assign({}, start);
+
+    if (mode === "move"){
+      r.x = Math.min(Math.max(0, start.x + dx), 1 - start.w);
+      r.y = Math.min(Math.max(0, start.y + dy), 1 - start.h);
+    } else {
+      /* resize from whichever corner is held, keeping the opposite one pinned */
+      let x0 = start.x, y0 = start.y, x1 = start.x + start.w, y1 = start.y + start.h;
+      if (mode === "tl" || mode === "bl") x0 = start.x + dx;
+      if (mode === "tr" || mode === "br") x1 = start.x + start.w + dx;
+      if (mode === "tl" || mode === "tr") y0 = start.y + dy;
+      if (mode === "bl" || mode === "br") y1 = start.y + start.h + dy;
+      x0 = Math.max(0, Math.min(x0, x1 - MIN));
+      y0 = Math.max(0, Math.min(y0, y1 - MIN));
+      x1 = Math.min(1, Math.max(x1, x0 + MIN));
+      y1 = Math.min(1, Math.max(y1, y0 + MIN));
+      r.x = x0; r.y = y0; r.w = x1 - x0; r.h = y1 - y0;
+    }
+    cropRect = r;
+    cropPaint();
+    e.preventDefault();
+  });
+
+  const end = () => { mode = null; };
+  stage.addEventListener("pointerup", end);
+  stage.addEventListener("pointercancel", end);
+}
+cropBindDrag();
+window.addEventListener("resize", () => { if (!$("#scanCrop").hidden) cropPaint(); });
+
+/** The chosen region as a PNG blob, at the photo's own resolution. */
+function cropToBlob(){
+  return new Promise((resolve, reject) => {
+    const src = new Image();
+    src.onload = () => {
+      const sx = Math.round(cropRect.x * src.naturalWidth);
+      const sy = Math.round(cropRect.y * src.naturalHeight);
+      const sw = Math.max(1, Math.round(cropRect.w * src.naturalWidth));
+      const sh = Math.max(1, Math.round(cropRect.h * src.naturalHeight));
+      const c = document.createElement("canvas");
+      c.width = sw; c.height = sh;
+      c.getContext("2d").drawImage(src, sx, sy, sw, sh, 0, 0, sw, sh);
+      URL.revokeObjectURL(src.src);
+      c.toBlob(b => b ? resolve(b) : reject(new Error("crop")), "image/png");
+    };
+    src.onerror = () => reject(new Error("crop"));
+    src.src = URL.createObjectURL(cropFile);
+  });
+}
+
+$("#cropCancel").addEventListener("click", () => {
+  cropShow(false);
+  cropFile = null;
+  scanPhotoNote("");
+});
+
 $("#scanPhotoBtn").addEventListener("click", () => $("#scanPhoto").click());
 
-$("#scanPhoto").addEventListener("change", async () => {
+$("#scanPhoto").addEventListener("change", () => {
   const file = $("#scanPhoto").files[0];
   $("#scanPhoto").value = "";           /* choosing the same photo twice still fires change */
   if (!file) return;
+  cropFile = file;
+  const img = $("#cropImg");
+  img.onload = () => { cropPaint(); img.scrollIntoView({ behavior:"smooth", block:"center" }); };
+  img.src = URL.createObjectURL(file);
+  cropShow(true);
+  scanPhotoNote("Drag the box over the item lines, then read it.");
+});
 
-  const btn = $("#scanPhotoBtn");
-  const label = $("#scanPhotoLabel");
+/** Runs recognition over whatever the box currently covers. */
+$("#cropRead").addEventListener("click", async () => {
+  if (!cropFile) return;
+  const btn = $("#cropRead");
+  const prev = btn.textContent;
   btn.disabled = true;
-  const prevLabel = label.textContent;
-  label.textContent = "Getting ready…";
+  btn.textContent = "Getting ready…";
   scanPhotoNote("");
 
   try{
+    const region = await cropToBlob();
     await loadOcr();
-    const worker = await Tesseract.recognize(file, "eng", {
+    const res = await Tesseract.recognize(region, "eng", {
       logger: m => {
         if (m.status === "recognizing text" && typeof m.progress === "number"){
-          label.textContent = "Reading… " + Math.round(m.progress * 100) + "%";
+          btn.textContent = "Reading… " + Math.round(m.progress * 100) + "%";
         } else if (m.status){
-          label.textContent = m.status.charAt(0).toUpperCase() + m.status.slice(1) + "…";
+          btn.textContent = m.status.charAt(0).toUpperCase() + m.status.slice(1) + "…";
         }
       }
     });
-    const text = (worker.data.text || "").trim();
+    const text = (res.data.text || "").trim();
     if (!text){
-      scanPhotoNote("Couldn't find any text in that photo — try a flatter, brighter shot.", true);
-    } else {
-      /* appended rather than replacing, so a second photo (the rest of a long
-         receipt) doesn't erase the first */
-      const box = $("#scanText");
-      box.value = box.value ? box.value + "\n" + text : text;
-      scanPhotoNote("Check the text below, then press Read receipt.");
-      box.scrollIntoView({ behavior: "smooth", block: "center" });
-      box.focus();
+      scanPhotoNote("Couldn't find any text in that area — try a wider box, or a brighter photo.", true);
+      return;
     }
+    /* appended rather than replacing, so a second photo (the rest of a long
+       receipt) doesn't erase the first */
+    const box = $("#scanText");
+    box.value = box.value ? box.value + "\n" + text : text;
+    cropShow(false);
+    cropFile = null;
+    scanPhotoNote("Check the text below, then press Read receipt.");
+    box.scrollIntoView({ behavior: "smooth", block: "center" });
+    box.focus();
   }catch(e){
     scanPhotoNote(
       e && e.message === "offline"
@@ -6208,7 +6402,7 @@ $("#scanPhoto").addEventListener("change", async () => {
     );
   }finally{
     btn.disabled = false;
-    label.textContent = prevLabel;
+    btn.textContent = prev;
   }
 });
 
