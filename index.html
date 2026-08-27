@@ -2342,6 +2342,12 @@ html.locked #lockScreen::before{
       Paste the receipt text and it will fill in the prices: each line is matched to an item on
       your list, and anything it can't match is added to the end of the list with its price.
     </div>
+    <input type="file" id="scanPhoto" accept="image/*" capture="environment" hidden>
+    <button class="btn" id="scanPhotoBtn" style="margin-top:12px">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px"><path d="M4 8V6a2 2 0 012-2h1l1.4-1.6A2 2 0 019.9 2h4.2a2 2 0 011.5.7L17 4h1a2 2 0 012 2v2"/><path d="M2 8h20v11a2 2 0 01-2 2H4a2 2 0 01-2-2z"/><circle cx="12" cy="14" r="3.5"/></svg>
+      <span id="scanPhotoLabel">Take or choose a photo</span>
+    </button>
+    <div class="note" id="scanPhotoNote" style="margin-top:8px" hidden></div>
     <div class="field" style="margin-top:12px">
       <label for="scanText">Receipt text</label>
       <textarea class="inp" id="scanText" style="min-height:130px" placeholder="Milch 1L        1,19&#10;Vollkornbrot    2,49&#10;Äpfel 1kg       3,20"></textarea>
@@ -2360,9 +2366,10 @@ html.locked #lockScreen::before{
       <button class="btn sm" id="scanApply" style="margin-top:12px">Apply prices</button>
     </div>
     <div class="note" style="margin-top:14px">
-      Reading a <b>photo</b> of a receipt isn't supported: on-device text recognition would need an
-      OCR library, which this app deliberately doesn't bundle so it stays a single offline file.
-      Most shops e-mail a digital receipt you can copy the text from.
+      A photo is read on this device — nothing is uploaded anywhere. The first photo on a device
+      downloads a small text-recognition model, cached afterward for offline use. It sometimes
+      misreads a digit or a squashed word, so check the text above before pressing
+      <b>Read receipt</b>.
     </div>
   </div>
 </section>
@@ -2608,7 +2615,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.23";
+const APP_VERSION = "1.1.24";
 const APP_BUILT = "2026-08-27";
 
 const KEY = "panappai.v1";
@@ -6120,8 +6127,89 @@ let scanParsed = null;
 $("#shopScan").addEventListener("click", () => {
   $("#scanText").value = "";
   $("#scanResult").hidden = true;
+  $("#scanPhotoNote").hidden = true;
   scanParsed = null;
   sheetOpen("#shScan");
+});
+
+/* =========================================================================
+   RECEIPT PHOTO — read on the device itself, nothing uploaded anywhere.
+   Tesseract.js is the one external library in the app; it is fetched from a
+   CDN only the first time a photo is scanned, and only then, so nobody pays
+   for it by loading the app. The library caches its own model in the
+   browser's Cache Storage, so every scan after the first works offline.
+   ========================================================================= */
+const OCR_SRC = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+let ocrLoading = null;
+
+function loadOcr(){
+  if (window.Tesseract) return Promise.resolve();
+  if (ocrLoading) return ocrLoading;
+  ocrLoading = new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = OCR_SRC;
+    s.onload = () => resolve();
+    s.onerror = () => { ocrLoading = null; reject(new Error("offline")); };
+    document.head.appendChild(s);
+  });
+  return ocrLoading;
+}
+
+function scanPhotoNote(msg, isErr){
+  const n = $("#scanPhotoNote");
+  n.hidden = !msg;
+  n.textContent = msg || "";
+  n.style.color = isErr ? "var(--neg)" : "";
+}
+
+$("#scanPhotoBtn").addEventListener("click", () => $("#scanPhoto").click());
+
+$("#scanPhoto").addEventListener("change", async () => {
+  const file = $("#scanPhoto").files[0];
+  $("#scanPhoto").value = "";           /* choosing the same photo twice still fires change */
+  if (!file) return;
+
+  const btn = $("#scanPhotoBtn");
+  const label = $("#scanPhotoLabel");
+  btn.disabled = true;
+  const prevLabel = label.textContent;
+  label.textContent = "Getting ready…";
+  scanPhotoNote("");
+
+  try{
+    await loadOcr();
+    const worker = await Tesseract.recognize(file, "eng", {
+      logger: m => {
+        if (m.status === "recognizing text" && typeof m.progress === "number"){
+          label.textContent = "Reading… " + Math.round(m.progress * 100) + "%";
+        } else if (m.status){
+          label.textContent = m.status.charAt(0).toUpperCase() + m.status.slice(1) + "…";
+        }
+      }
+    });
+    const text = (worker.data.text || "").trim();
+    if (!text){
+      scanPhotoNote("Couldn't find any text in that photo — try a flatter, brighter shot.", true);
+    } else {
+      /* appended rather than replacing, so a second photo (the rest of a long
+         receipt) doesn't erase the first */
+      const box = $("#scanText");
+      box.value = box.value ? box.value + "\n" + text : text;
+      scanPhotoNote("Check the text below, then press Read receipt.");
+      box.scrollIntoView({ behavior: "smooth", block: "center" });
+      box.focus();
+    }
+  }catch(e){
+    scanPhotoNote(
+      e && e.message === "offline"
+        ? "Couldn't load the text-recognition model — connect to the internet once, then try again."
+        : "Couldn't read that photo. Try again, or type the receipt instead.",
+      true
+    );
+  }finally{
+    btn.disabled = false;
+    label.textContent = prevLabel;
+  }
 });
 
 /**
