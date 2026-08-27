@@ -1,6 +1,6 @@
 {
-  "name": "பணப்பை — Expense Tracker",
-  "short_name": "பணப்பை",
+  "name": "Panappai பணப்பை — Expense Tracker",
+  "short_name": "Panappai",
   "description": "Offline-first euro expense tracker. Plan and reconcile income and expenses, with an optional GitHub backup.",
   "start_url": "./index.html",
   "scope": "./",
