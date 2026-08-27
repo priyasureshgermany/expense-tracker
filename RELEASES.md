@@ -3,6 +3,10 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.28 — 2026-08-27
+- A photo of a receipt is lit unevenly, and the old contrast stretch could not cope with that — it left the ink and the paper overlapping, so whole lines went missing. The lighting is now estimated and subtracted before reading.
+- A tax row such as 'B 6%  14,52  15,39' is no longer taken for something bought: a real item always carries a word, a table row is only a letter and figures.
+
 ## 1.1.27 — 2026-08-27
 - The home screen name is now Panappai in Latin letters, so iPhone Spotlight and the Safari address bar can find it — Tamil script cannot be typed on an English keyboard.
 - The Tamil name stays as it was everywhere inside the app.
