@@ -1294,6 +1294,14 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .setrow .sr-t b{font-size:13.5px;font-weight:600;letter-spacing:-.005em;line-height:1.25}
 .setrow .sr-t span{font-size:11px;color:var(--ink-3);line-height:1.35}
 .setrow .sr-go{display:none}
+/* A newer build being available is worth saying on the tile, not only inside it. */
+.updot{
+  position:absolute;top:10px;right:10px;
+  padding:3px 8px;border-radius:99px;
+  background:var(--neg);color:#fff;
+  font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+}
+.setrow-wide{position:relative}
 
 /* About closes the grid off across both columns, in its own shade so it reads
    as an end-piece rather than another topic. */
@@ -2397,7 +2405,8 @@ html.locked #lockScreen::before{
     </button>
     <button class="setrow setrow-wide" type="button" data-pane="about">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8h.01"/></svg></span>
-      <span class="sr-t"><b>About</b><span>Version and what’s new</span></span>
+      <span class="sr-t"><b>About</b><span id="setAboutSub">Version and what’s new</span></span>
+      <span class="updot" id="setAboutDot" hidden>Update</span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
   </div>
@@ -2560,10 +2569,13 @@ html.locked #lockScreen::before{
         <div class="ab-row"><span>Deployed</span><b id="abBuilt">—</b></div>
         <div class="ab-row"><span>Running</span><b id="abRunning">—</b></div>
       </div>
+      <button class="btn" id="abUpdate" style="margin-top:10px" hidden>
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px"><path d="M21 12a9 9 0 01-9 9 9 9 0 01-7.6-4.2"/><path d="M3 12a9 9 0 019-9 9 9 0 017.6 4.2"/><path d="M17 3.5V8h-4.5"/><path d="M7 20.5V16h4.5"/></svg>
+        <span id="abUpdateLabel">Update now</span>
+      </button>
       <button class="btn ghost sm" id="abNotes" style="margin-top:10px">What’s new</button>
-      <div class="note" style="margin-top:6px">
-        "Running" is the copy this device has cached. If it lags behind the version above,
-        close the app fully and reopen it to pick up the newer build.
+      <div class="note" style="margin-top:6px" id="abRunNote">
+        "Running" is the copy this device has cached.
       </div>
     </div>
   </div>
@@ -2580,7 +2592,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.20";
+const APP_VERSION = "1.1.21";
 const APP_BUILT = "2026-08-27";
 
 const KEY = "panappai.v1";
@@ -3667,6 +3679,36 @@ $("#budSave").addEventListener("click", () => {
 /* =========================================================================
    ABOUT — the deployed version, and what this device is actually running.
    ========================================================================= */
+/** Newer version seen on the server, or "" when this device is current. */
+let updateAvailable = "";
+
+function showUpdate(live){
+  updateAvailable = live;
+  $("#abUpdate").hidden = !live;
+  $("#setAboutDot").hidden = !live;
+  if (live){
+    $("#abUpdateLabel").textContent = "Update to " + live;
+    $("#setAboutSub").textContent = "Version " + live + " ready";
+    $("#abRunNote").textContent =
+      "A newer build is on the server. Updating reloads the app; nothing in your book is touched.";
+  } else {
+    $("#setAboutSub").textContent = "Version and what’s new";
+    $("#abRunNote").textContent = "\"Running\" is the copy this device has cached.";
+  }
+}
+
+/** Asks the server what it is serving, without going through the cache. */
+function checkForUpdate(){
+  return fetch("index.html?v=" + Date.now(), { cache: "no-store" })
+    .then(r => r.ok ? r.text() : null)
+    .then(t => {
+      if (!t) return "";
+      const live = (t.match(/const APP_VERSION = "([^"]+)"/) || [])[1];
+      return (live && live !== APP_VERSION) ? live : "";
+    })
+    .catch(() => "");
+}
+
 function renderAbout(){
   $("#abVersion").textContent = APP_VERSION;
   $("#abBuilt").textContent = APP_BUILT;
@@ -3674,18 +3716,34 @@ function renderAbout(){
   /* The served copy may be newer than the cached one this device booted from. */
   const running = $("#abRunning");
   running.textContent = APP_VERSION + " (cached)";
-  fetch("index.html?v=" + Date.now(), { cache: "no-store" })
-    .then(r => r.ok ? r.text() : null)
-    .then(t => {
-      if (!t) return;
-      const live = (t.match(/const APP_VERSION = "([^"]+)"/) || [])[1];
-      if (!live) return;
-      running.textContent = live === APP_VERSION
-        ? APP_VERSION + " · up to date"
-        : APP_VERSION + " · " + live + " available";
-    })
-    .catch(() => {});
+  checkForUpdate().then(live => {
+    running.textContent = live
+      ? APP_VERSION + " · " + live + " available"
+      : APP_VERSION + " · up to date";
+    showUpdate(live);
+  });
 }
+
+/**
+ * Takes the newer build without the app being closed and reopened. The service
+ * worker holds the old shell, so the caches go first — otherwise a reload just
+ * serves the same copy back and nothing appears to happen.
+ */
+$("#abUpdate").addEventListener("click", async function(){
+  this.disabled = true;
+  $("#abUpdateLabel").textContent = "Updating…";
+  try{
+    if ("caches" in window){
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    if (navigator.serviceWorker){
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.update().catch(() => r.unregister())));
+    }
+  }catch(e){ /* a reload from the network is still worth trying */ }
+  location.reload();
+});
 
 /** Parses just the two shapes RELEASES.md uses: "## 1.2.3 — date" and "- item". */
 function parseReleases(md){
@@ -4668,6 +4726,10 @@ document.addEventListener("click", e => {
   if ($("#fabMenu").classList.contains("open") && !$("#fabWrap").contains(e.target)) fabClose();
 });
 $$("#eType button").forEach(b => b.addEventListener("click", () => {
+  /* Tapping the kind it already is resets nothing. On an edit this is the only
+     button showing, so without the guard a stray tap silently swapped the
+     entry's category for the first in the list. */
+  if (draft.type === b.dataset.v) return;
   draft.type = b.dataset.v;
   if (draft.type === "transfer"){
     draft.category = null;
@@ -7121,6 +7183,8 @@ $("#ghDisable").addEventListener("click", async () => {
   ["#eDate", "#balDate", "#shopDate", "#rDate"].forEach(sel => attachCalendar($(sel)));
   syncEyeBtn();
   syncThemeColorMeta();
+  /* so the tile carries the badge without Settings having been opened */
+  checkForUpdate().then(showUpdate);
   if (lockEnabled()) lockOpenUnlock(); else document.documentElement.classList.remove("locked");
   lockResetIdle();
 })();
