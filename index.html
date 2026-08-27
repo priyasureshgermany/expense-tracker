@@ -2580,8 +2580,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.19";
-const APP_BUILT = "2026-08-26";
+const APP_VERSION = "1.1.20";
+const APP_BUILT = "2026-08-27";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -4589,7 +4589,16 @@ $("#catAdd").addEventListener("click", addCategory);
 $("#catName").addEventListener("keydown", e => { if (e.key === "Enter") addCategory(); });
 function syncEntryUI(){
   const xfer = draft.type === "transfer";
-  $$("#eType button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === draft.type)));
+  /* What an entry is was settled when it was made: an expense does not become a
+     transfer. Offering the other two on an edit invites a change that would
+     strand the category and the accounts, so only the one it is shows. */
+  const isEdit = !!editing;
+  $$("#eType button").forEach(b => {
+    const mine = b.dataset.v === draft.type;
+    b.setAttribute("aria-pressed", String(mine));
+    b.hidden = isEdit && !mine;
+  });
+  $("#eType").style.gridTemplateColumns = isEdit ? "1fr" : "repeat(3,1fr)";
   $$("#eStatus button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === draft.status)));
   $("#amtWrap").className = "amtfield " + (xfer ? "" : (draft.type === "income" ? "in" : "out"));
   /* A transfer has no category and no status: it is money you already had,

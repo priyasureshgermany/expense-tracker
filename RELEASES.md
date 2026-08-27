@@ -3,6 +3,9 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.20 — 2026-08-27
+- Editing an entry shows only the kind it is, rather than offering to turn an expense into a transfer
+
 ## 1.1.19 — 2026-08-26
 - Added back buttons to the sheets opened from inside another one, so returning lands where you left off
 - Add items opens on a search box pinned above the staples, which filters them as you type
