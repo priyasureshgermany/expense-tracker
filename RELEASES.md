@@ -3,6 +3,10 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.27 — 2026-08-27
+- The home screen name is now Panappai in Latin letters, so iPhone Spotlight and the Safari address bar can find it — Tamil script cannot be typed on an English keyboard.
+- The Tamil name stays as it was everywhere inside the app.
+
 ## 1.1.26 — 2026-08-27
 - Receipt photos are prepared before reading — greyscaled, enlarged and contrast-stretched — which stops a G being read as a 6 and a decimal comma as a full stop
 - Recognition runs in English and German together, so umlauts survive; German alone silently dropped whole lines
