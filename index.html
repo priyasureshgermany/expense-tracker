@@ -2109,13 +2109,13 @@ html.locked #lockScreen::before{
     </button>
   </div>
   <div class="sheet-body">
-    <div class="seg" id="rType" role="tablist">
-      <button class="a out" data-t="expense" aria-selected="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg>
+    <div class="toggle2" id="rType">
+      <button class="n" data-t="expense" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg>
         Expense
       </button>
-      <button class="a in" data-t="income" aria-selected="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg>
+      <button class="p" data-t="income" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg>
         Income
       </button>
     </div>
@@ -2608,7 +2608,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.22";
+const APP_VERSION = "1.1.23";
 const APP_BUILT = "2026-08-27";
 
 const KEY = "panappai.v1";
@@ -5067,8 +5067,7 @@ function renderRuleFreq(){
 }
 
 function syncRuleType(){
-  $$("#rType .a").forEach(b => b.setAttribute("aria-selected", String(b.dataset.t === rDraft.type)));
-  $("#rType").dataset.t = rDraft.type;
+  $$("#rType button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.t === rDraft.type)));
   /* the amount reads green or red as you type, as it does on a one-off entry */
   $("#rAmtWrap").className = "amtfield " + (rDraft.type === "income" ? "in" : "out");
 }
@@ -5108,7 +5107,7 @@ function openRule(rule){
   sheetOpen("#shRule");
 }
 
-$$("#rType .a").forEach(b => b.addEventListener("click", () => {
+$$("#rType button").forEach(b => b.addEventListener("click", () => {
   if (rDraft.type === b.dataset.t) return;
   rDraft.type = b.dataset.t;
   rDraft.category = allCats(rDraft.type)[0].id;
