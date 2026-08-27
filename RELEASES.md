@@ -3,6 +3,9 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.22 — 2026-08-27
+- Hid the scrollbar down the right edge of the page and the panels, which the design never made room for
+
 ## 1.1.21 — 2026-08-27
 - Fixed tapping the kind an entry already is resetting its category, which the single tab on an edit made easy to do by accident
 - About says when a newer build is out and offers an Update button that reloads into it, rather than asking you to close and reopen the app

@@ -132,6 +132,22 @@ body{
   -webkit-font-smoothing:antialiased;
   -webkit-tap-highlight-color:transparent;
 }
+/* Everything here is scrolled by thumb or wheel, and the native bar paints a
+   grey track down the edge that no part of the design accounts for. The month
+   strip and the pickers already hid theirs; this is the same decision applied
+   to the page and the panels. Scrolling is untouched — only the chrome goes. */
+html, body, .sheet-body, .scan-lines, #setMenu, .setpane, .shell{
+  scrollbar-width:none;          /* Firefox */
+  -ms-overflow-style:none;       /* old Edge */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.sheet-body::-webkit-scrollbar,
+.scan-lines::-webkit-scrollbar,
+#setMenu::-webkit-scrollbar,
+.setpane::-webkit-scrollbar,
+.shell::-webkit-scrollbar{ width:0; height:0; display:none }
+
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:none;padding:0}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
@@ -2592,7 +2608,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.21";
+const APP_VERSION = "1.1.22";
 const APP_BUILT = "2026-08-27";
 
 const KEY = "panappai.v1";
