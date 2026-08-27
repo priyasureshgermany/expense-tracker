@@ -3,6 +3,15 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.19 — 2026-08-26
+- Added back buttons to the sheets opened from inside another one, so returning lands where you left off
+- Add items opens on a search box pinned above the staples, which filters them as you type
+- Every shopping staple carries its own drawing rather than reading as a wall of text
+- An unmatched receipt line can be renamed to re-match, or dragged onto a list item to merge into it
+- Two receipt lines landing on one item now add together instead of the last one winning
+- Indian staples: dropped coconut oil, rajma, poha, rice flour, sambar powder and sona masoori rice
+- Indian staples: added coffee powder, gingelly oil, groundnut oil, ponni boiled rice, raw banana and mint, with an Oils group
+
 ## 1.1.18 — 2026-08-25
 - Telecom shows signal bars and Loan a coin, instead of the generic tag every custom category used to get
 - A category you create now takes a drawing guessed from its name, and can carry one at all

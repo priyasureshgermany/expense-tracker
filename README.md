@@ -265,6 +265,16 @@ right adds a new one. Editing rewrites only the occurrences still ahead of you �
 anything already ticked off as paid stays exactly as it was. Because cadence
 lives here, the entry sheet has no Repeat field.
 
+**Add items** opens on a search box pinned above the staples: type to filter
+them by word, or tap **+** to add whatever isn't there. Every staple carries its
+own drawing, so the list reads at a glance.
+
+**Scanning a receipt** matches each priced line to something on your list. A shop
+prints its own abbreviations, so two ways out are built in: the name on an
+unmatched line is editable and re-matches as you type, and an unmatched line can
+be dragged onto any item already on the list to merge into it instead of adding a
+duplicate. Two lines landing on one item have their prices added together.
+
 **Self transfers** move your own money between your own accounts. They carry an
 amount, both accounts and a date — no category, no status — and are deliberately
 absent from every dashboard total, since nothing was earned or spent. They show

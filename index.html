@@ -572,7 +572,26 @@ button.tile:hover .tile-go{color:var(--accent)}
 .pickchip.added{
   background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600;
 }
-.pickchip .pc-t{width:13px;height:13px;flex:none}
+.pickchip .pc-t{width:13px;height:13px;flex:none;opacity:.75}
+.pickchip .pc-i{display:grid;place-items:center;flex:none;color:var(--ink-3)}
+.pickchip.added .pc-i{color:var(--accent)}
+.pickchip .pc-n{white-space:nowrap}
+
+/* The search sits between the head and the scrolling body, so it stays put
+   while the staples scroll under it — reachable without hunting to the bottom. */
+.picksearch{
+  padding:12px 18px 10px;
+  border-bottom:1px solid var(--line);
+  background:var(--surface);
+  flex:none;
+}
+.picksearch .ps-row{display:flex;gap:7px;align-items:center;position:relative}
+.picksearch .ps-mag{
+  position:absolute;left:12px;width:17px;height:17px;
+  color:var(--ink-3);pointer-events:none;
+}
+.picksearch input{flex:1;min-width:0;padding-left:37px}
+.picksearch .ps-hint{margin-top:7px;font-size:11.5px;color:var(--ink-3)}
 
 /* ---------- Receipt scan results ---------- */
 .scan-sum{margin:14px 0 10px;font-size:13px;font-weight:600;color:var(--ink)}
@@ -588,7 +607,54 @@ button.tile:hover .tile-go{color:var(--accent)}
 .sl-tag.match{background:var(--pos-soft);color:var(--pos)}
 .sl-tag.new{background:var(--warn-soft);color:var(--warn)}
 .sl-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl-from{display:block;font-size:10.5px;color:var(--ink-3);font-style:italic}
 .sl-p{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;flex:none}
+.sl-grip{
+  flex:none;width:18px;height:18px;color:var(--ink-3);
+  display:grid;place-items:center;cursor:grab;touch-action:none;
+}
+.sl-grip:active{cursor:grabbing}
+.sl-grip svg{width:16px;height:16px}
+.sl-e{
+  flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);
+  border-radius:7px;padding:5px 8px;font-size:12.5px;color:var(--ink);
+  font-family:inherit;outline:none;
+}
+.sl-e:focus{border-color:var(--accent)}
+.sl-x{
+  flex:none;width:22px;height:22px;border-radius:6px;color:var(--ink-3);
+  display:grid;place-items:center;
+}
+.sl-x:hover{background:var(--surface-sunk);color:var(--neg)}
+.sl-x svg{width:13px;height:13px}
+.scanline.dragging{opacity:.4}
+
+/* where an unmatched line can be dropped */
+.droptargets{
+  display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;
+}
+.droptarget{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 11px;border-radius:99px;font-size:12.5px;
+  background:var(--surface-2);border:1.5px dashed var(--line-strong);
+  color:var(--ink-2);transition:background .12s,border-color .12s,color .12s,transform .12s;
+}
+.droptarget .dt-i{display:grid;place-items:center;flex:none;color:var(--ink-3)}
+.droptarget.over{
+  background:var(--accent-soft);border-color:var(--accent);border-style:solid;
+  color:var(--accent);transform:scale(1.04);
+}
+.droptarget.over .dt-i{color:var(--accent)}
+
+/* the copy that follows the finger */
+.dragghost{
+  position:fixed;z-index:200;pointer-events:none;
+  transform:translate(-50%,-140%);
+  padding:7px 12px;border-radius:99px;
+  background:var(--accent);color:var(--accent-ink);
+  font-size:12.5px;font-weight:600;white-space:nowrap;
+  box-shadow:var(--shadow-md);
+}
 .shopactions{margin:14px 14px 0;display:flex;gap:8px}
 .shopactions .btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px}
 .shopactions .btn svg{width:16px;height:16px}
@@ -1912,6 +1978,9 @@ html.locked #lockScreen::before{
 <!-- IMPORT SHEET -->
 <section class="sheet" id="shImport" role="dialog" aria-modal="true" aria-labelledby="impTitle">
   <div class="sheet-head" style="position:relative">
+    <button class="iconbtn setback" id="impSheetBack" type="button" aria-label="Back to data and backup">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
     <h2 id="impTitle">Import from bank</h2>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -1976,6 +2045,9 @@ html.locked #lockScreen::before{
 <!-- WHAT WOULD BE PUSHED -->
 <section class="sheet" id="shChanges" role="dialog" aria-modal="true" aria-labelledby="chTitle">
   <div class="sheet-head" style="position:relative">
+    <button class="iconbtn setback" id="chBack" type="button" aria-label="Back to GitHub sync">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
     <h2 id="chTitle">Not yet pushed</h2>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -2082,23 +2154,27 @@ html.locked #lockScreen::before{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
   </div>
+  <div class="picksearch">
+    <div class="ps-row">
+      <svg class="ps-mag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      <input class="inp" id="pickCustom" type="text" placeholder="Search or add an item" autocomplete="off" autocapitalize="none">
+      <button class="shopadd-b" id="pickCustomAdd" aria-label="Add this item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+    <div class="ps-hint" id="pickHint">Type to filter the staples below, or add whatever isn’t there.</div>
+  </div>
   <div class="sheet-body">
     <div id="pickBody"></div>
-    <div class="field" style="margin-top:18px">
-      <label for="pickCustom">Not on the list?</label>
-      <div style="display:flex;gap:7px">
-        <input class="inp" id="pickCustom" type="text" placeholder="Add your own item" autocomplete="off">
-        <button class="shopadd-b" id="pickCustomAdd" aria-label="Add custom item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        </button>
-      </div>
-    </div>
   </div>
 </section>
 
 <!-- RELEASE NOTES SHEET -->
 <section class="sheet" id="shNotes" role="dialog" aria-modal="true" aria-labelledby="notesTitle">
   <div class="sheet-head" style="position:relative">
+    <button class="iconbtn setback" id="notesBack" type="button" aria-label="Back to About">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
     <h2 id="notesTitle">What’s new</h2>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -2110,6 +2186,9 @@ html.locked #lockScreen::before{
 <!-- ADD CATEGORY SHEET -->
 <section class="sheet" id="shCat" role="dialog" aria-modal="true" aria-labelledby="catAddTitle">
   <div class="sheet-head" style="position:relative">
+    <button class="iconbtn setback" id="catBack" type="button" aria-label="Back to the entry">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
     <h2 id="catAddTitle">New category</h2>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -2247,6 +2326,13 @@ html.locked #lockScreen::before{
     <div id="scanResult" hidden>
       <div class="scan-sum" id="scanSum"></div>
       <div class="scan-lines" id="scanLines"></div>
+      <div id="scanTargets" hidden>
+        <div class="note" style="margin-top:12px">
+          Edit a name to re-match it, or drag a <b>new</b> line onto one of these
+          to merge it into that item instead of adding another.
+        </div>
+        <div class="droptargets" id="scanTargetList"></div>
+      </div>
       <button class="btn sm" id="scanApply" style="margin-top:12px">Apply prices</button>
     </div>
     <div class="note" style="margin-top:14px">
@@ -2494,8 +2580,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.18";
-const APP_BUILT = "2026-08-25";
+const APP_VERSION = "1.1.19";
+const APP_BUILT = "2026-08-26";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -4946,6 +5032,20 @@ $$("#rType .a").forEach(b => b.addEventListener("click", () => {
 
 $("#ruleAdd").addEventListener("click", () => openRule(null));
 $("#ruleBack").addEventListener("click", () => { renderRules(); sheetOpen("#shRules"); });
+
+/* A sheet opened from inside Settings goes back to the pane it came from, not
+   just to the settings menu, so returning lands where you left off. */
+function backToSettingsPane(pane){
+  openSettings();
+  showSetPane(pane);
+}
+$("#chBack").addEventListener("click", () => backToSettingsPane("github"));
+$("#notesBack").addEventListener("click", () => backToSettingsPane("about"));
+$("#impSheetBack").addEventListener("click", () => backToSettingsPane("data"));
+/* The category sheet is the only non-settings one opened from inside another,
+   so it is the only other that gets a back. The rest open from a screen, where
+   back and close would mean the same thing. */
+$("#catBack").addEventListener("click", () => sheetOpen("#shEntry"));
 $("#rulesBack").addEventListener("click", () => {
   sheetClose();
   $("#btnMenu").click();
@@ -5345,7 +5445,9 @@ $$("#setMenu .setrow").forEach(b => b.addEventListener("click", () => {
 }));
 $("#setBack").addEventListener("click", () => showSetPane(null));
 
-$("#btnMenu").addEventListener("click", () => {
+/* Opening settings is also how a nested sheet gets back here, so it is a
+   function rather than only a click handler. */
+function openSettings(){
   const periods = new Set(state.txns.map(t => periodOf(t.date)));
   $("#statLine").innerHTML =
     "<b>" + state.txns.length + "</b> entries across <b>" + periods.size + "</b> period" +
@@ -5364,7 +5466,8 @@ $("#btnMenu").addEventListener("click", () => {
   renderAbout();
   showSetPane(null);
   sheetOpen("#shSet");
-});
+}
+$("#btnMenu").addEventListener("click", openSettings);
 $("#copyBackup").addEventListener("click", async () => {
   const json = JSON.stringify(state);
   try{
@@ -5431,24 +5534,159 @@ const STORE_SHORT = { de:"DE", in:"IN" };
 const STORE_CAT = { de:"groceries_de", in:"groceries_in" };
 
 /** Tap-to-add staples, so a shopping list can be built without typing. */
+/* Each staple carries an icon key so the picker reads at a glance rather than
+   as a wall of text. Groups are the order you actually walk a shop in. */
 const CATALOG = {
   de: [
-    { g:"Molkerei & Eier", items:["Milch","Butter","Eier","Käse","Joghurt","Sahne"] },
-    { g:"Backwaren",       items:["Vollkornbrot","Croissant","Donut"] },
-    { g:"Obst & Gemüse",   items:["Äpfel","Bananen","Tomaten","Kartoffeln","Zwiebeln","Gurke","Karotten","Salat","Paprika","Zitronen","Pflaumen","Trauben"] },
-    { g:"Fleisch & Fisch", items:["Hähnchen","Thunfisch"] },
-    { g:"Vorrat",          items:["Nudeln","Öl","Tomatensoße","Schokolade"] },
-    { g:"Haushalt",        items:["Toilettenpapier","Küchenrolle","Waschmittel","Waschgel","Reinigungsgel","Müllbeutel","Zahnpasta","Shampoo"] }
+    { g:"Molkerei & Eier", items:[
+      ["Milch","milk"],["Butter","butter"],["Eier","egg"],["Käse","cheese"],
+      ["Joghurt","yoghurt"],["Sahne","cream"]] },
+    { g:"Backwaren", items:[
+      ["Vollkornbrot","bread"],["Croissant","croissant"],["Donut","donut"]] },
+    { g:"Obst & Gemüse", items:[
+      ["Äpfel","apple"],["Bananen","banana"],["Tomaten","tomato"],["Kartoffeln","potato"],
+      ["Zwiebeln","onion"],["Gurke","cucumber"],["Karotten","carrot"],["Salat","leaf"],
+      ["Paprika","pepper"],["Zitronen","lemon"],["Pflaumen","plum"],["Trauben","grapes"]] },
+    { g:"Fleisch & Fisch", items:[
+      ["Hähnchen","chicken"],["Thunfisch","fish"]] },
+    { g:"Vorrat", items:[
+      ["Nudeln","pasta"],["Öl","oil"],["Tomatensoße","sauce"],["Schokolade","chocolate"],
+      ["Kaffeepulver","coffee"]] },
+    { g:"Haushalt", items:[
+      ["Toilettenpapier","paperroll"],["Küchenrolle","paperroll"],["Waschmittel","detergent"],
+      ["Waschgel","detergent"],["Reinigungsgel","spray"],["Müllbeutel","bin"],
+      ["Zahnpasta","toothpaste"],["Shampoo","shampoo"]] }
   ],
   in: [
-    { g:"Dal & pulses",     items:["Toor dal","Moong dal","Chana dal","Urad dal","Masoor dal","Rajma","Kabuli chana"] },
-    { g:"Rice & flour",     items:["Basmati rice","Sona masoori rice","Idli rice","Atta","Besan","Rava / sooji","Poha","Rice flour"] },
-    { g:"Spices",           items:["Turmeric powder","Chilli powder","Coriander powder","Cumin seeds","Mustard seeds","Garam masala","Sambar powder","Rasam powder","Hing","Cardamom","Cinnamon","Bay leaves"] },
-    { g:"Fresh",            items:["Curry leaves","Coriander leaves","Green chillies","Ginger","Garlic","Okra / bhindi","Bottle gourd","Drumsticks","Methi leaves","Coconut"] },
-    { g:"Dairy & frozen",   items:["Paneer","Curd","Ghee","Frozen paratha","Frozen samosa"] },
-    { g:"Pantry & snacks",  items:["Coconut oil","Tamarind","Jaggery","Mango pickle","Papad","Idli batter","Dosa batter","Tea powder","Cashew nuts","Almonds","Raisins","Sev / mixture"] }
+    { g:"Dal & pulses", items:[
+      ["Toor dal","dal"],["Moong dal","dal"],["Chana dal","dal"],["Urad dal","dal"],
+      ["Masoor dal","dal"],["Kabuli chana","dal"]] },
+    { g:"Rice & flour", items:[
+      ["Basmati rice","rice"],["Ponni boiled rice","rice"],["Idli rice","rice"],
+      ["Atta","flour"],["Besan","flour"],["Rava / sooji","flour"]] },
+    { g:"Oils", items:[
+      ["Gingelly oil","oil"],["Groundnut oil","oil"]] },
+    { g:"Spices", items:[
+      ["Turmeric powder","spice"],["Chilli powder","chilli"],["Coriander powder","spice"],
+      ["Cumin seeds","seeds"],["Mustard seeds","seeds"],["Garam masala","spice"],
+      ["Rasam powder","spice"],["Hing","spice"],["Cardamom","seeds"],
+      ["Cinnamon","cinnamon"],["Bay leaves","leaf"]] },
+    { g:"Fresh", items:[
+      ["Curry leaves","leaf"],["Coriander leaves","leaf"],["Mint","leaf"],
+      ["Green chillies","chilli"],["Ginger","ginger"],["Garlic","garlic"],
+      ["Okra / bhindi","okra"],["Bottle gourd","gourd"],["Drumsticks","drumstick"],
+      ["Methi leaves","leaf"],["Raw Banana","banana"],["Coconut","coconut"]] },
+    { g:"Dairy & frozen", items:[
+      ["Paneer","cheese"],["Curd","yoghurt"],["Ghee","ghee"],
+      ["Frozen paratha","frozen"],["Frozen samosa","frozen"]] },
+    { g:"Pantry & snacks", items:[
+      ["Coffee powder","coffee"],["Tea powder","tea"],["Tamarind","tamarind"],
+      ["Jaggery","jaggery"],["Mango pickle","jar"],["Papad","papad"],
+      ["Idli batter","batter"],["Dosa batter","batter"],["Cashew nuts","nuts"],
+      ["Almonds","nuts"],["Raisins","raisin"],["Sev / mixture","snack"]] }
   ]
 };
+
+/** Every catalogue name paired with its icon, for lookup by name. */
+const ITEM_ICON = (() => {
+  const m = {};
+  Object.keys(CATALOG).forEach(k => CATALOG[k].forEach(g => g.items.forEach(([n, ic]) => {
+    m[normName(n)] = ic;
+  })));
+  return m;
+})();
+
+/* -------------------------------------------------------------------------
+   SHOPPING ITEM GLYPHS
+
+   Drawn on the same 24x24 stroked grid as the category icons, so a picker chip
+   sits beside a category chip without looking borrowed. Kept deliberately
+   simple: at 16px a literal drawing turns to mud, so each is the one silhouette
+   that separates the item from its neighbours on the shelf.
+   ------------------------------------------------------------------------- */
+const ITEM_GLYPH = {
+  /* dairy, eggs, fats */
+  milk:      '<path d="M9 2.5h6v3l2 3.5v11a2 2 0 01-2 2H9a2 2 0 01-2-2v-11L9 5.5z"/><path d="M7.6 12h8.8"/>',
+  butter:    '<path d="M3 10.5l4-4h14v7a2 2 0 01-2 2H3z"/><path d="M3 10.5h18"/>',
+  egg:       '<path d="M12 3c3.3 0 6 4.4 6 8.6A6 6 0 016 11.6C6 7.4 8.7 3 12 3z"/>',
+  cheese:    '<path d="M3 16.5V11l9-5 9 5v5.5z"/><path d="M3 11h18"/><circle cx="8.5" cy="14" r="1"/><circle cx="14.5" cy="13.5" r="1.2"/>',
+  yoghurt:   '<path d="M6 7.5h12l-1.2 12a2 2 0 01-2 1.8h-5.6a2 2 0 01-2-1.8z"/><path d="M5 4.5h14v3H5z"/>',
+  cream:     '<path d="M7 9.5h10l-1 11a2 2 0 01-2 1.8h-4a2 2 0 01-2-1.8z"/><path d="M9 9.5c0-3 6-3 6 0"/><path d="M12 2.5v4"/>',
+  ghee:      '<path d="M6 9h12v9.5a2 2 0 01-2 2H8a2 2 0 01-2-2z"/><path d="M8.5 9V6.5h7V9"/><path d="M9.5 13.5h5"/>',
+
+  /* bakery */
+  bread:     '<path d="M4 10.5c0-3 3.6-4.5 8-4.5s8 1.5 8 4.5v6.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17z"/><path d="M8.5 6.6v11.9"/>',
+  croissant: '<path d="M3 15.5c3.5 3 14.5 3 18 0"/><path d="M3 15.5c1-4 3.5-6 5-6.5"/><path d="M21 15.5c-1-4-3.5-6-5-6.5"/><path d="M8 9c2.5 3.5 5.5 3.5 8 0"/>',
+  donut:     '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/>',
+
+  /* fruit and veg */
+  apple:     '<path d="M12 8c-4.5-3-8 .5-8 5 0 4 3 8 5.5 8 1.2 0 1.7-.7 2.5-.7s1.3.7 2.5.7C17 21 20 17 20 13c0-4.5-3.5-8-8-5z"/><path d="M12 8V4.5"/><path d="M12 5.5c2-1 3.5-.5 3.5-.5"/>',
+  banana:    '<path d="M4.5 6c0 8 5 13 12 13 2 0 3-1 3-2.5C15 16 9 11 8 4.5z"/>',
+  grapes:    '<circle cx="9" cy="13" r="2.2"/><circle cx="15" cy="13" r="2.2"/><circle cx="12" cy="17.5" r="2.2"/><circle cx="12" cy="9" r="2.2"/><path d="M12 6.8V3.5"/>',
+  lemon:     '<ellipse cx="12" cy="12" rx="8.5" ry="6" transform="rotate(-30 12 12)"/><path d="M9 15l6-6"/>',
+  plum:      '<circle cx="12" cy="13.5" r="7"/><path d="M12 6.5V3"/><path d="M12 5c2.5-1.5 4.5-.5 4.5-.5"/>',
+  tomato:    '<circle cx="12" cy="13.5" r="6.8"/><path d="M8.5 6.2l3.5 2 3.5-2"/><path d="M12 8.2V5"/>',
+  potato:    '<path d="M5 13c0-4.5 4-8 9-8 3.5 0 5 2.5 5 5.5 0 4.5-4 8.5-9 8.5-3.5 0-5-2.5-5-6z"/><circle cx="10" cy="11" r=".7"/><circle cx="14" cy="14" r=".7"/>',
+  onion:     '<path d="M12 5.5c4 3 6 6 6 8.5a6 6 0 01-12 0c0-2.5 2-5.5 6-8.5z"/><path d="M12 5.5V2.8"/><path d="M9.5 12.5c0 4 1 6.5 2.5 8"/>',
+  cucumber:  '<path d="M6.5 17.5c-3-3-2-9 2-13s10-3 12 0-1 9-5 12-6.5 3.5-9 1z" transform="rotate(0 12 12)"/><circle cx="10" cy="12" r=".7"/><circle cx="14" cy="10" r=".7"/>',
+  carrot:    '<path d="M17 4.5l2.5 2.5"/><path d="M15.5 7L7 20.5 4 17.5 17.5 9z"/><path d="M16 5.5c1.5-2 4-1.5 4-1.5s.5 2.5-1.5 4"/>',
+  pepper:    '<path d="M7 11c0 5 3 9 6.5 9S19 16.5 19 12s-3-4.5-6-4.5S7 8 7 11z"/><path d="M13 7.5V5"/><path d="M13 5c-2.5 0-3.5-1.5-3.5-1.5"/>',
+  leaf:      '<path d="M5 19c0-8 5.5-13 14-13 0 8.5-5 14-14 13z"/><path d="M5 19c4-4.5 7-6.5 11-8"/>',
+  okra:      '<path d="M11 4l2 0 3.5 13c.4 1.6-.8 3-2.4 3h-4.2c-1.6 0-2.8-1.4-2.4-3z"/><path d="M9.5 8h5"/>',
+  gourd:     '<path d="M12 3.5v6"/><path d="M12 9.5c3.5 0 6 2.6 6 6s-2.5 5.5-6 5.5-6-2.2-6-5.5 2.5-6 6-6z"/>',
+  drumstick: '<path d="M6 20l12-15"/><path d="M7 18.5l11.5-14.5"/><path d="M9 16l1.5 1.5"/><path d="M12.5 11.5l1.5 1.5"/>',
+  garlic:    '<path d="M12 5c3.5 3.5 5.5 6.5 5.5 9a5.5 5.5 0 01-11 0c0-2.5 2-5.5 5.5-9z"/><path d="M12 5V2.5"/><path d="M12 14v7"/>',
+  ginger:    '<path d="M5 14c0-3 2-5 4.5-5 1.5 0 2 1 3.5 1s2.5-2 4.5-2c1.8 0 3 1.5 3 3.5 0 4-4 8.5-8 8.5-4.5 0-7.5-3-7.5-6z"/>',
+  chilli:    '<path d="M5.5 18.5c5.5 1.5 12-2.5 12-8.5 0-2-1.5-3-3-3s-2.5 1-2.5 2.5c0 5-3 8-6.5 9z"/><path d="M14.5 7c.5-2 2-3 3.5-3"/>',
+  coconut:   '<circle cx="12" cy="13" r="7.5"/><circle cx="9.5" cy="10.5" r="1"/><circle cx="14" cy="10.5" r="1"/><circle cx="11.8" cy="14" r="1"/>',
+
+  /* meat and fish */
+  chicken:   '<path d="M15 4.5a4.5 4.5 0 00-4.5 4.5c0 1.5-4 3.5-4 7.5 0 2.5 2 4 4.5 4 5 0 9-4.5 9-9.5a6.5 6.5 0 00-5-6.5z"/><circle cx="15.5" cy="8" r=".8"/>',
+  fish:      '<path d="M3.5 12c3.5-4.5 8-6.5 12-6.5 3 0 5 2 5 6.5s-2 6.5-5 6.5c-4 0-8.5-2-12-6.5z"/><path d="M3.5 12l4 3.5V8.5z" transform="translate(16.5 0) scale(-1 1) translate(-16.5 0)"/><circle cx="17" cy="10.5" r=".8"/>',
+
+  /* pantry staples */
+  rice:      '<path d="M6 8.5h12l-1.3 11.2a2 2 0 01-2 1.8H9.3a2 2 0 01-2-1.8z"/><path d="M8.5 8.5c0-3.5 7-3.5 7 0"/><path d="M10 4.5c1-1.5 3-1.5 4 0"/>',
+  flour:     '<path d="M7 7.5h10v12a2 2 0 01-2 2H9a2 2 0 01-2-2z"/><path d="M9 7.5V4.5h6v3"/><path d="M9.5 12h5"/><path d="M9.5 15h5"/>',
+  dal:       '<path d="M4.5 13.5h15c0 3.6-3.4 6.5-7.5 6.5s-7.5-2.9-7.5-6.5z"/><circle cx="9" cy="9.5" r="1.6"/><circle cx="13" cy="7.5" r="1.6"/><circle cx="15.5" cy="10.5" r="1.6"/>',
+  pasta:     '<path d="M5 20c0-7 2-13 7-13s7 6 7 13"/><path d="M8.5 20c0-5.5 1-10 3.5-10s3.5 4.5 3.5 10"/><path d="M3.5 20h17"/>',
+  oil:       '<path d="M9 8.5h6l1 11a2 2 0 01-2 2.2H10a2 2 0 01-2-2.2z"/><path d="M10.5 8.5V5h3v3.5"/><path d="M13.5 5h3"/>',
+  sauce:     '<path d="M8.5 9h7v10.5a2 2 0 01-2 2h-3a2 2 0 01-2-2z"/><path d="M10 9V5.5h4V9"/><path d="M11 5.5V2.8h2v2.7"/>',
+  jar:       '<path d="M6.5 9.5h11v10a2 2 0 01-2 2h-7a2 2 0 01-2-2z"/><path d="M5.5 5.5h13v4h-13z"/><path d="M9 13.5h6"/>',
+  chocolate: '<rect x="4.5" y="6.5" width="15" height="11" rx="1.5"/><path d="M9.5 6.5v11"/><path d="M14.5 6.5v11"/><path d="M4.5 12h15"/>',
+  coffee:    '<path d="M4.5 8.5h13v6a5 5 0 01-5 5h-3a5 5 0 01-5-5z"/><path d="M17.5 10h1.8a2.5 2.5 0 010 5h-1.8"/><path d="M8 5.5V3"/><path d="M12 5.5V3"/>',
+  tea:       '<path d="M4.5 8.5h11v6a5 5 0 01-5 5h-1a5 5 0 01-5-5z"/><path d="M15.5 10h2a2.5 2.5 0 010 5h-2"/><path d="M18.5 20.5h-15"/>',
+  spice:     '<path d="M8 10.5h8v9a2 2 0 01-2 2h-4a2 2 0 01-2-2z"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/><circle cx="10.5" cy="5.5" r=".7"/><circle cx="13.5" cy="5.5" r=".7"/>',
+  seeds:     '<ellipse cx="8" cy="9" rx="2" ry="1.3" transform="rotate(-25 8 9)"/><ellipse cx="14" cy="8" rx="2" ry="1.3" transform="rotate(20 14 8)"/><ellipse cx="11" cy="13" rx="2" ry="1.3" transform="rotate(-10 11 13)"/><ellipse cx="16" cy="14" rx="2" ry="1.3" transform="rotate(35 16 14)"/><ellipse cx="8.5" cy="17" rx="2" ry="1.3" transform="rotate(15 8.5 17)"/>',
+  cinnamon:  '<path d="M6 5.5h5c0 6-2 10.5-2 13s-3 2.5-3 0 2-7 2-13z"/><path d="M13 5.5h5c0 6-2 10.5-2 13s-3 2.5-3 0 2-7 2-13z"/>',
+  tamarind:  '<path d="M5 8c3.5-1.5 9 1 11 5.5S18.5 21 16 20c-3-1.2-6-3.5-8-7S3.5 8.6 5 8z"/><circle cx="10" cy="12" r=".8"/><circle cx="13.5" cy="15.5" r=".8"/>',
+  jaggery:   '<path d="M12 4.5l7.5 5v9.5H4.5V9.5z"/><path d="M4.5 9.5h15"/><path d="M12 4.5v15"/>',
+  papad:     '<circle cx="12" cy="12" r="8.5"/><path d="M8 8.5c2 1.5 6 1.5 8 0"/><path d="M7.5 12.5c2.5 1.8 6.5 1.8 9 0"/><path d="M9 16.5c1.5 1 4.5 1 6 0"/>',
+  batter:    '<path d="M5 12.5h14v4.5a4 4 0 01-4 4H9a4 4 0 01-4-4z"/><path d="M6.5 12.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M12 7.5V4.5"/>',
+  nuts:      '<path d="M12 4.5c3.5 0 6 2.6 6 6.5 0 5-3 9-6 9s-6-4-6-9c0-3.9 2.5-6.5 6-6.5z"/><path d="M12 5v14"/>',
+  raisin:    '<ellipse cx="9" cy="10" rx="2.6" ry="2"/><ellipse cx="15" cy="12" rx="2.6" ry="2"/><ellipse cx="11" cy="15.5" rx="2.6" ry="2"/>',
+  snack:     '<path d="M5 9.5h14l-1.5 9a3 3 0 01-3 2.5h-5a3 3 0 01-3-2.5z"/><path d="M5 9.5l2-5h10l2 5"/>',
+  frozen:    '<path d="M12 3v18"/><path d="M4 7.5l16 9"/><path d="M20 7.5l-16 9"/><path d="M9.5 5.5L12 8l2.5-2.5"/><path d="M9.5 18.5L12 16l2.5 2.5"/>',
+
+  /* household */
+  paperroll: '<rect x="6.5" y="4.5" width="11" height="15" rx="2"/><ellipse cx="12" cy="4.5" rx="5.5" ry="2"/><path d="M12 6.5v11"/>',
+  detergent: '<path d="M8 9h8v10.5a2 2 0 01-2 2h-4a2 2 0 01-2-2z"/><path d="M10 9V5.5h4V9"/><path d="M14 5.5l2.5-2"/><path d="M9.5 13.5h5"/>',
+  spray:     '<path d="M8 10h7v9.5a2 2 0 01-2 2h-3a2 2 0 01-2-2z"/><path d="M9.5 10V6h4v4"/><path d="M13.5 7h3.5"/><path d="M18.5 4.5v5"/>',
+  bin:       '<path d="M4.5 7h15"/><path d="M9 7V4.5h6V7"/><path d="M6.5 7l1 13.5h9L17.5 7"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+  toothpaste:'<path d="M7.5 9.5h9v11a1.5 1.5 0 01-1.5 1.5H9a1.5 1.5 0 01-1.5-1.5z"/><path d="M10 9.5V6h4v3.5"/><path d="M11 6V3.5h2V6"/>',
+  shampoo:   '<path d="M7.5 9.5h9v10.5a2 2 0 01-2 2h-5a2 2 0 01-2-2z"/><path d="M10 9.5V6h4v3.5"/><path d="M11 6V3.5h2V6"/><path d="M9.5 14h5"/>'
+};
+
+/** A picker chip's drawing, falling back to a basket when a name is unknown. */
+const ITEM_FALLBACK =
+  '<path d="M3.5 8.5h17l-1.8 10.2a2.5 2.5 0 01-2.5 2H7.8a2.5 2.5 0 01-2.5-2z"/><path d="M8.5 8.5L11 3.5"/><path d="M15.5 8.5L13 3.5"/>';
+
+function itemIconSvg(name, size){
+  const key = ITEM_ICON[normName(name)];
+  const glyph = (key && ITEM_GLYPH[key]) || ITEM_FALLBACK;
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+    'stroke-linecap="round" stroke-linejoin="round" width="' + size + '" height="' + size +
+    '" aria-hidden="true">' + glyph + '</svg>';
+}
 
 function shopList(){ return state.shop.lists[store]; }
 
@@ -5620,24 +5858,49 @@ function addShopItem(name){
   return true;
 }
 
+let pickQuery = "";
+
+/**
+ * Matches on the start of a word rather than anywhere in the string: a plain
+ * substring made "oil" pull up "Ponni boiled rice", which is not what anyone
+ * typing it meant. A query containing a space is matched whole, so "sona ma"
+ * still works.
+ */
+function pickMatches(name, q){
+  if (!q) return true;
+  const n = normName(name);
+  if (q.indexOf(" ") > -1) return n.indexOf(q) > -1;
+  return n.split(" ").some(w => w.indexOf(q) === 0);
+}
+
 function renderPicker(){
   const host = $("#pickBody");
   host.innerHTML = "";
   const onList = new Set(shopList().map(i => normName(i.name)));
+  const q = normName(pickQuery);
+  let shown = 0;
 
   (CATALOG[store] || []).forEach(group => {
+    /* a search narrows to matching staples; groups that lose everything go too,
+       rather than leaving a row of empty headings behind */
+    const items = group.items.filter(([name]) => pickMatches(name, q));
+    if (!items.length) return;
+    shown += items.length;
+
     const g = el("div", "pickgroup");
     g.appendChild(el("h4", null, group.g));
     const chips = el("div", "pickchips");
-    group.items.forEach(name => {
+    items.forEach(([name, icon]) => {
       const added = onList.has(normName(name));
       const chip = el("button", "pickchip" + (added ? " added" : ""));
       chip.type = "button";
-      chip.innerHTML = (added
+      const ic = el("span", "pc-i");
+      ic.innerHTML = itemIconSvg(name, 17);
+      chip.appendChild(ic);
+      chip.appendChild(el("span", "pc-n", name));
+      chip.insertAdjacentHTML("beforeend", added
         ? '<svg class="pc-t" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
-        : '<svg class="pc-t" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>')
-        + "<span></span>";
-      chip.querySelector("span").textContent = name;
+        : '<svg class="pc-t" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>');
       chip.addEventListener("click", () => {
         if (added){
           const list = shopList();
@@ -5653,15 +5916,41 @@ function renderPicker(){
     g.appendChild(chips);
     host.appendChild(g);
   });
+
+  const hint = $("#pickHint");
+  if (!pickQuery.trim()){
+    hint.textContent = "Type to filter the staples below, or add whatever isn’t there.";
+  } else if (shown){
+    hint.textContent = shown + " staple" + (shown === 1 ? "" : "s") + " matching “" + pickQuery.trim() + "”";
+  } else {
+    hint.textContent = "No staple matches — tap + to add “" + pickQuery.trim() + "” yourself.";
+    host.appendChild(el("div", "note", "Nothing in the usual staples matches that."));
+  }
 }
 
-$("#shopPick").addEventListener("click", () => { renderPicker(); sheetOpen("#shPick"); });
+$("#shopPick").addEventListener("click", () => {
+  pickQuery = "";
+  $("#pickCustom").value = "";
+  renderPicker();
+  sheetOpen("#shPick");
+});
+
+$("#pickCustom").addEventListener("input", () => {
+  pickQuery = $("#pickCustom").value;
+  renderPicker();
+});
+/* Enter adds what was typed, which is what you want after searching and finding
+   nothing. */
+$("#pickCustom").addEventListener("keydown", e => {
+  if (e.key === "Enter"){ e.preventDefault(); addCustomFromPicker(); }
+});
 
 function addCustomFromPicker(){
   const v = $("#pickCustom").value;
   if (!v.trim()){ toast("Type a name first"); return; }
   if (!addShopItem(v)){ toast("That's already on the list"); return; }
   $("#pickCustom").value = "";
+  pickQuery = "";
   save(); renderShop(); renderPicker();
   toast("Added");
 }
@@ -5749,6 +6038,166 @@ $("#shopScan").addEventListener("click", () => {
   sheetOpen("#shScan");
 });
 
+/**
+ * Draws the scan result: one row per priced line, matched or not.
+ *
+ * A shop prints its own abbreviations, so the matcher will always miss some.
+ * Two ways out, both here rather than after the fact: the name is editable and
+ * re-matches as you type, and an unmatched row can be dragged onto any item
+ * already on the list to merge into it.
+ */
+function renderScanLines(){
+  const host = $("#scanLines");
+  host.innerHTML = "";
+  if (!scanParsed) return;
+
+  const matched = scanParsed.filter(p => p.hit).length;
+  const fresh = scanParsed.length - matched;
+  $("#scanSum").textContent =
+    matched + " matched · " + fresh + " new item" + (fresh === 1 ? "" : "s") +
+    " · " + fmt(scanParsed.reduce((s, p) => s + p.price, 0));
+
+  scanParsed.forEach((p, idx) => {
+    const row = el("div", "scanline" + (p.hit ? " ismatch" : " isnew"));
+    row.dataset.idx = String(idx);
+
+    /* only an unmatched row can be dragged, since a matched one is already home */
+    if (!p.hit){
+      const grip = el("span", "sl-grip");
+      grip.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg>';
+      grip.title = "Drag onto a list item to merge";
+      grip.addEventListener("pointerdown", e => startScanDrag(e, idx));
+      row.appendChild(grip);
+    }
+
+    row.appendChild(el("span", "sl-tag " + (p.hit ? "match" : "new"), p.hit ? "match" : "new"));
+
+    if (p.hit){
+      const n = el("span", "sl-n", p.hit.name);
+      /* say what it came from, or a wrong match is invisible */
+      if (normName(p.hit.name) !== normName(p.name)){
+        n.appendChild(el("span", "sl-from", "from “" + p.name + "”"));
+      }
+      row.appendChild(n);
+      const undo = el("button", "sl-x");
+      undo.type = "button";
+      undo.title = "Not this item";
+      undo.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+      undo.addEventListener("click", () => {
+        p.hit = null;
+        p.forced = false;
+        renderScanLines();
+      });
+      row.appendChild(undo);
+    } else {
+      /* the receipt's own wording, editable — correcting it often finds the match */
+      const inp = el("input", "sl-e");
+      inp.type = "text";
+      inp.value = p.name;
+      inp.setAttribute("aria-label", "Item name from the receipt");
+      inp.addEventListener("input", () => {
+        p.name = inp.value;
+        const auto = matchListItem(shopList(), inp.value);
+        if (auto){
+          p.hit = auto;
+          renderScanLines();
+        }
+      });
+      row.appendChild(inp);
+    }
+
+    row.appendChild(el("span", "sl-p", fmt(p.price)));
+    host.appendChild(row);
+  });
+
+  renderScanTargets();
+}
+
+/** The current list, shown as somewhere to drop an unmatched line. */
+function renderScanTargets(){
+  const wrap = $("#scanTargets");
+  const list = shopList();
+  const anyNew = scanParsed && scanParsed.some(p => !p.hit);
+  wrap.hidden = !anyNew || !list.length;
+  if (wrap.hidden) return;
+
+  const host = $("#scanTargetList");
+  host.innerHTML = "";
+  list.forEach(item => {
+    const t = el("div", "droptarget");
+    t.dataset.item = item.id;
+    const ic = el("span", "dt-i");
+    ic.innerHTML = itemIconSvg(item.name, 15);
+    t.appendChild(ic);
+    t.appendChild(el("span", "dt-n", item.name));
+    host.appendChild(t);
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Dragging a line onto a list item.
+
+   Pointer events rather than HTML5 drag-and-drop, which does not fire on touch
+   at all — this is a phone-first app, and a desktop-only gesture would be no
+   feature. A floating copy follows the finger and the target under it lights up.
+   ------------------------------------------------------------------------- */
+let scanDrag = null;
+
+function startScanDrag(e, idx){
+  if (!scanParsed || !scanParsed[idx] || scanParsed[idx].hit) return;
+  e.preventDefault();
+  const row = e.currentTarget.closest(".scanline");
+  const ghost = el("div", "dragghost", scanParsed[idx].name || "item");
+  document.body.appendChild(ghost);
+  scanDrag = { idx: idx, ghost: ghost, over: null };
+  row.classList.add("dragging");
+  moveScanDrag(e);
+  e.currentTarget.setPointerCapture(e.pointerId);
+  e.currentTarget.addEventListener("pointermove", moveScanDrag);
+  e.currentTarget.addEventListener("pointerup", endScanDrag);
+  e.currentTarget.addEventListener("pointercancel", endScanDrag);
+}
+
+function moveScanDrag(e){
+  if (!scanDrag) return;
+  scanDrag.ghost.style.left = e.clientX + "px";
+  scanDrag.ghost.style.top = e.clientY + "px";
+  /* the ghost sits under the finger, so ask what is beneath it, not it */
+  scanDrag.ghost.style.pointerEvents = "none";
+  const under = document.elementFromPoint(e.clientX, e.clientY);
+  const target = under && under.closest ? under.closest(".droptarget") : null;
+  if (scanDrag.over !== target){
+    if (scanDrag.over) scanDrag.over.classList.remove("over");
+    if (target) target.classList.add("over");
+    scanDrag.over = target;
+  }
+}
+
+function endScanDrag(e){
+  if (!scanDrag) return;
+  const el2 = e.currentTarget;
+  el2.removeEventListener("pointermove", moveScanDrag);
+  el2.removeEventListener("pointerup", endScanDrag);
+  el2.removeEventListener("pointercancel", endScanDrag);
+
+  const target = scanDrag.over;
+  const idx = scanDrag.idx;
+  if (scanDrag.ghost.parentNode) scanDrag.ghost.parentNode.removeChild(scanDrag.ghost);
+  if (target) target.classList.remove("over");
+  $$(".scanline.dragging").forEach(r => r.classList.remove("dragging"));
+  scanDrag = null;
+
+  if (target && scanParsed && scanParsed[idx]){
+    const item = shopList().find(i => i.id === target.dataset.item);
+    if (item){
+      scanParsed[idx].hit = item;
+      scanParsed[idx].forced = true;      /* merged by hand, not by the matcher */
+      renderScanLines();
+      toast("Merged into " + item.name);
+    }
+  }
+}
+
 $("#scanRead").addEventListener("click", () => {
   const parsed = parseReceiptText($("#scanText").value);
   if (!parsed.length){
@@ -5758,23 +6207,8 @@ $("#scanRead").addEventListener("click", () => {
     return;
   }
   const list = shopList();
-  scanParsed = parsed.map(p => ({ ...p, hit: matchListItem(list, p.name) }));
-
-  const matched = scanParsed.filter(p => p.hit).length;
-  const fresh = scanParsed.length - matched;
-  $("#scanSum").textContent =
-    matched + " matched · " + fresh + " new item" + (fresh === 1 ? "" : "s") +
-    " · " + fmt(scanParsed.reduce((s, p) => s + p.price, 0));
-
-  const host = $("#scanLines");
-  host.innerHTML = "";
-  scanParsed.forEach(p => {
-    const row = el("div", "scanline");
-    row.appendChild(el("span", "sl-tag " + (p.hit ? "match" : "new"), p.hit ? "match" : "new"));
-    row.appendChild(el("span", "sl-n", p.hit ? p.hit.name : p.name));
-    row.appendChild(el("span", "sl-p", fmt(p.price)));
-    host.appendChild(row);
-  });
+  scanParsed = parsed.map(p => ({ ...p, hit: matchListItem(list, p.name), forced: false }));
+  renderScanLines();
   $("#scanResult").hidden = false;
 });
 
@@ -5782,11 +6216,15 @@ $("#scanApply").addEventListener("click", () => {
   if (!scanParsed || !scanParsed.length) return;
   const list = shopList();
   let updated = 0, added = 0;
+  /* Two receipt lines can land on one item — the matcher finding both, or one
+     merged onto it by hand. A bill wants them added together, not the last one
+     winning, so each item is cleared once and then accumulated. */
+  const touched = new Set();
   scanParsed.forEach(p => {
     if (p.hit){
-      p.hit.price = p.price;
+      if (!touched.has(p.hit.id)){ p.hit.price = 0; touched.add(p.hit.id); updated++; }
+      p.hit.price += p.price;
       p.hit.done = true;
-      updated++;
     } else {
       list.push({ id:uid(), name:p.name, qty:"", price:p.price, done:true });
       added++;
