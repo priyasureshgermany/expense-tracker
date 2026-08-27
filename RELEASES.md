@@ -3,6 +3,16 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.26 — 2026-08-27
+- Receipt photos are prepared before reading — greyscaled, enlarged and contrast-stretched — which stops a G being read as a 6 and a decimal comma as a full stop
+- Recognition runs in English and German together, so umlauts survive; German alone silently dropped whole lines
+- Fixed a scan of Apfel never matching Aepfel on the list, since the two spellings normalised differently
+- Payment, change and tax-table lines are filtered out, so a loose crop no longer turns a receipt footer into items
+- Fixed the crop buttons, where Read this area was squeezed to a sliver by Cancel
+- An account in use can now be deleted; its entries are untagged rather than the deletion being refused
+- Moved the photo button above the paste box, and left cards out of Starting balance since a card carries a debt rather than a balance
+- Added Bank Transfer as an expense category
+
 ## 1.1.25 — 2026-08-27
 - A receipt photo is now cropped before it is read: drag the box over the item lines and only that part is recognised
 - Cropping is about a third quicker than reading the whole photo, and keeps the shop address and totals out of the text entirely

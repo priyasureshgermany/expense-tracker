@@ -1421,6 +1421,14 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .nrow .na{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;font-weight:500}
 
 /* ---------- Cropping a receipt photo ---------- */
+/* .btn carries width:100%, which in a flex row let Cancel claim the space and
+   squeezed Read to a sliver. A grid sizes the tracks instead, so the widths
+   come from here rather than from the buttons arguing over them. */
+.cropactions{
+  display:grid;grid-template-columns:1fr auto;gap:8px;
+  align-items:stretch;margin-top:10px;
+}
+.cropactions .btn{width:auto;padding-left:20px;padding-right:20px}
 .cropstage{
   position:relative;line-height:0;border-radius:var(--r-md);overflow:hidden;
   background:#000;touch-action:none;user-select:none;-webkit-user-select:none;
@@ -1464,6 +1472,7 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
   color:var(--ink-3);flex:none;
 }
+.acctrow .ar-x.arm{background:var(--neg);color:#fff}
 .acctrow .ar-b{font-family:var(--mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto;padding:0 10px}
 .balrow{display:flex;align-items:center;gap:10px;padding:7px 0}
 .balrow .bl-ic{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--surface-sunk);color:var(--ink-2)}
@@ -2370,16 +2379,17 @@ html.locked #lockScreen::before{
     </button>
   </div>
   <div class="sheet-body">
-    <div class="note">
-      Paste the receipt text and it will fill in the prices: each line is matched to an item on
-      your list, and anything it can't match is added to the end of the list with its price.
-    </div>
     <input type="file" id="scanPhoto" accept="image/*" hidden>
     <button class="btn" id="scanPhotoBtn" style="margin-top:12px">
       <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px"><path d="M4 8V6a2 2 0 012-2h1l1.4-1.6A2 2 0 019.9 2h4.2a2 2 0 011.5.7L17 4h1a2 2 0 012 2v2"/><path d="M2 8h20v11a2 2 0 01-2 2H4a2 2 0 01-2-2z"/><circle cx="12" cy="14" r="3.5"/></svg>
       <span id="scanPhotoLabel">Capture or select photo</span>
     </button>
     <div class="note" id="scanPhotoNote" style="margin-top:8px" hidden></div>
+
+    <div class="note" style="margin-top:14px">
+      Paste the receipt text and it will fill in the prices: each line is matched to an item on
+      your list, and anything it can't match is added to the end of the list with its price.
+    </div>
 
     <div id="scanCrop" hidden style="margin-top:12px">
       <div class="cropstage" id="cropStage">
@@ -2393,9 +2403,9 @@ html.locked #lockScreen::before{
         Drag the box over the <b>item lines</b> only. Leaving out the shop name at the
         top and the totals at the bottom keeps stray text from being read as an item.
       </div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn" id="cropRead" style="flex:1;min-width:0">Read this area</button>
-        <button class="btn ghost sm" id="cropCancel" style="flex:none;padding:0 16px">Cancel</button>
+      <div class="cropactions">
+        <button class="btn" id="cropRead">Read this area</button>
+        <button class="btn ghost" id="cropCancel">Cancel</button>
       </div>
     </div>
     <div class="field" style="margin-top:12px">
@@ -2511,7 +2521,8 @@ html.locked #lockScreen::before{
       <div class="note">
         A starting point per account. Each one is then tracked forward: this
         balance, plus income received into it, minus expenses paid from it since
-        that date.
+        that date. Cards aren't listed — a card carries a debt rather than a
+        balance to count forward from.
       </div>
       <div id="balRows" style="margin-top:12px"></div>
       <div class="field" style="margin-top:14px">
@@ -2666,7 +2677,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.25";
+const APP_VERSION = "1.1.26";
 const APP_BUILT = "2026-08-27";
 
 const KEY = "panappai.v1";
@@ -2699,6 +2710,9 @@ const CATS = {
     {id:"invest",       n:"Investment",          h:130},
     {id:"topriya",      n:"To Priya",            h:330},
     {id:"toindia",      n:"To India",            h:32},
+    /* money leaving for another account of yours that isn't a Self transfer —
+       a standing order out, say. The income side of the same name is retired. */
+    {id:"banktransfer_out", n:"Bank Transfer",  h:205},
     {id:"buffer",       n:"Misc",                h:288},
     /* retired: still label existing entries and recurring bills, but no longer
        offered when adding, so the picker stays short. noBudget on EMI because a
@@ -2819,6 +2833,7 @@ const ICON = {
   refund:'<path d="M4 9h11a5.5 5.5 0 010 11H8.5"/><path d="M8.5 4.5L4 9l4.5 4.5"/>',
   interest:'<path d="M3 16.5l6-6 4 4 8-8"/><path d="M15.6 6.5H21V12"/>',
   gift:'<rect x="3" y="9.5" width="18" height="11" rx="2"/><path d="M2 9.5h20"/><path d="M12 9.5V20.5"/><path d="M12 9.5S9.6 4.2 7.2 5.6s1 3.9 4.8 3.9z"/><path d="M12 9.5s2.4-5.3 4.8-3.9-1 3.9-4.8 3.9z"/>',
+  banktransfer_out:'<rect x="2.5" y="9" width="19" height="10.5" rx="2"/><path d="M12 3.2L21.5 9h-19z"/><path d="M6.5 12.4v4M12 12.4v4M17.5 12.4v4"/>',
   banktransfer:'<rect x="2.5" y="9" width="19" height="10.5" rx="2"/><path d="M12 3.2L21.5 9h-19z"/><path d="M6.5 12.4v4M12 12.4v4M17.5 12.4v4"/>',
   taxreturn:'<path d="M6 3h8.5L19 7.5V21H6z"/><path d="M14 3v4.5h5"/><path d="M9.5 16.5l5-5"/><path d="M10 12h.01M14 16h.01"/>',
   other_in:'<circle cx="5.6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.4" cy="12" r="1.3"/>'
@@ -3063,10 +3078,10 @@ function accountBalance(id){
 }
 /** Every opening balance added up, which is what the dashboard starts from. */
 function startingTotal(){
-  return accountsOf().reduce((n, a) => n + (a.start ? a.start.amount : 0), 0);
+  return balanceableAccounts().reduce((n, a) => n + (a.start ? a.start.amount : 0), 0);
 }
 function earliestStart(){
-  const ds = accountsOf().filter(a => a.start).map(a => a.start.date).sort();
+  const ds = balanceableAccounts().filter(a => a.start).map(a => a.start.date).sort();
   return ds.length ? ds[0] : null;
 }
 function normaliseProfile(pr){
@@ -3939,10 +3954,19 @@ function renderBalance(){
     : fmt(inc) + " received, " + fmt(exp) + " paid so far · set starting balances in Settings";
 }
 
+/**
+ * Accounts that can hold an opening balance. A card is a credit line rather
+ * than a pot of money — what it "starts with" is a debt, not a balance the
+ * dashboard should count forward — so cards are left out and cash is not.
+ */
+function balanceableAccounts(){
+  return accountsOf().filter(a => a.kind !== "card");
+}
+
 function renderBalanceRows(){
   const host = $("#balRows");
   host.innerHTML = "";
-  const list = accountsOf();
+  const list = balanceableAccounts();
   if (!list.length){
     host.innerHTML = '<div class="note">No accounts yet — add them in Settings › Accounts first.</div>';
     $("#balSave").hidden = true;
@@ -3981,6 +4005,9 @@ $("#balSave").addEventListener("click", () => {
     a.start = { amount: Math.round(amt), date: date };
     set++;
   });
+  /* a card can no longer show a row, so drop any figure one carried before,
+     rather than leaving a number nothing can edit */
+  accountsOf().forEach(a => { if (a.kind === "card") delete a.start; });
   state.balance = null;   /* superseded by the per-account figures */
   save(); renderBalanceSettings(); renderAccountSettings(); render();
   toast(set ? set + " balance" + (set === 1 ? "" : "s") + " saved" : "Balances cleared");
@@ -4045,10 +4072,33 @@ function renderAccountSettings(){
     del.setAttribute("aria-label", "Remove " + a.n);
     del.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
     del.addEventListener("click", () => {
-      /* an account still on entries would leave them pointing at nothing */
-      if (used){ toast("Used by " + used + " entr" + (used === 1 ? "y" : "ies") + " — retag those first"); return; }
+      /* An account in use was simply refused before, which made a bank you had
+         closed impossible to remove without retagging every entry by hand.
+         Deleting it now untags those entries instead: they keep their amount,
+         date and category and only lose the account, which is recoverable by
+         setting it again. Asked twice, since it touches many rows at once. */
+      const rulesUsing = state.rules.filter(r => r.account === a.id || r.fromAccount === a.id).length;
+      if (used && !del.dataset.armed){
+        del.dataset.armed = "1";
+        del.classList.add("arm");
+        toast("Tap again to remove " + a.n + " from " + used + " entr" +
+              (used === 1 ? "y" : "ies") + (rulesUsing ? " and " + rulesUsing + " recurring" : ""));
+        setTimeout(() => { delete del.dataset.armed; del.classList.remove("arm"); }, 4000);
+        return;
+      }
+      userTouched();
+      state.txns.forEach(t => {
+        if (t.account === a.id) t.account = null;
+        if (t.fromAccount === a.id) t.fromAccount = null;
+      });
+      state.rules.forEach(r => {
+        if (r.account === a.id) r.account = null;
+        if (r.fromAccount === a.id) r.fromAccount = null;
+      });
       state.accounts = accountsOf().filter(x => x.id !== a.id);
-      save(); renderAccountSettings(); toast("Account removed");
+      save(); render(); renderAccountSettings();
+      toast(used ? a.n + " removed · " + used + " entr" + (used === 1 ? "y" : "ies") + " untagged"
+                 : "Account removed");
     });
     row.appendChild(del);
     host.appendChild(row);
@@ -6111,6 +6161,22 @@ function deumlaut(s){
     .replace(/ä/gi, "ae").replace(/ö/gi, "oe").replace(/ü/gi, "ue").replace(/ß/g, "ss");
 }
 
+/**
+ * A second spelling with umlauts flattened to their base letter rather than
+ * expanded. German writes ä as "ae", but OCR usually just loses the dots and
+ * gives "a" — so Äpfel normalises to "aepfel" while the scan says "apfel" and
+ * the two never meet. Matching tries both forms.
+ */
+function normNameBare(s){
+  return String(s || "").toLowerCase()
+    .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9 ]/g, " ")
+    .replace(/\b\d+\s*(kg|g|gr|ml|l|ltr|stk|st|pcs|pack|x)\b/g, " ")
+    .replace(/\b(kg|g|gr|ml|l|ltr|stk|st|pcs|pack)\b/g, " ")
+    .replace(/\s+/g, " ").trim();
+}
+
 function normName(s){
   return deumlaut(String(s || "").toLowerCase())
     .normalize("NFD").replace(/[̀-ͯ]/g, "")
@@ -6120,7 +6186,7 @@ function normName(s){
     .replace(/\s+/g, " ").trim();
 }
 
-const RECEIPT_SKIP = /^(summe|gesamt|zwischensumme|total|subtotal|mwst|ust|netto|brutto|steuer|bar\b|geg\b|geg\.|gegeben|karte|kartenzahl|ec[- ]?card|girocard|visa|mastercard|rueckgeld|wechselgeld|zahlbetrag|kundenbeleg|beleg|datum|uhrzeit|tse|trace|terminal|zahlung|betrag|change|cash|card|gst|cgst|sgst|igst|round|bill|invoice|qty|item|thank|danke|tel|www|filiale|markt|kasse|posten|anzahl|artikel|coupon|rabatt|treue)/i;
+const RECEIPT_SKIP = /^(summe|gesamt|zwischensumme|total|subtotal|mwst|ust|netto|brutto|steuer|bar\b|geg\b|geg\.|gegeben|karte|kartenzahl|ec[- ]?card|girocard|visa|mastercard|rueckgeld|wechselgeld|zahlbetrag|kundenbeleg|beleg|datum|uhrzeit|tse|trace|terminal|zahlung|betrag|change|cash|card|gst|cgst|sgst|igst|round|bill|invoice|qty|item|thank|danke|tel|www|filiale|markt|kasse|posten|anzahl|artikel|coupon|rabatt|treue|dinheiro|troco|taxa|iva|base imp|val\.|obrigado|devolucao|contribuinte|produtor|efectivo|cambio|importe|iban)/i;
 
 function parseReceiptText(text){
   const out = [];
@@ -6142,6 +6208,9 @@ function parseReceiptText(text){
       .trim();
 
     if (name.length < 2 || /^[\d.,\s]+$/.test(name)) return;
+    /* a summary row such as "B 6%  14,52  15,39" carries several amounts
+       and no real name; a bought item never does */
+    if ((name.match(/\d+[.,]\d{2}/g) || []).length >= 2) return;
     out.push({ name: name, price: cents });
   });
   return out;
@@ -6150,14 +6219,19 @@ function parseReceiptText(text){
 /** Exact, then containment, then token overlap — good enough for shop abbreviations. */
 function matchListItem(list, name){
   const n = normName(name);
+  const nb = normNameBare(name);
   if (!n) return null;
+  /* compares under both spellings, so a scan that lost the dots on Apfel still
+     finds Aepfel on the list */
+  const same = (a, b) => a === b;
 
-  let hit = list.find(i => normName(i.name) === n);
+  let hit = list.find(i => same(normName(i.name), n) || same(normNameBare(i.name), nb));
   if (hit) return hit;
 
   hit = list.find(i => {
-    const k = normName(i.name);
-    return k && k.length > 2 && (k.includes(n) || n.includes(k));
+    const k = normName(i.name), kb = normNameBare(i.name);
+    return (k && k.length > 2 && (k.includes(n) || n.includes(k))) ||
+           (kb && kb.length > 2 && (kb.includes(nb) || nb.includes(kb)));
   });
   if (hit) return hit;
 
@@ -6318,6 +6392,45 @@ function cropBindDrag(){
 cropBindDrag();
 window.addEventListener("resize", () => { if (!$("#scanCrop").hidden) cropPaint(); });
 
+/**
+ * Prepares a photo for recognition. A phone photo of a receipt is grey paper
+ * under uneven light with sensor noise, and Tesseract reads that markedly worse
+ * than clean black on white: G comes back as 6, a decimal comma as a full stop.
+ * Greyscaling, enlarging small crops and pushing the contrast apart costs a
+ * moment and takes most of those errors out.
+ */
+async function prepForOcr(blob){
+  const bmp = await createImageBitmap(blob);
+  /* small crops gain the most from being enlarged; big ones are left alone */
+  const scale = Math.max(1, Math.min(3, 1600 / bmp.width));
+  const w = Math.round(bmp.width * scale), h = Math.round(bmp.height * scale);
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bmp, 0, 0, w, h);
+
+  const im = ctx.getImageData(0, 0, w, h);
+  const d = im.data;
+  let min = 255, max = 0;
+  for (let i = 0; i < d.length; i += 4){
+    const g = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) | 0;
+    d[i] = d[i + 1] = d[i + 2] = g;
+    if (g < min) min = g;
+    if (g > max) max = g;
+  }
+  /* stretch whatever range the photo used back across the full scale, then
+     push the halves apart so thin thermal type reads as ink rather than grey */
+  const span = Math.max(1, max - min);
+  for (let i = 0; i < d.length; i += 4){
+    let g = ((d[i] - min) / span) * 255;
+    g = g < 128 ? Math.max(0, g * 0.6) : Math.min(255, 128 + (g - 128) * 1.6);
+    d[i] = d[i + 1] = d[i + 2] = g;
+  }
+  ctx.putImageData(im, 0, 0);
+  return new Promise(r => c.toBlob(r, "image/png"));
+}
+
 /** The chosen region as a PNG blob, at the photo's own resolution. */
 function cropToBlob(){
   return new Promise((resolve, reject) => {
@@ -6368,9 +6481,12 @@ $("#cropRead").addEventListener("click", async () => {
   scanPhotoNote("");
 
   try{
-    const region = await cropToBlob();
+    const region = await prepForOcr(await cropToBlob());
     await loadOcr();
-    const res = await Tesseract.recognize(region, "eng", {
+    /* German receipts carry umlauts the English model has no letters for, and
+       German alone drops the decimal comma on some lines and loses the whole
+       row with it; together they keep both. */
+    const res = await Tesseract.recognize(region, "eng+deu", {
       logger: m => {
         if (m.status === "recognizing text" && typeof m.progress === "number"){
           btn.textContent = "Reading… " + Math.round(m.progress * 100) + "%";
