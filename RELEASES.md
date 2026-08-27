@@ -3,6 +3,9 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.23 — 2026-08-27
+- The Expense and Income tabs on a recurring entry match the ones on a normal entry, and carry the same red and green
+
 ## 1.1.22 — 2026-08-27
 - Hid the scrollbar down the right edge of the page and the panels, which the design never made room for
 
