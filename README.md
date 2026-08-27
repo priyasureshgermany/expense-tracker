@@ -134,7 +134,7 @@ text box. Text recognition runs on the device itself via
 [Tesseract.js](https://github.com/naptha/tesseract.js), the one external
 library the app uses; nothing is uploaded anywhere. It's fetched from a CDN the
 first time a photo is scanned, and caches itself for offline use after that.
-**Select photo** offers the camera or your gallery — a receipt already
+**Capture or select photo** offers the camera or your gallery — a receipt already
 photographed works as well as one taken now. Either way you get a **crop box**: drag it over the item lines and
 drag the corners to resize, so only that part is read. A receipt's header and
 footer carry digits too, and leaving them out means less to recognise — a

@@ -6,7 +6,7 @@ release, and shown in the app under **Settings → About → What’s new**.
 ## 1.1.25 — 2026-08-27
 - A receipt photo is now cropped before it is read: drag the box over the item lines and only that part is recognised
 - Cropping is about a third quicker than reading the whole photo, and keeps the shop address and totals out of the text entirely
-- The photo button is now Select photo, and offers your gallery as well as the camera
+- The photo button is now Capture or select photo, and offers your gallery as well as the camera
 
 ## 1.1.24 — 2026-08-27
 - Scan receipt can now read a photo, not just pasted text
