@@ -129,10 +129,13 @@ its price, and appends anything it can't match to the end of the list. The
 lines are ignored. You see the matched/new breakdown and confirm before
 anything is applied.
 
-Reading a **photo** of a receipt is deliberately not supported: on-device text
-recognition would mean bundling an OCR library, which would end this app's
-single-offline-file design. Most shops e-mail a digital receipt you can copy
-the text from.
+A **photo** of a receipt works too — tap **Take or choose a photo** above the
+text box. Text recognition runs on the device itself via
+[Tesseract.js](https://github.com/naptha/tesseract.js), the one external
+library the app uses; nothing is uploaded anywhere. It's fetched from a CDN the
+first time a photo is scanned, and caches itself for offline use after that.
+The recognized text fills the box above for you to check — OCR occasionally
+misreads a digit or a squashed word — before pressing **Read receipt** as usual.
 
 ## Where the data lives
 

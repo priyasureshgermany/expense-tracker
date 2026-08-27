@@ -3,6 +3,12 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.24 — 2026-08-27
+- Scan receipt can now read a photo, not just pasted text
+- Text recognition runs on the device via Tesseract.js, fetched once from a CDN and cached offline after; nothing is uploaded anywhere
+- The recognized text fills the box for you to check before Read receipt, since OCR sometimes misreads a digit or a squashed word
+- Paste-in text still works exactly as before, as a fallback for a receipt that photographs badly
+
 ## 1.1.23 — 2026-08-27
 - The Expense and Income tabs on a recurring entry match the ones on a normal entry, and carry the same red and green
 
