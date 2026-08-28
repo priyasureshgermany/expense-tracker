@@ -3,6 +3,10 @@
 Newest first. One line per change. Written by `tools/bump-version.mjs` on each
 release, and shown in the app under **Settings → About → What’s new**.
 
+## 1.1.30 — 2026-08-28
+- Settings has left the top bar. A More tab at the right of the bottom bar opens a short sheet with Recurring entries, What's new and Settings.
+- A waiting update now shows as a red dot on the More tab, so it stays visible with the gear gone.
+
 ## 1.1.29 — 2026-08-28
 - Reminders now count from 5am rather than 8am, so a payment due today is on the bell before the day starts.
 - Anything due today or already overdue is marked with a broken heart in a deeper red, separating it from the merely-soon.
