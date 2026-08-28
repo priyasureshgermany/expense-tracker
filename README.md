@@ -241,8 +241,9 @@ Every region has a stable name, so a change can be asked for precisely —
 | Top bar | Brand + greeting (tap to return to this period's dashboard), 👁 show/hide amounts, 🔔 reminders |
 | Period bar | `‹ 15 Aug – 14 Sept 2026 ›`, plus a **Today** pill once you've navigated away |
 | Tab bar | Fixed along the bottom: Dashboard · வரவு செலவு · Shopping cart · More |
-| More | A short sheet of three: Recurring entries, What's new, Settings. A red dot on the tab means a newer build is waiting. |
+| More | A short sheet of three: Reports, What's new, Settings. A red dot on the tab means a newer build is waiting. |
 | What's new | The release notes, each line marked with what kind of change it was — a repair, something new, or something existing made better. The version itself, and the update button, stay in **Settings › About**. |
+| Reports | Two readings of a stretch of time: a ring of expenses by category, and every line of it in a table you can filter, sort and export. |
 | Add button | The round **+** above the tab bar; tapping it offers Income then Expense |
 
 **Dashboard**, top to bottom
@@ -311,6 +312,52 @@ broken shape carries that on its own, so the state reads without relying on
 telling one red from another. A day's reminders count from **5am**, and the dot
 clears once you open the bell, returning the next morning. They are in-app only
 — the app can't wake itself while closed, so nothing is sent to your phone.
+
+## Reports
+
+**More › Reports** reads back a stretch of time two ways.
+
+Pick the stretch with **This week**, **This month**, **This year**, **Last 12
+months** or **Custom** (two dates). A month and a year can be counted two ways,
+and the **Counted by** toggle says which:
+
+| | Calendar | 15th–14th |
+|---|---|---|
+| This month | 1 – 31 Aug | 15 Aug – 14 Sept |
+| This year | 1 Jan – 31 Dec | 15 Dec – 14 Sept |
+
+Calendar is the default, being what a report usually means. The period basis
+ties back exactly to what the dashboard shows. A week and a custom stretch have
+only one reading, so the toggle hides for those.
+
+**Chart** shows expenses as a ring, each slice the colour that category always
+is, with the legend giving the share and the amount. Tapping a legend row jumps
+to the table filtered to that category.
+
+**Details** is every entry, with date, type, category, note, account, income and
+expense. Sort by tapping a column. Narrow it with the search box (notes,
+categories and accounts), the income/expense/transfer chips, paid vs planned,
+and the category and account pickers. The footer totals whatever is left after
+filtering.
+
+Income and expenses are totalled separately and a transfer counts as neither,
+since money moving between your own accounts is not a gain or a loss — it still
+appears in the table, marked as a transfer.
+
+### Exporting
+
+**Export PDF** opens the device's own print dialog, where "Save as PDF" writes
+the file. The print styling drops every control and prints both the chart and
+the full table, whichever tab is on screen. No library is involved, so it works
+offline.
+
+**Export Excel** writes a real `.xlsx` — built here rather than by a library,
+since the format is a zip of XML and a zip entry may be stored rather than
+compressed. Dates arrive as dates and amounts as numbers, so `SUM` and a pivot
+table work on the file rather than on text Excel has guessed at.
+
+Both refuse while amounts are hidden behind the eye, rather than exporting rows
+of bullets.
 
 **Choosing things.** There are no native dropdowns. Anywhere you pick one of a
 set — account, repeat cadence, account type, which category to budget — the

@@ -749,6 +749,145 @@ button.tile:hover .tile-go{color:var(--accent)}
 .rel-i.new .rel-k{background:var(--accent-soft);color:var(--accent)}
 .rel-i.better .rel-k{background:var(--pos-soft);color:var(--pos)}
 
+/* ================= REPORTS =================
+   A report is read, not operated, so the controls stay quiet and the numbers
+   carry the colour. Category hues come from the same wheel the ledger uses, so
+   a slice of the pie is the colour that category always is.
+   ========================================================================= */
+.sheet-tall{height:94dvh}
+.sheet-tall .sheet-body{flex:1;min-height:0}
+
+.rp-ranges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.rp-ranges button{
+  padding:7px 12px;border-radius:99px;font-size:12px;font-weight:600;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);
+  transition:background .15s,border-color .15s,color .15s;
+}
+.rp-ranges button[aria-pressed="true"]{
+  background:var(--accent);border-color:var(--accent);color:var(--accent-ink);
+}
+.rp-basis{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rp-bl{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);flex:none}
+.rp-basis .toggle2{flex:1;min-width:0}
+.rp-custom{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.rp-custom .field{margin-bottom:8px}
+.rp-span{
+  font-size:12px;color:var(--ink-3);margin-bottom:14px;
+  padding-bottom:12px;border-bottom:1px solid var(--line);
+}
+
+.rp-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.rp-tile{
+  padding:11px 12px;border-radius:14px;
+  background:var(--surface-2);border:1px solid var(--line);
+  display:flex;flex-direction:column;gap:3px;min-width:0;
+}
+.rp-tile span{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.rp-tile b{font-size:15px;font-weight:700;letter-spacing:-.01em;overflow-wrap:anywhere}
+.rp-tile.in b{color:var(--pos)}
+.rp-tile.out b{color:var(--neg)}
+.rp-tile.in{background:var(--pos-soft);border-color:transparent}
+.rp-tile.out{background:var(--neg-soft);border-color:transparent}
+.rp-tile.net{background:var(--accent-soft);border-color:transparent}
+.rp-tile.net b{color:var(--accent)}
+
+.tabbar2{
+  display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;
+  background:var(--surface-sunk);border-radius:12px;margin-bottom:14px;
+}
+.tabbar2 button{
+  padding:8px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--ink-3);
+  transition:background .16s,color .16s;
+}
+.tabbar2 button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+
+.rp-chart{display:grid;place-items:center;padding:6px 0 14px}
+.rp-chart svg{width:min(230px,62vw);height:auto}
+.rp-hole-a{font-size:9px;letter-spacing:.1em;text-transform:uppercase;fill:var(--ink-3)}
+.rp-hole-b{font-size:15px;font-weight:700;fill:var(--ink)}
+.rp-slice{transition:opacity .15s}
+.rp-slice:hover{opacity:.82}
+
+.rp-legend{display:flex;flex-direction:column;gap:2px}
+.rp-lg{
+  display:grid;grid-template-columns:11px 1fr auto auto;gap:10px;align-items:center;
+  padding:8px 8px;border-radius:10px;text-align:left;transition:background .14s;
+}
+.rp-lg:hover{background:var(--surface-2)}
+.rp-sw{width:11px;height:11px;border-radius:3px;flex:none}
+.rp-ln{font-size:12.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rp-lp{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rp-la{font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
+
+.rp-filters{display:flex;flex-direction:column;gap:9px;margin-bottom:10px}
+.rp-chips{display:flex;flex-wrap:wrap;gap:5px}
+.rp-chips button{
+  padding:5px 10px;border-radius:99px;font-size:11.5px;font-weight:600;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--ink-3);
+}
+.rp-chips button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-mid);color:var(--accent)}
+.rp-picks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.inp.sm{padding:8px 10px;font-size:12.5px}
+.rp-count{font-size:11px;color:var(--ink-3);margin-bottom:8px}
+
+.rp-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px}
+.rp-table{border-collapse:collapse;width:100%;font-size:12px}
+.rp-table th,.rp-table td{padding:8px 10px;text-align:left;white-space:nowrap}
+.rp-table thead th{
+  position:sticky;top:0;z-index:1;
+  background:var(--surface-2);color:var(--ink-3);
+  font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;
+  border-bottom:1px solid var(--line);cursor:pointer;user-select:none;
+}
+.rp-table thead th .rp-ar{opacity:.45;font-size:9px;margin-left:3px}
+.rp-table tbody tr{border-bottom:1px solid var(--line)}
+.rp-table tbody tr:last-child{border-bottom:0}
+.rp-table td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.rp-table td.in{color:var(--pos)}
+.rp-table td.out{color:var(--neg)}
+.rp-table .rp-note{max-width:190px;overflow:hidden;text-overflow:ellipsis}
+.rp-cpill{
+  display:inline-block;padding:2px 7px;border-radius:99px;
+  font-size:10.5px;font-weight:600;white-space:nowrap;
+}
+.rp-st{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+.rp-table tfoot td{
+  padding:9px 10px;font-weight:700;font-variant-numeric:tabular-nums;
+  background:var(--surface-2);border-top:1px solid var(--line-strong);
+}
+.rp-empty{padding:26px 10px;text-align:center;color:var(--ink-3);font-size:12.5px}
+
+.rp-exports{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
+}
+
+/* Printing is the PDF export: everything but the report goes away, both tabs
+   are shown whichever one is on screen, and the sheet becomes a document. */
+@media print{
+  @page{margin:14mm}
+  html,body{background:#fff !important;height:auto !important;overflow:visible !important}
+  .topbar,.monthbar,.tabbar,.fabwrap,.scrim,.toast,#viewDash,#viewEntries,#viewShop,
+  .sheet:not(#shReport),.rp-exports,.rp-ranges,.rp-basis,.rp-custom,.tabbar2,
+  .rp-filters,.sheet-head .iconbtn{display:none !important}
+  #shReport{
+    position:static !important;transform:none !important;max-width:none !important;
+    height:auto !important;max-height:none !important;box-shadow:none !important;
+    border-radius:0 !important;background:#fff !important;
+  }
+  #shReport .sheet-body{overflow:visible !important;padding:0 !important}
+  #shReport .sheet-head{border-bottom:2px solid #000;padding-left:0}
+  #shReport .sheet-head::before{display:none}
+  .rp-pane[hidden]{display:block !important}
+  .rp-tablewrap{overflow:visible !important;border:0 !important}
+  .rp-table{font-size:10px}
+  .rp-table thead th{background:#eee !important;color:#000 !important}
+  .rp-table tbody tr{break-inside:avoid}
+  .rp-chart{break-inside:avoid;break-after:avoid}
+  .rp-print-only{display:block !important}
+}
+.rp-print-only{display:none}
+
 /* ---------- Purchase detail ---------- */
 .purch-meta{font-size:12.5px;color:var(--ink-3);margin-bottom:12px}
 .purchlist{display:flex;flex-direction:column}
@@ -2491,6 +2630,98 @@ html.locked #lockScreen::before{
 </section>
 
 <!-- SETTINGS SHEET -->
+<!-- REPORTS -->
+<section class="sheet sheet-tall" id="shReport" role="dialog" aria-modal="true" aria-labelledby="repTitle">
+  <div class="sheet-head" style="position:relative">
+    <button class="iconbtn setback" id="repBack" type="button" aria-label="Back to More">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h2 id="repTitle">Reports</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="sheet-body" id="repBody">
+    <!-- which stretch of time -->
+    <div class="rp-ranges" id="repRanges">
+      <button type="button" data-range="week"   aria-pressed="false">This week</button>
+      <button type="button" data-range="month"  aria-pressed="true">This month</button>
+      <button type="button" data-range="year"   aria-pressed="false">This year</button>
+      <button type="button" data-range="last12" aria-pressed="false">Last 12 months</button>
+      <button type="button" data-range="custom" aria-pressed="false">Custom</button>
+    </div>
+
+    <div class="rp-basis" id="repBasisWrap">
+      <span class="rp-bl">Counted by</span>
+      <div class="toggle2" id="repBasis">
+        <button class="a" data-v="calendar" aria-pressed="true">Calendar</button>
+        <button class="a" data-v="period" aria-pressed="false">15th–14th</button>
+      </div>
+    </div>
+
+    <div class="rp-custom" id="repCustom" hidden>
+      <div class="field"><label for="repFrom">From</label><input id="repFrom" type="date"></div>
+      <div class="field"><label for="repTo">To</label><input id="repTo" type="date"></div>
+    </div>
+
+    <div class="rp-span" id="repSpan">—</div>
+
+    <!-- what it adds up to -->
+    <div class="rp-tiles">
+      <div class="rp-tile in"><span>Income</span><b id="repIn">—</b></div>
+      <div class="rp-tile out"><span>Expenses</span><b id="repOut">—</b></div>
+      <div class="rp-tile net"><span>Net</span><b id="repNet">—</b></div>
+    </div>
+
+    <div class="tabbar2" id="repTabs" role="tablist">
+      <button role="tab" data-rtab="chart" aria-selected="true">Chart</button>
+      <button role="tab" data-rtab="table" aria-selected="false">Details</button>
+    </div>
+
+    <!-- 1 : the shape of it -->
+    <div class="rp-pane" id="repPane_chart">
+      <div class="rp-chart" id="repChart"></div>
+      <div class="rp-legend" id="repLegend"></div>
+    </div>
+
+    <!-- 2 : every line of it -->
+    <div class="rp-pane" id="repPane_table" hidden>
+      <div class="rp-filters">
+        <input class="inp sm" id="repSearch" type="search" placeholder="Search notes, category, account…" autocomplete="off">
+        <div class="rp-chips" id="repKind">
+          <button type="button" data-kind="all"      aria-pressed="true">All</button>
+          <button type="button" data-kind="income"   aria-pressed="false">Income</button>
+          <button type="button" data-kind="expense"  aria-pressed="false">Expenses</button>
+          <button type="button" data-kind="transfer" aria-pressed="false">Transfers</button>
+        </div>
+        <div class="rp-chips" id="repStatus">
+          <button type="button" data-status="all"     aria-pressed="true">Paid &amp; planned</button>
+          <button type="button" data-status="done"    aria-pressed="false">Paid</button>
+          <button type="button" data-status="planned" aria-pressed="false">Planned</button>
+        </div>
+        <div class="rp-picks">
+          <select class="inp sm" id="repCat"><option value="">Every category</option></select>
+          <select class="inp sm" id="repAcct"><option value="">Every account</option></select>
+        </div>
+      </div>
+      <div class="rp-count" id="repCount">—</div>
+      <div class="rp-tablewrap"><table class="rp-table" id="repTable"></table></div>
+    </div>
+
+    <div class="rp-exports">
+      <button class="btn ghost sm" id="repPdf">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7" rx="1.5"/><path d="M6 18H4a2 2 0 01-2-2v-3a2 2 0 012-2h16a2 2 0 012 2v3a2 2 0 01-2 2h-2"/></svg>
+        Export PDF
+      </button>
+      <button class="btn ghost sm" id="repXlsx">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M3 9h18M9 3v18"/></svg>
+        Export Excel
+      </button>
+    </div>
+  </div>
+</section>
+
 <!-- MORE -->
 <section class="sheet" id="shMore" role="dialog" aria-modal="true" aria-labelledby="moreTitle">
   <div class="sheet-head" style="position:relative">
@@ -2500,10 +2731,10 @@ html.locked #lockScreen::before{
     </button>
   </div>
   <div class="sheet-body" id="moreMenu">
-    <button class="morerow" type="button" data-more="rules">
-      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg></span>
-      <b>Recurring entries</b>
-      <span class="ms" id="moreRulesSub">Rent, salary, subscriptions</span>
+    <button class="morerow" type="button" data-more="report">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 109 9h-9z"/><path d="M14.5 2.5A8 8 0 0121.5 9.5h-7z"/></svg></span>
+      <b>Reports</b>
+      <span class="ms" id="moreReportSub">Where the money went</span>
     </button>
     <button class="morerow" type="button" data-more="about">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3.5l1.9 5.1 5.1 1.9-5.1 1.9L11 17.5l-1.9-5.1L4 10.5l5.1-1.9z"/><path d="M18.4 15.1l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"/></svg></span>
@@ -2760,7 +2991,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.31";
+const APP_VERSION = "1.1.32";
 const APP_BUILT = "2026-08-28";
 
 const KEY = "panappai.v1";
@@ -5379,10 +5610,7 @@ $("#impSheetBack").addEventListener("click", () => backToSettingsPane("data"));
    so it is the only other that gets a back. The rest open from a screen, where
    back and close would mean the same thing. */
 $("#catBack").addEventListener("click", () => sheetOpen("#shEntry"));
-$("#rulesBack").addEventListener("click", () => {
-  sheetClose();
-  if (rulesCameFrom === "more") openMore(); else openSettings();
-});
+$("#rulesBack").addEventListener("click", () => { sheetClose(); openSettings(); });
 
 /**
  * Rewrites a rule's future occurrences. Anything already settled stays put —
@@ -5773,10 +6001,7 @@ function showSetPane(key){
 }
 $$("#setMenu .setrow").forEach(b => b.addEventListener("click", () => {
   /* Recurring entries has no settings of its own — the tile is the page */
-  if (b.dataset.pane === "rules"){
-    rulesCameFrom = "settings";
-    sheetClose(); renderRules(); sheetOpen("#shRules"); return;
-  }
+  if (b.dataset.pane === "rules"){ sheetClose(); renderRules(); sheetOpen("#shRules"); return; }
   showSetPane(b.dataset.pane);
 }));
 $("#setBack").addEventListener("click", () => showSetPane(null));
@@ -5803,15 +6028,11 @@ function openSettings(){
   showSetPane(null);
   sheetOpen("#shSet");
 }
-/* Where Recurring entries was opened from, so its back button returns there
-   rather than always to Settings. */
-let rulesCameFrom = "settings";
-
 function openMore(){
-  const live = state.rules.filter(r => r.active !== false).length;
-  $("#moreRulesSub").textContent = live
-    ? live + " entr" + (live === 1 ? "y" : "ies") + " repeating"
-    : "Rent, salary, subscriptions";
+  const n = state.txns.length;
+  $("#moreReportSub").textContent = n
+    ? n + " entr" + (n === 1 ? "y" : "ies") + " to read"
+    : "Where the money went";
   $("#moreAboutSub").textContent = updateAvailable
     ? "Version " + updateAvailable + " ready"
     : "Version " + APP_VERSION;
@@ -5823,7 +6044,7 @@ $("#btnMore").addEventListener("click", openMore);
 $$("#moreMenu .morerow").forEach(b => b.addEventListener("click", () => {
   const k = b.dataset.more;
   sheetClose();
-  if (k === "rules"){ rulesCameFrom = "more"; renderRules(); sheetOpen("#shRules"); return; }
+  if (k === "report"){ openReport(); return; }
   /* What's new is the notes themselves now, not the About panel they used to
      hang off — the version and update button stay in Settings › About. */
   if (k === "about"){ openNotes(); return; }
@@ -7846,7 +8067,8 @@ $("#ghDisable").addEventListener("click", async () => {
   save();
   render();
   renderShop();
-  ["#eDate", "#balDate", "#shopDate", "#rDate"].forEach(sel => attachCalendar($(sel)));
+  ["#eDate", "#balDate", "#shopDate", "#rDate", "#repFrom", "#repTo"]
+    .forEach(sel => attachCalendar($(sel)));
   syncEyeBtn();
   syncThemeColorMeta();
   /* so the tile carries the badge without Settings having been opened */
@@ -7854,6 +8076,691 @@ $("#ghDisable").addEventListener("click", async () => {
   if (lockEnabled()) lockOpenUnlock(); else document.documentElement.classList.remove("locked");
   lockResetIdle();
 })();
+
+/* =========================================================================
+   REPORTS
+
+   Two ways of reading the same stretch of time: the shape of it as a ring of
+   categories, and every line of it as a table you can sift.
+
+   A stretch can be counted two ways. The app's own periods run the 15th to the
+   14th, which is what the dashboard shows, but a report of a year on that basis
+   is an odd thing to hand anyone — so the calendar is the default and the
+   period basis is a toggle away. Both are honest; they just answer different
+   questions.
+   ========================================================================= */
+let repRange = "month";        /* week | month | year | last12 | custom */
+let repBasis = "calendar";     /* calendar | period */
+let repTab = "chart";
+let repKind = "all";
+let repStatus = "all";
+let repCat = "";
+let repAcct = "";
+let repQuery = "";
+let repSort = { col: "date", dir: -1 };
+
+/** Days in a month, and the last day of one, without leaking into the next. */
+function lastDayOfMonth(ym){
+  const [y, m] = ym.split("-").map(Number);
+  return isoOf(y, m, new Date(y, m, 0).getDate());
+}
+function addDays(iso, n){
+  const d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  return isoOf(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+
+/** The stretch the report covers, as two dates and a sentence describing it. */
+function repDates(){
+  const today = todayISO();
+  const cal = repBasis === "calendar";
+
+  if (repRange === "custom"){
+    let a = $("#repFrom").value || today;
+    let b = $("#repTo").value || today;
+    if (a > b){ const t = a; a = b; b = t; }
+    return { from:a, to:b };
+  }
+
+  if (repRange === "week"){
+    /* the week runs Monday to Sunday; getDay() calls Sunday 0 */
+    const d = new Date(today + "T00:00:00");
+    const back = (d.getDay() + 6) % 7;
+    const from = addDays(today, -back);
+    return { from:from, to:addDays(from, 6) };
+  }
+
+  if (repRange === "month"){
+    const ym = today.slice(0, 7);
+    return cal
+      ? { from:ym + "-01", to:lastDayOfMonth(ym) }
+      : { from:periodStart(periodOf(today)), to:periodEnd(periodOf(today)) };
+  }
+
+  if (repRange === "year"){
+    const y = today.slice(0, 4);
+    return cal
+      ? { from:y + "-01-01", to:y + "-12-31" }
+      : { from:periodStart(periodOf(y + "-01-01")), to:periodEnd(periodOf(today)) };
+  }
+
+  /* last12: the day after this date a year ago, through today */
+  if (cal){
+    const d = new Date(today + "T00:00:00");
+    d.setFullYear(d.getFullYear() - 1);
+    return { from:addDays(isoOf(d.getFullYear(), d.getMonth() + 1, d.getDate()), 1), to:today };
+  }
+  return { from:periodStart(shiftPeriod(periodOf(today), -11)), to:periodEnd(periodOf(today)) };
+}
+
+function repSpanText(){
+  const r = repDates();
+  const n = state.txns.filter(t => t.date >= r.from && t.date <= r.to).length;
+  return prettyDate(r.from) + "  →  " + prettyDate(r.to) +
+         "  ·  " + n + " entr" + (n === 1 ? "y" : "ies");
+}
+
+/** Everything inside the stretch, before the table's own filters. */
+function repInRange(){
+  const r = repDates();
+  return state.txns.filter(t => t.date >= r.from && t.date <= r.to);
+}
+
+/** What the table shows: the stretch, narrowed by every filter that is on. */
+function repRows(){
+  const q = repQuery.trim().toLowerCase();
+  let rows = repInRange().filter(t => {
+    if (repKind !== "all" && t.type !== repKind) return false;
+    if (repStatus !== "all" && t.status !== repStatus) return false;
+    if (repCat && t.category !== repCat) return false;
+    if (repAcct && t.account !== repAcct && t.fromAccount !== repAcct) return false;
+    if (q){
+      const hay = [t.note, catOf(t.category).n, acctName(t.account), acctName(t.fromAccount)]
+        .join(" ").toLowerCase();
+      if (hay.indexOf(q) === -1) return false;
+    }
+    return true;
+  });
+
+  const dir = repSort.dir;
+  const key = repSort.col;
+  rows.sort((a, b) => {
+    let x, y;
+    if (key === "date"){ x = a.date; y = b.date; }
+    else if (key === "amount"){ x = a.amount; y = b.amount; }
+    else if (key === "cat"){ x = catOf(a.category).n; y = catOf(b.category).n; }
+    else if (key === "acct"){ x = acctName(a.account); y = acctName(b.account); }
+    else if (key === "type"){ x = a.type; y = b.type; }
+    else { x = a.note || ""; y = b.note || ""; }
+    if (x < y) return -1 * dir;
+    if (x > y) return 1 * dir;
+    return a.date < b.date ? 1 : -1;
+  });
+  return rows;
+}
+
+function acctName(id){
+  const a = accountsOf().find(x => x.id === id);
+  return a ? a.n : "";
+}
+
+/** Income, expenses and net over the stretch. A transfer is neither. */
+function repTotals(rows){
+  let inc = 0, out = 0;
+  rows.forEach(t => {
+    if (t.type === "income") inc += t.amount;
+    else if (t.type === "expense") out += t.amount;
+  });
+  return { inc:inc, out:out, net:inc - out };
+}
+
+/** Expenses grouped by category, largest first. */
+function repByCategory(rows){
+  const by = new Map();
+  rows.forEach(t => {
+    if (t.type !== "expense") return;
+    const c = catOf(t.category);
+    const cur = by.get(c.id) || { id:c.id, n:c.n, h:c.h, total:0, count:0 };
+    cur.total += t.amount;
+    cur.count++;
+    by.set(c.id, cur);
+  });
+  return [...by.values()].sort((a, b) => b.total - a.total);
+}
+
+/* ---------- the ring ----------
+   Drawn as dashed circles rather than arc paths: with pathLength set to 100
+   every slice is written in percent, which is what the legend says anyway, and
+   there is no arc maths to get wrong at the wrap-around. */
+function repDrawChart(cats, total){
+  const host = $("#repChart");
+  host.innerHTML = "";
+  if (!cats.length || !total){
+    host.innerHTML = '<div class="rp-empty">Nothing spent in this stretch.</div>';
+    return;
+  }
+  const dark = isDark();
+  const R = 60, C = 100;              /* pathLength 100 => dasharray in percent */
+  let at = 0;
+  const parts = cats.map(c => {
+    const pct = (c.total / total) * 100;
+    const seg =
+      '<circle class="rp-slice" cx="80" cy="80" r="' + R + '" fill="none" pathLength="' + C + '"' +
+      ' stroke="' + tintInk(c.h, dark) + '" stroke-width="26"' +
+      ' stroke-dasharray="' + pct.toFixed(3) + ' ' + (100 - pct).toFixed(3) + '"' +
+      ' stroke-dashoffset="' + (-at).toFixed(3) + '"><title>' +
+      esc(c.n) + " · " + fmt(c.total) + '</title></circle>';
+    at += pct;
+    return seg;
+  }).join("");
+
+  host.innerHTML =
+    '<svg viewBox="0 0 160 160" role="img" aria-label="Expenses by category">' +
+    '<g transform="rotate(-90 80 80)">' + parts + '</g>' +
+    '<text class="rp-hole-a" x="80" y="74" text-anchor="middle">Spent</text>' +
+    '<text class="rp-hole-b" x="80" y="92" text-anchor="middle">' + esc(fmt(total)) + '</text>' +
+    '</svg>';
+}
+
+function repDrawLegend(cats, total){
+  const host = $("#repLegend");
+  host.innerHTML = "";
+  const dark = isDark();
+  cats.forEach(c => {
+    const row = el("button", "rp-lg");
+    row.type = "button";
+    const sw = el("span", "rp-sw");
+    sw.style.background = tintInk(c.h, dark);
+    row.appendChild(sw);
+    row.appendChild(el("span", "rp-ln", c.n));
+    row.appendChild(el("span", "rp-lp", ((c.total / total) * 100).toFixed(1) + "%"));
+    const amt = el("span", "rp-la", fmt(c.total));
+    amt.style.color = tintInk(c.h, dark);
+    row.appendChild(amt);
+    /* the natural question after seeing a slice is what is in it */
+    row.addEventListener("click", () => {
+      repCat = c.id;
+      repKind = "expense";
+      syncChips("#repKind", "kind", repKind);
+      repSetTab("table");
+      repRender();
+      toast(c.n + " — " + c.count + " entr" + (c.count === 1 ? "y" : "ies"));
+    });
+    host.appendChild(row);
+  });
+}
+
+/* ---------- the table ---------- */
+const REP_COLS = [
+  { key:"date",   label:"Date" },
+  { key:"type",   label:"Type" },
+  { key:"cat",    label:"Category" },
+  { key:"note",   label:"Note" },
+  { key:"acct",   label:"Account" },
+  { key:"amount", label:"Income",  num:true },
+  { key:"amount", label:"Expense", num:true, second:true }
+];
+
+function repDrawTable(rows){
+  const host = $("#repTable");
+  host.innerHTML = "";
+  const dark = isDark();
+
+  const thead = el("thead");
+  const tr = el("tr");
+  REP_COLS.forEach(c => {
+    const th = el("th", null, c.label);
+    if (c.num) th.style.textAlign = "right";
+    if (repSort.col === c.key && !c.second){
+      th.appendChild(el("span", "rp-ar", repSort.dir === 1 ? "▲" : "▼"));
+    }
+    th.addEventListener("click", () => {
+      if (repSort.col === c.key) repSort.dir *= -1;
+      else { repSort.col = c.key; repSort.dir = c.key === "date" ? -1 : 1; }
+      repRender();
+    });
+    tr.appendChild(th);
+  });
+  thead.appendChild(tr);
+  host.appendChild(thead);
+
+  if (!rows.length){
+    const tb = el("tbody");
+    const r = el("tr");
+    const td = el("td");
+    td.colSpan = REP_COLS.length;
+    td.appendChild(el("div", "rp-empty", "Nothing matches those filters."));
+    r.appendChild(td);
+    tb.appendChild(r);
+    host.appendChild(tb);
+    return;
+  }
+
+  const tb = el("tbody");
+  rows.forEach(t => {
+    const c = catOf(t.category);
+    const r = el("tr");
+    r.appendChild(el("td", null, prettyDate(t.date)));
+
+    const ty = el("td");
+    ty.appendChild(el("span", "rp-st", t.type === "transfer" ? "Transfer" : t.type));
+    r.appendChild(ty);
+
+    const cd = el("td");
+    const pill = el("span", "rp-cpill", c.n);
+    pill.style.background = tint(c.h, dark);
+    pill.style.color = tintInk(c.h, dark);
+    cd.appendChild(pill);
+    r.appendChild(cd);
+
+    const nd = el("td", "rp-note", t.note || "—");
+    nd.title = t.note || "";
+    r.appendChild(nd);
+
+    r.appendChild(el("td", null,
+      t.type === "transfer"
+        ? (acctName(t.fromAccount) || "?") + " → " + (acctName(t.account) || "?")
+        : (acctName(t.account) || "—")));
+
+    const inc = el("td", "num in", t.type === "income" ? fmt(t.amount) : "");
+    const out = el("td", "num out", t.type === "expense" ? fmt(t.amount) : "");
+    r.appendChild(inc);
+    r.appendChild(out);
+    if (t.status === "planned") r.style.opacity = ".72";
+    tb.appendChild(r);
+  });
+  host.appendChild(tb);
+
+  const tot = repTotals(rows);
+  const tf = el("tfoot");
+  const fr = el("tr");
+  const lab = el("td", null, rows.length + " row" + (rows.length === 1 ? "" : "s"));
+  lab.colSpan = 5;
+  fr.appendChild(lab);
+  const fi = el("td", "num in", fmt(tot.inc));
+  const fo = el("td", "num out", fmt(tot.out));
+  fi.style.textAlign = "right";
+  fo.style.textAlign = "right";
+  fr.appendChild(fi);
+  fr.appendChild(fo);
+  tf.appendChild(fr);
+  host.appendChild(tf);
+}
+
+/* ---------- putting it on screen ---------- */
+function syncChips(sel, attr, val){
+  $$(sel + " button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset[attr] === val)));
+}
+
+function repSetTab(t){
+  repTab = t;
+  $$("#repTabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.rtab === t)));
+  $("#repPane_chart").hidden = t !== "chart";
+  $("#repPane_table").hidden = t !== "table";
+}
+
+/**
+ * Fills the two pickers from what the stretch actually contains. A category
+ * chosen for August may not appear in a report of last week at all, and a
+ * filter that is still on while its option has gone leaves the list looking
+ * unaccountably short — so a selection that no longer exists is dropped.
+ */
+function repFillPickers(){
+  const inRange = repInRange();
+
+  const cat = $("#repCat");
+  const seen = new Set(inRange.map(t => t.category));
+  const opts = allCats("expense").concat(allCats("income")).filter(c => seen.has(c.id));
+  if (repCat && !opts.some(c => c.id === repCat)) repCat = "";
+  cat.innerHTML = '<option value="">Every category</option>';
+  opts.forEach(c => {
+    const o = el("option", null, c.n);
+    o.value = c.id;
+    cat.appendChild(o);
+  });
+  cat.value = repCat;
+
+  const ac = $("#repAcct");
+  if (repAcct && !accountsOf().some(a => a.id === repAcct)) repAcct = "";
+  ac.innerHTML = '<option value="">Every account</option>';
+  accountsOf().forEach(a => {
+    const o = el("option", null, a.n);
+    o.value = a.id;
+    ac.appendChild(o);
+  });
+  ac.value = repAcct;
+}
+
+function repRender(){
+  repFillPickers();
+  $$("#repRanges button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.range === repRange)));
+  $$("#repBasis button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === repBasis)));
+  /* a week is a week and a custom stretch is whatever you picked: neither has
+     a second reading, so the basis toggle only shows where it means something */
+  $("#repBasisWrap").hidden = repRange === "week" || repRange === "custom";
+  $("#repCustom").hidden = repRange !== "custom";
+  $("#repSpan").textContent = repSpanText();
+
+  const all = repInRange();
+  const tot = repTotals(all);
+  $("#repIn").textContent = fmt(tot.inc);
+  $("#repOut").textContent = fmt(tot.out);
+  $("#repNet").textContent = fmt(tot.net);
+  $("#repNet").style.color = tot.net < 0 ? "var(--neg)" : "";
+
+  const cats = repByCategory(all);
+  repDrawChart(cats, tot.out);
+  repDrawLegend(cats, tot.out);
+
+  const rows = repRows();
+  $("#repCount").textContent =
+    rows.length + " of " + all.length + " shown" +
+    (repCat || repAcct || repKind !== "all" || repStatus !== "all" || repQuery ? " · filtered" : "");
+  repDrawTable(rows);
+}
+
+function openReport(){
+  repRender();
+  sheetOpen("#shReport");
+}
+
+$$("#repRanges button").forEach(b => b.addEventListener("click", () => {
+  repRange = b.dataset.range;
+  if (repRange === "custom" && !$("#repFrom").value){
+    const r = repDates();
+    setDateVal("#repFrom", r.from);
+    setDateVal("#repTo", r.to);
+  }
+  repRender();
+}));
+$$("#repBasis button").forEach(b => b.addEventListener("click", () => {
+  repBasis = b.dataset.v;
+  repRender();
+}));
+["#repFrom", "#repTo"].forEach(sel => $(sel).addEventListener("change", repRender));
+$$("#repTabs button").forEach(b => b.addEventListener("click", () => repSetTab(b.dataset.rtab)));
+$$("#repKind button").forEach(b => b.addEventListener("click", () => {
+  repKind = b.dataset.kind;
+  syncChips("#repKind", "kind", repKind);
+  repRender();
+}));
+$$("#repStatus button").forEach(b => b.addEventListener("click", () => {
+  repStatus = b.dataset.status;
+  syncChips("#repStatus", "status", repStatus);
+  repRender();
+}));
+$("#repCat").addEventListener("change", e => { repCat = e.target.value; repRender(); });
+$("#repAcct").addEventListener("change", e => { repAcct = e.target.value; repRender(); });
+$("#repSearch").addEventListener("input", e => { repQuery = e.target.value; repRender(); });
+$("#repBack").addEventListener("click", () => { sheetClose(); openMore(); });
+
+/* =========================================================================
+   EXPORTING A REPORT
+
+   Excel gets a real .xlsx rather than a CSV. An .xlsx is a zip of XML files,
+   and a zip entry may be stored rather than deflated, so the whole thing can be
+   written here without a compression library — only a CRC is needed, which is
+   twenty lines. The gain is that dates arrive as dates and amounts as numbers,
+   so SUM and a pivot table work on the file rather than on text that Excel has
+   guessed at, which with a German decimal comma it usually guesses wrong.
+
+   PDF goes through the browser's own print, styled for paper. It costs nothing
+   to carry, works offline from the first use, and on a phone it lands in Files
+   or Downloads like any other print-to-PDF.
+   ========================================================================= */
+
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++){
+    let c = i;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+
+function crc32(bytes){
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+/** A zip with every entry stored, which is all a .xlsx reader needs. */
+function zipStore(files){
+  const enc = new TextEncoder();
+  const parts = [];
+  const central = [];
+  let at = 0;
+
+  const u16 = n => [n & 0xFF, (n >>> 8) & 0xFF];
+  const u32 = n => [n & 0xFF, (n >>> 8) & 0xFF, (n >>> 16) & 0xFF, (n >>> 24) & 0xFF];
+
+  files.forEach(f => {
+    const name = enc.encode(f.name);
+    const data = typeof f.data === "string" ? enc.encode(f.data) : f.data;
+    const crc = crc32(data);
+    const head = [].concat(
+      u32(0x04034b50), u16(20), u16(0), u16(0), u16(0), u16(0),
+      u32(crc), u32(data.length), u32(data.length),
+      u16(name.length), u16(0)
+    );
+    parts.push(new Uint8Array(head), name, data);
+    central.push({ name:name, crc:crc, size:data.length, at:at });
+    at += head.length + name.length + data.length;
+  });
+
+  const dir = [];
+  central.forEach(c => {
+    const head = [].concat(
+      u32(0x02014b50), u16(20), u16(20), u16(0), u16(0), u16(0), u16(0),
+      u32(c.crc), u32(c.size), u32(c.size),
+      u16(c.name.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(c.at)
+    );
+    dir.push(new Uint8Array(head), c.name);
+  });
+  const dirBytes = dir.reduce((n, p) => n + p.length, 0);
+  const end = new Uint8Array([].concat(
+    u32(0x06054b50), u16(0), u16(0),
+    u16(files.length), u16(files.length), u32(dirBytes), u32(at), u16(0)
+  ));
+
+  return new Blob(parts.concat(dir, [end]), {
+    type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  });
+}
+
+const xmlEsc = s => String(s == null ? "" : s)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;")
+  /* a character class, not an alternation: XML forbids these outright,
+     and one of them slipping through makes the whole workbook unreadable */
+  .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, "");
+
+/** Excel counts days from 30 Dec 1899, and believes 1900 had a 29 February. */
+function excelSerial(iso){
+  const d = new Date(iso + "T00:00:00Z");
+  return Math.round((d.getTime() - Date.UTC(1899, 11, 30)) / 86400000);
+}
+
+const colName = i => {
+  let s = "";
+  i++;
+  while (i > 0){ const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = ((i - m) / 26) | 0; }
+  return s;
+};
+
+/**
+ * One sheet from rows of cells. A cell is {v, t} where t is "s" for text,
+ * "n" for a number, "d" for a date and "m" for money.
+ */
+function sheetXml(rows){
+  const body = rows.map((cells, r) => {
+    const tds = cells.map((c, i) => {
+      const ref = colName(i) + (r + 1);
+      if (c == null || c.v === "" || c.v == null) return "";
+      if (c.t === "d") return '<c r="' + ref + '" s="2"><v>' + excelSerial(c.v) + "</v></c>";
+      if (c.t === "m") return '<c r="' + ref + '" s="3"><v>' + (c.v / 100).toFixed(2) + "</v></c>";
+      if (c.t === "n") return '<c r="' + ref + '"><v>' + c.v + "</v></c>";
+      const style = c.h ? ' s="1"' : "";
+      return '<c r="' + ref + '"' + style + ' t="inlineStr"><is><t xml:space="preserve">' +
+             xmlEsc(c.v) + "</t></is></c>";
+    }).join("");
+    return '<row r="' + (r + 1) + '">' + tds + "</row>";
+  }).join("");
+
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+    '<sheetViews><sheetView workbookViewId="0" tabSelected="1">' +
+    '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>' +
+    "</sheetView></sheetViews>" +
+    '<cols><col min="1" max="1" width="12"/><col min="2" max="2" width="10"/>' +
+    '<col min="3" max="3" width="20"/><col min="4" max="4" width="34"/>' +
+    '<col min="5" max="5" width="22"/><col min="6" max="7" width="13"/>' +
+    '<col min="8" max="8" width="10"/></cols>' +
+    "<sheetData>" + body + "</sheetData></worksheet>";
+}
+
+const XLSX_STYLES =
+  '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+  '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+  '<numFmts count="2">' +
+  '<numFmt numFmtId="164" formatCode="dd\\ mmm\\ yyyy"/>' +
+  '<numFmt numFmtId="165" formatCode="#,##0.00\\ &quot;€&quot;"/>' +
+  "</numFmts>" +
+  '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font>' +
+  '<font><b/><sz val="11"/><name val="Calibri"/></font></fonts>' +
+  '<fills count="3"><fill><patternFill patternType="none"/></fill>' +
+  '<fill><patternFill patternType="gray125"/></fill>' +
+  '<fill><patternFill patternType="solid"><fgColor rgb="FFE7EBEF"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+  '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+  '<cellXfs count="4">' +
+  '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+  '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>' +
+  '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+  '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+  "</cellXfs>" +
+  /* readers that follow the schema strictly want a named default style,
+     and warn or refuse without one */
+  '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
+  "</styleSheet>";
+
+function buildXlsx(rows, sheetName){
+  return zipStore([
+    { name:"[Content_Types].xml", data:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+      '<Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+      '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+      "</Types>" },
+    { name:"_rels/.rels", data:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+      "</Relationships>" },
+    { name:"xl/workbook.xml", data:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ' +
+      'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+      '<sheets><sheet name="' + xmlEsc(sheetName).slice(0, 31) + '" sheetId="1" r:id="rId1"/></sheets>' +
+      "</workbook>" },
+    { name:"xl/_rels/workbook.xml.rels", data:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' +
+      '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
+      "</Relationships>" },
+    { name:"xl/styles.xml", data:XLSX_STYLES },
+    { name:"xl/worksheets/sheet1.xml", data:sheetXml(rows) }
+  ]);
+}
+
+function saveBlob(blob, name){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/** The rows as the spreadsheet wants them: a title block, then the table. */
+function repExportRows(){
+  const r = repDates();
+  const rows = repRows();
+  const tot = repTotals(rows);
+  const out = [
+    [{ v:"பணப்பை — report", h:1 }],
+    [{ v:"Range" }, { v:prettyDate(r.from) + " to " + prettyDate(r.to) }],
+    [{ v:"Counted by" }, { v:repBasis === "calendar" ? "Calendar" : "15th–14th periods" }],
+    [{ v:"Generated" }, { v:prettyDate(todayISO()) }],
+    [],
+    ["Date", "Type", "Category", "Note", "Account", "Income", "Expense", "Status"]
+      .map(h => ({ v:h, h:1 }))
+  ];
+
+  rows.forEach(t => out.push([
+    { v:t.date, t:"d" },
+    { v:t.type === "transfer" ? "Transfer" : (t.type === "income" ? "Income" : "Expense") },
+    { v:catOf(t.category).n },
+    { v:t.note || "" },
+    { v:t.type === "transfer"
+        ? (acctName(t.fromAccount) || "?") + " → " + (acctName(t.account) || "?")
+        : (acctName(t.account) || "") },
+    { v:t.type === "income" ? t.amount : "", t:"m" },
+    { v:t.type === "expense" ? t.amount : "", t:"m" },
+    { v:t.status === "planned" ? "Planned" : "Paid" }
+  ]));
+
+  out.push([]);
+  out.push([{ v:"Totals", h:1 }, null, null, null, null,
+            { v:tot.inc, t:"m" }, { v:tot.out, t:"m" }]);
+  out.push([{ v:"Net", h:1 }, null, null, null, null, { v:tot.net, t:"m" }]);
+  return out;
+}
+
+$("#repXlsx").addEventListener("click", () => {
+  if (amountsHidden){
+    toast("Tap the eye to show amounts before exporting");
+    return;
+  }
+  try{
+    const r = repDates();
+    const blob = buildXlsx(repExportRows(), "Report");
+    saveBlob(blob, "panappai-" + r.from + "-to-" + r.to + ".xlsx");
+    toast("Excel file saved");
+  }catch(e){
+    toast("Couldn't build the file — " + (e && e.message ? e.message : "unknown"));
+  }
+});
+
+$("#repPdf").addEventListener("click", () => {
+  if (amountsHidden){
+    toast("Tap the eye to show amounts before exporting");
+    return;
+  }
+  /* the print sheet shows both tabs and none of the controls, so the page
+     needs a heading of its own that the screen never shows */
+  const r = repDates();
+  let head = $("#repPrintHead");
+  if (!head){
+    head = el("div", "rp-print-only");
+    head.id = "repPrintHead";
+    $("#repBody").insertBefore(head, $("#repBody").firstChild);
+  }
+  head.innerHTML =
+    '<div style="font-size:15px;font-weight:700;margin-bottom:2px">பணப்பை — report</div>' +
+    '<div style="font-size:11px;color:#444">' +
+    esc(prettyDate(r.from)) + " to " + esc(prettyDate(r.to)) +
+    "  ·  counted by " + (repBasis === "calendar" ? "calendar" : "15th–14th periods") +
+    "  ·  generated " + esc(prettyDate(todayISO())) + "</div>";
+  window.print();
+});
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

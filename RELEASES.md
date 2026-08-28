@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.32 — 2026-08-28
+- new: Reports takes the place of Recurring entries in More: a ring of expenses by category and a filterable table of every line, over a week, month, year, the last twelve months or dates you pick.
+- new: A report exports to PDF through the device's own print, and to a real .xlsx where dates are dates and amounts are numbers.
+- better: Recurring entries stays where it always was, under Settings.
+
 ## 1.1.31 — 2026-08-28
 - new: What's new is its own page, opened straight from More, and every line now carries a mark saying what kind of change it was.
 - better: The version, build date and update button stay in Settings > About, which no longer doubles as the way in to the notes.
