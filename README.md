@@ -303,8 +303,10 @@ set. Both are irreversible and neither should rest on a double-tap alone.
 
 **Reminders** (Settings → Notifications & appearance, off by default) put a dot on the bell
 in the top bar for anything recurring that's due within three days: a green
-heart at three days, amber at two, red from tomorrow onward, staying red while
-overdue until you tick it off. A day's reminders count from **8am**, and the dot
+heart at three days, amber at two, red tomorrow, and a broken heart in a deeper
+red once it falls due — today or already past — until you tick it off. The
+broken shape carries that on its own, so the state reads without relying on
+telling one red from another. A day's reminders count from **5am**, and the dot
 clears once you open the bell, returning the next morning. They are in-app only
 — the app can't wake itself while closed, so nothing is sent to your phone.
 
