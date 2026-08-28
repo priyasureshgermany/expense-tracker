@@ -803,11 +803,8 @@ button.tile:hover .tile-go{color:var(--accent)}
 
 .rp-chart{display:grid;place-items:center;padding:10px 0 6px}
 .rp-chart svg{width:min(300px,84vw);height:auto;overflow:visible}
-/* the pull-out is a transform, so it animates for free */
-.pie-top,.pie-wall{transition:transform .22s cubic-bezier(.34,1.4,.64,1),opacity .18s}
 .pie-top{cursor:pointer}
-@media (hover:hover){ .pie-top:hover{filter:brightness(1.08)} }
-@media (prefers-reduced-motion:reduce){ .pie-top,.pie-wall{transition:none} }
+@media (hover:hover){ .pie-top:hover{filter:brightness(1.1)} }
 
 .rp-hint{font-size:11px;color:var(--ink-3);text-align:center;margin-bottom:12px}
 .rp-info{
@@ -2697,7 +2694,7 @@ html.locked #lockScreen::before{
     <div class="rp-pane" id="repPane_chart">
       <div class="rp-chart" id="repChart"></div>
       <div class="rp-info" id="repInfo" hidden></div>
-      <div class="rp-hint" id="repHint">Tap a slice to pull it out</div>
+      <div class="rp-hint" id="repHint">Tap a slice to light it up</div>
       <div class="rp-legend" id="repLegend"></div>
     </div>
 
@@ -3007,7 +3004,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.34";
+const APP_VERSION = "1.1.35";
 const APP_BUILT = "2026-08-28";
 
 const KEY = "panappai.v1";
@@ -8252,21 +8249,20 @@ function repByCategory(rows){
    them, which is ordering enough — the tops all sit at one height, so none can
    hide another.
 
-   Three things do the work of looking solid. Every face is filled with a
-   gradient laid out in the pie's own coordinates rather than each slice's box,
-   so the light falls one way across the whole thing instead of turning with
-   each wedge. The tops carry a third stop near the top edge, which reads as
-   sheen. And every face is stroked in its own fill with a round join, which
-   rounds the corners a wedge would otherwise come to a point at.
+   The slices meet. What makes it read as one solid object rather than a fan of
+   separate shapes is that the light is applied to the object and not to the
+   pieces: the gradients are laid out in the pie's own coordinates, so the fall
+   of light carries across a boundary instead of restarting at it, and a single
+   sheen is laid over the whole top face once every slice is down. Only a
+   hairline divides one slice from the next.
 
-   Slices are also held a hair apart. A gap costs a little accuracy in the
-   angles, which is why it is small and why it shrinks rather than swallowing a
-   slice too narrow to give it up. */
-/* the round stroke gives every face back about half its width at the edge,
-   so the gap has to be wider than the separation actually wanted */
-const PIE = { cx:100, cy:76, rx:78, ry:42, depth:18, pop:12, lift:5, gap:0.055, round:3 };
+   Choosing a slice lights it rather than moving it. Nothing shifts, so the
+   sheen stays registered with the surface underneath — the slice takes a
+   brighter mix of its own colour, a glow in that colour, and a bright rim,
+   while the others fall back. */
+const PIE = { cx:100, cy:76, rx:80, ry:43, depth:19 };
 
-let repSelCat = null;      /* the slice pulled out, by category id */
+let repSelCat = null;      /* the slice lit up, by category id */
 
 const pieX = a => PIE.cx + PIE.rx * Math.cos(a);
 const pieY = a => PIE.cy + PIE.ry * Math.sin(a);
@@ -8274,19 +8270,21 @@ const pieY = a => PIE.cy + PIE.ry * Math.sin(a);
 /**
  * A category's colour built up for a lit solid, keeping its hue so the category
  * stays the colour it always is, but carried at a strength the ledger's quieter
- * tints could not hold on a shape this size.
+ * tints could not hold on a shape this size. `on` is the same colour with the
+ * light turned up, for the slice that has been chosen.
  */
-function pieShades(h, dark){
+function pieShades(h, dark, on){
+  const b = on ? 12 : 0;                       /* the lift a chosen slice gets */
   return {
-    lit:  "hsl(" + h + " 92% " + (dark ? 74 : 70) + "%)",
-    top:  "hsl(" + h + " 80% " + (dark ? 62 : 56) + "%)",
-    base: "hsl(" + h + " 72% " + (dark ? 50 : 45) + "%)",
-    wall: "hsl(" + h + " 68% " + (dark ? 36 : 32) + "%)",
-    foot: "hsl(" + h + " 66% " + (dark ? 25 : 22) + "%)"
+    lit:  "hsl(" + h + " 95% " + ((dark ? 74 : 71) + b * 0.5) + "%)",
+    top:  "hsl(" + h + " 84% " + ((dark ? 62 : 57) + b) + "%)",
+    base: "hsl(" + h + " 76% " + ((dark ? 50 : 46) + b) + "%)",
+    wall: "hsl(" + h + " 70% " + ((dark ? 35 : 32) + b) + "%)",
+    foot: "hsl(" + h + " 68% " + ((dark ? 24 : 21) + b) + "%)"
   };
 }
 /** The one flat colour that stands for a slice away from the pie. */
-function pieSwatch(h, dark){ return pieShades(h, dark).base; }
+function pieSwatch(h, dark){ return pieShades(h, dark, false).base; }
 
 /** The wedge of the top face between two angles. */
 function pieTop(a1, a2){
@@ -8332,63 +8330,71 @@ function repDrawChart(cats, total){
   let at = -Math.PI / 2;
   const spans = cats.map(c => {
     const span = (c.total / total) * Math.PI * 2;
-    const s = { c:c, a1:at, a2:at + span, span:span };
+    const s = { c:c, a1:at, a2:at + span, on:repSelCat === c.id };
     at += span;
     return s;
   });
 
-  /* the gradients are laid out over the pie, not over each slice's own box, so
-     the light comes from one direction for the whole solid */
+  /* laid out over the pie, not over each slice's box, so the light falls one
+     way across the whole solid and does not restart at every boundary */
   const yTop = PIE.cy - PIE.ry, yBot = PIE.cy + PIE.ry + PIE.depth;
+  const chosen = spans.find(s => s.on);
   const defs = spans.map((s, i) => {
-    const k = pieShades(s.c.h, dark);
+    const k = pieShades(s.c.h, dark, s.on);
     return '<linearGradient id="pgt' + i + '" gradientUnits="userSpaceOnUse" ' +
              'x1="0" y1="' + yTop + '" x2="0" y2="' + (PIE.cy + PIE.ry) + '">' +
              '<stop offset="0" stop-color="' + k.lit + '"/>' +
-             '<stop offset="0.42" stop-color="' + k.top + '"/>' +
+             '<stop offset="0.44" stop-color="' + k.top + '"/>' +
              '<stop offset="1" stop-color="' + k.base + '"/></linearGradient>' +
            '<linearGradient id="pgw' + i + '" gradientUnits="userSpaceOnUse" ' +
              'x1="0" y1="' + PIE.cy + '" x2="0" y2="' + yBot + '">' +
-             '<stop offset="0" stop-color="' + k.wall + '"/>' +
+             '<stop offset="0" stop-color="' + k.base + '"/>' +
+             '<stop offset="0.28" stop-color="' + k.wall + '"/>' +
              '<stop offset="1" stop-color="' + k.foot + '"/></linearGradient>';
-  }).join("");
+  }).join("") +
+  '<radialGradient id="pgShadow">' +
+    '<stop offset="0" stop-color="' + (dark ? "rgba(0,0,0,.6)" : "rgba(15,25,34,.24)") + '"/>' +
+    '<stop offset="1" stop-color="rgba(0,0,0,0)"/></radialGradient>' +
+  /* one sheen for the whole surface, laid on after every slice is down */
+  '<radialGradient id="pgGloss" cx="0.34" cy="0.20" r="0.78">' +
+    '<stop offset="0" stop-color="rgba(255,255,255,' + (dark ? ".30" : ".46") + ')"/>' +
+    '<stop offset="0.5" stop-color="rgba(255,255,255,' + (dark ? ".07" : ".12") + ')"/>' +
+    '<stop offset="1" stop-color="rgba(255,255,255,0)"/></radialGradient>' +
+  (chosen
+    ? '<filter id="pgGlow" x="-40%" y="-40%" width="180%" height="180%">' +
+        '<feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="' +
+        pieShades(chosen.c.h, dark, true).top + '" flood-opacity="0.95"/></filter>'
+    : "");
 
+  const hair = dark ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.5)";
   const walls = [], tops = [];
   spans.forEach((s, i) => {
-    /* the gap is taken off both ends, but never more than a quarter of a
-       narrow slice, so a one-percent category does not disappear into it */
-    const pad = Math.min(PIE.gap, s.span / 4);
-    const a1 = s.a1 + pad, a2 = s.a2 - pad;
-    const mid = (s.a1 + s.a2) / 2;
-    const isOut = repSelCat === s.c.id;
-    const dx = isOut ? Math.cos(mid) * PIE.pop : 0;
-    const dy = isOut ? Math.sin(mid) * PIE.pop * (PIE.ry / PIE.rx) - PIE.lift : 0;
-    const shift = ' transform="translate(' + dx.toFixed(2) + ' ' + dy.toFixed(2) + ')"';
-    const dim = repSelCat && !isOut ? ' opacity="0.5"' : "";
-    /* stroked in its own fill: that is what rounds the corners */
-    const round = ' stroke-width="' + PIE.round + '" stroke-linejoin="round"';
+    const dim = repSelCat && !s.on ? ' opacity="0.42"' : "";
+    const glow = s.on ? ' filter="url(#pgGlow)"' : "";
+    const edge = s.on
+      ? ' stroke="' + (dark ? "rgba(255,255,255,.92)" : "rgba(255,255,255,.96)") + '" stroke-width="1.6"'
+      : ' stroke="' + hair + '" stroke-width="0.7"';
 
-    const w = pieWall(a1, a2);
+    const w = pieWall(s.a1, s.a2);
     if (w){
-      walls.push('<path class="pie-wall" d="' + w + '" fill="url(#pgw' + i + ')" ' +
-                 'stroke="url(#pgw' + i + ')"' + round + shift + dim + "></path>");
+      walls.push('<path class="pie-wall" d="' + w + '" fill="url(#pgw' + i + ')"' +
+                 edge + dim + glow + "></path>");
     }
-    tops.push('<path class="pie-top" d="' + pieTop(a1, a2) + '" fill="url(#pgt' + i + ')" ' +
-              'stroke="url(#pgt' + i + ')"' + round + shift + dim +
-              ' data-cat="' + esc(s.c.id) + '">' +
+    tops.push('<path class="pie-top" d="' + pieTop(s.a1, s.a2) + '" fill="url(#pgt' + i + ')"' +
+              edge + dim + glow + ' data-cat="' + esc(s.c.id) + '">' +
               "<title>" + esc(s.c.n) + " · " + esc(fmt(s.c.total)) + "</title></path>");
   });
 
   host.innerHTML =
-    '<svg viewBox="0 0 200 156" role="img" aria-label="Expenses by category">' +
-    "<defs>" + defs +
-      '<radialGradient id="pgShadow">' +
-        '<stop offset="0" stop-color="' + (dark ? "rgba(0,0,0,.55)" : "rgba(15,25,34,.22)") + '"/>' +
-        '<stop offset="1" stop-color="rgba(0,0,0,0)"/></radialGradient>' +
-    "</defs>" +
-    '<ellipse cx="' + PIE.cx + '" cy="' + (PIE.cy + PIE.depth + 7) + '" rx="' + (PIE.rx * 1.02) +
-      '" ry="' + (PIE.ry * 0.44) + '" fill="url(#pgShadow)"/>' +
+    '<svg viewBox="0 0 200 158" role="img" aria-label="Expenses by category">' +
+    "<defs>" + defs + "</defs>" +
+    '<ellipse cx="' + PIE.cx + '" cy="' + (PIE.cy + PIE.depth + 8) + '" rx="' + (PIE.rx * 1.04) +
+      '" ry="' + (PIE.ry * 0.46) + '" fill="url(#pgShadow)"/>' +
     walls.join("") + tops.join("") +
+    /* the sheen goes on last and takes no clicks, so the slices under it stay
+       tappable and the highlight underneath still shows through */
+    '<ellipse cx="' + PIE.cx + '" cy="' + PIE.cy + '" rx="' + PIE.rx + '" ry="' + PIE.ry +
+      '" fill="url(#pgGloss)" pointer-events="none"/>' +
     "</svg>";
 
   $$("#repChart .pie-top").forEach(node => {
