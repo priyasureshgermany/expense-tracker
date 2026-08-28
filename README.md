@@ -330,9 +330,13 @@ Calendar is the default, being what a report usually means. The period basis
 ties back exactly to what the dashboard shows. A week and a custom stretch have
 only one reading, so the toggle hides for those.
 
-**Chart** shows expenses as a ring, each slice the colour that category always
-is, with the legend giving the share and the amount. Tapping a legend row jumps
-to the table filtered to that category.
+**Chart** shows expenses as a pie drawn in projection — the circle squashed into
+an ellipse with a wall dropped from each slice's outer edge — every slice the
+colour that category always is. Tap a slice and it slides out along its own
+bisector and lifts, the rest fade back, and a card underneath gives the name,
+the amount, the share, how many entries and the average of them. Tap it again
+to put it back. The legend picks the same slice, so the two never disagree, and
+**See these entries** on the card drops into the table filtered to it.
 
 **Details** is every entry, with date, type, category, note, account, income and
 expense. Sort by tapping a column. Narrow it with the search box (notes,
