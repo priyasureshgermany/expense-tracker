@@ -242,6 +242,7 @@ Every region has a stable name, so a change can be asked for precisely —
 | Period bar | `‹ 15 Aug – 14 Sept 2026 ›`, plus a **Today** pill once you've navigated away |
 | Tab bar | Fixed along the bottom: Dashboard · வரவு செலவு · Shopping cart · More |
 | More | A short sheet of three: Recurring entries, What's new, Settings. A red dot on the tab means a newer build is waiting. |
+| What's new | The release notes, each line marked with what kind of change it was — a repair, something new, or something existing made better. The version itself, and the update button, stay in **Settings › About**. |
 | Add button | The round **+** above the tab bar; tapping it offers Income then Expense |
 
 **Dashboard**, top to bottom

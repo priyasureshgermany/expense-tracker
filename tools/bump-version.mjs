@@ -24,6 +24,13 @@
  *   node tools/bump-version.mjs --note "What changed" [--note "And this"]
  *   node tools/bump-version.mjs --amend --note "Found in review"
  *   node tools/bump-version.mjs --dry                 print what would happen
+ *
+ * A note is tagged with the kind of change it was, which the app reads to put
+ * an icon beside it in What's new:
+ *
+ *   --fix     "something was wrong and now is not"
+ *   --new     "this was not here before"
+ *   --better | --note   "this already worked, and now works better"
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { execSync } from "node:child_process";
@@ -39,8 +46,12 @@ const NOTES_FILE = join(root, "RELEASES.md");
 const argv = process.argv.slice(2);
 const dry = argv.includes("--dry");
 const amend = argv.includes("--amend");
+/* A note says what kind of change it was, so the app can show an icon beside
+   it. --note stays for a plain improvement, which is most of them. */
+const KINDS = { "--fix": "fix", "--new": "new", "--better": "better", "--note": "better" };
 const notes = argv.reduce((acc, a, i) => {
-  if (a === "--note" && argv[i + 1]) acc.push(argv[i + 1].trim());
+  const kind = KINDS[a];
+  if (kind && argv[i + 1]) acc.push(kind + ": " + argv[i + 1].trim());
   return acc;
 }, []).filter(Boolean);
 
