@@ -238,9 +238,10 @@ Every region has a stable name, so a change can be asked for precisely —
 
 | Name | What it is |
 |---|---|
-| Top bar | Brand + greeting (tap to return to this period's dashboard), 👁 show/hide amounts, ⚙ settings |
+| Top bar | Brand + greeting (tap to return to this period's dashboard), 👁 show/hide amounts, 🔔 reminders |
 | Period bar | `‹ 15 Aug – 14 Sept 2026 ›`, plus a **Today** pill once you've navigated away |
-| Tab bar | Fixed along the bottom: Dashboard · வரவு செலவு · Shopping cart |
+| Tab bar | Fixed along the bottom: Dashboard · வரவு செலவு · Shopping cart · More |
+| More | A short sheet of three: Recurring entries, What's new, Settings. A red dot on the tab means a newer build is waiting. |
 | Add button | The round **+** above the tab bar; tapping it offers Income then Expense |
 
 **Dashboard**, top to bottom
