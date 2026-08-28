@@ -3004,7 +3004,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.35";
+const APP_VERSION = "1.1.36";
 const APP_BUILT = "2026-08-28";
 
 const KEY = "panappai.v1";
@@ -8274,13 +8274,16 @@ const pieY = a => PIE.cy + PIE.ry * Math.sin(a);
  * light turned up, for the slice that has been chosen.
  */
 function pieShades(h, dark, on){
-  const b = on ? 12 : 0;                       /* the lift a chosen slice gets */
+  /* A chosen slice is not simply made lighter. Gloss is contrast: a highlight
+     only reads as wet if there is depth beneath it for it to sit on, so the top
+     of the range comes up and the bottom goes down. */
+  const up = on ? 6 : 0, down = on ? 5 : 0;
   return {
-    lit:  "hsl(" + h + " 95% " + ((dark ? 74 : 71) + b * 0.5) + "%)",
-    top:  "hsl(" + h + " 84% " + ((dark ? 62 : 57) + b) + "%)",
-    base: "hsl(" + h + " 76% " + ((dark ? 50 : 46) + b) + "%)",
-    wall: "hsl(" + h + " 70% " + ((dark ? 35 : 32) + b) + "%)",
-    foot: "hsl(" + h + " 68% " + ((dark ? 24 : 21) + b) + "%)"
+    lit:  "hsl(" + h + " 95% " + ((dark ? 74 : 71) + up) + "%)",
+    top:  "hsl(" + h + " 86% " + ((dark ? 62 : 57) + up * 0.4) + "%)",
+    base: "hsl(" + h + " 78% " + ((dark ? 50 : 46) - down * 0.6) + "%)",
+    wall: "hsl(" + h + " 72% " + ((dark ? 35 : 32) - down * 0.8) + "%)",
+    foot: "hsl(" + h + " 70% " + ((dark ? 24 : 21) - down * 0.6) + "%)"
   };
 }
 /** The one flat colour that stands for a slice away from the pie. */
@@ -8360,20 +8363,47 @@ function repDrawChart(cats, total){
     '<stop offset="0" stop-color="rgba(255,255,255,' + (dark ? ".30" : ".46") + ')"/>' +
     '<stop offset="0.5" stop-color="rgba(255,255,255,' + (dark ? ".07" : ".12") + ')"/>' +
     '<stop offset="1" stop-color="rgba(255,255,255,0)"/></radialGradient>' +
+  /* The chosen slice is polished, not outlined and not lit from its own edges:
+     lighting the alpha's slope gave a hard rim that read as plastic. It gets a
+     soft shadow, which is the whole of the emboss, and a second helping of the
+     same sheen the pie already carries — laid out in the pie's coordinates, so
+     the shine sits where the light already falls rather than starting again in
+     the middle of the wedge. */
   (chosen
-    ? '<filter id="pgGlow" x="-40%" y="-40%" width="180%" height="180%">' +
-        '<feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="' +
-        pieShades(chosen.c.h, dark, true).top + '" flood-opacity="0.95"/></filter>'
+    ? '<filter id="pgLit" x="-25%" y="-25%" width="150%" height="150%">' +
+        '<feDropShadow dx="0" dy="1.3" stdDeviation="2.1" flood-color="' +
+          (dark ? "#000" : "#0F1922") + '" flood-opacity="' + (dark ? "0.55" : "0.34") +
+          '"/></filter>' +
+      /* the broad sheen, still in the pie's coordinates so it continues the
+         light already crossing the whole object */
+      '<radialGradient id="pgSheen" gradientUnits="userSpaceOnUse" ' +
+        'cx="' + (PIE.cx - PIE.rx * 0.30).toFixed(1) + '" ' +
+        'cy="' + (PIE.cy - PIE.ry * 0.62).toFixed(1) + '" ' +
+        'r="' + (PIE.rx * 0.98).toFixed(1) + '">' +
+        '<stop offset="0" stop-color="rgba(255,255,255,' + (dark ? ".72" : ".8") + ')"/>' +
+        '<stop offset="0.22" stop-color="rgba(255,255,255,' + (dark ? ".34" : ".42") + ')"/>' +
+        '<stop offset="0.55" stop-color="rgba(255,255,255,.10)"/>' +
+        '<stop offset="1" stop-color="rgba(255,255,255,0)"/></radialGradient>' +
+      /* and the hotspot: small, near-white, gone within a fifth of its radius.
+         A slow fade reads as haze; it is the sharpness of the falloff that
+         reads as wet, so this one stops almost as soon as it starts. */
+      '<radialGradient id="pgHot">' +
+        '<stop offset="0" stop-color="rgba(255,255,255,.96)"/>' +
+        '<stop offset="0.18" stop-color="rgba(255,255,255,.62)"/>' +
+        '<stop offset="0.46" stop-color="rgba(255,255,255,.16)"/>' +
+        '<stop offset="1" stop-color="rgba(255,255,255,0)"/></radialGradient>' +
+      /* the polish is kept inside the slice it belongs to */
+      '<clipPath id="pgClip"><path d="' + pieTop(chosen.a1, chosen.a2) + '"/></clipPath>'
     : "");
 
   const hair = dark ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.5)";
   const walls = [], tops = [];
   spans.forEach((s, i) => {
     const dim = repSelCat && !s.on ? ' opacity="0.42"' : "";
-    const glow = s.on ? ' filter="url(#pgGlow)"' : "";
-    const edge = s.on
-      ? ' stroke="' + (dark ? "rgba(255,255,255,.92)" : "rgba(255,255,255,.96)") + '" stroke-width="1.6"'
-      : ' stroke="' + hair + '" stroke-width="0.7"';
+    /* the chosen slice is raised, not ringed — an outline sat on top of the
+       shading and read as a sticker rather than as part of the object */
+    const glow = s.on ? ' filter="url(#pgLit)"' : "";
+    const edge = ' stroke="' + hair + '" stroke-width="0.7"';
 
     const w = pieWall(s.a1, s.a2);
     if (w){
@@ -8391,8 +8421,29 @@ function repDrawChart(cats, total){
     '<ellipse cx="' + PIE.cx + '" cy="' + (PIE.cy + PIE.depth + 8) + '" rx="' + (PIE.rx * 1.04) +
       '" ry="' + (PIE.ry * 0.46) + '" fill="url(#pgShadow)"/>' +
     walls.join("") + tops.join("") +
-    /* the sheen goes on last and takes no clicks, so the slices under it stay
-       tappable and the highlight underneath still shows through */
+    /* the chosen slice takes its polish over the top of the flat faces. The
+       hotspot is placed against the slice's own middle rather than the pie's,
+       so a slice on the dark side of the object still shows one — physically a
+       cheat, but a highlight nobody can see is no use as a highlight. */
+    (chosen
+      ? (function(){
+          const mid = (chosen.a1 + chosen.a2) / 2;
+          /* the hotspot is sized to the slice. Left at one size it swallowed a
+             narrow one whole — a three percent slice came back white, its
+             colour gone, which is the opposite of pointing at it. */
+          const k = Math.max(0.3, Math.min(1, (chosen.a2 - chosen.a1) / (Math.PI / 3.2)));
+          const hx = PIE.cx + Math.cos(mid) * PIE.rx * 0.5 - PIE.rx * 0.09 * k;
+          const hy = PIE.cy + Math.sin(mid) * PIE.ry * 0.5 - PIE.ry * 0.22 * k;
+          return '<g clip-path="url(#pgClip)" pointer-events="none">' +
+                 '<path d="' + pieTop(chosen.a1, chosen.a2) + '" fill="url(#pgSheen)"/>' +
+                 '<ellipse cx="' + hx.toFixed(1) + '" cy="' + hy.toFixed(1) +
+                   '" rx="' + (PIE.rx * 0.30 * k).toFixed(1) +
+                   '" ry="' + (PIE.ry * 0.34 * k).toFixed(1) + '" fill="url(#pgHot)"/>' +
+                 "</g>";
+        })()
+      : "") +
+    /* the pie's own sheen goes on last and takes no clicks, so the slices under
+       it stay tappable and the polish underneath still shows through */
     '<ellipse cx="' + PIE.cx + '" cy="' + PIE.cy + '" rx="' + PIE.rx + '" ry="' + PIE.ry +
       '" fill="url(#pgGloss)" pointer-events="none"/>' +
     "</svg>";
