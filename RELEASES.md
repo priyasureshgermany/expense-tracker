@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.36 — 2026-08-28
+- better: Choosing a slice polishes it rather than ringing it: a broad sheen continuing the light already crossing the pie, and a tight highlight over it.
+- fix: A narrow slice came back white when chosen, its colour lost under a highlight bigger than the slice. The highlight is sized to the slice now.
+
 ## 1.1.35 — 2026-08-28
 - better: The pie's slices meet again, with one sheen laid over the whole top face instead of gaps between them.
 - better: Choosing a slice lights it up rather than moving it: brighter colour, a glow and a bright rim, with the rest falling back.
