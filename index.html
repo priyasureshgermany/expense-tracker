@@ -45,6 +45,7 @@ try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documen
   --pos:#0B6B4B;          /* income */
   --pos-soft:#DFF0E8;
   --neg:#A93724;          /* expense */
+  --neg-deep:#6E1B10;     /* due today, or already past */
   --neg-soft:#F8E4E0;
   --warn:#8A5B10;
   --warn-soft:#FBEEDA;
@@ -80,6 +81,7 @@ try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documen
     --pos:#3FCB92;
     --pos-soft:#0F2A20;
     --neg:#FF7F6B;
+    --neg-deep:#F2422A;
     --neg-soft:#2E1712;
     --warn:#E5B25B;
     --warn-soft:#2B2110;
@@ -110,6 +112,7 @@ try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documen
   --pos:#3FCB92;
   --pos-soft:#0F2A20;
   --neg:#FF7F6B;
+  --neg-deep:#F2422A;
   --neg-soft:#2E1712;
   --warn:#E5B25B;
   --warn-soft:#2B2110;
@@ -1407,6 +1410,16 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .hb.g, .nh.g{color:var(--pos)}
 .hb.y, .nh.y{color:#D9A417}
 .hb.r, .nh.r{color:var(--neg)}
+.hb.x, .nh.x{color:var(--neg-deep)}
+/* the broken heart is drawn rather than typed: there is no monochrome one in
+   Unicode, and the emoji brings its own colour, which would ignore the tone */
+.hb svg, .nh svg{display:block;fill:currentColor}
+/* a drawn heart is wider than the typed one, so both sit in a box of the same
+   width and are centred in it — otherwise the labels step out of line */
+.hb, .nh{display:inline-flex;align-items:center;justify-content:center}
+.legend .hb{width:14px}
+.legend .hb svg{width:13px;height:13px}
+.nrow .nh svg{width:15px;height:15px}
 
 .nrow{
   display:flex;align-items:center;gap:10px;width:100%;text-align:left;
@@ -2568,14 +2581,15 @@ html.locked #lockScreen::before{
       </div>
       <div class="note" style="margin-top:10px">
         Reminders appear on the bell in the top bar, and are counted from
-        <b>8am</b> on the day they start. They stay there until you open the
+        <b>5am</b> on the day they start. They stay there until you open the
         bell. Nothing leaves this device and nothing is sent to your phone —
         the app has to be open to show them.
       </div>
       <div class="legend">
         <div><span class="hb g">♥</span> three days away</div>
         <div><span class="hb y">♥</span> two days away</div>
-        <div><span class="hb r">♥</span> tomorrow, today, or overdue</div>
+        <div><span class="hb r">♥</span> tomorrow</div>
+        <div><span class="hb x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.4 20.6C11.4 20.6 3 14.4 3 8.9A4.9 4.9 0 0 1 11.4 5.4L9.6 9.1 12.4 11.3 10.2 14.3 11.4 20.6Z"/><path d="M13.4 20.6L14.6 14.3 12.4 11.3 15.2 9.1 13.4 5.4A4.9 4.9 0 0 1 21.8 8.9C21.8 14.4 13.4 20.6 13.4 20.6Z"/></svg></span> due today, or overdue</div>
       </div>
     </div>
 
@@ -2677,8 +2691,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.28";
-const APP_BUILT = "2026-08-27";
+const APP_VERSION = "1.1.29";
+const APP_BUILT = "2026-08-28";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -4977,20 +4991,20 @@ function nextDue(rule){
 }
 /* =========================================================================
    REMINDERS — in-app only, because a page that isn't open cannot wake itself
-   without a push server. A reminder for a given day counts from 8am that day;
+   without a push server. A reminder for a given day counts from 5am that day;
    the bell keeps its dot until the panel is opened, and the day it was last
    cleared is remembered so a new one shows up tomorrow morning.
    ========================================================================= */
 const NOTIF_ON_KEY  = "panappai.notif.on";
 const NOTIF_SEEN_KEY = "panappai.notif.seen";   /* the last day cleared, ISO */
-const NOTIF_HOUR = 8;
+const NOTIF_HOUR = 5;
 
 function notifOn(){ return localStorage.getItem(NOTIF_ON_KEY) === "1"; }
 function notifSetOn(v){ localStorage.setItem(NOTIF_ON_KEY, v ? "1" : "0"); }
 function notifSeen(){ return localStorage.getItem(NOTIF_SEEN_KEY) || ""; }
 function notifMarkSeen(){ localStorage.setItem(NOTIF_SEEN_KEY, todayISO()); }
 
-/** The day reminders are live for: today once it's 8am, else yesterday's. */
+/** The day reminders are live for: today once it's 5am, else yesterday's. */
 function notifDay(){
   const now = new Date();
   if (now.getHours() >= NOTIF_HOUR) return todayISO();
@@ -5021,11 +5035,25 @@ function dueSoon(){
     .sort((a, b) => a.d - b.d || b.t.amount - a.t.amount);
 }
 
-/** Green three days out, amber two, red from tomorrow on. */
+/** Green three days out, amber two, red tomorrow, and a deeper red once
+    something has actually fallen due. */
 function dueTone(d){
   if (d >= 3) return "g";
   if (d === 2) return "y";
-  return "r";
+  if (d === 1) return "r";
+  return "x";
+}
+
+/* Anything still coming keeps a whole heart; anything due today or already
+   past gets a broken one, so the state reads without the colour. */
+const HEART_BROKEN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.4 20.6C11.4 20.6 3 14.4 3 8.9A4.9 4.9 0 0 1 11.4 5.4L9.6 9.1 12.4 11.3 10.2 14.3 11.4 20.6Z"/><path d="M13.4 20.6L14.6 14.3 12.4 11.3 15.2 9.1 13.4 5.4A4.9 4.9 0 0 1 21.8 8.9C21.8 14.4 13.4 20.6 13.4 20.6Z"/></svg>';
+
+/** The badge for a tone, as a span ready to be placed. */
+function dueHeart(tone, cls){
+  const n = el("span", (cls || "hb") + " " + tone);
+  if (tone === "x") n.innerHTML = HEART_BROKEN;
+  else n.textContent = "\u2665";
+  return n;
 }
 function dueWords(d){
   if (d < 0) return d === -1 ? "Overdue by a day" : "Overdue by " + (-d) + " days";
@@ -5060,7 +5088,7 @@ function renderBell(){
     const c = catOf(o.t.category);
     const row = el("button", "nrow");
     row.type = "button";
-    row.appendChild(el("span", "nh " + dueTone(o.d), "♥"));
+    row.appendChild(dueHeart(dueTone(o.d), "nh"));
 
     const m = el("div", "nm");
     m.appendChild(el("div", "nt", o.t.note || c.n));
