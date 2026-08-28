@@ -827,7 +827,7 @@ button.tile:hover .tile-go{color:var(--accent)}
   padding:8px 8px;border-radius:10px;text-align:left;transition:background .14s;
 }
 .rp-lg:hover{background:var(--surface-2)}
-.rp-sw{width:11px;height:11px;border-radius:3px;flex:none}
+.rp-sw{width:12px;height:12px;border-radius:4px;flex:none;box-shadow:0 1px 2px rgba(15,25,34,.18)}
 .rp-ln{font-size:12.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rp-lp{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .rp-la{font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
@@ -3007,7 +3007,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.33";
+const APP_VERSION = "1.1.34";
 const APP_BUILT = "2026-08-28";
 
 const KEY = "panappai.v1";
@@ -8245,27 +8245,48 @@ function repByCategory(rows){
 }
 
 /* ---------- the pie ----------
-   Drawn in projection rather than flat: the circle is squashed into an ellipse
-   and every slice is given a wall dropping from its outer edge, which is all a
-   3D pie ever is. Only the front half of a slice's arc can be seen, so a wall
-   is drawn over the part of its range that falls in the near half and nothing
-   is drawn for the rest. Walls go down first and the flat tops over them, which
-   is enough ordering here — the tops all sit at one height, so none of them can
+   Drawn in projection: the circle squashed into an ellipse, each slice given a
+   wall dropping from its outer edge. Only the front half of an arc can be seen,
+   so a wall covers whatever part of a slice's range falls in the near half and
+   nothing is drawn for the rest. Walls are painted first and the flat tops over
+   them, which is ordering enough — the tops all sit at one height, so none can
    hide another.
 
-   A tapped slice slides out along its own bisector and lifts a little, and the
-   card underneath says what it is. */
-const PIE = { cx:100, cy:74, rx:78, ry:43, depth:17, pop:11, lift:5 };
+   Three things do the work of looking solid. Every face is filled with a
+   gradient laid out in the pie's own coordinates rather than each slice's box,
+   so the light falls one way across the whole thing instead of turning with
+   each wedge. The tops carry a third stop near the top edge, which reads as
+   sheen. And every face is stroked in its own fill with a round join, which
+   rounds the corners a wedge would otherwise come to a point at.
+
+   Slices are also held a hair apart. A gap costs a little accuracy in the
+   angles, which is why it is small and why it shrinks rather than swallowing a
+   slice too narrow to give it up. */
+/* the round stroke gives every face back about half its width at the edge,
+   so the gap has to be wider than the separation actually wanted */
+const PIE = { cx:100, cy:76, rx:78, ry:42, depth:18, pop:12, lift:5, gap:0.055, round:3 };
 
 let repSelCat = null;      /* the slice pulled out, by category id */
 
 const pieX = a => PIE.cx + PIE.rx * Math.cos(a);
 const pieY = a => PIE.cy + PIE.ry * Math.sin(a);
 
-/** A darker shade of a category's colour, for the wall under its top face. */
-function pieSide(h, dark){
-  return dark ? "hsl(" + h + " 70% 46%)" : "hsl(" + h + " 64% 21%)";
+/**
+ * A category's colour built up for a lit solid, keeping its hue so the category
+ * stays the colour it always is, but carried at a strength the ledger's quieter
+ * tints could not hold on a shape this size.
+ */
+function pieShades(h, dark){
+  return {
+    lit:  "hsl(" + h + " 92% " + (dark ? 74 : 70) + "%)",
+    top:  "hsl(" + h + " 80% " + (dark ? 62 : 56) + "%)",
+    base: "hsl(" + h + " 72% " + (dark ? 50 : 45) + "%)",
+    wall: "hsl(" + h + " 68% " + (dark ? 36 : 32) + "%)",
+    foot: "hsl(" + h + " 66% " + (dark ? 25 : 22) + "%)"
+  };
 }
+/** The one flat colour that stands for a slice away from the pie. */
+function pieSwatch(h, dark){ return pieShades(h, dark).base; }
 
 /** The wedge of the top face between two angles. */
 function pieTop(a1, a2){
@@ -8311,37 +8332,62 @@ function repDrawChart(cats, total){
   let at = -Math.PI / 2;
   const spans = cats.map(c => {
     const span = (c.total / total) * Math.PI * 2;
-    const s = { c:c, a1:at, a2:at + span };
+    const s = { c:c, a1:at, a2:at + span, span:span };
     at += span;
     return s;
   });
 
-  const walls = [], tops = [];
-  spans.forEach(s => {
-    const mid = (s.a1 + s.a2) / 2;
-    const outIsOn = repSelCat === s.c.id;
-    /* out along its own bisector, and up, so a pulled slice reads as lifted
-       rather than merely moved */
-    const dx = outIsOn ? Math.cos(mid) * PIE.pop : 0;
-    const dy = outIsOn ? Math.sin(mid) * PIE.pop * (PIE.ry / PIE.rx) - PIE.lift : 0;
-    const shift = ' transform="translate(' + dx.toFixed(2) + ' ' + dy.toFixed(2) + ')"';
-    const dim = repSelCat && !outIsOn ? ' opacity="0.55"' : "";
+  /* the gradients are laid out over the pie, not over each slice's own box, so
+     the light comes from one direction for the whole solid */
+  const yTop = PIE.cy - PIE.ry, yBot = PIE.cy + PIE.ry + PIE.depth;
+  const defs = spans.map((s, i) => {
+    const k = pieShades(s.c.h, dark);
+    return '<linearGradient id="pgt' + i + '" gradientUnits="userSpaceOnUse" ' +
+             'x1="0" y1="' + yTop + '" x2="0" y2="' + (PIE.cy + PIE.ry) + '">' +
+             '<stop offset="0" stop-color="' + k.lit + '"/>' +
+             '<stop offset="0.42" stop-color="' + k.top + '"/>' +
+             '<stop offset="1" stop-color="' + k.base + '"/></linearGradient>' +
+           '<linearGradient id="pgw' + i + '" gradientUnits="userSpaceOnUse" ' +
+             'x1="0" y1="' + PIE.cy + '" x2="0" y2="' + yBot + '">' +
+             '<stop offset="0" stop-color="' + k.wall + '"/>' +
+             '<stop offset="1" stop-color="' + k.foot + '"/></linearGradient>';
+  }).join("");
 
-    const w = pieWall(s.a1, s.a2);
+  const walls = [], tops = [];
+  spans.forEach((s, i) => {
+    /* the gap is taken off both ends, but never more than a quarter of a
+       narrow slice, so a one-percent category does not disappear into it */
+    const pad = Math.min(PIE.gap, s.span / 4);
+    const a1 = s.a1 + pad, a2 = s.a2 - pad;
+    const mid = (s.a1 + s.a2) / 2;
+    const isOut = repSelCat === s.c.id;
+    const dx = isOut ? Math.cos(mid) * PIE.pop : 0;
+    const dy = isOut ? Math.sin(mid) * PIE.pop * (PIE.ry / PIE.rx) - PIE.lift : 0;
+    const shift = ' transform="translate(' + dx.toFixed(2) + ' ' + dy.toFixed(2) + ')"';
+    const dim = repSelCat && !isOut ? ' opacity="0.5"' : "";
+    /* stroked in its own fill: that is what rounds the corners */
+    const round = ' stroke-width="' + PIE.round + '" stroke-linejoin="round"';
+
+    const w = pieWall(a1, a2);
     if (w){
-      walls.push('<path class="pie-wall" d="' + w + '" fill="' + pieSide(s.c.h, dark) + '"' +
-                 shift + dim + "></path>");
+      walls.push('<path class="pie-wall" d="' + w + '" fill="url(#pgw' + i + ')" ' +
+                 'stroke="url(#pgw' + i + ')"' + round + shift + dim + "></path>");
     }
-    tops.push('<path class="pie-top" d="' + pieTop(s.a1, s.a2) + '" fill="' + tintInk(s.c.h, dark) +
-              '" stroke="' + (dark ? "rgba(0,0,0,.35)" : "rgba(255,255,255,.65)") +
-              '" stroke-width="1" data-cat="' + esc(s.c.id) + '"' + shift + dim +
-              "><title>" + esc(s.c.n) + " · " + esc(fmt(s.c.total)) + "</title></path>");
+    tops.push('<path class="pie-top" d="' + pieTop(a1, a2) + '" fill="url(#pgt' + i + ')" ' +
+              'stroke="url(#pgt' + i + ')"' + round + shift + dim +
+              ' data-cat="' + esc(s.c.id) + '">' +
+              "<title>" + esc(s.c.n) + " · " + esc(fmt(s.c.total)) + "</title></path>");
   });
 
   host.innerHTML =
-    '<svg viewBox="0 0 200 152" role="img" aria-label="Expenses by category">' +
-    '<ellipse cx="' + PIE.cx + '" cy="' + (PIE.cy + PIE.depth + 4) + '" rx="' + (PIE.rx * 0.92) +
-    '" ry="' + (PIE.ry * 0.42) + '" fill="' + (dark ? "rgba(0,0,0,.35)" : "rgba(15,25,34,.10)") + '"/>' +
+    '<svg viewBox="0 0 200 156" role="img" aria-label="Expenses by category">' +
+    "<defs>" + defs +
+      '<radialGradient id="pgShadow">' +
+        '<stop offset="0" stop-color="' + (dark ? "rgba(0,0,0,.55)" : "rgba(15,25,34,.22)") + '"/>' +
+        '<stop offset="1" stop-color="rgba(0,0,0,0)"/></radialGradient>' +
+    "</defs>" +
+    '<ellipse cx="' + PIE.cx + '" cy="' + (PIE.cy + PIE.depth + 7) + '" rx="' + (PIE.rx * 1.02) +
+      '" ry="' + (PIE.ry * 0.44) + '" fill="url(#pgShadow)"/>' +
     walls.join("") + tops.join("") +
     "</svg>";
 
@@ -8350,6 +8396,7 @@ function repDrawChart(cats, total){
   });
   repDrawInfo(cats.find(c => c.id === repSelCat) || null, total);
 }
+
 
 /** Tapping the same slice again puts it back. */
 function repPick(id){
@@ -8372,7 +8419,7 @@ function repDrawInfo(cat, total){
 
   const head = el("div", "rp-i-h");
   const sw = el("span", "rp-sw");
-  sw.style.background = tintInk(cat.h, dark);
+  sw.style.background = pieSwatch(cat.h, dark);
   head.appendChild(sw);
   const nm = el("b", null, cat.n);
   nm.style.color = tintInk(cat.h, dark);
@@ -8409,7 +8456,7 @@ function repDrawLegend(cats, total){
     const row = el("button", "rp-lg" + (repSelCat === c.id ? " on" : ""));
     row.type = "button";
     const sw = el("span", "rp-sw");
-    sw.style.background = tintInk(c.h, dark);
+    sw.style.background = pieSwatch(c.h, dark);
     row.appendChild(sw);
     row.appendChild(el("span", "rp-ln", c.n));
     row.appendChild(el("span", "rp-lp", ((c.total / total) * 100).toFixed(1) + "%"));
