@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.33 — 2026-08-28
+- better: The report's chart is a pie drawn in projection now, with a wall under each slice, rather than a flat ring.
+- new: Tapping a slice slides it out and lifts it, fades the rest back, and shows what it is, what it came to, its share, how many entries and their average — with a way straight into those entries.
+
 ## 1.1.32 — 2026-08-28
 - new: Reports takes the place of Recurring entries in More: a ring of expenses by category and a filterable table of every line, over a week, month, year, the last twelve months or dates you pick.
 - new: A report exports to PDF through the device's own print, and to a real .xlsx where dates are dates and amounts are numbers.

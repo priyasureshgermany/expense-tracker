@@ -801,12 +801,25 @@ button.tile:hover .tile-go{color:var(--accent)}
 }
 .tabbar2 button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
 
-.rp-chart{display:grid;place-items:center;padding:6px 0 14px}
-.rp-chart svg{width:min(230px,62vw);height:auto}
-.rp-hole-a{font-size:9px;letter-spacing:.1em;text-transform:uppercase;fill:var(--ink-3)}
-.rp-hole-b{font-size:15px;font-weight:700;fill:var(--ink)}
-.rp-slice{transition:opacity .15s}
-.rp-slice:hover{opacity:.82}
+.rp-chart{display:grid;place-items:center;padding:10px 0 6px}
+.rp-chart svg{width:min(300px,84vw);height:auto;overflow:visible}
+/* the pull-out is a transform, so it animates for free */
+.pie-top,.pie-wall{transition:transform .22s cubic-bezier(.34,1.4,.64,1),opacity .18s}
+.pie-top{cursor:pointer}
+@media (hover:hover){ .pie-top:hover{filter:brightness(1.08)} }
+@media (prefers-reduced-motion:reduce){ .pie-top,.pie-wall{transition:none} }
+
+.rp-hint{font-size:11px;color:var(--ink-3);text-align:center;margin-bottom:12px}
+.rp-info{
+  border:1px solid;border-radius:14px;padding:13px 14px;margin:2px 0 14px;
+}
+.rp-i-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.rp-i-h b{font-size:13.5px;font-weight:700;letter-spacing:-.005em}
+.rp-i-a{font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.rp-i-s{font-size:11.5px;color:var(--ink-2);margin-top:5px;line-height:1.45}
+.rp-info .btn.ghost{background:var(--surface);border-color:var(--line)}
+
+.rp-lg.on{background:var(--surface-sunk);box-shadow:inset 0 0 0 1px var(--line-strong)}
 
 .rp-legend{display:flex;flex-direction:column;gap:2px}
 .rp-lg{
@@ -884,6 +897,7 @@ button.tile:hover .tile-go{color:var(--accent)}
   .rp-table thead th{background:#eee !important;color:#000 !important}
   .rp-table tbody tr{break-inside:avoid}
   .rp-chart{break-inside:avoid;break-after:avoid}
+  .rp-hint{display:none !important}
   .rp-print-only{display:block !important}
 }
 .rp-print-only{display:none}
@@ -2682,6 +2696,8 @@ html.locked #lockScreen::before{
     <!-- 1 : the shape of it -->
     <div class="rp-pane" id="repPane_chart">
       <div class="rp-chart" id="repChart"></div>
+      <div class="rp-info" id="repInfo" hidden></div>
+      <div class="rp-hint" id="repHint">Tap a slice to pull it out</div>
       <div class="rp-legend" id="repLegend"></div>
     </div>
 
@@ -2991,7 +3007,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.32";
+const APP_VERSION = "1.1.33";
 const APP_BUILT = "2026-08-28";
 
 const KEY = "panappai.v1";
@@ -8228,38 +8244,161 @@ function repByCategory(rows){
   return [...by.values()].sort((a, b) => b.total - a.total);
 }
 
-/* ---------- the ring ----------
-   Drawn as dashed circles rather than arc paths: with pathLength set to 100
-   every slice is written in percent, which is what the legend says anyway, and
-   there is no arc maths to get wrong at the wrap-around. */
+/* ---------- the pie ----------
+   Drawn in projection rather than flat: the circle is squashed into an ellipse
+   and every slice is given a wall dropping from its outer edge, which is all a
+   3D pie ever is. Only the front half of a slice's arc can be seen, so a wall
+   is drawn over the part of its range that falls in the near half and nothing
+   is drawn for the rest. Walls go down first and the flat tops over them, which
+   is enough ordering here — the tops all sit at one height, so none of them can
+   hide another.
+
+   A tapped slice slides out along its own bisector and lifts a little, and the
+   card underneath says what it is. */
+const PIE = { cx:100, cy:74, rx:78, ry:43, depth:17, pop:11, lift:5 };
+
+let repSelCat = null;      /* the slice pulled out, by category id */
+
+const pieX = a => PIE.cx + PIE.rx * Math.cos(a);
+const pieY = a => PIE.cy + PIE.ry * Math.sin(a);
+
+/** A darker shade of a category's colour, for the wall under its top face. */
+function pieSide(h, dark){
+  return dark ? "hsl(" + h + " 70% 46%)" : "hsl(" + h + " 64% 21%)";
+}
+
+/** The wedge of the top face between two angles. */
+function pieTop(a1, a2){
+  if (a2 - a1 >= Math.PI * 2 - 1e-6){
+    /* one category holds everything: an arc from a point back to itself draws
+       nothing at all, so the whole ellipse is the face */
+    return "M " + (PIE.cx - PIE.rx) + " " + PIE.cy +
+           " a " + PIE.rx + " " + PIE.ry + " 0 1 0 " + (PIE.rx * 2) + " 0" +
+           " a " + PIE.rx + " " + PIE.ry + " 0 1 0 " + (-PIE.rx * 2) + " 0 Z";
+  }
+  const large = (a2 - a1) > Math.PI ? 1 : 0;
+  return "M " + PIE.cx + " " + PIE.cy +
+         " L " + pieX(a1).toFixed(2) + " " + pieY(a1).toFixed(2) +
+         " A " + PIE.rx + " " + PIE.ry + " 0 " + large + " 1 " +
+         pieX(a2).toFixed(2) + " " + pieY(a2).toFixed(2) + " Z";
+}
+
+/** The wall below the outer edge, over whatever part of it faces the front. */
+function pieWall(a1, a2){
+  const b1 = Math.max(a1, 0), b2 = Math.min(a2, Math.PI);
+  if (b2 <= b1) return "";                       /* this slice is round the back */
+  const large = (b2 - b1) > Math.PI ? 1 : 0;
+  const d = PIE.depth;
+  return "M " + pieX(b1).toFixed(2) + " " + pieY(b1).toFixed(2) +
+         " A " + PIE.rx + " " + PIE.ry + " 0 " + large + " 1 " +
+         pieX(b2).toFixed(2) + " " + pieY(b2).toFixed(2) +
+         " L " + pieX(b2).toFixed(2) + " " + (pieY(b2) + d).toFixed(2) +
+         " A " + PIE.rx + " " + PIE.ry + " 0 " + large + " 0 " +
+         pieX(b1).toFixed(2) + " " + (pieY(b1) + d).toFixed(2) + " Z";
+}
+
 function repDrawChart(cats, total){
   const host = $("#repChart");
   host.innerHTML = "";
   if (!cats.length || !total){
     host.innerHTML = '<div class="rp-empty">Nothing spent in this stretch.</div>';
+    repSelCat = null;
+    repDrawInfo(null, 0);
     return;
   }
   const dark = isDark();
-  const R = 60, C = 100;              /* pathLength 100 => dasharray in percent */
-  let at = 0;
-  const parts = cats.map(c => {
-    const pct = (c.total / total) * 100;
-    const seg =
-      '<circle class="rp-slice" cx="80" cy="80" r="' + R + '" fill="none" pathLength="' + C + '"' +
-      ' stroke="' + tintInk(c.h, dark) + '" stroke-width="26"' +
-      ' stroke-dasharray="' + pct.toFixed(3) + ' ' + (100 - pct).toFixed(3) + '"' +
-      ' stroke-dashoffset="' + (-at).toFixed(3) + '"><title>' +
-      esc(c.n) + " · " + fmt(c.total) + '</title></circle>';
-    at += pct;
-    return seg;
-  }).join("");
+  /* twelve o'clock is -90 degrees, and the angle runs clockwise from there */
+  let at = -Math.PI / 2;
+  const spans = cats.map(c => {
+    const span = (c.total / total) * Math.PI * 2;
+    const s = { c:c, a1:at, a2:at + span };
+    at += span;
+    return s;
+  });
+
+  const walls = [], tops = [];
+  spans.forEach(s => {
+    const mid = (s.a1 + s.a2) / 2;
+    const outIsOn = repSelCat === s.c.id;
+    /* out along its own bisector, and up, so a pulled slice reads as lifted
+       rather than merely moved */
+    const dx = outIsOn ? Math.cos(mid) * PIE.pop : 0;
+    const dy = outIsOn ? Math.sin(mid) * PIE.pop * (PIE.ry / PIE.rx) - PIE.lift : 0;
+    const shift = ' transform="translate(' + dx.toFixed(2) + ' ' + dy.toFixed(2) + ')"';
+    const dim = repSelCat && !outIsOn ? ' opacity="0.55"' : "";
+
+    const w = pieWall(s.a1, s.a2);
+    if (w){
+      walls.push('<path class="pie-wall" d="' + w + '" fill="' + pieSide(s.c.h, dark) + '"' +
+                 shift + dim + "></path>");
+    }
+    tops.push('<path class="pie-top" d="' + pieTop(s.a1, s.a2) + '" fill="' + tintInk(s.c.h, dark) +
+              '" stroke="' + (dark ? "rgba(0,0,0,.35)" : "rgba(255,255,255,.65)") +
+              '" stroke-width="1" data-cat="' + esc(s.c.id) + '"' + shift + dim +
+              "><title>" + esc(s.c.n) + " · " + esc(fmt(s.c.total)) + "</title></path>");
+  });
 
   host.innerHTML =
-    '<svg viewBox="0 0 160 160" role="img" aria-label="Expenses by category">' +
-    '<g transform="rotate(-90 80 80)">' + parts + '</g>' +
-    '<text class="rp-hole-a" x="80" y="74" text-anchor="middle">Spent</text>' +
-    '<text class="rp-hole-b" x="80" y="92" text-anchor="middle">' + esc(fmt(total)) + '</text>' +
-    '</svg>';
+    '<svg viewBox="0 0 200 152" role="img" aria-label="Expenses by category">' +
+    '<ellipse cx="' + PIE.cx + '" cy="' + (PIE.cy + PIE.depth + 4) + '" rx="' + (PIE.rx * 0.92) +
+    '" ry="' + (PIE.ry * 0.42) + '" fill="' + (dark ? "rgba(0,0,0,.35)" : "rgba(15,25,34,.10)") + '"/>' +
+    walls.join("") + tops.join("") +
+    "</svg>";
+
+  $$("#repChart .pie-top").forEach(node => {
+    node.addEventListener("click", () => repPick(node.dataset.cat));
+  });
+  repDrawInfo(cats.find(c => c.id === repSelCat) || null, total);
+}
+
+/** Tapping the same slice again puts it back. */
+function repPick(id){
+  repSelCat = repSelCat === id ? null : id;
+  repRender();
+}
+
+/** What the pulled-out slice is, said in words under the chart. */
+function repDrawInfo(cat, total){
+  const host = $("#repInfo");
+  host.innerHTML = "";
+  if (!cat){
+    host.hidden = true;
+    return;
+  }
+  host.hidden = false;
+  const dark = isDark();
+  host.style.background = tint(cat.h, dark);
+  host.style.borderColor = tintInk(cat.h, dark);
+
+  const head = el("div", "rp-i-h");
+  const sw = el("span", "rp-sw");
+  sw.style.background = tintInk(cat.h, dark);
+  head.appendChild(sw);
+  const nm = el("b", null, cat.n);
+  nm.style.color = tintInk(cat.h, dark);
+  head.appendChild(nm);
+  host.appendChild(head);
+
+  const amt = el("div", "rp-i-a", fmt(cat.total));
+  amt.style.color = tintInk(cat.h, dark);
+  host.appendChild(amt);
+
+  host.appendChild(el("div", "rp-i-s",
+    ((cat.total / total) * 100).toFixed(1) + "% of what you spent  ·  " +
+    cat.count + " entr" + (cat.count === 1 ? "y" : "ies") + "  ·  " +
+    fmt(Math.round(cat.total / cat.count)) + " on average"));
+
+  const go = el("button", "btn ghost sm", "See these entries");
+  go.type = "button";
+  go.style.marginTop = "10px";
+  go.addEventListener("click", () => {
+    repCat = cat.id;
+    repKind = "expense";
+    syncChips("#repKind", "kind", repKind);
+    repSetTab("table");
+    repRender();
+  });
+  host.appendChild(go);
 }
 
 function repDrawLegend(cats, total){
@@ -8267,7 +8406,7 @@ function repDrawLegend(cats, total){
   host.innerHTML = "";
   const dark = isDark();
   cats.forEach(c => {
-    const row = el("button", "rp-lg");
+    const row = el("button", "rp-lg" + (repSelCat === c.id ? " on" : ""));
     row.type = "button";
     const sw = el("span", "rp-sw");
     sw.style.background = tintInk(c.h, dark);
@@ -8277,18 +8416,12 @@ function repDrawLegend(cats, total){
     const amt = el("span", "rp-la", fmt(c.total));
     amt.style.color = tintInk(c.h, dark);
     row.appendChild(amt);
-    /* the natural question after seeing a slice is what is in it */
-    row.addEventListener("click", () => {
-      repCat = c.id;
-      repKind = "expense";
-      syncChips("#repKind", "kind", repKind);
-      repSetTab("table");
-      repRender();
-      toast(c.n + " — " + c.count + " entr" + (c.count === 1 ? "y" : "ies"));
-    });
+    /* the legend picks the same slice the pie does, so the two never disagree */
+    row.addEventListener("click", () => repPick(c.id));
     host.appendChild(row);
   });
 }
+
 
 /* ---------- the table ---------- */
 const REP_COLS = [
