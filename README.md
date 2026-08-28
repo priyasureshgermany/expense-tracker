@@ -332,11 +332,17 @@ only one reading, so the toggle hides for those.
 
 **Chart** shows expenses as a pie drawn in projection — the circle squashed into
 an ellipse with a wall dropped from each slice's outer edge — every slice the
-colour that category always is. Tap a slice and it slides out along its own
-bisector and lifts, the rest fade back, and a card underneath gives the name,
-the amount, the share, how many entries and the average of them. Tap it again
-to put it back. The legend picks the same slice, so the two never disagree, and
-**See these entries** on the card drops into the table filtered to it.
+colour that category always is. The slices meet, and the light is applied to the
+whole object rather than to each piece: the gradients are laid out in the pie's
+own coordinates so the fall of light carries across a boundary, and one sheen is
+laid over the top face after every slice is down.
+
+Tapping a slice lights it rather than moving it — a brighter mix of its own
+colour, a glow, and a bright rim, with the others falling back. Nothing shifts,
+so the sheen stays registered with the surface underneath. A card beneath gives
+the name, the amount, the share, how many entries and their average; tap the
+slice again to clear it. The legend picks the same slice, so the two never
+disagree, and **See these entries** drops into the table filtered to it.
 
 **Details** is every entry, with date, type, category, note, account, income and
 expense. Sort by tapping a column. Narrow it with the search box (notes,

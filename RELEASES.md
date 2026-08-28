@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.35 — 2026-08-28
+- better: The pie's slices meet again, with one sheen laid over the whole top face instead of gaps between them.
+- better: Choosing a slice lights it up rather than moving it: brighter colour, a glow and a bright rim, with the rest falling back.
+
 ## 1.1.34 — 2026-08-28
 - better: The report's pie is shaded rather than flat: every face carries a gradient lit from one direction, the colours are stronger, and the slices are rounded and held slightly apart.
 
