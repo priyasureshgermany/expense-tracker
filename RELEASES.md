@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.43 — 2026-08-29
+- fix: See these entries came up empty when the slice was transfers seen from one account. It asked for expenses, and a transfer is not one — the chart had counted it as money out of that account, which is a different question.
+
 ## 1.1.42 — 2026-08-29
 - new: An eye in the Reports header shows or hides the amounts without leaving the report. It flips the same setting the one in the top bar does.
 

@@ -3108,7 +3108,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.42";
+const APP_VERSION = "1.1.43";
 const APP_BUILT = "2026-08-29";
 
 const KEY = "panappai.v1";
@@ -8836,7 +8836,14 @@ function repDrawInfo(cat, total){
   go.style.marginTop = "10px";
   go.addEventListener("click", () => {
     repCat = cat.id;
-    repKind = "expense";
+    /* Not "expense", which is what this used to say. The ring counts a slice by
+       which side it falls on, and with an account chosen a transfer out of it
+       falls on the expense side — but the kind chip tests t.type, where that
+       same row is a transfer. Asking for expenses therefore threw away the very
+       rows the slice was built from, and the drill-through landed on nothing.
+       The category alone is the right filter: a category id belongs to one kind
+       already, so this narrows to the slice without contradicting it. */
+    repKind = "all";
     syncChips("#repKind", "kind", repKind);
     repSetTab("table");
     repRender();
