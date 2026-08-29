@@ -692,6 +692,7 @@ button.tile:hover .tile-go{color:var(--accent)}
 .sf-v{font-size:12.5px;color:var(--ink-2);font-family:var(--mono);font-variant-numeric:tabular-nums}
 /* the native date control has a wide intrinsic size — pin it so it can't overflow the card */
 .sf-date-host{flex:none;width:168px;max-width:100%}
+.sf-acct{flex:none;width:168px;max-width:100%}
 .sf-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
 .sf-check input{width:16px;height:16px;accent-color:var(--accent)}
 .shophist{display:flex;flex-direction:column;gap:7px}
@@ -2145,6 +2146,10 @@ html.locked #lockScreen::before{
         <label class="sf-k" for="shopDate">Purchased on</label>
         <input class="sf-date" id="shopDate" type="date">
       </div>
+      <div class="sf-row" id="shopAcctRow">
+        <div class="sf-k">Paid from</div>
+        <div class="pick sf-acct" id="shopAcct" role="listbox" aria-label="Account"></div>
+      </div>
       <label class="sf-check">
         <input type="checkbox" id="shopLogExpense" checked>
         <span>Also log it as a groceries expense</span>
@@ -2599,7 +2604,11 @@ html.locked #lockScreen::before{
       <label for="purchTotal">Total bill</label>
       <input class="inp purch-total-in" id="purchTotal" type="text" inputmode="decimal" placeholder="€ 0,00" autocomplete="off">
     </div>
-    <button class="btn sm" id="purchSave" style="margin-top:12px">Save total</button>
+    <div class="purch-total" id="purchAcctRow" style="margin-top:8px">
+      <label>Paid from</label>
+      <div class="pick" id="purchAcct" role="listbox" aria-label="Account" style="width:168px;max-width:100%"></div>
+    </div>
+    <button class="btn sm" id="purchSave" style="margin-top:12px">Save purchase</button>
     <div class="note" id="purchNote" style="margin-top:10px"></div>
   </div>
 </section>
@@ -3049,7 +3058,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.37";
+const APP_VERSION = "1.1.38";
 const APP_BUILT = "2026-08-29";
 
 const KEY = "panappai.v1";
@@ -6239,6 +6248,12 @@ $("#clearDemo").addEventListener("click", async () => {
    date, and can post the total to the ledger as a groceries expense.
    ========================================================================= */
 let store = "de";
+/* Which account the shop was paid from. Kept next to the date on the form
+   because it is the same kind of fact about the purchase, and remembered
+   between shops — the card you pay with rarely changes week to week. Declared
+   here rather than beside its renderer: renderShop() runs from several places,
+   and a `let` is unreachable until its own line has run. */
+let shopAccount = null;
 const STORE_LABEL = { de:"German stores", in:"Indian stores" };
 const STORE_SHORT = { de:"DE", in:"IN" };
 /* so a shop lands in the matching grocery budget rather than one lump category */
@@ -6427,6 +6442,7 @@ function updateShopSummary(){
   $("#shopFinish").hidden = checked.length === 0;
   $("#sfCount").textContent = checked.length;
   if (!$("#shopDate").value) setDateVal("#shopDate", todayISO());
+  renderShopAccount();
 }
 
 function shopRow(item){
@@ -6505,6 +6521,20 @@ function renderShopHistory(){
 
 /** Detail of one saved shop, opened from the Recent purchases list. */
 let editingPurchase = null;
+let purchAccount = null;
+
+/** The account on a saved purchase, correctable like its total. */
+function renderPurchAccount(){
+  const list = accountsOf();
+  $("#purchAcctRow").hidden = !list.length;
+  if (!list.length) return;
+  if (purchAccount && !list.some(a => a.id === purchAccount)) purchAccount = null;
+  renderChoice($("#purchAcct"),
+    [{ v:"", n:"Not recorded", none:true }].concat(
+      list.map(a => ({ v:a.id, n:a.n, ic:ACCT_ICON[a.kind] || ACCT_ICON.bank }))),
+    purchAccount || "",
+    v => { purchAccount = v || null; renderPurchAccount(); });
+}
 
 function openPurchase(h){
   editingPurchase = h;
@@ -6522,6 +6552,8 @@ function openPurchase(h){
   });
 
   $("#purchTotal").value = h.total ? (h.total / 100).toFixed(2).replace(".", ",") : "";
+  purchAccount = h.account || null;
+  renderPurchAccount();
   const linked = h.txnId && state.txns.some(t => t.id === h.txnId);
   $("#purchNote").textContent = linked
     ? "Changing the total updates the groceries expense this shop posted to the ledger."
@@ -6536,10 +6568,13 @@ $("#purchSave").addEventListener("click", () => {
   const total = Math.abs(parseAmount($("#purchTotal").value) || 0);
   h.total = total;
 
+  h.account = purchAccount || null;
+
   const linked = h.txnId ? state.txns.find(t => t.id === h.txnId) : null;
   if (linked){
     if (total > 0){
       linked.amount = total;
+      linked.account = purchAccount || null;
     } else {
       /* a total cleared back to nothing shouldn't leave a €0 row in the ledger */
       state.txns = state.txns.filter(t => t.id !== h.txnId);
@@ -6550,7 +6585,8 @@ $("#purchSave").addEventListener("click", () => {
     const t = {
       id: uid(), type:"expense", amount: total, category: STORE_CAT[h.store] || "groceries_de",
       note: (STORE_LABEL[h.store] || "").replace(" stores", "") + " shopping",
-      date: h.date, status:"done"
+      date: h.date, status:"done",
+      account: purchAccount || null, fromAccount: null
     };
     state.txns.push(t);
     h.txnId = t.id;
@@ -7326,6 +7362,20 @@ $("#scanApply").addEventListener("click", () => {
   toast(updated + " matched, " + added + " added · " + fmt(billed));
 });
 
+function renderShopAccount(){
+  const list = accountsOf();
+  const host = $("#shopAcct");
+  $("#shopAcctRow").hidden = !list.length;      /* nothing to choose from yet */
+  if (!list.length) return;
+  if (shopAccount === null) shopAccount = defaultAccountId();
+  if (shopAccount && !list.some(a => a.id === shopAccount)) shopAccount = null;
+  renderChoice(host,
+    [{ v:"", n:"Not recorded", none:true }].concat(
+      list.map(a => ({ v:a.id, n:a.n, ic:ACCT_ICON[a.kind] || ACCT_ICON.bank }))),
+    shopAccount || "",
+    v => { shopAccount = v || null; renderShopAccount(); });
+}
+
 $("#shopDone").addEventListener("click", () => {
   const arr = shopList();
   const checked = arr.filter(i => i.done);
@@ -7338,6 +7388,7 @@ $("#shopDone").addEventListener("click", () => {
 
   const record = {
     id: uid(), store: store, date: date, total: total,
+    account: shopAccount || null,
     items: checked.map(i => ({ name:i.name, qty:i.qty || "", price:i.price || 0 }))
   };
   state.shop.history.push(record);
@@ -7346,7 +7397,10 @@ $("#shopDone").addEventListener("click", () => {
     userTouched();
     const t = {
       id: uid(), type:"expense", amount: total, category: STORE_CAT[store] || "groceries_de",
-      note: STORE_LABEL[store].replace(" stores", "") + " shopping", date: date, status:"done"
+      note: STORE_LABEL[store].replace(" stores", "") + " shopping", date: date, status:"done",
+      /* so the shop lands on the right account in the balances and the report,
+         rather than as an expense from nowhere */
+      account: shopAccount || null, fromAccount: null
     };
     state.txns.push(t);
     /* remembered so the total can be corrected later without orphaning the entry */

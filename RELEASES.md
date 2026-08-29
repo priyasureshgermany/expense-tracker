@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.38 — 2026-08-29
+- new: A shop records which account it was paid from. Paid from sits under the purchase date, and the account is saved on the purchase and on the ledger entry it posts.
+- better: The account on a saved purchase can be corrected later, like its total, and the linked ledger entry follows.
+
 ## 1.1.37 — 2026-08-29
 - new: Anything that destroys saved work now asks first, in a dialog that names what is about to go — an entry, a recurring entry, an account, every entry at once, the balances, the app lock, and both directions of sync.
 - fix: Clearing the examples, clearing every starting balance and turning off the app lock had no confirmation at all.
