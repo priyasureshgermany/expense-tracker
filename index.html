@@ -3058,7 +3058,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.38";
+const APP_VERSION = "1.1.39";
 const APP_BUILT = "2026-08-29";
 
 const KEY = "panappai.v1";
@@ -3313,6 +3313,20 @@ function todayISO(){
 }
 function monthOf(iso){ return iso.slice(0, 7); }
 function daysInMonth(y, m){ return new Date(y, m, 0).getDate(); }
+
+/**
+ * Whether a string is a date that exists. Written because it turned out one
+ * could not assume so: a month-arithmetic bug once wrote a batch of
+ * occurrences dated 2026-13-01 and the like, and they outlived the fix by
+ * months, because materialise() only ever adds rows and nothing was ever
+ * checking. Cheap to ask, and it makes the answer impossible to get wrong.
+ */
+function validISO(iso){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+  if (!m) return false;
+  const y = +m[1], mo = +m[2], d = +m[3];
+  return mo >= 1 && mo <= 12 && d >= 1 && d <= daysInMonth(y, mo);
+}
 function shiftMonth(ym, n){
   const [y, m] = ym.split("-").map(Number);
   const t = (y * 12) + (m - 1) + n;
@@ -3578,6 +3592,7 @@ function load(){
   migrateBalance();
   migrateBalanceToAccounts();
   migrateLostCats();
+  migrateImpossibleDates();
   refreshCats();
 }
 /** Write to storage only. Used where there is nothing new to send. */
@@ -3595,6 +3610,29 @@ function save(){
 }
 
 /** Create planned entries for every active rule, from 3 months back to 12 ahead. */
+/**
+ * Drops generated occurrences whose date does not exist.
+ *
+ * A month-arithmetic bug wrote sixteen of these into one backup on 24 August
+ * and they were still there five days later: fixing the generator stopped new
+ * ones, but materialise() only adds, so the old ones simply stayed. Only
+ * planned, rule-generated rows go — a settled entry is something you recorded
+ * and is never thrown away on the app's own initiative, however odd its date.
+ * The right occurrences are regenerated on the next materialise().
+ */
+function migrateImpossibleDates(){
+  const before = state.txns.length;
+  state.txns = state.txns.filter(t =>
+    validISO(t.date) || !(t.ruleId && t.status === "planned"));
+  const gone = before - state.txns.length;
+  if (gone) console.info("panappai: removed " + gone + " planned entr" +
+                         (gone === 1 ? "y" : "ies") + " dated to a month that does not exist");
+  /* a skip keyed to an impossible date can never match anything again */
+  if (Array.isArray(state.skips)){
+    state.skips = state.skips.filter(k => validISO(String(k).split("|")[1]));
+  }
+}
+
 function materialise(){
   const horizon = shiftMonth(monthOf(todayISO()), 12) + "-31";
   const floor = shiftMonth(monthOf(todayISO()), -3) + "-01";
@@ -3606,6 +3644,8 @@ function materialise(){
     if (rule.active === false) return;
     for (let n = 0; n < 600; n++){
       const d = occurrence(rule.anchor, rule.freq, n);
+      /* belt and braces: the arithmetic is right now, and was not always */
+      if (!validISO(d)) continue;
       if (d > horizon) break;
       if (rule.endDate && d > rule.endDate) break;
       if (d < floor) continue;

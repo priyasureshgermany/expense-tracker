@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.39 — 2026-08-29
+- fix: Eight planned occurrences dated to a month that does not exist — 2026-13-01 and the like — are cleared out. A month-arithmetic bug wrote them in August and fixing it stopped new ones without removing the old, since occurrences are only ever added.
+- fix: A date that cannot exist can no longer be written at all, and a skip keyed to one is dropped with it.
+
 ## 1.1.38 — 2026-08-29
 - new: A shop records which account it was paid from. Paid from sits under the purchase date, and the account is saved on the purchase and on the ledger entry it posts.
 - better: The account on a saved purchase can be corrected later, like its total, and the linked ledger entry follows.
