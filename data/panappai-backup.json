@@ -2955,6 +2955,26 @@
       "status": "done",
       "account": "a_0mh73fi9ovlw",
       "fromAccount": null
+    },
+    {
+      "id": "4jgthfkupd9e",
+      "type": "expense",
+      "amount": 580,
+      "category": "groceries_de",
+      "note": "German shopping",
+      "date": "2026-08-28",
+      "status": "done"
+    },
+    {
+      "id": "2icjm9yqv526",
+      "type": "transfer",
+      "amount": 200000,
+      "category": null,
+      "note": "Bank Transfer",
+      "date": "2026-08-29",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": "a_0mh73fi9ovlw"
     }
   ],
   "rules": [
@@ -3361,6 +3381,30 @@
           }
         ],
         "txnId": "3ct5rd3orm8m"
+      },
+      {
+        "id": "t35mibjbpd9e",
+        "store": "de",
+        "date": "2026-08-28",
+        "total": 580,
+        "items": [
+          {
+            "name": "Bio Trauben dunkel",
+            "qty": "",
+            "price": 299
+          },
+          {
+            "name": "Pringles Original",
+            "qty": "",
+            "price": 279
+          },
+          {
+            "name": "Knotenbeutel0&G",
+            "qty": "",
+            "price": 2
+          }
+        ],
+        "txnId": "4jgthfkupd9e"
       }
     ]
   },
@@ -3433,7 +3477,7 @@
       "kind": "card"
     },
     {
-      "id": "a_qiwdi3xnpjw7",
+      "id": "a_nnfyos0fx9la",
       "n": "Paypal",
       "kind": "card"
     }
