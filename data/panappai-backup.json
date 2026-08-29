@@ -455,46 +455,6 @@
       "fromAccount": null
     },
     {
-      "id": "v8kz7ml6a40x",
-      "type": "expense",
-      "amount": 5508,
-      "category": "utilities",
-      "note": "ARD Radio",
-      "date": "2026-11-17",
-      "status": "planned",
-      "ruleId": "zdw0s17ya40v"
-    },
-    {
-      "id": "bx5dicmea40x",
-      "type": "expense",
-      "amount": 5508,
-      "category": "utilities",
-      "note": "ARD Radio",
-      "date": "2027-02-17",
-      "status": "planned",
-      "ruleId": "zdw0s17ya40v"
-    },
-    {
-      "id": "c3zqht7oa40x",
-      "type": "expense",
-      "amount": 5508,
-      "category": "utilities",
-      "note": "ARD Radio",
-      "date": "2027-05-17",
-      "status": "planned",
-      "ruleId": "zdw0s17ya40v"
-    },
-    {
-      "id": "m8c6k628a40x",
-      "type": "expense",
-      "amount": 5508,
-      "category": "utilities",
-      "note": "ARD Radio",
-      "date": "2027-08-17",
-      "status": "planned",
-      "ruleId": "zdw0s17ya40v"
-    },
-    {
       "id": "96m6vvddbqpo",
       "type": "expense",
       "amount": 5598,
@@ -1319,46 +1279,6 @@
       "fromAccount": null
     },
     {
-      "id": "x8572yemc2j0",
-      "type": "expense",
-      "amount": 9600,
-      "category": "health",
-      "note": "Swimming club",
-      "date": "2026-10-07",
-      "status": "planned",
-      "ruleId": "hw1leafxc2iz"
-    },
-    {
-      "id": "l2c8ppscc2j0",
-      "type": "expense",
-      "amount": 9600,
-      "category": "health",
-      "note": "Swimming club",
-      "date": "2027-01-07",
-      "status": "planned",
-      "ruleId": "hw1leafxc2iz"
-    },
-    {
-      "id": "tkfle4vpc2j0",
-      "type": "expense",
-      "amount": 9600,
-      "category": "health",
-      "note": "Swimming club",
-      "date": "2027-04-07",
-      "status": "planned",
-      "ruleId": "hw1leafxc2iz"
-    },
-    {
-      "id": "v7lqykjlc2j0",
-      "type": "expense",
-      "amount": 9600,
-      "category": "health",
-      "note": "Swimming club",
-      "date": "2027-07-07",
-      "status": "planned",
-      "ruleId": "hw1leafxc2iz"
-    },
-    {
       "id": "brsz1ge1e8cu",
       "type": "expense",
       "amount": 1045,
@@ -1392,18 +1312,6 @@
       "fromAccount": null
     },
     {
-      "id": "z2o5j0heyimh",
-      "type": "income",
-      "amount": 51800,
-      "category": "c_65s3renj",
-      "note": "For Hasini and Shakthi",
-      "date": "2026-13-20",
-      "status": "planned",
-      "ruleId": "famje82zlzu3",
-      "account": null,
-      "fromAccount": null
-    },
-    {
       "id": "b4d8xhlyyimh",
       "type": "income",
       "amount": 51800,
@@ -1412,18 +1320,6 @@
       "date": "2027-09-20",
       "status": "planned",
       "ruleId": "famje82zlzu3",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "7lm0o3oeyimh",
-      "type": "expense",
-      "amount": 9700,
-      "category": "utilities",
-      "note": "Gas",
-      "date": "2026-13-15",
-      "status": "planned",
-      "ruleId": "lr83cp4ussun",
       "account": null,
       "fromAccount": null
     },
@@ -1440,18 +1336,6 @@
       "fromAccount": null
     },
     {
-      "id": "bu1il304yimh",
-      "type": "expense",
-      "amount": 10300,
-      "category": "utilities",
-      "note": "Electricity",
-      "date": "2026-13-15",
-      "status": "planned",
-      "ruleId": "41nv5gwqtk16",
-      "account": null,
-      "fromAccount": null
-    },
-    {
       "id": "jiyol876yimh",
       "type": "expense",
       "amount": 10300,
@@ -1460,78 +1344,6 @@
       "date": "2027-09-15",
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "8qc9kst9yimh",
-      "type": "expense",
-      "amount": 5508,
-      "category": "utilities",
-      "note": "ARD Radio",
-      "date": "2026-09-17",
-      "status": "planned",
-      "ruleId": "zdw0s17ya40v",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "vrquyy04yimh",
-      "type": "expense",
-      "amount": 5508,
-      "category": "utilities",
-      "note": "ARD Radio",
-      "date": "2026-12-17",
-      "status": "planned",
-      "ruleId": "zdw0s17ya40v",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "dhdeysjlyimh",
-      "type": "expense",
-      "amount": 5508,
-      "category": "utilities",
-      "note": "ARD Radio",
-      "date": "2027-03-17",
-      "status": "planned",
-      "ruleId": "zdw0s17ya40v",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "3txvrrxfyimh",
-      "type": "expense",
-      "amount": 5508,
-      "category": "utilities",
-      "note": "ARD Radio",
-      "date": "2027-06-17",
-      "status": "planned",
-      "ruleId": "zdw0s17ya40v",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "5d5d8nk4yimh",
-      "type": "expense",
-      "amount": 5508,
-      "category": "utilities",
-      "note": "ARD Radio",
-      "date": "2027-09-17",
-      "status": "planned",
-      "ruleId": "zdw0s17ya40v",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "epr2nyi4yimh",
-      "type": "expense",
-      "amount": 6300,
-      "category": "transport",
-      "note": "Deutschland Ticket - Priya",
-      "date": "2026-13-01",
-      "status": "planned",
-      "ruleId": "w09yr4drm0rp",
       "account": null,
       "fromAccount": null
     },
@@ -1548,18 +1360,6 @@
       "fromAccount": null
     },
     {
-      "id": "3k3bu1lryimh",
-      "type": "expense",
-      "amount": 5985,
-      "category": "transport",
-      "note": "Deutschland Ticket - Suresh",
-      "date": "2026-13-01",
-      "status": "planned",
-      "ruleId": "rbx4wt3np9ur",
-      "account": null,
-      "fromAccount": null
-    },
-    {
       "id": "ma91gpcayimh",
       "type": "expense",
       "amount": 5985,
@@ -1568,18 +1368,6 @@
       "date": "2027-09-01",
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "ir2bxegeyimh",
-      "type": "expense",
-      "amount": 12300,
-      "category": "education",
-      "note": "For Hort - Shakthi",
-      "date": "2026-13-03",
-      "status": "planned",
-      "ruleId": "nzysz1jsslx6",
       "account": null,
       "fromAccount": null
     },
@@ -1608,18 +1396,6 @@
       "fromAccount": null
     },
     {
-      "id": "74m3z4kpyimh",
-      "type": "expense",
-      "amount": 222000,
-      "category": "c_teeeb8sq",
-      "note": "Personal Loan - Commerzbank",
-      "date": "2026-13-01",
-      "status": "planned",
-      "ruleId": "11j7m9lmmy6f",
-      "account": null,
-      "fromAccount": null
-    },
-    {
       "id": "574y6ebiyimi",
       "type": "expense",
       "amount": 222000,
@@ -1632,18 +1408,6 @@
       "fromAccount": null
     },
     {
-      "id": "bl58vuxwyimi",
-      "type": "expense",
-      "amount": 6000,
-      "category": "dining",
-      "note": "Shakthi lunch",
-      "date": "2026-13-03",
-      "status": "planned",
-      "ruleId": "j9kso8pzpjnm",
-      "account": null,
-      "fromAccount": null
-    },
-    {
       "id": "cls58zkxyimi",
       "type": "expense",
       "amount": 6000,
@@ -1652,54 +1416,6 @@
       "date": "2027-09-03",
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "xq8njl92yimi",
-      "type": "expense",
-      "amount": 9600,
-      "category": "health",
-      "note": "Swimming club",
-      "date": "2026-11-07",
-      "status": "planned",
-      "ruleId": "hw1leafxc2iz",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "y59yhtpeyimi",
-      "type": "expense",
-      "amount": 9600,
-      "category": "health",
-      "note": "Swimming club",
-      "date": "2027-02-07",
-      "status": "planned",
-      "ruleId": "hw1leafxc2iz",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "8zxdjd4cyimi",
-      "type": "expense",
-      "amount": 9600,
-      "category": "health",
-      "note": "Swimming club",
-      "date": "2027-05-07",
-      "status": "planned",
-      "ruleId": "hw1leafxc2iz",
-      "account": null,
-      "fromAccount": null
-    },
-    {
-      "id": "nt1ko0yryimi",
-      "type": "expense",
-      "amount": 9600,
-      "category": "health",
-      "note": "Swimming club",
-      "date": "2027-08-07",
-      "status": "planned",
-      "ruleId": "hw1leafxc2iz",
       "account": null,
       "fromAccount": null
     },
@@ -2740,7 +2456,7 @@
       "type": "transfer",
       "amount": 100000,
       "category": null,
-      "note": "Self",
+      "note": "Bank Transfer",
       "date": "2026-08-15",
       "status": "done",
       "account": "a_gch8xl46opp7",
@@ -2977,6 +2693,136 @@
       "status": "done",
       "account": "a_gch8xl46opp7",
       "fromAccount": "a_0mh73fi9ovlw"
+    },
+    {
+      "id": "y8umxudu3cg0",
+      "type": "expense",
+      "amount": 1196,
+      "category": "transport",
+      "note": "Uber",
+      "date": "2026-08-29",
+      "status": "done",
+      "account": "a_9gbih0jvp6la",
+      "fromAccount": null
+    },
+    {
+      "id": "haub5hsed6nf",
+      "type": "expense",
+      "amount": 1632,
+      "category": "nonveg",
+      "note": "Fish",
+      "date": "2026-08-29",
+      "status": "done",
+      "account": "a_9gbih0jvp6la",
+      "fromAccount": null
+    },
+    {
+      "id": "c8lxko9sjfgt",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "date": "2026-08-15",
+      "status": "done",
+      "ruleId": "zdw0s17ya40v",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "h7zzmur8jfgt",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "date": "2026-11-15",
+      "status": "planned",
+      "ruleId": "zdw0s17ya40v",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "ibt4cm0xjfgt",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "date": "2027-02-15",
+      "status": "planned",
+      "ruleId": "zdw0s17ya40v",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "7on85ivfjfgt",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "date": "2027-05-15",
+      "status": "planned",
+      "ruleId": "zdw0s17ya40v",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "3uwohw1kjfgt",
+      "type": "expense",
+      "amount": 5508,
+      "category": "utilities",
+      "note": "ARD Radio",
+      "date": "2027-08-15",
+      "status": "planned",
+      "ruleId": "zdw0s17ya40v",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "s25o6fvvqquj",
+      "type": "expense",
+      "amount": 9600,
+      "category": "health",
+      "note": "Swimming club - TG bornheim",
+      "date": "2026-10-07",
+      "status": "planned",
+      "ruleId": "hw1leafxc2iz",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "g3v7f9avqquj",
+      "type": "expense",
+      "amount": 9600,
+      "category": "health",
+      "note": "Swimming club - TG bornheim",
+      "date": "2027-01-07",
+      "status": "planned",
+      "ruleId": "hw1leafxc2iz",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "npezvwlhqquj",
+      "type": "expense",
+      "amount": 9600,
+      "category": "health",
+      "note": "Swimming club - TG bornheim",
+      "date": "2027-04-07",
+      "status": "planned",
+      "ruleId": "hw1leafxc2iz",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "548l0zi0qquj",
+      "type": "expense",
+      "amount": 9600,
+      "category": "health",
+      "note": "Swimming club - TG bornheim",
+      "date": "2027-07-07",
+      "status": "planned",
+      "ruleId": "hw1leafxc2iz",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     }
   ],
   "rules": [
@@ -3044,9 +2890,10 @@
       "category": "utilities",
       "note": "ARD Radio",
       "freq": "quarterly",
-      "anchor": "2026-08-17",
+      "anchor": "2026-08-15",
       "active": true,
-      "account": "a_gch8xl46opp7"
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "w09yr4drm0rp",
@@ -3179,11 +3026,12 @@
       "type": "expense",
       "amount": 9600,
       "category": "health",
-      "note": "Swimming club",
+      "note": "Swimming club - TG bornheim",
       "freq": "quarterly",
       "anchor": "2026-10-07",
       "active": true,
-      "account": "a_gch8xl46opp7"
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "by4k0ohgxjkg",
@@ -3227,7 +3075,6 @@
     "w09yr4drm0rp|2027-01-01",
     "j9kso8pzpjnm|2027-01-03",
     "nzysz1jsslx6|2027-01-03",
-    "soeg7dlmttqu|2026-13-05",
     "5q98aay2rqyf|2027-01-02",
     "mdickgcqsw7j|2026-08-27"
   ],
