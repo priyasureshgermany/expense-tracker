@@ -377,12 +377,18 @@ Calendar is the default, being what a report usually means. The period basis
 ties back exactly to what the dashboard shows. A week and a custom stretch have
 only one reading, so the toggle hides for those.
 
-**Chart** shows expenses as a pie drawn in projection — the circle squashed into
+**Chart** shows a pie drawn in projection — the circle squashed into
 an ellipse with a wall dropped from each slice's outer edge — every slice the
 colour that category always is. The slices meet, and the light is applied to the
 whole object rather than to each piece: the gradients are laid out in the pie's
 own coordinates so the fall of light carries across a boundary, and one sheen is
 laid over the top face after every slice is down.
+
+It draws whichever side the rows you are looking at actually have — expenses
+when there are any, since that is the usual question, and income when that is
+all there is, captioned **Where it went** or **Where it came from** so the two
+are never confused. Filtering to income used to leave it blank under a full
+table, and so did transfers seen from an account the money only arrived at.
 
 Tapping a slice lights it rather than moving it — a brighter mix of its own
 colour, a glow, and a bright rim, with the others falling back. Nothing shifts,
