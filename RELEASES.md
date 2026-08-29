@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.42 — 2026-08-29
+- new: An eye in the Reports header shows or hides the amounts without leaving the report. It flips the same setting the one in the top bar does.
+
 ## 1.1.41 — 2026-08-29
 - better: The list of earlier backups is grouped by the day it was pushed, with a count per day, and rows carry just the time. Twenty load at a time, with Show older for the rest. Nothing is discarded.
 
