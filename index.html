@@ -860,7 +860,11 @@ button.tile:hover .tile-go{color:var(--accent)}
 }
 .tabbar2 button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
 
-.rp-chart{display:grid;place-items:center;padding:10px 0 6px}
+.rp-chartcap{
+  font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3);text-align:center;margin-top:4px;
+}
+.rp-chart{display:grid;place-items:center;padding:6px 0}
 .rp-chart svg{width:min(300px,84vw);height:auto;overflow:visible}
 .pie-top{cursor:pointer}
 @media (hover:hover){ .pie-top:hover{filter:brightness(1.1)} }
@@ -2759,6 +2763,7 @@ html.locked #lockScreen::before{
 
     <!-- 1 : the shape of it -->
     <div class="rp-pane" id="repPane_chart">
+      <div class="rp-chartcap" id="repChartCap" hidden>Where it went</div>
       <div class="rp-chart" id="repChart"></div>
       <div class="rp-info" id="repInfo" hidden></div>
       <div class="rp-hint" id="repHint">Tap a slice to light it up</div>
@@ -3108,7 +3113,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.43";
+const APP_VERSION = "1.1.44";
 const APP_BUILT = "2026-08-29";
 
 const KEY = "panappai.v1";
@@ -8566,11 +8571,12 @@ function repTotals(rows){
            settledIn:inc - pin, settledOut:out - pout };
 }
 
-/** Expenses grouped by category, largest first. */
-function repByCategory(rows){
+/** One side of the ledger grouped by category, largest first. */
+function repByCategory(rows, side){
+  const want = side || "expense";
   const by = new Map();
   rows.forEach(t => {
-    if (repSideOf(t) !== "expense") return;
+    if (repSideOf(t) !== want) return;
     const c = repCatOf(t);
     const cur = by.get(c.id) || { id:c.id, n:c.n, h:c.h, total:0, count:0 };
     cur.total += t.amount;
@@ -8578,6 +8584,24 @@ function repByCategory(rows){
     by.set(c.id, cur);
   });
   return [...by.values()].sort((a, b) => b.total - a.total);
+}
+
+/**
+ * Which side the ring should draw.
+ *
+ * It used to draw expenses and nothing else, which was fine while the only way
+ * to look was at everything. It is not fine now: filter to Income and the ring
+ * went blank under a table full of rows, and so did Transfers seen from an
+ * account the money only ever arrived at — both sides of the same oversight,
+ * one of which existed long before transfers could take a side at all.
+ *
+ * So it follows the rows. Expenses when there are any, because that is the
+ * question usually being asked, and income when that is all there is.
+ */
+function repChartSide(rows){
+  if (rows.some(t => repSideOf(t) === "expense")) return "expense";
+  if (rows.some(t => repSideOf(t) === "income")) return "income";
+  return null;
 }
 
 /* ---------- the pie ----------
@@ -8602,6 +8626,7 @@ function repByCategory(rows){
 const PIE = { cx:100, cy:76, rx:80, ry:43, depth:19 };
 
 let repSelCat = null;      /* the slice lit up, by category id */
+let repChartIsIncome = false;   /* which side the ring is currently drawing */
 
 const pieX = a => PIE.cx + PIE.rx * Math.cos(a);
 const pieY = a => PIE.cy + PIE.ry * Math.sin(a);
@@ -8658,15 +8683,23 @@ function pieWall(a1, a2){
          pieX(b1).toFixed(2) + " " + (pieY(b1) + d).toFixed(2) + " Z";
 }
 
-function repDrawChart(cats, total){
+function repDrawChart(cats, total, side, rowCount){
   const host = $("#repChart");
   host.innerHTML = "";
   if (!cats.length || !total){
-    host.innerHTML = '<div class="rp-empty">Nothing spent in this stretch.</div>';
+    /* Saying "nothing spent" under a table with rows in it is not true and not
+       useful. The one case that reaches here with rows is transfers while every
+       account is shown, where neither side applies — so say that instead. */
+    host.innerHTML = '<div class="rp-empty">' + (rowCount
+      ? "These are all transfers, and a transfer is money moving between your " +
+        "own accounts — neither in nor out until you choose one account to see " +
+        "it from."
+      : "Nothing in this stretch to chart.") + "</div>";
     repSelCat = null;
     repDrawInfo(null, 0);
     return;
   }
+  repChartIsIncome = side === "income";
   const dark = isDark();
   /* twelve o'clock is -90 degrees, and the angle runs clockwise from there */
   let at = -Math.PI / 2;
@@ -8827,7 +8860,8 @@ function repDrawInfo(cat, total){
   host.appendChild(amt);
 
   host.appendChild(el("div", "rp-i-s",
-    ((cat.total / total) * 100).toFixed(1) + "% of what you spent  ·  " +
+    ((cat.total / total) * 100).toFixed(1) +
+    (repChartIsIncome ? "% of what came in  ·  " : "% of what you spent  ·  ") +
     cat.count + " entr" + (cat.count === 1 ? "y" : "ies") + "  ·  " +
     fmt(Math.round(cat.total / cat.count)) + " on average"));
 
@@ -9046,9 +9080,13 @@ function repRender(){
   $("#repNetSub").textContent = plannedNet
     ? fmt(tot.settledIn - tot.settledOut) + " settled" : "";
 
-  const cats = repByCategory(rows);
-  repDrawChart(cats, tot.out);
-  repDrawLegend(cats, tot.out);
+  const side = repChartSide(rows);
+  const cats = repByCategory(rows, side);
+  const ringTotal = side === "income" ? tot.inc : tot.out;
+  $("#repChartCap").textContent = side === "income" ? "Where it came from" : "Where it went";
+  $("#repChartCap").hidden = !cats.length;
+  repDrawChart(cats, ringTotal, side, rows.length);
+  repDrawLegend(cats, ringTotal);
 
   const xfer = rows.filter(t => t.type === "transfer").length;
   $("#repCount").textContent =
