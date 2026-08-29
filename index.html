@@ -204,10 +204,11 @@ button{cursor:pointer;background:none;border:none;padding:0}
   font-size:11.5px; color:var(--ink-3); font-weight:500;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
 }
-#btnEye .eye-on{display:none}
-html.amounts-shown #btnEye .eye-off{display:none}
-html.amounts-shown #btnEye .eye-on{display:block}
-html.amounts-shown #btnEye{color:var(--accent)}
+/* there is more than one of these now, so the rules follow the class */
+.eyebtn .eye-on{display:none}
+html.amounts-shown .eyebtn .eye-off{display:none}
+html.amounts-shown .eyebtn .eye-on{display:block}
+html.amounts-shown .eyebtn{color:var(--accent)}
 .nav-off{visibility:hidden;pointer-events:none}
 /* Several components below set display on a class, which silently beats the
    hidden attribute; this keeps hidden meaning hidden everywhere. */
@@ -2016,7 +2017,7 @@ html.locked #lockScreen::before{
       <span class="brand-top"><b>பணப்பை</b><span class="brand-cur">EUR</span></span>
       <span class="brand-hi" id="brandHi" hidden></span>
     </button>
-    <button class="iconbtn" id="btnEye" title="Show amounts" aria-label="Show amounts" aria-pressed="false">
+    <button class="iconbtn eyebtn" id="btnEye" title="Show amounts" aria-label="Show amounts" aria-pressed="false">
       <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg>
       <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
     </button>
@@ -2713,6 +2714,7 @@ html.locked #lockScreen::before{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
     <h2 id="repTitle">Reports</h2>
+    <button class="iconbtn eyebtn" id="repEye" title="Show amounts" aria-label="Show amounts" aria-pressed="false"><svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg><svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
@@ -3106,7 +3108,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.41";
+const APP_VERSION = "1.1.42";
 const APP_BUILT = "2026-08-29";
 
 const KEY = "panappai.v1";
@@ -3308,18 +3310,34 @@ function fmtShort(cents){
 /* Defined here beside fmt(), but wired up with getElementById because the
    $ helper isn't declared until further down the script. */
 function syncEyeBtn(){
-  const b = document.getElementById("btnEye");
-  b.setAttribute("aria-pressed", String(!amountsHidden));
-  b.title = amountsHidden ? "Show amounts" : "Hide amounts";
-  b.setAttribute("aria-label", b.title);
+  const title = amountsHidden ? "Show amounts" : "Hide amounts";
+  document.querySelectorAll(".eyebtn").forEach(b => {
+    b.setAttribute("aria-pressed", String(!amountsHidden));
+    b.title = title;
+    b.setAttribute("aria-label", title);
+  });
   document.documentElement.classList.toggle("amounts-shown", !amountsHidden);
 }
-document.getElementById("btnEye").addEventListener("click", () => {
+
+/**
+ * One setting, reachable from more than one place.
+ *
+ * Reports is a sheet over the page, so the eye in the top bar is behind it and
+ * out of reach: revealing amounts meant closing the report, tapping the eye and
+ * opening it again — and the exports refuse while amounts are hidden, so that
+ * detour was on the way to the thing you most wanted them for. A second eye in
+ * the report's own header flips the same setting rather than a separate one,
+ * because two ideas of whether amounts are showing is one too many.
+ */
+function toggleAmounts(){
   amountsHidden = !amountsHidden;
   try{ localStorage.setItem(HIDE_KEY, amountsHidden ? "1" : "0"); }catch(e){}
   syncEyeBtn();
   render(); renderShop();
-});
+  /* the report redraws its own figures, the chart among them */
+  if (openSheet === "#shReport") repRender();
+}
+document.getElementById("btnEye").addEventListener("click", toggleAmounts);
 
 /**
  * Parse a money string in either German (1.234,56) or English (1,234.56) form.
@@ -9068,6 +9086,7 @@ $("#repCat").addEventListener("change", e => { repCat = e.target.value; repRende
 $("#repAcct").addEventListener("change", e => { repAcct = e.target.value; repRender(); });
 $("#repSearch").addEventListener("input", e => { repQuery = e.target.value; repRender(); });
 $("#repBack").addEventListener("click", () => { sheetClose(); openMore(); });
+$("#repEye").addEventListener("click", toggleAmounts);
 
 /* =========================================================================
    EXPORTING A REPORT
