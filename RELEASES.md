@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.41 — 2026-08-29
+- better: The list of earlier backups is grouped by the day it was pushed, with a count per day, and rows carry just the time. Twenty load at a time, with Show older for the rest. Nothing is discarded.
+
 ## 1.1.40 — 2026-08-29
 - new: Restore an earlier backup, under GitHub sync: every push you have ever made, newest first, each openable to see what it holds before restoring it.
 - new: A push that would remove a lot of what the backup holds now says so first, with the numbers, and can be cancelled.

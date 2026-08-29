@@ -181,8 +181,9 @@ in the browser to make those calls, which means:
 **A push never destroys anything.** Each one is a commit, so the repo holds
 every version there has ever been and none can be overwritten — a push adds.
 That was always true and entirely invisible, which is why pushing felt like
-risking the only copy. **Restore an earlier backup** lists them, newest first,
-and reading one tells you what it holds before you decide:
+risking the only copy. **Restore an earlier backup** lists them under the day
+they were pushed, twenty at a time with **Show older** for the rest, and reading
+one tells you what it holds before you decide:
 
 > It holds 268 entries · 19 repeating · 5 accounts. This device has 12 entries ·
 > 3 repeating · 5 accounts, and all of it is replaced.
