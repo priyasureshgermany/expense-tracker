@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.44 — 2026-08-29
+- fix: The report's chart was hard-wired to expenses, so it sat empty under a full table whenever you filtered to income, or to transfers seen from an account the money only arrived at. It now draws whichever side the rows have, captioned Where it went or Where it came from.
+
 ## 1.1.43 — 2026-08-29
 - fix: See these entries came up empty when the slice was transfers seen from one account. It asked for expenses, and a transfer is not one — the chart had counted it as money out of that account, which is a different question.
 
