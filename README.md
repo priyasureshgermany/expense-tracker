@@ -429,7 +429,11 @@ compressed. Dates arrive as dates and amounts as numbers, so `SUM` and a pivot
 table work on the file rather than on text Excel has guessed at.
 
 Both refuse while amounts are hidden behind the eye, rather than exporting rows
-of bullets.
+of bullets — and there is an eye in the report's own header for exactly that
+moment. Reports is a sheet over the page, so the one in the top bar is behind it
+and out of reach; without a second one, revealing amounts meant closing the
+report, tapping the eye and opening it again. It flips the same setting rather
+than a separate one, so the two can never disagree about whether amounts show.
 
 **Choosing things.** There are no native dropdowns. Anywhere you pick one of a
 set — account, repeat cadence, account type, which category to budget — the
