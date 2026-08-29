@@ -8,6 +8,13 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.37 — 2026-08-29
+- new: Anything that destroys saved work now asks first, in a dialog that names what is about to go — an entry, a recurring entry, an account, every entry at once, the balances, the app lock, and both directions of sync.
+- fix: Clearing the examples, clearing every starting balance and turning off the app lock had no confirmation at all.
+- better: A transfer is filed under Bank Transfer instead of having no category, which had left it under the Other fallback.
+- new: Choose an account in a report and its transfers count from its side: money leaving it is an expense, money arriving is income. Across all accounts a transfer still counts as neither, and the ledger never counts one either way.
+- new: Each report tile says how much of its figure is still only planned, and the spreadsheet carries Settled, Planned and Total as separate rows.
+
 ## 1.1.36 — 2026-08-28
 - better: Choosing a slice polishes it rather than ringing it: a broad sheen continuing the light already crossing the pie, and a tight highlight over it.
 - fix: A narrow slice came back white when chosen, its colour lost under a highlight bigger than the slice. The highlight is sized to the slice now.

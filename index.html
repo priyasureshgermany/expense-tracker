@@ -749,6 +749,35 @@ button.tile:hover .tile-go{color:var(--accent)}
 .rel-i.new .rel-k{background:var(--accent-soft);color:var(--accent)}
 .rel-i.better .rel-k{background:var(--pos-soft);color:var(--pos)}
 
+/* ---------- Confirm ----------
+   Above everything, including the sheets, because it is asked from inside one
+   and has to leave it standing. */
+.cfwrap{
+  position:fixed;inset:0;z-index:90;
+  display:grid;place-items:center;padding:22px;
+  background:rgba(8,14,20,.55);
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  animation:cfIn .16s ease-out;
+}
+@keyframes cfIn{from{opacity:0}to{opacity:1}}
+.cfbox{
+  width:100%;max-width:340px;
+  background:var(--surface);border:1px solid var(--line);border-radius:20px;
+  padding:22px 20px 18px;box-shadow:var(--shadow-lg);text-align:center;
+  animation:cfPop .2s cubic-bezier(.34,1.3,.64,1);
+}
+@keyframes cfPop{from{transform:scale(.94);opacity:.6}to{transform:scale(1);opacity:1}}
+.cf-ic{
+  width:46px;height:46px;border-radius:14px;margin:0 auto 12px;
+  display:grid;place-items:center;
+  background:var(--neg-soft);color:var(--neg);
+}
+.cf-ic svg{width:24px;height:24px}
+.cfbox h3{margin:0 0 6px;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.cfbox p{margin:0 0 18px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.cf-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.cf-actions .btn{width:auto}
+
 /* ================= REPORTS =================
    A report is read, not operated, so the controls stay quiet and the numbers
    carry the colour. Category hues come from the same wheel the ledger uses, so
@@ -784,6 +813,7 @@ button.tile:hover .tile-go{color:var(--accent)}
 }
 .rp-tile span{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
 .rp-tile b{font-size:15px;font-weight:700;letter-spacing:-.01em;overflow-wrap:anywhere}
+.rp-tile i{font-size:10px;font-style:normal;color:var(--ink-3);line-height:1.3;overflow-wrap:anywhere}
 .rp-tile.in b{color:var(--pos)}
 .rp-tile.out b{color:var(--neg)}
 .rp-tile.in{background:var(--pos-soft);border-color:transparent}
@@ -1675,7 +1705,6 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
   color:var(--ink-3);flex:none;
 }
-.acctrow .ar-x.arm{background:var(--neg);color:#fff}
 .acctrow .ar-b{font-family:var(--mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto;padding:0 10px}
 .balrow{display:flex;align-items:center;gap:10px;padding:7px 0}
 .balrow .bl-ic{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--surface-sunk);color:var(--ink-2)}
@@ -2680,9 +2709,9 @@ html.locked #lockScreen::before{
 
     <!-- what it adds up to -->
     <div class="rp-tiles">
-      <div class="rp-tile in"><span>Income</span><b id="repIn">—</b></div>
-      <div class="rp-tile out"><span>Expenses</span><b id="repOut">—</b></div>
-      <div class="rp-tile net"><span>Net</span><b id="repNet">—</b></div>
+      <div class="rp-tile in"><span>Income</span><b id="repIn">—</b><i id="repInSub"></i></div>
+      <div class="rp-tile out"><span>Expenses</span><b id="repOut">—</b><i id="repOutSub"></i></div>
+      <div class="rp-tile net"><span>Net</span><b id="repNet">—</b><i id="repNetSub"></i></div>
     </div>
 
     <div class="tabbar2" id="repTabs" role="tablist">
@@ -2995,6 +3024,22 @@ html.locked #lockScreen::before{
   </div>
 </section>
 
+<!-- CONFIRM — sits above the sheets rather than replacing one, so whatever
+     asked the question is still there behind it, and still there after -->
+<div class="cfwrap" id="shConfirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="cfTitle">
+  <div class="cfbox" role="document">
+    <div class="cf-ic" id="cfIcon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18.4A2 2 0 003.5 21.4h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9.5v4.2"/><path d="M12 17.4h.01"/></svg>
+    </div>
+    <h3 id="cfTitle">Are you sure?</h3>
+    <p id="cfMsg"></p>
+    <div class="cf-actions">
+      <button class="btn ghost" id="cfNo" type="button">Cancel</button>
+      <button class="btn danger" id="cfYes" type="button">Delete</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 "use strict";
@@ -3004,8 +3049,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.36";
-const APP_BUILT = "2026-08-28";
+const APP_VERSION = "1.1.37";
+const APP_BUILT = "2026-08-29";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -3079,6 +3124,10 @@ function refreshCats(){
   allCats("expense").concat(allCats("income")).forEach(c => { CAT_BY_ID[c.id] = c; });
 }
 function catOf(id){ return CAT_BY_ID[id] || {id:"other", n:"Other", h:210}; }
+
+/* What a transfer is filed under. Money moving between your own accounts is
+   still a bank transfer, and naming it one means it can be reported on. */
+const TRANSFER_CAT = "banktransfer_out";
 
 /** Spread new categories around the wheel so neighbours stay distinguishable. */
 /**
@@ -3611,6 +3660,48 @@ function esc(s){
     .replace(/"/g, "&quot;");
 }
 let toastT;
+/* =========================================================================
+   CONFIRM — nothing that destroys saved work happens on one tap.
+
+   This replaces a two-tap "tap again" pattern that was on some of these and
+   missing from others: it is easy to arm by accident when the second tap is
+   the same button in the same place, and it says nothing about what is about
+   to go. A question that names the thing, and a button that is not where the
+   first one was, cannot be walked into.
+   ========================================================================= */
+let confirmResolve = null;
+
+/**
+ * Asks, and resolves true only if the answer was yes. Sits over whatever sheet
+ * is open rather than replacing it, so a cancel leaves you exactly where you
+ * were.
+ */
+function askConfirm(opts){
+  const o = opts || {};
+  $("#cfTitle").textContent = o.title || "Are you sure?";
+  $("#cfMsg").textContent = o.message || "This cannot be undone.";
+  $("#cfYes").textContent = o.confirm || "Delete";
+  $("#shConfirm").hidden = false;
+  $("#cfNo").focus();
+  return new Promise(resolve => { confirmResolve = resolve; });
+}
+
+function closeConfirm(answer){
+  $("#shConfirm").hidden = true;
+  const r = confirmResolve;
+  confirmResolve = null;
+  if (r) r(answer);
+}
+
+$("#cfYes").addEventListener("click", () => closeConfirm(true));
+$("#cfNo").addEventListener("click", () => closeConfirm(false));
+$("#shConfirm").addEventListener("click", e => {
+  if (e.target === $("#shConfirm")) closeConfirm(false);      /* tapping outside */
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && confirmResolve) { e.stopImmediatePropagation(); closeConfirm(false); }
+}, true);
+
 function toast(msg){
   const t = $("#toast");
   t.textContent = msg;
@@ -4381,7 +4472,12 @@ $("#balSave").addEventListener("click", () => {
   save(); renderBalanceSettings(); renderAccountSettings(); render();
   toast(set ? set + " balance" + (set === 1 ? "" : "s") + " saved" : "Balances cleared");
 });
-$("#balClear").addEventListener("click", () => {
+$("#balClear").addEventListener("click", async () => {
+  if (!(await askConfirm({
+    title: "Clear every starting balance?",
+    message: "The opening figure on each account is forgotten. Your entries are untouched.",
+    confirm: "Clear"
+  }))) return;
   accountsOf().forEach(a => { delete a.start; });
   state.balance = null;
   save(); renderBalanceSettings(); renderAccountSettings(); render();
@@ -4440,21 +4536,23 @@ function renderAccountSettings(){
     del.type = "button";
     del.setAttribute("aria-label", "Remove " + a.n);
     del.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
-    del.addEventListener("click", () => {
+    del.addEventListener("click", async () => {
       /* An account in use was simply refused before, which made a bank you had
          closed impossible to remove without retagging every entry by hand.
          Deleting it now untags those entries instead: they keep their amount,
          date and category and only lose the account, which is recoverable by
-         setting it again. Asked twice, since it touches many rows at once. */
+         setting it again. The question says how many rows that is. */
       const rulesUsing = state.rules.filter(r => r.account === a.id || r.fromAccount === a.id).length;
-      if (used && !del.dataset.armed){
-        del.dataset.armed = "1";
-        del.classList.add("arm");
-        toast("Tap again to remove " + a.n + " from " + used + " entr" +
-              (used === 1 ? "y" : "ies") + (rulesUsing ? " and " + rulesUsing + " recurring" : ""));
-        setTimeout(() => { delete del.dataset.armed; del.classList.remove("arm"); }, 4000);
-        return;
-      }
+      const touches = used
+        ? used + " entr" + (used === 1 ? "y" : "ies") +
+          (rulesUsing ? " and " + rulesUsing + " recurring entr" + (rulesUsing === 1 ? "y" : "ies") : "") +
+          " will keep their amount, date and category, and lose only the account."
+        : "Nothing is tagged with it, so nothing else changes.";
+      if (!(await askConfirm({
+        title: "Remove " + a.n + "?",
+        message: touches,
+        confirm: "Remove"
+      }))) return;
       userTouched();
       state.txns.forEach(t => {
         if (t.account === a.id) t.account = null;
@@ -5182,7 +5280,7 @@ function openEntry(txn, type){
     const t = (type === "income" || type === "transfer") ? type : "expense";
     draft = {
       type: t,
-      category: t === "transfer" ? null : pickableCats(t)[0].id,
+      category: t === "transfer" ? TRANSFER_CAT : pickableCats(t)[0].id,
       status: "done",
       account: defaultAccountId(),
       /* a transfer needs both ends, so the second one starts filled too */
@@ -5225,7 +5323,9 @@ $$("#eType button").forEach(b => b.addEventListener("click", () => {
   if (draft.type === b.dataset.v) return;
   draft.type = b.dataset.v;
   if (draft.type === "transfer"){
-    draft.category = null;
+    /* a transfer had no category at all, which left it filed under the Other
+       fallback everywhere a category was asked for */
+    draft.category = TRANSFER_CAT;
     draft.status = "done";           /* a transfer has either happened or not */
     if (!draft.fromAccount) draft.fromAccount = defaultAccountId();
   } else {
@@ -5287,8 +5387,16 @@ $("#eSave").addEventListener("click", () => {
   toast(draft.status === "done" ? "Entry saved" : "Planned entry added");
 });
 
-$("#eDelete").addEventListener("click", () => {
+$("#eDelete").addEventListener("click", async () => {
   if (!editing) return;
+  const what = (editing.note && editing.note.trim())
+    ? '"' + editing.note.trim() + '"'
+    : catOf(editing.category).n;
+  if (!(await askConfirm({
+    title: "Delete this entry?",
+    message: what + " — " + fmt(editing.amount) + " on " + prettyDate(editing.date) +
+             ". This cannot be undone."
+  }))) return;
   userTouched();
   if (editing.ruleId) state.skips.push(editing.ruleId + "|" + editing.date);
   state.txns = state.txns.filter(t => t.id !== editing.id);
@@ -5695,8 +5803,17 @@ $("#rPause").addEventListener("click", () => {
   toast(paused ? "Recurring entry resumed" : "Recurring entry paused");
 });
 
-$("#rDelete").addEventListener("click", () => {
+$("#rDelete").addEventListener("click", async () => {
   if (!ruleEditing) return;
+  const planned = state.txns.filter(t => t.ruleId === ruleEditing.id && t.status === "planned").length;
+  if (!(await askConfirm({
+    title: "Delete this recurring entry?",
+    message: (ruleEditing.note || catOf(ruleEditing.category).n) + " — " +
+             fmt(ruleEditing.amount) + ". " +
+             (planned ? planned + " planned occurrence" + (planned === 1 ? "" : "s") +
+                        " will go with it; anything already settled stays."
+                      : "Anything already settled stays.")
+  }))) return;
   userTouched();
   const id = ruleEditing.id;
   state.rules = state.rules.filter(x => x.id !== id);
@@ -6089,28 +6206,27 @@ $("#doRestore").addEventListener("click", () => {
   }
 });
 $("#wipe").addEventListener("click", async function(){
-  if (this.dataset.armed){
-    if (!(await lockConfirm("Enter your PIN to delete every entry"))){
-      delete this.dataset.armed;
-      this.textContent = "Delete all entries";
-      return;
-    }
-    state = stateCleared();
-    save(); render(); sheetClose();
-    delete this.dataset.armed;
-    this.textContent = "Delete all entries";
-    toast("All entries deleted");
-  } else {
-    this.dataset.armed = "1";
-    this.textContent = "Tap again to confirm — this cannot be undone";
-    setTimeout(() => {
-      delete this.dataset.armed;
-      this.textContent = "Delete all entries";
-    }, 4000);
-  }
+  const n = state.txns.length, r = state.rules.length;
+  if (!(await askConfirm({
+    title: "Delete every entry?",
+    message: n + " entr" + (n === 1 ? "y" : "ies") + " and " + r + " recurring entr" +
+             (r === 1 ? "y" : "ies") + " go. Your accounts and profile stay. " +
+             "This cannot be undone — copy a backup first if you are not sure.",
+    confirm: "Delete all"
+  }))) return;
+  /* and still the PIN on top, because this is the one that takes everything */
+  if (!(await lockConfirm("Enter your PIN to delete every entry"))) return;
+  state = stateCleared();
+  save(); render(); sheetClose();
+  toast("All entries deleted");
 });
 
-$("#clearDemo").addEventListener("click", () => {
+$("#clearDemo").addEventListener("click", async () => {
+  if (!(await askConfirm({
+    title: "Clear the examples?",
+    message: "Every example entry goes and the book starts empty. This cannot be undone.",
+    confirm: "Clear"
+  }))) return;
   state = stateCleared();
   view = periodOf(todayISO());
   save(); render(); renderShop();
@@ -6347,6 +6463,9 @@ function shopRow(item){
   x.type = "button";
   x.setAttribute("aria-label", "Remove " + item.name);
   x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+  /* No question here, deliberately. Everything else that removes something
+     removes saved work; a shopping list is a scratch pad you build and prune
+     as you walk round a shop, and asking every time would be in the way. */
   x.addEventListener("click", () => {
     const arr = shopList();
     const i = arr.indexOf(item);
@@ -7564,7 +7683,12 @@ $("#lockQSave").addEventListener("click", async () => {
   renderLockSettings();
   toast("Security question saved");
 });
-$("#lockTurnOff").addEventListener("click", () => {
+$("#lockTurnOff").addEventListener("click", async () => {
+  if (!(await askConfirm({
+    title: "Turn off the app lock?",
+    message: "The PIN and its recovery question are forgotten, and the app opens straight to your book.",
+    confirm: "Turn off"
+  }))) return;
   localStorage.removeItem(LOCK_ENABLED_KEY);
   localStorage.removeItem(LOCK_HASH_KEY);
   localStorage.removeItem(LOCK_Q_KEY);
@@ -7744,8 +7868,10 @@ function renderGhCount(){
   const b = $("#ghSyncNow");
   if (!b) return;
   const n = ghEnabled() ? ghUnpushed() : 0;
-  if (!b.dataset.armed) b.textContent = "Push now";
-  if (n && !b.dataset.armed) b.appendChild(el("span", "bub", String(n)));
+  /* the button no longer rewrites its own label to arm itself, so there is no
+     armed state left to write around */
+  b.textContent = "Push now";
+  if (n) b.appendChild(el("span", "bub", String(n)));
   const rev = $("#ghReview");
   if (rev) rev.hidden = !ghEnabled() || !n;
 }
@@ -8024,39 +8150,31 @@ $("#ghTokenEye").addEventListener("click", () => {
    when this device hasn't reconciled with the backup yet. */
 $("#ghReview").addEventListener("click", () => { renderGhChanges(); sheetOpen("#shChanges"); });
 
-/* Always two taps, as pull is: a push replaces the backup outright, and doing
+/* Always asked, as pull is: a push replaces the backup outright, and doing
    that from a single tap is how a stray press costs you the other device's
    work. */
-$("#ghSyncNow").addEventListener("click", function(){
-  if (this.dataset.armed){
-    delete this.dataset.armed;
-    ghMarkReconciled();
-    ghSyncNow(true);
-    renderGhCount();
-  } else {
-    this.dataset.armed = "1";
-    const n = ghUnpushed();
-    this.textContent = "Tap again to replace the backup with " +
-      (n ? n + " change" + (n === 1 ? "" : "s") : "this device's copy");
-    setTimeout(() => {
-      delete this.dataset.armed;
-      renderGhCount();
-    }, 4000);
-  }
+$("#ghSyncNow").addEventListener("click", async function(){
+  const n = ghUnpushed();
+  if (!(await askConfirm({
+    title: "Replace the backup?",
+    message: "The copy in your repo is overwritten with this device's, " +
+             (n ? "carrying " + n + " change" + (n === 1 ? "" : "s") + ". "
+                : "which has nothing new in it. ") +
+             "Anything another device pushed and this one has not pulled would go.",
+    confirm: "Push"
+  }))) return;
+  ghMarkReconciled();
+  ghSyncNow(true);
+  renderGhCount();
 });
-$("#ghPull").addEventListener("click", function(){
-  if (this.dataset.armed){
-    delete this.dataset.armed;
-    this.textContent = "Pull onto this device";
-    ghPullNow();
-  } else {
-    this.dataset.armed = "1";
-    this.textContent = "Tap again — this replaces the data in this browser";
-    setTimeout(() => {
-      delete this.dataset.armed;
-      this.textContent = "Pull onto this device";
-    }, 4000);
-  }
+$("#ghPull").addEventListener("click", async function(){
+  if (!(await askConfirm({
+    title: "Pull onto this device?",
+    message: "Everything in this browser is replaced by the backup in your repo. " +
+             "Anything here that has not been pushed would go.",
+    confirm: "Pull"
+  }))) return;
+  ghPullNow();
 });
 $("#ghDisable").addEventListener("click", async () => {
   if (!(await lockConfirm("Enter your PIN to turn off backup"))) return;
@@ -8185,10 +8303,10 @@ function repRows(){
   let rows = repInRange().filter(t => {
     if (repKind !== "all" && t.type !== repKind) return false;
     if (repStatus !== "all" && t.status !== repStatus) return false;
-    if (repCat && t.category !== repCat) return false;
+    if (repCat && repCatOf(t).id !== repCat) return false;
     if (repAcct && t.account !== repAcct && t.fromAccount !== repAcct) return false;
     if (q){
-      const hay = [t.note, catOf(t.category).n, acctName(t.account), acctName(t.fromAccount)]
+      const hay = [t.note, repCatOf(t).n, acctName(t.account), acctName(t.fromAccount)]
         .join(" ").toLowerCase();
       if (hay.indexOf(q) === -1) return false;
     }
@@ -8201,7 +8319,7 @@ function repRows(){
     let x, y;
     if (key === "date"){ x = a.date; y = b.date; }
     else if (key === "amount"){ x = a.amount; y = b.amount; }
-    else if (key === "cat"){ x = catOf(a.category).n; y = catOf(b.category).n; }
+    else if (key === "cat"){ x = repCatOf(a).n; y = repCatOf(b).n; }
     else if (key === "acct"){ x = acctName(a.account); y = acctName(b.account); }
     else if (key === "type"){ x = a.type; y = b.type; }
     else { x = a.note || ""; y = b.note || ""; }
@@ -8217,22 +8335,55 @@ function acctName(id){
   return a ? a.n : "";
 }
 
-/** Income, expenses and net over the stretch. A transfer is neither. */
+/**
+ * Which side of the ledger an entry falls on in this report.
+ *
+ * A transfer is neither income nor expense while you look at all your accounts
+ * at once — the money has not left, it has only moved, and counting it both
+ * ways would double it. Seen from one account, though, it is plainly money in
+ * or money out of that account, and that is what the account filter asks for.
+ * So a transfer takes a side only while a single account is chosen.
+ */
+function repSideOf(t){
+  if (t.type === "income") return "income";
+  if (t.type === "expense") return "expense";
+  if (t.type === "transfer" && repAcct){
+    if (t.fromAccount === repAcct) return "expense";
+    if (t.account === repAcct) return "income";
+  }
+  return null;
+}
+
+/** A transfer is filed under Bank Transfer whatever it was saved with. */
+function repCatOf(t){
+  return t.type === "transfer" ? catOf(TRANSFER_CAT) : catOf(t.category);
+}
+
+/**
+ * Income, expenses and net over the stretch, with what is still only planned
+ * kept separately — a figure that quietly mixes what has happened with what is
+ * merely expected is not one you can act on.
+ */
 function repTotals(rows){
-  let inc = 0, out = 0;
+  let inc = 0, out = 0, pin = 0, pout = 0;
   rows.forEach(t => {
-    if (t.type === "income") inc += t.amount;
-    else if (t.type === "expense") out += t.amount;
+    const side = repSideOf(t);
+    if (!side) return;
+    const planned = t.status === "planned";
+    if (side === "income"){ inc += t.amount; if (planned) pin += t.amount; }
+    else { out += t.amount; if (planned) pout += t.amount; }
   });
-  return { inc:inc, out:out, net:inc - out };
+  return { inc:inc, out:out, net:inc - out,
+           plannedIn:pin, plannedOut:pout,
+           settledIn:inc - pin, settledOut:out - pout };
 }
 
 /** Expenses grouped by category, largest first. */
 function repByCategory(rows){
   const by = new Map();
   rows.forEach(t => {
-    if (t.type !== "expense") return;
-    const c = catOf(t.category);
+    if (repSideOf(t) !== "expense") return;
+    const c = repCatOf(t);
     const cur = by.get(c.id) || { id:c.id, n:c.n, h:c.h, total:0, count:0 };
     cur.total += t.amount;
     cur.count++;
@@ -8575,7 +8726,8 @@ function repDrawTable(rows){
 
   const tb = el("tbody");
   rows.forEach(t => {
-    const c = catOf(t.category);
+    const c = repCatOf(t);
+    const side = repSideOf(t);
     const r = el("tr");
     r.appendChild(el("td", null, prettyDate(t.date)));
 
@@ -8599,8 +8751,8 @@ function repDrawTable(rows){
         ? (acctName(t.fromAccount) || "?") + " → " + (acctName(t.account) || "?")
         : (acctName(t.account) || "—")));
 
-    const inc = el("td", "num in", t.type === "income" ? fmt(t.amount) : "");
-    const out = el("td", "num out", t.type === "expense" ? fmt(t.amount) : "");
+    const inc = el("td", "num in", side === "income" ? fmt(t.amount) : "");
+    const out = el("td", "num out", side === "expense" ? fmt(t.amount) : "");
     r.appendChild(inc);
     r.appendChild(out);
     if (t.status === "planned") r.style.opacity = ".72";
@@ -8646,7 +8798,7 @@ function repFillPickers(){
   const inRange = repInRange();
 
   const cat = $("#repCat");
-  const seen = new Set(inRange.map(t => t.category));
+  const seen = new Set(inRange.map(t => repCatOf(t).id));
   const opts = allCats("expense").concat(allCats("income")).filter(c => seen.has(c.id));
   if (repCat && !opts.some(c => c.id === repCat)) repCat = "";
   cat.innerHTML = '<option value="">Every category</option>';
@@ -8678,21 +8830,37 @@ function repRender(){
   $("#repCustom").hidden = repRange !== "custom";
   $("#repSpan").textContent = repSpanText();
 
-  const all = repInRange();
-  const tot = repTotals(all);
+  /* The tiles and the ring read the filtered rows, not the whole stretch. They
+     used to read the stretch, which was defensible while a filter only hid
+     rows — but choosing an account now changes what a transfer *means*, and a
+     summary counting one account's transfers alongside every other account's
+     entries would be answering no question at all. */
+  const rows = repRows();
+  const tot = repTotals(rows);
   $("#repIn").textContent = fmt(tot.inc);
   $("#repOut").textContent = fmt(tot.out);
   $("#repNet").textContent = fmt(tot.net);
   $("#repNet").style.color = tot.net < 0 ? "var(--neg)" : "";
+  /* a total that silently mixes what has happened with what is only expected
+     cannot be acted on, so each says how much of it is still to come */
+  $("#repInSub").textContent = tot.plannedIn
+    ? "incl. " + fmt(tot.plannedIn) + " planned" : (tot.inc ? "all received" : "");
+  $("#repOutSub").textContent = tot.plannedOut
+    ? "incl. " + fmt(tot.plannedOut) + " planned" : (tot.out ? "all paid" : "");
+  const plannedNet = tot.plannedIn - tot.plannedOut;
+  $("#repNetSub").textContent = plannedNet
+    ? fmt(tot.settledIn - tot.settledOut) + " settled" : "";
 
-  const cats = repByCategory(all);
+  const cats = repByCategory(rows);
   repDrawChart(cats, tot.out);
   repDrawLegend(cats, tot.out);
 
-  const rows = repRows();
+  const xfer = rows.filter(t => t.type === "transfer").length;
   $("#repCount").textContent =
-    rows.length + " of " + all.length + " shown" +
-    (repCat || repAcct || repKind !== "all" || repStatus !== "all" || repQuery ? " · filtered" : "");
+    rows.length + " of " + repInRange().length + " shown" +
+    (repCat || repAcct || repKind !== "all" || repStatus !== "all" || repQuery ? " · filtered" : "") +
+    (xfer && repAcct ? " · " + xfer + " transfer" + (xfer === 1 ? "" : "s") +
+                       " counted against " + acctName(repAcct) : "");
   repDrawTable(rows);
 }
 
@@ -8935,26 +9103,35 @@ function repExportRows(){
     [{ v:"பணப்பை — report", h:1 }],
     [{ v:"Range" }, { v:prettyDate(r.from) + " to " + prettyDate(r.to) }],
     [{ v:"Counted by" }, { v:repBasis === "calendar" ? "Calendar" : "15th–14th periods" }],
+    [{ v:"Account" }, { v:repAcct ? acctName(repAcct) + " — transfers counted from its side"
+                                  : "All accounts — transfers counted as neither" }],
     [{ v:"Generated" }, { v:prettyDate(todayISO()) }],
     [],
     ["Date", "Type", "Category", "Note", "Account", "Income", "Expense", "Status"]
       .map(h => ({ v:h, h:1 }))
   ];
 
-  rows.forEach(t => out.push([
-    { v:t.date, t:"d" },
-    { v:t.type === "transfer" ? "Transfer" : (t.type === "income" ? "Income" : "Expense") },
-    { v:catOf(t.category).n },
-    { v:t.note || "" },
-    { v:t.type === "transfer"
-        ? (acctName(t.fromAccount) || "?") + " → " + (acctName(t.account) || "?")
-        : (acctName(t.account) || "") },
-    { v:t.type === "income" ? t.amount : "", t:"m" },
-    { v:t.type === "expense" ? t.amount : "", t:"m" },
-    { v:t.status === "planned" ? "Planned" : "Paid" }
-  ]));
+  rows.forEach(t => {
+    const side = repSideOf(t);
+    out.push([
+      { v:t.date, t:"d" },
+      { v:t.type === "transfer" ? "Transfer" : (t.type === "income" ? "Income" : "Expense") },
+      { v:repCatOf(t).n },
+      { v:t.note || "" },
+      { v:t.type === "transfer"
+          ? (acctName(t.fromAccount) || "?") + " → " + (acctName(t.account) || "?")
+          : (acctName(t.account) || "") },
+      { v:side === "income" ? t.amount : "", t:"m" },
+      { v:side === "expense" ? t.amount : "", t:"m" },
+      { v:t.status === "planned" ? "Planned" : "Paid" }
+    ]);
+  });
 
   out.push([]);
+  out.push([{ v:"Settled", h:1 }, null, null, null, null,
+            { v:tot.settledIn, t:"m" }, { v:tot.settledOut, t:"m" }]);
+  out.push([{ v:"Planned", h:1 }, null, null, null, null,
+            { v:tot.plannedIn, t:"m" }, { v:tot.plannedOut, t:"m" }]);
   out.push([{ v:"Totals", h:1 }, null, null, null, null,
             { v:tot.inc, t:"m" }, { v:tot.out, t:"m" }]);
   out.push([{ v:"Net", h:1 }, null, null, null, null, { v:tot.net, t:"m" }]);

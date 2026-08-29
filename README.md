@@ -313,6 +313,22 @@ telling one red from another. A day's reminders count from **5am**, and the dot
 clears once you open the bell, returning the next morning. They are in-app only
 — the app can't wake itself while closed, so nothing is sent to your phone.
 
+## Nothing goes on one tap
+
+Anything that destroys saved work asks first, in a dialog that names what is
+about to go: an entry (with its amount and date), a recurring entry (and how
+many planned occurrences go with it), an account (and how many entries lose
+their tag), every entry at once, the starting balances, the app lock, and both
+directions of the GitHub sync.
+
+Taking an item off a shopping list is the deliberate exception. That list is a
+scratch pad you build and prune as you walk round a shop, not saved work, and a
+question every time would be in the way.
+
+This replaced a "tap again to confirm" pattern that some of them had and others
+did not. Arming a button by making its second tap the same button in the same
+place is easy to walk into, and it never said what was at stake.
+
 ## Reports
 
 **More › Reports** reads back a stretch of time two ways.
@@ -350,9 +366,24 @@ categories and accounts), the income/expense/transfer chips, paid vs planned,
 and the category and account pickers. The footer totals whatever is left after
 filtering.
 
-Income and expenses are totalled separately and a transfer counts as neither,
-since money moving between your own accounts is not a gain or a loss — it still
-appears in the table, marked as a transfer.
+Income and expenses are totalled separately, and a transfer counts as neither
+while you are looking at every account at once: the money has not left, it has
+only moved, and counting it both ways would double it. It still appears in the
+table, filed under **Bank Transfer**.
+
+**Choose one account** and that changes — seen from a single account a transfer
+is plainly money in or money out of it, so one leaving that account counts as an
+expense and one arriving counts as income. The row count says so when it
+happens. The dashboard and the ledger never count transfers either way.
+
+The tiles, the ring and the table all read the same filtered rows, so what is
+summarised is always what is listed.
+
+**Planned is kept apart from settled.** Each tile says how much of its figure
+has not happened yet — "incl. 324,99 € planned" — because a total that quietly
+mixes what you have paid with what you merely expect is not one you can act on.
+The spreadsheet export carries Settled, Planned and Total as three separate
+rows.
 
 ### Exporting
 
