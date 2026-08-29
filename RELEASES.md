@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.40 — 2026-08-29
+- new: Restore an earlier backup, under GitHub sync: every push you have ever made, newest first, each openable to see what it holds before restoring it.
+- new: A push that would remove a lot of what the backup holds now says so first, with the numbers, and can be cancelled.
+
 ## 1.1.39 — 2026-08-29
 - fix: Eight planned occurrences dated to a month that does not exist — 2026-13-01 and the like — are cleared out. A month-arithmetic bug wrote them in August and fixing it stopped new ones without removing the old, since occurrences are only ever added.
 - fix: A date that cannot exist can no longer be written at all, and a skip keyed to one is dropped with it.

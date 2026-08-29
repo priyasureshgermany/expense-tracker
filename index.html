@@ -750,6 +750,21 @@ button.tile:hover .tile-go{color:var(--accent)}
 .rel-i.new .rel-k{background:var(--accent-soft);color:var(--accent)}
 .rel-i.better .rel-k{background:var(--pos-soft);color:var(--pos)}
 
+/* ---------- Earlier backups ---------- */
+.histrow{
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  width:100%;padding:12px 13px;margin-bottom:7px;border-radius:13px;text-align:left;
+  background:var(--surface-2);border:1px solid var(--line);
+  transition:background .15s,border-color .15s;
+}
+.histrow:hover{background:var(--surface-sunk);border-color:var(--line-strong)}
+.histrow:active{transform:scale(.99)}
+.hr-d{font-size:13px;font-weight:600;letter-spacing:-.005em}
+.hr-s{font-size:11px;color:var(--ink-3);margin-top:2px}
+.hr-go{font-size:11px;font-weight:600;color:var(--accent);flex:none}
+.histrow.current{border-color:var(--accent-mid);background:var(--accent-soft)}
+.histrow.current .hr-go{color:var(--ink-3)}
+
 /* ---------- Confirm ----------
    Above everything, including the sheets, because it is asked from inside one
    and has to leave it standing. */
@@ -775,7 +790,8 @@ button.tile:hover .tile-go{color:var(--accent)}
 }
 .cf-ic svg{width:24px;height:24px}
 .cfbox h3{margin:0 0 6px;font-size:16px;font-weight:700;letter-spacing:-.01em}
-.cfbox p{margin:0 0 18px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+/* pre-line so a message can list what it is about to take, one per line */
+.cfbox p{margin:0 0 18px;font-size:12.5px;line-height:1.5;color:var(--ink-2);white-space:pre-line}
 .cf-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .cf-actions .btn{width:auto}
 
@@ -2974,6 +2990,7 @@ html.locked #lockScreen::before{
           </button>
         </div>
         <button class="btn ghost sm" id="ghPull" hidden>Pull onto this device</button>
+        <button class="btn ghost sm" id="ghHistory" hidden>Restore an earlier backup…</button>
         <button class="btn danger sm" id="ghDisable" hidden>Disable sync</button>
       </div>
       <div class="note" style="margin-top:6px">
@@ -3033,6 +3050,26 @@ html.locked #lockScreen::before{
   </div>
 </section>
 
+<!-- EARLIER BACKUPS -->
+<section class="sheet sheet-tall" id="shHistory" role="dialog" aria-modal="true" aria-labelledby="histTitle">
+  <div class="sheet-head" style="position:relative">
+    <button class="iconbtn setback" id="histBack" type="button" aria-label="Back to GitHub sync">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h2 id="histTitle">Earlier backups</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="note" style="margin-bottom:12px">
+      Every push keeps the one before it. Nothing here can be overwritten — pick
+      any and see what it holds before deciding.
+    </div>
+    <div id="histList"></div>
+  </div>
+</section>
+
 <!-- CONFIRM — sits above the sheets rather than replacing one, so whatever
      asked the question is still there behind it, and still there after -->
 <div class="cfwrap" id="shConfirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="cfTitle">
@@ -3058,7 +3095,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.39";
+const APP_VERSION = "1.1.40";
 const APP_BUILT = "2026-08-29";
 
 const KEY = "panappai.v1";
@@ -8052,18 +8089,45 @@ async function ghSyncNow(force){
          example entries, so it looked like real data and overwrote the real
          thing. Reconciling first — a pull, or a deliberate push — is the only
          way past this. */
+      let prev = null;
+      try{
+        prev = JSON.parse(decodeURIComponent(escape(atob(String(meta.content || "").replace(/\s/g, "")))));
+      }catch(e){}
+
       if (!force && !ghReconciled()){
-        let remoteCount = 0;
-        try{
-          const prev = JSON.parse(decodeURIComponent(escape(atob(String(meta.content || "").replace(/\s/g, "")))));
-          remoteCount = (Array.isArray(prev.txns) ? prev.txns.length : 0) +
-                        (Array.isArray(prev.rules) ? prev.rules.length : 0);
-        }catch(e){}
+        const remoteCount = prev
+          ? (Array.isArray(prev.txns) ? prev.txns.length : 0) +
+            (Array.isArray(prev.rules) ? prev.rules.length : 0)
+          : 0;
         if (remoteCount > 0){
           if (statusEl) statusEl.textContent =
             "Push blocked · the backup holds " + remoteCount + " items and this device hasn't pulled yet. " +
             "Tap \"Pull onto this device\" to bring them in — or \"Push now\" twice if this device really has the version you want to keep.";
           return;
+        }
+      }
+
+      /* The guard above only catches a device that has never pulled. This one
+         catches the same accident on a device that has: whatever emptied or
+         damaged the data since, the push would carry it over a good backup.
+         Not blocked — sometimes deleting a lot is exactly what you meant — but
+         not done quietly either. */
+      if (prev){
+        const losses = ghLossReport(ghSummarise(prev), ghSummarise(state));
+        if (losses.length){
+          if (statusEl) statusEl.textContent = "Waiting — this push would remove a lot.";
+          const ok = await askConfirm({
+            title: "This push removes a lot",
+            message: "Against the backup in your repo:\n\n" + losses.join("\n") +
+                     "\n\nPushing replaces it with this device's copy. Every earlier " +
+                     "version stays in the repo, and Restore an earlier backup can bring " +
+                     "one back.",
+            confirm: "Push anyway"
+          });
+          if (!ok){
+            if (statusEl) statusEl.textContent = "Push cancelled — the backup is untouched.";
+            return;
+          }
         }
       }
     }
@@ -8115,6 +8179,7 @@ function renderGhSettings(){
   $("#ghSave").textContent = on ? "Update settings" : "Save & enable backup";
   $("#ghSyncNow").hidden = !on;
   $("#ghPull").hidden = !on;
+  $("#ghHistory").hidden = !on;
   $("#ghDisable").hidden = !on;
   renderGhCount();
 }
@@ -9269,6 +9334,170 @@ $("#repPdf").addEventListener("click", () => {
     "  ·  generated " + esc(prettyDate(todayISO())) + "</div>";
   window.print();
 });
+
+/* =========================================================================
+   EARLIER BACKUPS
+
+   Every push is a commit, so the repo already holds every version there has
+   ever been and none of them can be overwritten — a push adds, it never
+   destroys. That protection was real but invisible: you could not see it from
+   inside the app, so it did not feel like protection, and pushing felt like
+   putting the only copy at risk.
+
+   This makes it visible. The commits touching the backup file, newest first,
+   each openable to see what it holds before anything is restored.
+   ========================================================================= */
+function ghConfig(){
+  return {
+    token: localStorage.getItem(GH_TOKEN_KEY) || "",
+    repo: localStorage.getItem(GH_REPO_KEY) || "",
+    path: localStorage.getItem(GH_PATH_KEY) || GH_DEFAULT_PATH
+  };
+}
+
+/** The payload as it stood at one commit. */
+async function ghVersionAt(sha){
+  const c = ghConfig();
+  const res = await fetch("https://api.github.com/repos/" + c.repo + "/contents/" +
+                          c.path + "?ref=" + encodeURIComponent(sha),
+                          { headers: ghHeaders(c.token), cache:"no-store" });
+  if (!res.ok) throw new Error(await ghExplain(res));
+  const meta = await res.json();
+  let raw = String(meta.content || "").replace(/\s/g, "");
+  const json = (raw && meta.encoding === "base64")
+    ? decodeURIComponent(escape(atob(raw)))
+    : await (await fetch(meta.download_url, { cache:"no-store" })).text();
+  return JSON.parse(json);
+}
+
+/** What a payload holds, in the terms you would want before restoring it. */
+function ghSummarise(p){
+  const shop = p && p.shop && p.shop.lists
+    ? (p.shop.lists.de || []).length + (p.shop.lists.in || []).length : 0;
+  return {
+    txns: Array.isArray(p.txns) ? p.txns.length : 0,
+    settled: Array.isArray(p.txns) ? p.txns.filter(t => t.status === "done").length : 0,
+    rules: Array.isArray(p.rules) ? p.rules.length : 0,
+    accounts: Array.isArray(p.accounts) ? p.accounts.length : 0,
+    shop: shop
+  };
+}
+function ghSummaryLine(s){
+  return s.txns + " entr" + (s.txns === 1 ? "y" : "ies") + " · " +
+         s.rules + " repeating · " + s.accounts + " account" + (s.accounts === 1 ? "" : "s");
+}
+
+let histLoading = false;
+async function renderGhHistory(){
+  const host = $("#histList");
+  host.innerHTML = "";
+  host.appendChild(el("div", "note", "Loading…"));
+  const c = ghConfig();
+  if (!c.token || !c.repo){
+    host.innerHTML = "";
+    host.appendChild(el("div", "note", "Set up sync first."));
+    return;
+  }
+  try{
+    const res = await fetch("https://api.github.com/repos/" + c.repo + "/commits?path=" +
+                            encodeURIComponent(c.path) + "&per_page=40",
+                            { headers: ghHeaders(c.token), cache:"no-store" });
+    if (!res.ok) throw new Error(await ghExplain(res));
+    const commits = await res.json();
+    host.innerHTML = "";
+    if (!commits.length){
+      host.appendChild(el("div", "note", "No backups pushed yet."));
+      return;
+    }
+    commits.forEach((cm, i) => {
+      const when = new Date(cm.commit.author.date);
+      const row = el("button", "histrow" + (i === 0 ? " current" : ""));
+      row.type = "button";
+      const left = el("div");
+      left.appendChild(el("div", "hr-d",
+        when.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" }) +
+        " at " + when.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" })));
+      left.appendChild(el("div", "hr-s", i === 0 ? "the copy the repo holds now" : "earlier version"));
+      row.appendChild(left);
+      row.appendChild(el("span", "hr-go", i === 0 ? "current" : "open"));
+      row.addEventListener("click", () => ghOfferRestore(cm.sha, when));
+      host.appendChild(row);
+    });
+  }catch(e){
+    host.innerHTML = "";
+    host.appendChild(el("div", "note", "Couldn't list the backups — " + (e.message || "unknown")));
+  }
+}
+
+/** Fetch one version, say what it holds and what restoring it would cost. */
+async function ghOfferRestore(sha, when){
+  if (histLoading) return;
+  histLoading = true;
+  toast("Reading that backup…");
+  try{
+    const p = await ghVersionAt(sha);
+    if (!p || !Array.isArray(p.txns)) throw new Error("that file isn't a பணப்பை backup");
+    const was = ghSummarise(p);
+    const now = ghSummarise(state);
+    const dt = when.toLocaleDateString("en-GB", { day:"2-digit", month:"short" }) + " at " +
+               when.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" });
+    if (!(await askConfirm({
+      title: "Restore the backup from " + dt + "?",
+      message: "It holds " + ghSummaryLine(was) + ". This device has " +
+               ghSummaryLine(now) + ", and all of it is replaced. " +
+               "Nothing is pushed — the repo keeps every version either way.",
+      confirm: "Restore"
+    }))) return;
+
+    state = stateFromPayload(p);
+    if (p.demo) state.demo = true;
+    refreshCats();
+    ghMarkReconciled();
+    ghMarkClean();
+    materialise();
+    /* as with a pull: taking the repo's copy sends nothing back */
+    saveLocal();
+    render(); renderShop(); renderGhSettings();
+    sheetClose();
+    toast("Restored " + state.txns.length + " entries from " + dt);
+  }catch(e){
+    toast("Couldn't restore — " + (e.message || "unknown"));
+  }finally{
+    histLoading = false;
+  }
+}
+
+$("#ghHistory").addEventListener("click", () => { sheetOpen("#shHistory"); renderGhHistory(); });
+$("#histBack").addEventListener("click", () => { sheetClose(); openSettings(); showSetPane("github"); });
+
+/* =========================================================================
+   A PUSH THAT WOULD LOSE A LOT SAYS SO FIRST
+
+   The existing guard catches a device that has never pulled. It cannot catch
+   the other shape of the same accident: a device that *has* pulled, whose data
+   has since been emptied or damaged, pushing that over a good backup. So the
+   change itself is measured, and anything that looks like a loss rather than an
+   edit has to be agreed to with the numbers in front of you.
+   ========================================================================= */
+function ghLossReport(remote, local){
+  const losses = [];
+  const drop = (a, b, what) => {
+    if (a <= 0 || b >= a) return;
+    const lost = a - b;
+    /* Proportional, not a flat floor. A fixed "five or more" reads correctly
+       for entries, which come in hundreds, and badly for accounts, which come
+       in fives — losing four of five is a disaster that slips under it. A
+       share catches both, with an absolute cap for a very large book where a
+       third would be an implausibly high bar. */
+    if (b === 0 || lost / a >= 0.3 || lost >= 20){
+      losses.push(what + ": " + a + " → " + b + "  (" + lost + " fewer)");
+    }
+  };
+  drop(remote.txns, local.txns, "entries");
+  drop(remote.rules, local.rules, "recurring entries");
+  drop(remote.accounts, local.accounts, "accounts");
+  return losses;
+}
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
