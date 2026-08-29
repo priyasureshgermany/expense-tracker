@@ -764,6 +764,17 @@ button.tile:hover .tile-go{color:var(--accent)}
 .hr-go{font-size:11px;font-weight:600;color:var(--accent);flex:none}
 .histrow.current{border-color:var(--accent-mid);background:var(--accent-soft)}
 .histrow.current .hr-go{color:var(--ink-3)}
+.histday{
+  display:flex;justify-content:space-between;align-items:baseline;
+  margin:16px 2px 7px;
+  font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3);
+}
+.histday:first-child{margin-top:2px}
+.hd-n{letter-spacing:0;text-transform:none;font-weight:500;font-size:10.5px}
+.histfoot{margin-top:16px;padding-top:13px;border-top:1px solid var(--line);text-align:center}
+.hf-n{font-size:11px;color:var(--ink-3);margin-bottom:9px}
+.histfoot .btn{width:auto;padding-left:22px;padding-right:22px}
 
 /* ---------- Confirm ----------
    Above everything, including the sheets, because it is asked from inside one
@@ -3095,7 +3106,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.40";
+const APP_VERSION = "1.1.41";
 const APP_BUILT = "2026-08-29";
 
 const KEY = "panappai.v1";
@@ -9388,46 +9399,106 @@ function ghSummaryLine(s){
 }
 
 let histLoading = false;
-async function renderGhHistory(){
+let histPage = 1;             /* which page of commits has been fetched */
+let histAll = [];             /* everything fetched so far, newest first */
+let histMore = false;         /* whether the last page came back full */
+const HIST_PER_PAGE = 20;
+
+/** "Today", "Yesterday", or the date written out. */
+function histDayLabel(d){
+  const day = isoOf(d.getFullYear(), d.getMonth() + 1, d.getDate());
+  if (day === todayISO()) return "Today";
+  const y = new Date();
+  y.setDate(y.getDate() - 1);
+  if (day === isoOf(y.getFullYear(), y.getMonth() + 1, y.getDate())) return "Yesterday";
+  return d.toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"long", year:"numeric" });
+}
+
+/**
+ * Paints what has been fetched, gathered under the day it was pushed.
+ *
+ * Grouped because the list is long and every row otherwise repeats the same
+ * date: on a busy day there might be a dozen pushes, and reading twelve
+ * identical dates to find the time you want is work the heading can do instead.
+ */
+function paintGhHistory(){
   const host = $("#histList");
   host.innerHTML = "";
-  host.appendChild(el("div", "note", "Loading…"));
+  if (!histAll.length){
+    host.appendChild(el("div", "note", "No backups pushed yet."));
+    return;
+  }
+  let lastDay = null;
+  histAll.forEach((cm, i) => {
+    const when = new Date(cm.commit.author.date);
+    const label = histDayLabel(when);
+    if (label !== lastDay){
+      const h = el("div", "histday");
+      h.appendChild(el("span", null, label));
+      const onDay = histAll.filter(x => histDayLabel(new Date(x.commit.author.date)) === label).length;
+      h.appendChild(el("span", "hd-n", onDay + (onDay === 1 ? " push" : " pushes")));
+      host.appendChild(h);
+      lastDay = label;
+    }
+    const row = el("button", "histrow" + (i === 0 ? " current" : ""));
+    row.type = "button";
+    const left = el("div");
+    left.appendChild(el("div", "hr-d",
+      when.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" })));
+    if (i === 0) left.appendChild(el("div", "hr-s", "the copy the repo holds now"));
+    row.appendChild(left);
+    row.appendChild(el("span", "hr-go", i === 0 ? "current" : "open"));
+    row.addEventListener("click", () => ghOfferRestore(cm.sha, when));
+    host.appendChild(row);
+  });
+
+  const foot = el("div", "histfoot");
+  foot.appendChild(el("div", "hf-n",
+    "Showing " + histAll.length + " backup" + (histAll.length === 1 ? "" : "s") +
+    (histMore ? " — there are older ones" : " — that is all of them")));
+  if (histMore){
+    const more = el("button", "btn ghost sm", "Show older");
+    more.type = "button";
+    more.addEventListener("click", () => loadGhHistory(false));
+    foot.appendChild(more);
+  }
+  host.appendChild(foot);
+}
+
+/** Fetches one page. `reset` starts again from the newest. */
+async function loadGhHistory(reset){
+  if (histLoading) return;
   const c = ghConfig();
+  const host = $("#histList");
   if (!c.token || !c.repo){
     host.innerHTML = "";
     host.appendChild(el("div", "note", "Set up sync first."));
     return;
   }
+  if (reset){ histAll = []; histPage = 1; histMore = false; host.innerHTML = ""; host.appendChild(el("div", "note", "Loading…")); }
+  histLoading = true;
   try{
     const res = await fetch("https://api.github.com/repos/" + c.repo + "/commits?path=" +
-                            encodeURIComponent(c.path) + "&per_page=40",
+                            encodeURIComponent(c.path) +
+                            "&per_page=" + HIST_PER_PAGE + "&page=" + histPage,
                             { headers: ghHeaders(c.token), cache:"no-store" });
     if (!res.ok) throw new Error(await ghExplain(res));
-    const commits = await res.json();
-    host.innerHTML = "";
-    if (!commits.length){
-      host.appendChild(el("div", "note", "No backups pushed yet."));
-      return;
-    }
-    commits.forEach((cm, i) => {
-      const when = new Date(cm.commit.author.date);
-      const row = el("button", "histrow" + (i === 0 ? " current" : ""));
-      row.type = "button";
-      const left = el("div");
-      left.appendChild(el("div", "hr-d",
-        when.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" }) +
-        " at " + when.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" })));
-      left.appendChild(el("div", "hr-s", i === 0 ? "the copy the repo holds now" : "earlier version"));
-      row.appendChild(left);
-      row.appendChild(el("span", "hr-go", i === 0 ? "current" : "open"));
-      row.addEventListener("click", () => ghOfferRestore(cm.sha, when));
-      host.appendChild(row);
-    });
+    const page = await res.json();
+    /* a short page means the end; a full one means there is probably more */
+    histMore = page.length === HIST_PER_PAGE;
+    histAll = histAll.concat(page);
+    histPage++;
+    paintGhHistory();
   }catch(e){
     host.innerHTML = "";
     host.appendChild(el("div", "note", "Couldn't list the backups — " + (e.message || "unknown")));
+  }finally{
+    histLoading = false;
   }
 }
+
+function renderGhHistory(){ return loadGhHistory(true); }
+
 
 /** Fetch one version, say what it holds and what restoring it would cost. */
 async function ghOfferRestore(sha, when){
