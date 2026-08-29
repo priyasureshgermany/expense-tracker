@@ -178,6 +178,30 @@ in the browser to make those calls, which means:
 - Treat it like any other secret: don't enable this on a public/shared
   computer, and revoke the token from GitHub if you ever stop using it.
 
+**A push never destroys anything.** Each one is a commit, so the repo holds
+every version there has ever been and none can be overwritten — a push adds.
+That was always true and entirely invisible, which is why pushing felt like
+risking the only copy. **Restore an earlier backup** lists them, newest first,
+and reading one tells you what it holds before you decide:
+
+> It holds 268 entries · 19 repeating · 5 accounts. This device has 12 entries ·
+> 3 repeating · 5 accounts, and all of it is replaced.
+
+Restoring takes the repo's copy and sends nothing back, exactly as a pull does.
+
+**A push that would remove a lot says so first.** The existing guard catches a
+device that has never pulled; this one catches the same accident on a device
+that has, whose data has since been emptied or damaged. The outgoing copy is
+compared with what the repo holds and anything that looks like a loss rather
+than an edit is put in front of you with the numbers:
+
+> entries: 268 → 2  (266 fewer)
+> recurring entries: 19 → 1  (18 fewer)
+
+The test is proportional rather than a flat count — losing five entries out of
+three hundred is editing, losing four accounts out of five is a disaster, and a
+fixed threshold reads one of those wrong whichever number you pick.
+
 Fill in the token, the repo as `owner/repo`, and a file path (defaults to
 `data/panappai-backup.json`), then **Save & enable backup**. Sync is
 debounced a few seconds after each change so a burst of edits doesn't fire an
