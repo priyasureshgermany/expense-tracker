@@ -110,14 +110,20 @@ stores** — designed for tapping rather than typing:
   you're standing in the shop.
 - **One Total bill box** at the end, filled in once when you're done (or
   filled automatically by a receipt scan).
+- **Paid from** sits under the purchase date: the account the shop came out of,
+  saved on the purchase and on the ledger entry it posts, so a shop lands on the
+  right bank in the balances and in a report rather than as an expense from
+  nowhere. It defaults to your first account, remembers what you last chose, and
+  the row hides itself until you have an account to pick.
 - **Save purchase** sits at the end of the page: it files the ticked items
   into *Recent purchases* with a purchase date, leaves anything unbought on
   the list, and can post the total bill to the ledger as a groceries expense.
 - **Recent purchases are tappable** — opening one shows everything bought on
-  that trip, with per-item prices where a scan supplied them. The **total is
-  editable there**, so a shop saved without one can be priced afterwards:
-  setting a total posts the groceries expense, changing it updates that same
-  entry, and clearing it removes it again rather than leaving a €0 row.
+  that trip, with per-item prices where a scan supplied them. The **total and
+  the account are editable there**, so a shop saved without either can be
+  corrected afterwards: setting a total posts the groceries expense, changing
+  either updates that same entry, and clearing the total removes it again
+  rather than leaving a €0 row.
 
 ### Scanning a receipt
 
