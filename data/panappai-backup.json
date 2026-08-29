@@ -1222,7 +1222,7 @@
       "id": "ups0napgyzux",
       "type": "expense",
       "amount": 5400,
-      "category": "buffer",
+      "category": "c_v31n14bizpl9",
       "note": "Viswanathan & sons Movie - Cinestar",
       "date": "2026-08-19",
       "status": "done",
@@ -2963,7 +2963,9 @@
       "category": "groceries_de",
       "note": "German shopping",
       "date": "2026-08-28",
-      "status": "done"
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     },
     {
       "id": "2icjm9yqv526",
@@ -3231,7 +3233,29 @@
   ],
   "shop": {
     "lists": {
-      "de": [],
+      "de": [
+        {
+          "id": "sb52110fk5l6",
+          "name": "Milch 1L",
+          "qty": "",
+          "price": 0,
+          "done": false
+        },
+        {
+          "id": "dpexc703kr0w",
+          "name": "Butter",
+          "qty": "",
+          "price": 0,
+          "done": true
+        },
+        {
+          "id": "y3tey64dkr8q",
+          "name": "Eier",
+          "qty": "",
+          "price": 0,
+          "done": false
+        }
+      ],
       "in": []
     },
     "history": [
@@ -3431,6 +3455,12 @@
         "h": 18,
         "custom": true,
         "icon": "loan"
+      },
+      {
+        "id": "c_v31n14bizpl9",
+        "n": "Entertainment",
+        "h": 72,
+        "custom": true
       }
     ],
     "income": [
