@@ -578,6 +578,22 @@ button.tile:hover .tile-go{color:var(--accent)}
 
 /* ---------- Item picker ---------- */
 .pickgroup{margin-bottom:16px}
+/* a saved shop offered whole, above the staples it is made of */
+.savedlists{display:flex;flex-direction:column;gap:6px}
+.savedlist{
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  width:100%;text-align:left;padding:11px 13px;border-radius:13px;
+  background:var(--accent-soft);border:1px solid var(--accent-mid);
+  transition:background .15s,transform .12s;
+}
+.savedlist:hover{background:var(--surface-sunk)}
+.savedlist:active{transform:scale(.99)}
+.savedlist.done{background:var(--surface-2);border-color:var(--line)}
+.sl-n{font-size:13px;font-weight:600;letter-spacing:-.005em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl-m{font-size:11px;color:var(--ink-3);margin-top:2px}
+.sl-go{font-size:11.5px;font-weight:700;color:var(--accent);flex:none}
+.savedlist.done .sl-go{color:var(--pos)}
+
 .pickgroup h4{
   margin:0 0 9px;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
   color:var(--ink-3);font-weight:600;
@@ -698,7 +714,21 @@ button.tile:hover .tile-go{color:var(--accent)}
 .sf-note{flex:none;width:168px;max-width:100%;padding:9px 11px;font-size:12.5px}
 .sf-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
 .sf-check input{width:16px;height:16px;accent-color:var(--accent)}
-.shophist{display:flex;flex-direction:column;gap:7px}
+.shophist{display:flex;flex-direction:column;gap:6px}
+/* the row and its bookmark sit side by side, so one opens and one keeps */
+/* min-width:0 or the row refuses to shrink below its own text, and a shop with
+   a long list of items pushes itself wider than the ones above it */
+.histwrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:stretch}
+.histwrap > .histrow{min-width:0}
+.hr-bm{
+  flex:none;width:42px;border-radius:12px;
+  display:grid;place-items:center;color:var(--ink-3);
+  background:var(--surface-2);border:1px solid var(--line);
+  transition:color .15s,background .15s,border-color .15s;
+}
+.hr-bm svg{width:17px;height:17px}
+.hr-bm:hover{background:var(--surface-sunk);color:var(--ink-2)}
+.hr-bm.on{color:var(--accent);border-color:var(--accent-mid);background:var(--accent-soft)}
 .histrow{
   display:flex;align-items:center;gap:10px;padding:10px 12px;
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
@@ -753,20 +783,23 @@ button.tile:hover .tile-go{color:var(--accent)}
 .rel-i.new .rel-k{background:var(--accent-soft);color:var(--accent)}
 .rel-i.better .rel-k{background:var(--pos-soft);color:var(--pos)}
 
-/* ---------- Earlier backups ---------- */
-.histrow{
+/* ---------- Earlier backups ----------
+   Its own names. These were .histrow / .hr-d / .hr-s, which Recent purchases
+   already used, and being later in the sheet they won — so the store badge on
+   a saved shop lost its coloured pill and became grey text. */
+.bkrow{
   display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
   width:100%;padding:12px 13px;margin-bottom:7px;border-radius:13px;text-align:left;
   background:var(--surface-2);border:1px solid var(--line);
   transition:background .15s,border-color .15s;
 }
-.histrow:hover{background:var(--surface-sunk);border-color:var(--line-strong)}
-.histrow:active{transform:scale(.99)}
-.hr-d{font-size:13px;font-weight:600;letter-spacing:-.005em}
-.hr-s{font-size:11px;color:var(--ink-3);margin-top:2px}
-.hr-go{font-size:11px;font-weight:600;color:var(--accent);flex:none}
-.histrow.current{border-color:var(--accent-mid);background:var(--accent-soft)}
-.histrow.current .hr-go{color:var(--ink-3)}
+.bkrow:hover{background:var(--surface-sunk);border-color:var(--line-strong)}
+.bkrow:active{transform:scale(.99)}
+.bk-d{font-size:13px;font-weight:600;letter-spacing:-.005em}
+.bk-s{font-size:11px;color:var(--ink-3);margin-top:2px}
+.bk-go{font-size:11px;font-weight:600;color:var(--accent);flex:none}
+.bkrow.current{border-color:var(--accent-mid);background:var(--accent-soft)}
+.bkrow.current .bk-go{color:var(--ink-3)}
 .histday{
   display:flex;justify-content:space-between;align-items:baseline;
   margin:16px 2px 7px;
@@ -2695,9 +2728,15 @@ html.locked #lockScreen::before{
       <label>Paid from</label>
       <div class="pick" id="purchAcct" role="listbox" aria-label="Account" style="width:168px;max-width:100%"></div>
     </div>
+    <div class="purch-total" style="margin-top:8px" id="purchBmRow">
+      <label for="purchBm">Saved as</label>
+      <input class="inp" id="purchBm" type="text" autocomplete="off"
+             placeholder="Not saved"
+             style="width:168px;max-width:100%;padding:9px 11px;font-size:12.5px">
+    </div>
     <div class="purch-total" style="margin-top:8px">
-      <label for="purchNote">Note</label>
-      <input class="inp" id="purchNote" type="text" autocomplete="off"
+      <label for="purchNoteIn">Note</label>
+      <input class="inp" id="purchNoteIn" type="text" autocomplete="off"
              style="width:168px;max-width:100%;padding:9px 11px;font-size:12.5px">
     </div>
     <button class="btn sm" id="purchSave" style="margin-top:12px">Save purchase</button>
@@ -3174,7 +3213,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.45";
+const APP_VERSION = "1.1.46";
 const APP_BUILT = "2026-08-30";
 
 const KEY = "panappai.v1";
@@ -6753,8 +6792,41 @@ function renderShopHistory(){
     row.appendChild(el("div", "hr-t", fmt(h.total)));
     row.setAttribute("aria-label", "Show what was bought on " + dayTitle(h.date));
     row.addEventListener("click", () => openPurchase(h));
-    host.appendChild(row);
+
+    /* Kept beside the row rather than inside it: the row opens the purchase,
+       and a shop you buy the same way every week is worth one tap to keep. */
+    const mark = el("button", "hr-bm" + (h.bookmark ? " on" : ""));
+    mark.type = "button";
+    mark.title = h.bookmark ? "Saved as \"" + h.bookmark + "\" — tap to unsave" : "Save this list to reuse";
+    mark.setAttribute("aria-label", mark.title);
+    mark.setAttribute("aria-pressed", String(!!h.bookmark));
+    mark.innerHTML = '<svg viewBox="0 0 24 24" fill="' + (h.bookmark ? "currentColor" : "none") +
+      '" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M6 3.5h12a1 1 0 011 1V21l-7-4-7 4V4.5a1 1 0 011-1z"/></svg>';
+    mark.addEventListener("click", e => {
+      e.stopPropagation();
+      h.bookmark = h.bookmark ? null : bookmarkDefaultName(h);
+      save(); renderShop();
+      toast(h.bookmark ? "Saved as \"" + h.bookmark + "\" — reuse it from Add items"
+                       : "Removed from your saved lists");
+    });
+
+    const wrap = el("div", "histwrap");
+    wrap.appendChild(row);
+    wrap.appendChild(mark);
+    host.appendChild(wrap);
   });
+}
+
+/** What a saved list is called before you rename it. */
+function bookmarkDefaultName(h){
+  return (STORE_LABEL[h.store] || "Shop").replace(" stores", "") + " \u00b7 " + dayTitle(h.date);
+}
+/** The saved lists for one store, newest first. */
+function savedLists(forStore){
+  return (state.shop.history || [])
+    .filter(h => h.bookmark && h.store === forStore && h.items && h.items.length)
+    .sort((a, b) => a.date < b.date ? 1 : -1);
 }
 
 /** Detail of one saved shop, opened from the Recent purchases list. */
@@ -6792,7 +6864,8 @@ function openPurchase(h){
   $("#purchTotal").value = h.total ? (h.total / 100).toFixed(2).replace(".", ",") : "";
   purchAccount = h.account || null;
   renderPurchAccount();
-  $("#purchNote").value = h.note || "";
+  $("#purchNoteIn").value = h.note || "";
+  $("#purchBm").value = h.bookmark || "";
   const linked = h.txnId && state.txns.some(t => t.id === h.txnId);
   $("#purchNote").textContent = linked
     ? "Changing the total updates the groceries expense this shop posted to the ledger."
@@ -6808,8 +6881,10 @@ $("#purchSave").addEventListener("click", () => {
   h.total = total;
 
   h.account = purchAccount || null;
-  const pNote = $("#purchNote").value.trim();
+  const pNote = $("#purchNoteIn").value.trim();
   h.note = pNote || null;
+  /* naming it here is also how it gets saved, and clearing the name unsaves it */
+  h.bookmark = $("#purchBm").value.trim() || null;
   const fallbackNote = (STORE_LABEL[h.store] || "").replace(" stores", "") + " shopping";
 
   const linked = h.txnId ? state.txns.find(t => t.id === h.txnId) : null;
@@ -6872,6 +6947,50 @@ function renderPicker(){
   const onList = new Set(shopList().map(i => normName(i.name)));
   const q = normName(pickQuery);
   let shown = 0;
+
+  /* Saved shops for this store, offered as whole lists. Only this store's, since
+     a German list dropped into the Indian one is never what was meant — and
+     only while nothing is being searched for, a search being a question about
+     one item rather than about a list. */
+  const saved = savedLists(store);
+  if (saved.length && !q){
+    const g = el("div", "pickgroup");
+    g.appendChild(el("h4", null, "Your saved lists"));
+    const wrap = el("div", "savedlists");
+    saved.forEach(h => {
+      const already = h.items.filter(i => onList.has(normName(i.name))).length;
+      const toAdd = h.items.length - already;
+      const b = el("button", "savedlist");
+      b.type = "button";
+      const left = el("div");
+      left.appendChild(el("div", "sl-n", h.bookmark));
+      left.appendChild(el("div", "sl-m", h.items.length + " item" +
+        (h.items.length === 1 ? "" : "s") + " \u00b7 " +
+        (toAdd ? "adds " + toAdd : "all already on the list")));
+      b.appendChild(left);
+      b.appendChild(el("span", "sl-go", toAdd ? "Add" : "\u2713"));
+      if (!toAdd) b.classList.add("done");
+      b.title = h.items.map(i => i.name).join(", ");
+      b.addEventListener("click", () => {
+        if (!toAdd){ toast("Everything on \"" + h.bookmark + "\" is already here"); return; }
+        let added = 0;
+        h.items.forEach(i => {
+          if (onList.has(normName(i.name))) return;
+          addShopItem(i.name);
+          if (i.qty){
+            const row = shopList().find(x => normName(x.name) === normName(i.name));
+            if (row) row.qty = i.qty;      /* the quantity comes with it */
+          }
+          added++;
+        });
+        save(); renderShop(); renderPicker();
+        toast("Added " + added + " item" + (added === 1 ? "" : "s") + " from \"" + h.bookmark + "\"");
+      });
+      wrap.appendChild(b);
+    });
+    g.appendChild(wrap);
+    host.appendChild(g);
+  }
 
   (CATALOG[store] || []).forEach(group => {
     /* a search narrows to matching staples; groups that lose everything go too,
@@ -9662,14 +9781,14 @@ function paintGhHistory(){
       host.appendChild(h);
       lastDay = label;
     }
-    const row = el("button", "histrow" + (i === 0 ? " current" : ""));
+    const row = el("button", "bkrow" + (i === 0 ? " current" : ""));
     row.type = "button";
     const left = el("div");
-    left.appendChild(el("div", "hr-d",
+    left.appendChild(el("div", "bk-d",
       when.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" })));
-    if (i === 0) left.appendChild(el("div", "hr-s", "the copy the repo holds now"));
+    if (i === 0) left.appendChild(el("div", "bk-s", "the copy the repo holds now"));
     row.appendChild(left);
-    row.appendChild(el("span", "hr-go", i === 0 ? "current" : "open"));
+    row.appendChild(el("span", "bk-go", i === 0 ? "current" : "open"));
     row.addEventListener("click", () => ghOfferRestore(cm.sha, when));
     host.appendChild(row);
   });
