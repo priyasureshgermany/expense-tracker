@@ -33,8 +33,8 @@ Open `index.html` in any browser, or host the file anywhere static.
 - **Custom categories.** The built-in list is a starting point — the dashed
   **+ New category** chip at the end of the category list in a new entry adds
   your own, for income or expenses. They work everywhere the built-ins do:
-  entries, recurring rules, budgets and charts. Colours are assigned spaced
-  around the wheel so a new one doesn't look like an existing one, duplicate
+  entries, recurring rules, budgets and charts. A new one is given the colour
+  that sits furthest from every colour already in use, duplicate
   names are refused, and a category already used by an entry can't be deleted
   until those entries are retagged.
 - **Budget envelopes** ("What's left to spend") for money spent bit by bit. A
@@ -388,7 +388,24 @@ only one reading, so the toggle hides for those.
 
 **Chart** shows a pie drawn in projection — the circle squashed into
 an ellipse with a wall dropped from each slice's outer edge — every slice the
-colour that category always is. The slices meet, and the light is applied to the
+colour that category always is.
+
+A category's colour is a **hue and a depth**, and it needs both. There are 22
+expense categories and one hue ring to fit them on, which leaves neighbours a
+few degrees apart — Investment and Groceries — German were close enough to read
+as a single colour, and a custom category could land on a built-in one exactly.
+No rearrangement fixes that, because the ring is not long enough: 22 hues at one
+fixed lightness cannot be spread further than about a fifth of what the eye
+needs. Depth is the axis that makes them separate, so each category carries a
+lightness of its own between 22% and 42% alongside its hue, and the pie builds
+its whole gloss stack from that rather than from one lightness shared by every
+slice. Distances are measured in OKLab, where a step means roughly the same
+amount anywhere — unlike hue degrees, which are nearly invisible in the greens
+and obvious in the reds.
+
+The same depth carries into the swatch and the ledger pill, so a category is one
+colour everywhere. A category saved before depth existed is given one on load,
+placed clear of everything already in use. The slices meet, and the light is applied to the
 whole object rather than to each piece: the gradients are laid out in the pie's
 own coordinates so the fall of light carries across a boundary, and one sheen is
 laid over the top face after every slice is down.
