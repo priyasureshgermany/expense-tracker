@@ -2834,6 +2834,64 @@
       "status": "done",
       "account": "a_gch8xl46opp7",
       "fromAccount": null
+    },
+    {
+      "id": "h9zvywbbozc8",
+      "type": "expense",
+      "amount": 258,
+      "category": "groceries_de",
+      "note": "Celik center",
+      "date": "2026-08-29",
+      "status": "done",
+      "account": "a_9gbih0jvp6la",
+      "fromAccount": null
+    },
+    {
+      "id": "qzcq1ywzcskn",
+      "type": "expense",
+      "amount": 6890,
+      "category": "utilities",
+      "note": "Liability Insurance",
+      "date": "2027-02-01",
+      "status": "planned",
+      "ruleId": "evq34oywcskm",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "lt4snj2efeab",
+      "type": "expense",
+      "amount": 9900,
+      "category": "toindia",
+      "note": "Chithiram TV",
+      "date": "2027-01-15",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "8re9kmdclp1n",
+      "type": "expense",
+      "amount": 6000,
+      "category": "c_v31n14bizpl9",
+      "note": "Surfshark VPN",
+      "date": "2027-04-15",
+      "status": "planned",
+      "ruleId": "uh0rhafhlp1l",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "quufv0knnzas",
+      "type": "expense",
+      "amount": 92000,
+      "category": "invest",
+      "note": "Hasinireyaa child insurances",
+      "date": "2027-08-10",
+      "status": "planned",
+      "ruleId": "8wc0ww8pnzas",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     }
   ],
   "rules": [
@@ -3055,6 +3113,42 @@
       "active": true,
       "account": "a_gch8xl46opp7",
       "fromAccount": null
+    },
+    {
+      "id": "evq34oywcskm",
+      "type": "expense",
+      "amount": 6890,
+      "category": "utilities",
+      "note": "Liability Insurance",
+      "freq": "yearly",
+      "anchor": "2027-02-01",
+      "active": true,
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "uh0rhafhlp1l",
+      "type": "expense",
+      "amount": 6000,
+      "category": "c_v31n14bizpl9",
+      "note": "Surfshark VPN",
+      "freq": "yearly",
+      "anchor": "2027-04-15",
+      "active": true,
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "8wc0ww8pnzas",
+      "type": "expense",
+      "amount": 92000,
+      "category": "invest",
+      "note": "Hasinireyaa child insurances",
+      "freq": "yearly",
+      "anchor": "2027-08-10",
+      "active": true,
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     }
   ],
   "skips": [
@@ -3091,15 +3185,7 @@
   ],
   "shop": {
     "lists": {
-      "de": [
-        {
-          "id": "1r5upvya0yj0",
-          "name": "Milch",
-          "qty": "",
-          "price": 299,
-          "done": true
-        }
-      ],
+      "de": [],
       "in": []
     },
     "history": [
