@@ -8,6 +8,14 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.45 — 2026-08-30
+- better: Each ledger row names the account it moved through, beside its category.
+- fix: Forgot PIN looked dead. It was answering in a toast, and a toast is drawn under the lock screen, so nothing ever arrived. It answers on the lock screen now, and says what to do when no security question was set rather than offering no way out.
+- new: A note on a saved purchase, under Paid from, which becomes the ledger entry's note. Correctable afterwards like its total and account.
+- new: The Accounts pane totals every account beside its heading.
+- better: The untagged-entries line says what they come to and opens to list them, and tapping one opens that entry to set its account.
+- new: An account name opens a report of that account over the period the dashboard is showing.
+
 ## 1.1.44 — 2026-08-29
 - fix: The report's chart was hard-wired to expenses, so it sat empty under a full table whenever you filtered to income, or to transfers seen from an account the money only arrived at. It now draws whichever side the rows have, captioned Where it went or Where it came from.
 

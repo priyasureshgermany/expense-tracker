@@ -694,6 +694,8 @@ button.tile:hover .tile-go{color:var(--accent)}
 /* the native date control has a wide intrinsic size — pin it so it can't overflow the card */
 .sf-date-host{flex:none;width:168px;max-width:100%}
 .sf-acct{flex:none;width:168px;max-width:100%}
+.sf-noterow{align-items:center}
+.sf-note{flex:none;width:168px;max-width:100%;padding:9px 11px;font-size:12.5px}
 .sf-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
 .sf-check input{width:16px;height:16px;accent-color:var(--accent)}
 .shophist{display:flex;flex-direction:column;gap:7px}
@@ -776,6 +778,29 @@ button.tile:hover .tile-go{color:var(--accent)}
 .histfoot{margin-top:16px;padding-top:13px;border-top:1px solid var(--line);text-align:center}
 .hf-n{font-size:11px;color:var(--ink-3);margin-bottom:9px}
 .histfoot .btn{width:auto;padding-left:22px;padding-right:22px}
+
+/* ---------- Untagged entries ---------- */
+.looseblock{margin-top:10px}
+.looseline{
+  display:block;width:100%;text-align:left;cursor:pointer;
+  border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+  background:var(--surface-2);transition:background .14s,border-color .14s;
+}
+.looseline:hover{background:var(--surface-sunk);border-color:var(--line-strong)}
+.looseline.open{border-color:var(--accent-mid)}
+.loselist{margin-top:7px;display:flex;flex-direction:column;gap:5px}
+.loserow{
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  width:100%;text-align:left;padding:9px 11px;border-radius:11px;
+  background:var(--surface-2);border:1px solid var(--line);
+  transition:background .14s;
+}
+.loserow:hover{background:var(--surface-sunk)}
+.lr-n{font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lr-m{font-size:10.5px;color:var(--ink-3);margin-top:1px}
+.lr-a{font-family:var(--mono);font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;flex:none}
+.lr-a.in{color:var(--pos)}
+.lr-a.out{color:var(--neg)}
 
 /* ---------- Confirm ----------
    Above everything, including the sheets, because it is asked from inside one
@@ -1548,6 +1573,11 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
    dozen groups had grown past what a phone screen can hold. Two tiles to a row
    fits every topic on one screen. */
 #setMenu{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start}
+/* what the accounts add up to, said where the pane is named */
+.set-total{
+  font-family:var(--mono);font-size:13.5px;font-weight:700;
+  font-variant-numeric:tabular-nums;color:var(--ink);flex:none;margin-right:2px;
+}
 .setrow{
   display:flex;flex-direction:column;align-items:flex-start;gap:10px;
   padding:15px 14px;border-radius:16px;text-align:left;min-height:132px;
@@ -1732,7 +1762,13 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   padding:9px 10px 9px 12px;border-radius:11px;
   background:var(--surface-2);border:1px solid var(--line);
 }
-.acctrow .ar-n{display:flex;align-items:baseline;gap:7px;flex:1;min-width:0}
+.acctrow .ar-n{
+  display:flex;align-items:baseline;gap:7px;flex:1;min-width:0;
+  text-align:left;border-radius:8px;padding:2px 4px;margin-left:-4px;
+  transition:background .14s;
+}
+.acctrow .ar-n:hover{background:var(--surface-sunk)}
+.acctrow .ar-n:active{transform:scale(.99)}
 .acctrow .ar-n b{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .acctrow .ar-k{
   font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
@@ -1743,7 +1779,9 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .balrow .bl-ic{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--surface-sunk);color:var(--ink-2)}
 .balrow .bl-n{flex:1;min-width:0;font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .balrow .bl-a{flex:none;width:118px;text-align:right;font-family:var(--mono);font-weight:600}
-.acctrow .ar-u{font-size:11px;color:var(--ink-3);flex:none}
+/* the account on a ledger row, set apart from the category by a dot */
+.t2 .acctn{color:var(--ink-3)}
+.t2 .acctn::before{content:"\00b7";margin:0 5px;opacity:.6}
 .acctrow .ar-x{
   width:26px;height:26px;border-radius:8px;flex:none;
   display:grid;place-items:center;color:var(--ink-3);
@@ -1832,7 +1870,9 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 
 .toast{
   position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));
-  transform:translate(-50%,14px);z-index:80;
+  /* above the lock screen, which is 500: a message raised while locked was
+     drawn underneath it, so anything said there simply never arrived */
+  transform:translate(-50%,14px);z-index:700;
   background:var(--ink);color:var(--ground);
   padding:10px 16px;border-radius:99px;font-size:13px;font-weight:500;
   box-shadow:var(--shadow-md);opacity:0;pointer-events:none;
@@ -1920,6 +1960,15 @@ html.locked #lockScreen::before{
 }
 .lr-back{font-size:12px;color:rgba(255,255,255,.62);text-decoration:underline;margin-top:2px}
 .lock-forgot{margin-top:20px;font-size:12px;color:rgba(255,255,255,.62);text-decoration:underline}
+/* Said here rather than only in a toast. The lock screen fills the viewport,
+   so a message at the foot of the page is both behind it and nowhere near
+   where you are looking when you tap Forgot PIN. */
+.lock-msg{
+  margin:16px auto 0;max-width:290px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:12px;padding:11px 13px;
+  font-size:12px;line-height:1.5;color:#fff;text-align:left;
+}
 </style>
 </head>
 <body>
@@ -1995,6 +2044,7 @@ html.locked #lockScreen::before{
     </div>
     <div class="lock-sub" id="lockSub">Enter your PIN</div>
     <div class="lock-dots" id="lockDots"><span></span><span></span><span></span><span></span></div>
+    <div class="lock-msg" id="lockMsg" hidden></div>
     <div class="lock-recover" id="lockRecover" hidden>
       <div class="lr-q" id="lockRecoverQ"></div>
       <input class="lr-in" id="lockAnswer" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Your answer">
@@ -2181,6 +2231,11 @@ html.locked #lockScreen::before{
       <div class="sf-row" id="shopAcctRow">
         <div class="sf-k">Paid from</div>
         <div class="pick sf-acct" id="shopAcct" role="listbox" aria-label="Account"></div>
+      </div>
+      <div class="sf-row sf-noterow">
+        <label class="sf-k" for="shopNote">Note</label>
+        <input class="inp sf-note" id="shopNote" type="text" autocomplete="off"
+               placeholder="Lidl weekly shop">
       </div>
       <label class="sf-check">
         <input type="checkbox" id="shopLogExpense" checked>
@@ -2640,6 +2695,11 @@ html.locked #lockScreen::before{
       <label>Paid from</label>
       <div class="pick" id="purchAcct" role="listbox" aria-label="Account" style="width:168px;max-width:100%"></div>
     </div>
+    <div class="purch-total" style="margin-top:8px">
+      <label for="purchNote">Note</label>
+      <input class="inp" id="purchNote" type="text" autocomplete="off"
+             style="width:168px;max-width:100%;padding:9px 11px;font-size:12.5px">
+    </div>
     <button class="btn sm" id="purchSave" style="margin-top:12px">Save purchase</button>
     <div class="note" id="purchNote" style="margin-top:10px"></div>
   </div>
@@ -2841,6 +2901,7 @@ html.locked #lockScreen::before{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
     <h2 id="setTitle">Settings</h2>
+    <span class="set-total" id="setHeadTotal" hidden></span>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
@@ -3113,8 +3174,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.44";
-const APP_BUILT = "2026-08-29";
+const APP_VERSION = "1.1.45";
+const APP_BUILT = "2026-08-30";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -4639,9 +4700,28 @@ function renderAccountSettings(){
   }
   list.forEach(a => {
     const row = el("div", "acctrow");
-    const name = el("div", "ar-n");
+    /* the name opens a report of this account over the period the dashboard is
+       showing — the question "what is in here" is nearly always followed by
+       "what has been going through it" */
+    const name = el("button", "ar-n");
+    name.type = "button";
+    name.title = "See " + a.n + " in a report";
     name.appendChild(el("b", null, a.n));
     name.appendChild(el("span", "ar-k", ACCT_KIND[a.kind] || "Bank"));
+    name.addEventListener("click", () => {
+      sheetClose();
+      repAcct = a.id;
+      repKind = "all"; repStatus = "all"; repCat = ""; repQuery = ""; repSelCat = null;
+      syncChips("#repKind", "kind", repKind);
+      syncChips("#repStatus", "status", repStatus);
+      $("#repSearch").value = "";
+      /* the stretch the dashboard is on, not today's — you may have navigated */
+      repRange = "custom";
+      setDateVal("#repFrom", periodStart(view));
+      setDateVal("#repTo", periodEnd(view));
+      repSetTab("table");
+      openReport();
+    });
     row.appendChild(name);
     const bal = accountBalance(a.id);
     const bEl = el("div", "ar-b", fmt(bal));
@@ -4651,7 +4731,6 @@ function renderAccountSettings(){
       : "No starting balance set — this is only what has moved through it";
     row.appendChild(bEl);
     const used = state.txns.filter(t => t.account === a.id || t.fromAccount === a.id).length;
-    if (used) row.appendChild(el("span", "ar-u", used + " entr" + (used === 1 ? "y" : "ies")));
     const del = el("button", "ar-x");
     del.type = "button";
     del.setAttribute("aria-label", "Remove " + a.n);
@@ -4694,13 +4773,46 @@ function renderAccountSettings(){
   /* Settled entries with no account are in the dashboard total but in none of
      these, so the two won't add up until they're tagged. Better said than left
      as a discrepancy to puzzle over. */
-  const loose = state.txns.filter(t => t.status === "done" && !t.account && !t.fromAccount).length;
-  if (loose){
-    const n = el("div", "note");
-    n.style.marginTop = "10px";
-    n.innerHTML = "<b>" + loose + "</b> settled entr" + (loose === 1 ? "y is" : "ies are") +
-      " not tagged with an account, so they count on the dashboard but in none of these.";
-    host.appendChild(n);
+  /* Naming a count and nothing else leaves you to hunt for the entries by
+     hand, which for a single row among hundreds is no small thing — and it is
+     the discrepancy between the dashboard and these balances, so it is worth
+     being able to close. Tapping it lists them, and tapping one opens it. */
+  const loose = state.txns
+    .filter(t => t.status === "done" && !t.account && !t.fromAccount && !isTransfer(t))
+    .sort((a, b) => a.date < b.date ? 1 : -1);
+  if (loose.length){
+    const wrap = el("div", "looseblock");
+    const btn = el("button", "note looseline");
+    btn.type = "button";
+    const total = loose.reduce((n, t) => n + (t.type === "income" ? t.amount : -t.amount), 0);
+    btn.innerHTML = "<b>" + loose.length + "</b> settled entr" +
+      (loose.length === 1 ? "y is" : "ies are") + " not tagged with an account, so " +
+      (loose.length === 1 ? "it counts" : "they count") + " on the dashboard but in none of these" +
+      " — " + fmt(Math.abs(total)) + " worth. <b>Show " +
+      (loose.length === 1 ? "it" : "them") + "</b>";
+    const list = el("div", "loselist");
+    list.hidden = true;
+    btn.addEventListener("click", () => {
+      list.hidden = !list.hidden;
+      btn.classList.toggle("open", !list.hidden);
+    });
+    loose.forEach(t => {
+      const r = el("button", "loserow");
+      r.type = "button";
+      const left = el("div");
+      left.appendChild(el("div", "lr-n", t.note || catOf(t.category).n));
+      left.appendChild(el("div", "lr-m", prettyDate(t.date) + " · " + catOf(t.category).n));
+      r.appendChild(left);
+      const amt = el("span", "lr-a " + (t.type === "income" ? "in" : "out"),
+                     (t.type === "income" ? "+" : "−") + fmt(t.amount).replace("-", ""));
+      r.appendChild(amt);
+      r.title = "Open this entry to set its account";
+      r.addEventListener("click", () => { sheetClose(); openEntry(t); });
+      list.appendChild(r);
+    });
+    wrap.appendChild(btn);
+    wrap.appendChild(list);
+    host.appendChild(wrap);
   }
 }
 $("#acctAdd").addEventListener("click", () => {
@@ -4858,6 +4970,12 @@ function txnRow(t, dark){
   t2.appendChild(el("span", "cn", xfer
     ? (t.note ? accountName(t.fromAccount) + " → " + accountName(t.account) : "Self transfer")
     : c.n));
+  /* which account it moved through, beside the category. A transfer already
+     names both ends above, so it is only the one-sided entries that need it. */
+  if (!xfer && t.account){
+    const an = accountName(t.account);
+    if (an) t2.appendChild(el("span", "acctn", an));
+  }
   if (t.status === "planned"){
     const late = t.date < todayISO();
     const p = el("span", "pill " + (late ? "late" : "due"), late ? "Overdue" : "Due");
@@ -6246,6 +6364,15 @@ function showSetPane(key){
   $$(".setpane").forEach(p => { p.hidden = p.id !== "setPane_" + key; });
   $("#setBack").hidden = !key;
   $("#setTitle").textContent = key ? SET_TITLES[key] : "Settings";
+  /* the accounts pane is the one place a single figure answers the question the
+     pane is asking, so it goes up beside its name */
+  const tot = $("#setHeadTotal");
+  tot.hidden = key !== "accounts";
+  if (key === "accounts"){
+    const sum = accountsOf().reduce((n, a) => n + (accountBalance(a.id) || 0), 0);
+    tot.textContent = fmt(sum);
+    tot.style.color = sum < 0 ? "var(--neg)" : "";
+  }
   const body = key ? $("#setPane_" + key) : $("#setMenu");
   if (body) body.scrollTop = 0;
 }
@@ -6665,6 +6792,7 @@ function openPurchase(h){
   $("#purchTotal").value = h.total ? (h.total / 100).toFixed(2).replace(".", ",") : "";
   purchAccount = h.account || null;
   renderPurchAccount();
+  $("#purchNote").value = h.note || "";
   const linked = h.txnId && state.txns.some(t => t.id === h.txnId);
   $("#purchNote").textContent = linked
     ? "Changing the total updates the groceries expense this shop posted to the ledger."
@@ -6680,12 +6808,16 @@ $("#purchSave").addEventListener("click", () => {
   h.total = total;
 
   h.account = purchAccount || null;
+  const pNote = $("#purchNote").value.trim();
+  h.note = pNote || null;
+  const fallbackNote = (STORE_LABEL[h.store] || "").replace(" stores", "") + " shopping";
 
   const linked = h.txnId ? state.txns.find(t => t.id === h.txnId) : null;
   if (linked){
     if (total > 0){
       linked.amount = total;
       linked.account = purchAccount || null;
+      linked.note = pNote || fallbackNote;
     } else {
       /* a total cleared back to nothing shouldn't leave a €0 row in the ledger */
       state.txns = state.txns.filter(t => t.id !== h.txnId);
@@ -6695,7 +6827,7 @@ $("#purchSave").addEventListener("click", () => {
     userTouched();
     const t = {
       id: uid(), type:"expense", amount: total, category: STORE_CAT[h.store] || "groceries_de",
-      note: (STORE_LABEL[h.store] || "").replace(" stores", "") + " shopping",
+      note: pNote || fallbackNote,
       date: h.date, status:"done",
       account: purchAccount || null, fromAccount: null
     };
@@ -7497,9 +7629,14 @@ $("#shopDone").addEventListener("click", () => {
      exist when a scanned receipt supplied them */
   const total = Math.abs(parseAmount($("#shopTotal").value) || 0);
 
+  /* Whatever you type is the entry's note, exactly as if you had written it in
+     the entry sheet. Left empty it falls back to naming the store, which is what
+     it always used to say. */
+  const note = $("#shopNote").value.trim();
   const record = {
     id: uid(), store: store, date: date, total: total,
     account: shopAccount || null,
+    note: note || null,
     items: checked.map(i => ({ name:i.name, qty:i.qty || "", price:i.price || 0 }))
   };
   state.shop.history.push(record);
@@ -7508,7 +7645,8 @@ $("#shopDone").addEventListener("click", () => {
     userTouched();
     const t = {
       id: uid(), type:"expense", amount: total, category: STORE_CAT[store] || "groceries_de",
-      note: STORE_LABEL[store].replace(" stores", "") + " shopping", date: date, status:"done",
+      note: note || (STORE_LABEL[store].replace(" stores", "") + " shopping"),
+      date: date, status:"done",
       /* so the shop lands on the right account in the balances and the report,
          rather than as an expense from nowhere */
       account: shopAccount || null, fromAccount: null
@@ -7521,6 +7659,7 @@ $("#shopDone").addEventListener("click", () => {
   state.shop.lists[store] = arr.filter(i => !i.done);
   setDateVal("#shopDate", todayISO());
   $("#shopTotal").value = "";
+  $("#shopNote").value = "";
   save(); render(); renderShop();
   toast("Saved " + checked.length + " item" + (checked.length === 1 ? "" : "s") + " · " + fmt(total));
 });
@@ -7681,6 +7820,7 @@ function lockConfirm(what){
   if (!lockEnabled()) return Promise.resolve(true);   /* no PIN set, nothing to check */
   document.documentElement.classList.add("locked");
   lockMode = "confirm"; lockBuf = ""; lockFirstPin = "";
+  lockSay("");
   $("#lockSub").textContent = what;
   $("#lockForgot").hidden = true;
   $("#lockRecover").hidden = true;
@@ -7701,6 +7841,7 @@ function lockConfirmEnd(ok){
 function lockOpenUnlock(){
   document.documentElement.classList.add("locked");
   lockMode = "unlock"; lockBuf = ""; lockFirstPin = "";
+  lockSay("");
   $("#lockSub").textContent = "Enter your PIN";
   $("#lockForgot").hidden = false;
   $("#lockRecover").hidden = true;
@@ -7711,6 +7852,7 @@ function lockOpenUnlock(){
 function lockOpenSetup(){
   document.documentElement.classList.add("locked");
   lockMode = "setup1"; lockBuf = ""; lockFirstPin = "";
+  lockSay("");
   $("#lockSub").textContent = "Choose a 4-digit PIN";
   $("#lockForgot").hidden = true;
   $("#lockRecover").hidden = true;
@@ -7762,11 +7904,26 @@ $("#lockPad").addEventListener("click", e => {
 /* ---------- forgotten PIN: answer the security question, then set a new one ----------
    The PIN itself is only ever stored as a salted hash, so it can't be shown back —
    a correct answer leads to choosing a new PIN instead. */
+/** Says something on the lock screen itself, where you are actually looking. */
+function lockSay(msg){
+  const n = $("#lockMsg");
+  n.textContent = msg || "";
+  n.hidden = !msg;
+}
+
 function lockShowRecovery(){
   if (!lockHasQuestion()){
-    toast("No security question was set — turn the lock off in Settings on a device where you're signed in");
+    /* This used to be a toast, and a toast is drawn under the lock screen, so
+       tapping Forgot PIN looked like it did nothing at all. It also offered no
+       way out. There is one: the PIN only guards this browser, and your book
+       lives in the repo. */
+    lockSay("No security question was set on this device, so the PIN cannot be " +
+            "reset here. Your book is safe — it is in your GitHub backup. Open " +
+            "the app in another browser, set up GitHub sync there and pull it, " +
+            "or clear this site's data and pull it back afterwards.");
     return;
   }
+  lockSay("");
   $("#lockSub").textContent = "Answer to reset your PIN";
   $("#lockRecoverQ").textContent = localStorage.getItem(LOCK_Q_KEY) || "Your security question";
   $("#lockAnswer").value = "";
@@ -7789,7 +7946,8 @@ async function lockTryAnswer(){
   } else {
     lockShake();
     $("#lockAnswer").value = "";
-    toast("That doesn't match");
+    lockSay("That answer doesn't match. Spacing and capitals are ignored, so it " +
+            "is the wording itself that has to be right.");
   }
 }
 $("#lockAnswerGo").addEventListener("click", lockTryAnswer);
