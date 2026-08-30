@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.47 — 2026-08-30
+- better: Keeping a shop as a reusable list is asked inside that shop rather than offered on every row of Recent purchases, and the name only appears once you have ticked to keep it.
+
 ## 1.1.46 — 2026-08-30
 - new: A past shop can be bookmarked and reused: the bookmark beside a row in Recent purchases keeps it as a list, and saved lists sit at the top of Add items for that store, one tap to put everything back with its quantities.
 - fix: The purchase note box and the line explaining what a total does shared an id, so that explanation was written into the box and its own line stayed blank.

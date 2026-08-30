@@ -118,9 +118,11 @@ stores** — designed for tapping rather than typing:
 - **Save purchase** sits at the end of the page: it files the ticked items
   into *Recent purchases* with a purchase date, leaves anything unbought on
   the list, and can post the total bill to the ledger as a groceries expense.
-- **Bookmark a shop to reuse it.** The bookmark beside a row in *Recent
-  purchases* keeps that shop as a list; naming it in the purchase sheet (**Saved
-  as**) is what it will be called, and clearing the name unsaves it. Saved lists
+- **Bookmark a shop to reuse it.** Open a saved purchase and tick **Save this
+  shop as a list I can reuse**; only then does a **Save as** field appear, filled
+  with a name taken from the store and the date for you to type over. The tick is
+  what keeps it and the name is only what it is called, so leaving the name empty
+  falls back to the default rather than quietly unsaving it. Saved lists
   then sit at the top of **Add items** for the same store — one tap puts
   everything back on the list, quantities and all, skipping whatever is already
   there. Only the matching store's lists are offered, and they step aside while

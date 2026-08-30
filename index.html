@@ -713,22 +713,22 @@ button.tile:hover .tile-go{color:var(--accent)}
 .sf-noterow{align-items:center}
 .sf-note{flex:none;width:168px;max-width:100%;padding:9px 11px;font-size:12.5px}
 .sf-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
+/* the same checkbox the shop form uses, so keeping a shop reads like the other
+   choice made about one */
+.purch-check{
+  display:flex;align-items:center;gap:9px;cursor:pointer;
+  margin-top:12px;padding:11px 13px;border-radius:13px;
+  background:var(--surface-2);border:1px solid var(--line);
+  font-size:12.5px;color:var(--ink-2);transition:background .14s,border-color .14s;
+}
+.purch-check:hover{background:var(--surface-sunk)}
+.purch-check input{width:16px;height:16px;accent-color:var(--accent);flex:none}
+.purch-check:has(input:checked){background:var(--accent-soft);border-color:var(--accent-mid);color:var(--accent)}
+#purchBmRow{margin-top:8px}
 .sf-check input{width:16px;height:16px;accent-color:var(--accent)}
 .shophist{display:flex;flex-direction:column;gap:6px}
-/* the row and its bookmark sit side by side, so one opens and one keeps */
-/* min-width:0 or the row refuses to shrink below its own text, and a shop with
-   a long list of items pushes itself wider than the ones above it */
-.histwrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:stretch}
-.histwrap > .histrow{min-width:0}
-.hr-bm{
-  flex:none;width:42px;border-radius:12px;
-  display:grid;place-items:center;color:var(--ink-3);
-  background:var(--surface-2);border:1px solid var(--line);
-  transition:color .15s,background .15s,border-color .15s;
-}
-.hr-bm svg{width:17px;height:17px}
-.hr-bm:hover{background:var(--surface-sunk);color:var(--ink-2)}
-.hr-bm.on{color:var(--accent);border-color:var(--accent-mid);background:var(--accent-soft)}
+/* a shop with a long list of items must not push itself wider than the rest */
+.histrow{min-width:0}
 .histrow{
   display:flex;align-items:center;gap:10px;padding:10px 12px;
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
@@ -2728,10 +2728,16 @@ html.locked #lockScreen::before{
       <label>Paid from</label>
       <div class="pick" id="purchAcct" role="listbox" aria-label="Account" style="width:168px;max-width:100%"></div>
     </div>
-    <div class="purch-total" style="margin-top:8px" id="purchBmRow">
-      <label for="purchBm">Saved as</label>
+    <label class="purch-check" for="purchBmOn">
+      <input type="checkbox" id="purchBmOn">
+      <span>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M6 3.5h12a1 1 0 011 1V21l-7-4-7 4V4.5a1 1 0 011-1z"/></svg>
+        Save this shop as a list I can reuse
+      </span>
+    </label>
+    <div class="purch-total" id="purchBmRow" hidden>
+      <label for="purchBm">Save as</label>
       <input class="inp" id="purchBm" type="text" autocomplete="off"
-             placeholder="Not saved"
              style="width:168px;max-width:100%;padding:9px 11px;font-size:12.5px">
     </div>
     <div class="purch-total" style="margin-top:8px">
@@ -3213,7 +3219,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.46";
+const APP_VERSION = "1.1.47";
 const APP_BUILT = "2026-08-30";
 
 const KEY = "panappai.v1";
@@ -6792,29 +6798,9 @@ function renderShopHistory(){
     row.appendChild(el("div", "hr-t", fmt(h.total)));
     row.setAttribute("aria-label", "Show what was bought on " + dayTitle(h.date));
     row.addEventListener("click", () => openPurchase(h));
-
-    /* Kept beside the row rather than inside it: the row opens the purchase,
-       and a shop you buy the same way every week is worth one tap to keep. */
-    const mark = el("button", "hr-bm" + (h.bookmark ? " on" : ""));
-    mark.type = "button";
-    mark.title = h.bookmark ? "Saved as \"" + h.bookmark + "\" — tap to unsave" : "Save this list to reuse";
-    mark.setAttribute("aria-label", mark.title);
-    mark.setAttribute("aria-pressed", String(!!h.bookmark));
-    mark.innerHTML = '<svg viewBox="0 0 24 24" fill="' + (h.bookmark ? "currentColor" : "none") +
-      '" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="M6 3.5h12a1 1 0 011 1V21l-7-4-7 4V4.5a1 1 0 011-1z"/></svg>';
-    mark.addEventListener("click", e => {
-      e.stopPropagation();
-      h.bookmark = h.bookmark ? null : bookmarkDefaultName(h);
-      save(); renderShop();
-      toast(h.bookmark ? "Saved as \"" + h.bookmark + "\" — reuse it from Add items"
-                       : "Removed from your saved lists");
-    });
-
-    const wrap = el("div", "histwrap");
-    wrap.appendChild(row);
-    wrap.appendChild(mark);
-    host.appendChild(wrap);
+    /* Keeping a shop is something you decide about one shop, so it is asked
+       inside that shop rather than offered on every row of the list. */
+    host.appendChild(row);
   });
 }
 
@@ -6846,6 +6832,19 @@ function renderPurchAccount(){
     v => { purchAccount = v || null; renderPurchAccount(); });
 }
 
+/** The name only matters once you have said you want to keep it. */
+function syncPurchBm(){
+  $("#purchBmRow").hidden = !$("#purchBmOn").checked;
+}
+$("#purchBmOn").addEventListener("change", () => {
+  syncPurchBm();
+  /* offer a name straight away rather than an empty box to puzzle over */
+  if ($("#purchBmOn").checked && !$("#purchBm").value.trim() && editingPurchase){
+    $("#purchBm").value = bookmarkDefaultName(editingPurchase);
+  }
+  if ($("#purchBmOn").checked) setTimeout(() => $("#purchBm").select(), 40);
+});
+
 function openPurchase(h){
   editingPurchase = h;
   $("#purchTitle").textContent = STORE_LABEL[h.store] || "Purchase";
@@ -6865,7 +6864,10 @@ function openPurchase(h){
   purchAccount = h.account || null;
   renderPurchAccount();
   $("#purchNoteIn").value = h.note || "";
+  $("#purchBmOn").checked = !!h.bookmark;
   $("#purchBm").value = h.bookmark || "";
+  $("#purchBm").placeholder = bookmarkDefaultName(h);
+  syncPurchBm();
   const linked = h.txnId && state.txns.some(t => t.id === h.txnId);
   $("#purchNote").textContent = linked
     ? "Changing the total updates the groceries expense this shop posted to the ledger."
@@ -6883,8 +6885,10 @@ $("#purchSave").addEventListener("click", () => {
   h.account = purchAccount || null;
   const pNote = $("#purchNoteIn").value.trim();
   h.note = pNote || null;
-  /* naming it here is also how it gets saved, and clearing the name unsaves it */
-  h.bookmark = $("#purchBm").value.trim() || null;
+  /* the tick decides whether it is kept; the name is only what it is called */
+  h.bookmark = $("#purchBmOn").checked
+    ? ($("#purchBm").value.trim() || bookmarkDefaultName(h))
+    : null;
   const fallbackNote = (STORE_LABEL[h.store] || "").replace(" stores", "") + " shopping";
 
   const linked = h.txnId ? state.txns.find(t => t.id === h.txnId) : null;
