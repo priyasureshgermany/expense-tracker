@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.1.46 — 2026-08-30
+- new: A past shop can be bookmarked and reused: the bookmark beside a row in Recent purchases keeps it as a list, and saved lists sit at the top of Add items for that store, one tap to put everything back with its quantities.
+- fix: The purchase note box and the line explaining what a total does shared an id, so that explanation was written into the box and its own line stayed blank.
+- fix: The Earlier backups list had taken the class names Recent purchases was already using, which left the store badge on a saved shop as grey text instead of a coloured pill.
+
 ## 1.1.45 — 2026-08-30
 - better: Each ledger row names the account it moved through, beside its category.
 - fix: Forgot PIN looked dead. It was answering in a toast, and a toast is drawn under the lock screen, so nothing ever arrived. It answers on the lock screen now, and says what to do when no security question was set rather than offering no way out.

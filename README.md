@@ -118,6 +118,13 @@ stores** — designed for tapping rather than typing:
 - **Save purchase** sits at the end of the page: it files the ticked items
   into *Recent purchases* with a purchase date, leaves anything unbought on
   the list, and can post the total bill to the ledger as a groceries expense.
+- **Bookmark a shop to reuse it.** The bookmark beside a row in *Recent
+  purchases* keeps that shop as a list; naming it in the purchase sheet (**Saved
+  as**) is what it will be called, and clearing the name unsaves it. Saved lists
+  then sit at the top of **Add items** for the same store — one tap puts
+  everything back on the list, quantities and all, skipping whatever is already
+  there. Only the matching store's lists are offered, and they step aside while
+  you are searching, a search being a question about one item rather than a list.
 - **Recent purchases are tappable** — opening one shows everything bought on
   that trip, with per-item prices where a scan supplied them. The **total and
   the account are editable there**, so a shop saved without either can be
