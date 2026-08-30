@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.2.0 — 2026-08-31
+- fix: Categories that looked like one colour in the report chart now tell apart. Investment and Groceries — German were all but identical, and a custom category could match a built-in one exactly
+- better: Chart colours are deeper, and a category keeps its colour everywhere it appears
+- fix: Checkboxes follow the theme instead of arriving as a bright white box on a dark card
+
 ## 1.1.47 — 2026-08-30
 - better: Keeping a shop as a reusable list is asked inside that shop rather than offered on every row of Recent purchases, and the name only appears once you have ticked to keep it.
 
