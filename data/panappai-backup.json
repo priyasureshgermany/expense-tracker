@@ -4,7 +4,7 @@
     {
       "id": "fhumwps8em8p",
       "type": "expense",
-      "amount": 4402,
+      "amount": 5400,
       "category": "groceries_de",
       "note": "Lidl",
       "date": "2026-08-22",
@@ -2677,7 +2677,7 @@
       "type": "expense",
       "amount": 580,
       "category": "groceries_de",
-      "note": "German shopping",
+      "note": "Lidl",
       "date": "2026-08-28",
       "status": "done",
       "account": "a_gch8xl46opp7",
@@ -2821,6 +2821,17 @@
       "date": "2027-07-07",
       "status": "planned",
       "ruleId": "hw1leafxc2iz",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "weh2ridjx783",
+      "type": "expense",
+      "amount": 5141,
+      "category": "groceries_de",
+      "note": "Lidl",
+      "date": "2026-08-29",
+      "status": "done",
       "account": "a_gch8xl46opp7",
       "fromAccount": null
     }
@@ -3082,25 +3093,11 @@
     "lists": {
       "de": [
         {
-          "id": "sb52110fk5l6",
-          "name": "Milch 1L",
+          "id": "1r5upvya0yj0",
+          "name": "Milch",
           "qty": "",
-          "price": 0,
-          "done": false
-        },
-        {
-          "id": "dpexc703kr0w",
-          "name": "Butter",
-          "qty": "",
-          "price": 0,
+          "price": 299,
           "done": true
-        },
-        {
-          "id": "y3tey64dkr8q",
-          "name": "Eier",
-          "qty": "",
-          "price": 0,
-          "done": false
         }
       ],
       "in": []
@@ -3153,7 +3150,8 @@
             "price": 0
           }
         ],
-        "txnId": "fhumwps8em8p"
+        "txnId": "fhumwps8em8p",
+        "account": "a_gch8xl46opp7"
       },
       {
         "id": "pp51aij00xgg",
@@ -3222,7 +3220,8 @@
             "price": 399
           }
         ],
-        "txnId": "sz9pyoj50xgg"
+        "txnId": "sz9pyoj50xgg",
+        "account": "a_gch8xl46opp7"
       },
       {
         "id": "hri98mslrm8m",
@@ -3251,7 +3250,8 @@
             "price": 799
           }
         ],
-        "txnId": "3ct5rd3orm8m"
+        "txnId": "3ct5rd3orm8m",
+        "account": "a_gch8xl46opp7"
       },
       {
         "id": "t35mibjbpd9e",
@@ -3275,7 +3275,138 @@
             "price": 2
           }
         ],
-        "txnId": "4jgthfkupd9e"
+        "txnId": "4jgthfkupd9e",
+        "account": "a_gch8xl46opp7"
+      },
+      {
+        "id": "7w2apxu4x783",
+        "store": "de",
+        "date": "2026-08-29",
+        "total": 5141,
+        "account": "a_gch8xl46opp7",
+        "items": [
+          {
+            "name": "Milch",
+            "qty": "4",
+            "price": 540
+          },
+          {
+            "name": "Eier",
+            "qty": "1",
+            "price": 698
+          },
+          {
+            "name": "Joghurt",
+            "qty": "2",
+            "price": 178
+          },
+          {
+            "name": "Tomaten",
+            "qty": "",
+            "price": 0
+          },
+          {
+            "name": "Zwiebeln",
+            "qty": "",
+            "price": 199
+          },
+          {
+            "name": "Zitronen",
+            "qty": "",
+            "price": 149
+          },
+          {
+            "name": "Hähnchen",
+            "qty": "",
+            "price": 849
+          },
+          {
+            "name": "Küchenrolle",
+            "qty": "",
+            "price": 0
+          },
+          {
+            "name": "Müllbeutel",
+            "qty": "",
+            "price": 0
+          },
+          {
+            "name": "chips",
+            "qty": "",
+            "price": 0
+          },
+          {
+            "name": "Garlic",
+            "qty": "",
+            "price": 0
+          },
+          {
+            "name": "corn",
+            "qty": "",
+            "price": 0
+          },
+          {
+            "name": "plant",
+            "qty": "",
+            "price": 0
+          },
+          {
+            "name": "cabbage",
+            "qty": "",
+            "price": 0
+          },
+          {
+            "name": "ice cream",
+            "qty": "",
+            "price": 0
+          },
+          {
+            "name": "Grünpflanzen",
+            "qty": "",
+            "price": 599
+          },
+          {
+            "name": "Mango (1,49 x 2)",
+            "qty": "",
+            "price": 298
+          },
+          {
+            "name": "Bio Knoblauch",
+            "qty": "",
+            "price": 149
+          },
+          {
+            "name": "Bioland Knoblau",
+            "qty": "",
+            "price": 149
+          },
+          {
+            "name": "Zuckermais",
+            "qty": "",
+            "price": 199
+          },
+          {
+            "name": "Mövenpick Vanille",
+            "qty": "",
+            "price": 199
+          },
+          {
+            "name": "Pringles Original",
+            "qty": "",
+            "price": 279
+          },
+          {
+            "name": "Duftmüllb. Morgenfr",
+            "qty": "",
+            "price": 179
+          },
+          {
+            "name": "Küchentücher 3-lagig",
+            "qty": "",
+            "price": 275
+          }
+        ],
+        "txnId": "weh2ridjx783"
       }
     ]
   },
