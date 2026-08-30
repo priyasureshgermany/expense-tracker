@@ -27,6 +27,10 @@ try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documen
    TOKENS — light is the complete set; dark redefines tokens only
    ============================================================ */
 :root{
+  /* Without this the browser paints its own controls — checkboxes, date
+     pickers, scrollbars — in light mode whatever the app's theme says, which
+     is how an unticked box arrived as a bright white slab on a dark card. */
+  color-scheme:light;
   --ground:#F4F6F8;
   --surface:#FFFFFF;
   --surface-2:#EFF2F5;
@@ -63,6 +67,7 @@ try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documen
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
+    color-scheme:dark;
     --ground:#0B1116;
     --surface:#141C23;
     --surface-2:#1B242C;
@@ -94,6 +99,7 @@ try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documen
   }
 }
 :root[data-theme="dark"]{
+  color-scheme:dark;
   --ground:#0B1116;
   --surface:#141C23;
   --surface-2:#1B242C;
@@ -712,6 +718,29 @@ button.tile:hover .tile-go{color:var(--accent)}
 .sf-acct{flex:none;width:168px;max-width:100%}
 .sf-noterow{align-items:center}
 .sf-note{flex:none;width:168px;max-width:100%;padding:9px 11px;font-size:12.5px}
+/* An empty box the colour of the card it sits on, that fills with the accent
+   when ticked — so it reads as an option offered rather than one already taken. */
+input[type=checkbox]{
+  appearance:none;-webkit-appearance:none;
+  width:18px;height:18px;flex:none;margin:0;
+  border-radius:6px;
+  background:var(--surface-2);
+  border:1.5px solid var(--line-strong);
+  display:inline-grid;place-items:center;
+  cursor:pointer;
+  transition:background .14s,border-color .14s;
+}
+input[type=checkbox]:hover{border-color:var(--accent-mid);background:var(--surface-sunk)}
+input[type=checkbox]::after{
+  content:"";width:5px;height:9px;margin-top:-2px;
+  border:solid var(--accent-ink);border-width:0 2.2px 2.2px 0;
+  transform:rotate(45deg) scale(0);
+  transition:transform .14s cubic-bezier(.2,.9,.3,1.4);
+}
+input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)}
+input[type=checkbox]:checked::after{transform:rotate(45deg) scale(1)}
+input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-offset:2px}
+
 .sf-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
 /* the same checkbox the shop form uses, so keeping a shop reads like the other
    choice made about one */
@@ -722,10 +751,8 @@ button.tile:hover .tile-go{color:var(--accent)}
   font-size:12.5px;color:var(--ink-2);transition:background .14s,border-color .14s;
 }
 .purch-check:hover{background:var(--surface-sunk)}
-.purch-check input{width:16px;height:16px;accent-color:var(--accent);flex:none}
 .purch-check:has(input:checked){background:var(--accent-soft);border-color:var(--accent-mid);color:var(--accent)}
 #purchBmRow{margin-top:8px}
-.sf-check input{width:16px;height:16px;accent-color:var(--accent)}
 .shophist{display:flex;flex-direction:column;gap:6px}
 /* a shop with a long list of items must not push itself wider than the rest */
 .histrow{min-width:0}
@@ -1862,7 +1889,6 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 }
 .prow:last-child{border-bottom:none}
 .prow.dupe{opacity:.5}
-.prow input[type=checkbox]{width:17px;height:17px;flex:none;accent-color:var(--accent)}
 .prow .pd{
   font-family:var(--mono);font-size:11px;color:var(--ink-3);flex:none;
   font-variant-numeric:tabular-nums;
@@ -3219,8 +3245,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.1.47";
-const APP_BUILT = "2026-08-30";
+const APP_VERSION = "1.2.0";
+const APP_BUILT = "2026-08-31";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -3239,45 +3265,45 @@ const THEME_KEY = "panappai.theme";
 /* ---------- categories ---------- */
 const CATS = {
   expense: [
-    {id:"groceries_de", n:"Groceries — German",  h:140},
-    {id:"groceries_in", n:"Groceries — Indian",  h:36},
-    {id:"nonveg",       n:"Non-Veg",             h:8},
-    {id:"transport",    n:"Transport",           h:255},
-    {id:"health",       n:"Health",              h:340},
-    {id:"dining",       n:"Dining",              h:22},
-    {id:"shopping",     n:"Shopping",            h:44},
-    {id:"education",    n:"Education",           h:174},
-    {id:"cash",         n:"Cash",                h:190},
-    {id:"cardpay",      n:"Credit Card Payment", h:264},
-    {id:"invest",       n:"Investment",          h:130},
-    {id:"topriya",      n:"To Priya",            h:330},
-    {id:"toindia",      n:"To India",            h:32},
+    {id:"groceries_de", n:"Groceries — German",  h:140, l:23},
+    {id:"groceries_in", n:"Groceries — Indian",  h:49, l:42},
+    {id:"nonveg",       n:"Non-Veg",             h:357, l:40},
+    {id:"transport",    n:"Transport",           h:247, l:42},
+    {id:"health",       n:"Health",              h:325, l:29},
+    {id:"dining",       n:"Dining",              h:29, l:42},
+    {id:"shopping",     n:"Shopping",            h:39, l:27},
+    {id:"education",    n:"Education",           h:173, l:31},
+    {id:"cash",         n:"Cash",                h:179, l:41},
+    {id:"cardpay",      n:"Credit Card Payment", h:262, l:25},
+    {id:"invest",       n:"Investment",          h:121, l:34},
+    {id:"topriya",      n:"To Priya",            h:323, l:42},
+    {id:"toindia",      n:"To India",            h:19, l:22},
     /* money leaving for another account of yours that isn't a Self transfer —
        a standing order out, say. The income side of the same name is retired. */
-    {id:"banktransfer_out", n:"Bank Transfer",  h:205},
-    {id:"buffer",       n:"Misc",                h:288},
+    {id:"banktransfer_out", n:"Bank Transfer",  h:201, l:26},
+    {id:"buffer",       n:"Misc",                h:288, l:42},
     /* retired: still label existing entries and recurring bills, but no longer
        offered when adding, so the picker stays short. noBudget on EMI because a
        fixed amount on a known date belongs in a recurring entry, not an envelope. */
-    {id:"emi",       n:"EMI",           h:248, noBudget:true, retired:true},
-    {id:"rent",      n:"Rent",          h:220, retired:true},
-    {id:"utilities", n:"Utilities",     h:196},
-    {id:"insurance", n:"Insurance",     h:280, retired:true},
-    {id:"subs",      n:"Subscriptions", h:310, retired:true},
-    {id:"family",    n:"Family",        h:6,   retired:true},
-    {id:"other",     n:"Other",         h:210, retired:true}
+    {id:"emi",       n:"EMI",           h:248, l:22, noBudget:true, retired:true},
+    {id:"rent",      n:"Rent",          h:220, l:32, retired:true},
+    {id:"utilities", n:"Utilities",     h:207, l:42},
+    {id:"insurance", n:"Insurance",     h:280, l:22, retired:true},
+    {id:"subs",      n:"Subscriptions", h:310, l:32, retired:true},
+    {id:"family",    n:"Family",        h:15, l:35,   retired:true},
+    {id:"other",     n:"Other",         h:210, l:22, retired:true}
   ],
   income: [
-    {id:"salary",       n:"Salary",        h:152},
+    {id:"salary",       n:"Salary",        h:137, l:22},
     /* superseded by Self transfer, which moves money without counting as income */
-    {id:"banktransfer", n:"Bank Transfer", h:205, retired:true},
-    {id:"refund",       n:"Refund",        h:44},
-    {id:"taxreturn",    n:"Tax return",    h:96},
-    {id:"gift",         n:"Gift",          h:310},
-    {id:"kindergeld", n:"Kindergeld", h:120, retired:true},
-    {id:"freelance",  n:"Freelance",  h:196, retired:true},
-    {id:"interest",   n:"Interest",   h:255, retired:true},
-    {id:"other_in",   n:"Other",      h:210, retired:true}
+    {id:"banktransfer", n:"Bank Transfer", h:205, l:32, retired:true},
+    {id:"refund",       n:"Refund",        h:29, l:42},
+    {id:"taxreturn",    n:"Tax return",    h:87, l:42},
+    {id:"gift",         n:"Gift",          h:310, l:32},
+    {id:"kindergeld", n:"Kindergeld", h:120, l:42, retired:true},
+    {id:"freelance",  n:"Freelance",  h:196, l:22, retired:true},
+    {id:"interest",   n:"Interest",   h:255, l:32, retired:true},
+    {id:"other_in",   n:"Other",      h:210, l:42, retired:true}
   ]
 };
 /* Built-ins above; anything the user adds lives in state.cats and is merged in
@@ -3610,6 +3636,7 @@ function normaliseCats(c){
     x && typeof x.id === "string" && typeof x.n === "string")
     .map(x => {
       const out = { id:x.id, n:x.n, h:Number(x.h) || 210, custom:true };
+      if (Number.isFinite(Number(x.l))) out.l = Number(x.l);
       if (typeof x.icon === "string" && ICON[x.icon]) out.icon = x.icon;
       return out;
     });
@@ -3770,6 +3797,7 @@ function load(){
   migrateBalanceToAccounts();
   migrateLostCats();
   migrateImpossibleDates();
+  migrateCatDepth();
   refreshCats();
 }
 /** Write to storage only. Used where there is nothing new to send. */
@@ -3797,6 +3825,25 @@ function save(){
  * and is never thrown away on the app's own initiative, however odd its date.
  * The right occurrences are regenerated on the next materialise().
  */
+/**
+ * Categories added before a category had depth carry only a hue, which on a
+ * crowded ring can land within a degree or two of an existing one — a custom
+ * "Telecom" at 265° is the same colour as Credit Card Payment at 264°. Each
+ * gets the depth that sits furthest from everything already spoken for.
+ */
+function migrateCatDepth(){
+  let changed = 0;
+  ["expense", "income"].forEach(type => {
+    customCats(type).forEach(c => {
+      if (Number.isFinite(Number(c.l))) return;
+      const got = pickCatColor(c.h, allCats(type).filter(o => o !== c && Number.isFinite(Number(o.l))));
+      c.h = got.h; c.l = got.l;
+      changed++;
+    });
+  });
+  return changed;
+}
+
 function migrateImpossibleDates(){
   const before = state.txns.length;
   state.txns = state.txns.filter(t =>
@@ -3936,12 +3983,88 @@ function toast(msg){
   toastT = setTimeout(() => t.classList.remove("show"), 2400);
 }
 
-/* ---------- category swatch ---------- */
-function tint(h, dark){
-  return dark ? "hsl(" + h + " 58% 24%)" : "hsl(" + h + " 72% 89%)";
+/* ---------- category swatch ----------
+
+   A category is a hue *and* a depth. Hue alone could not do it: 22 expense
+   categories crowded onto one ring leaves neighbours a couple of degrees apart
+   — Investment and Groceries — German were close enough to read as one colour
+   — and no rearrangement fixes that, because the ring is simply not long
+   enough. Depth is the second axis that makes them tell apart.
+   ------------------------------------------------------------------------- */
+
+/** Where a category sits in CAT_L_MIN..CAT_L_MAX. Older saved categories have
+    no depth recorded, so they fall back to the middle of the band. */
+const CAT_L_MIN = 22, CAT_L_MAX = 42, CAT_L_MID = 32, CAT_SAT = 82;
+function catL(c){
+  const v = c && typeof c.l === "number" ? c.l : CAT_L_MID;
+  return Math.max(CAT_L_MIN, Math.min(CAT_L_MAX, v));
 }
-function tintInk(h, dark){
-  return dark ? "hsl(" + h + " 78% 76%)" : "hsl(" + h + " 62% 34%)";
+/** -0.5 (deepest) .. +0.5 (lightest), so a swatch can carry the same depth. */
+function catBias(c){ return (catL(c) - CAT_L_MID) / (CAT_L_MAX - CAT_L_MIN); }
+
+/* sRGB → OKLab. Distance in OKLab tracks what the eye actually separates, which
+   hue degrees do not: 10° apart in the greens is invisible where the same 10°
+   in the reds is obvious. Used to place a new category clear of the others. */
+function okLab(h, s2, l){
+  h = ((h % 360) + 360) % 360; s2 /= 100; l /= 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s2,
+        x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
+  let r, g, b;
+  if (h < 60){ r = c; g = x; b = 0; } else if (h < 120){ r = x; g = c; b = 0; }
+  else if (h < 180){ r = 0; g = c; b = x; } else if (h < 240){ r = 0; g = x; b = c; }
+  else if (h < 300){ r = x; g = 0; b = c; } else { r = c; g = 0; b = x; }
+  const f = u => { u += m; return u <= 0.04045 ? u / 12.92 : Math.pow((u + 0.055) / 1.055, 2.4); };
+  const R = f(r), G = f(g), B = f(b);
+  const L = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B);
+  const M = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B);
+  const S = Math.cbrt(0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B);
+  return [0.2104542553 * L + 0.7936177850 * M - 0.0040720468 * S,
+          1.9779984951 * L - 2.4285922050 * M + 0.4505937099 * S,
+          0.0259040371 * L + 0.7827717662 * M - 0.8086757660 * S];
+}
+function okDist(a, b){
+  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) * 100;
+}
+/**
+ * The colour furthest from every colour already spoken for.
+ *
+ * Depth alone is not quite enough: a hue can arrive already boxed in on both
+ * sides, and then every depth at it is a near miss. So the hue may drift a
+ * little as well — it was picked by the app in the first place, never chosen,
+ * so nothing is being taken away from anyone.
+ */
+function pickCatColor(h, others){
+  const taken = others.map(o => okLab(o.h, CAT_SAT, catL(o)));
+  const clear = (hh, l) => {
+    const p = okLab(hh, CAT_SAT, l);
+    let d = Infinity;
+    taken.forEach(t => { d = Math.min(d, okDist(p, t)); });
+    return d;
+  };
+  let best = { h: h, l: CAT_L_MID }, bestD = -1;
+  for (let dh = -14; dh <= 14; dh += 2){
+    const hh = ((Math.round(h + dh) % 360) + 360) % 360;
+    for (let l = CAT_L_MIN; l <= CAT_L_MAX; l++){
+      const d = clear(hh, l);
+      /* ties go to the hue actually asked for, so a colour only moves as far
+         as it has to */
+      if (d > bestD + 0.001 || (d > bestD - 0.001 && Math.abs(dh) < Math.abs(best.h - h))){
+        bestD = Math.max(bestD, d); best = { h: hh, l: l };
+      }
+    }
+  }
+  return best;
+}
+
+function tint(c, dark){
+  const h = c.h, b = catBias(c);
+  return dark ? "hsl(" + h + " 58% " + (24 + b * 10).toFixed(1) + "%)"
+              : "hsl(" + h + " 72% " + (89 + b * 6).toFixed(1) + "%)";
+}
+function tintInk(c, dark){
+  const h = c.h, b = catBias(c);
+  return dark ? "hsl(" + h + " 78% " + (76 + b * 14).toFixed(1) + "%)"
+              : "hsl(" + h + " 62% " + (34 + b * 12).toFixed(1) + "%)";
 }
 function isDark(){
   const t = document.documentElement.getAttribute("data-theme");
@@ -4203,8 +4326,8 @@ function renderBudgets(){
     const top = el("div", "env-top");
     const ic = el("div", "env-ic");
     ic.innerHTML = iconSvg(cat.id, 14);
-    ic.style.background = tint(cat.h, dark);
-    ic.style.color = tintInk(cat.h, dark);
+    ic.style.background = tint(cat, dark);
+    ic.style.color = tintInk(cat, dark);
     top.appendChild(ic);
     top.appendChild(el("div", "env-n", cat.n));
 
@@ -4326,8 +4449,8 @@ function renderBudRows(){
     const row = el("div", "budrow");
     const ic = el("div", "br-ic");
     ic.innerHTML = iconSvg(c.id, 19);
-    ic.style.background = tint(c.h, dark);
-    ic.style.color = tintInk(c.h, dark);
+    ic.style.background = tint(c, dark);
+    ic.style.color = tintInk(c, dark);
     row.appendChild(ic);
     row.appendChild(el("div", "br-n", c.n));
 
@@ -5003,8 +5126,8 @@ function txnRow(t, dark){
   sw.innerHTML = xfer
     ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg>'
     : iconSvg(c.id, 18);
-  sw.style.background = tint(c.h, dark);
-  sw.style.color = tintInk(c.h, dark);
+  sw.style.background = tint(c, dark);
+  sw.style.color = tintInk(c, dark);
   row.appendChild(sw);
 
   const main = el("div", "rowmain");
@@ -5134,7 +5257,7 @@ function renderCatChips(){
     b.type = "button";
     const ic = el("span", "cic");
     ic.innerHTML = iconSvg(c.id, 19);
-    ic.style.color = draft.category === c.id ? "currentColor" : tintInk(c.h, dark);
+    ic.style.color = draft.category === c.id ? "currentColor" : tintInk(c, dark);
     b.appendChild(ic);
     b.appendChild(el("span", null, c.n));
     if (c.legacy) b.title = c.n + " is no longer offered for new entries, but stays on this one";
@@ -5472,8 +5595,8 @@ function renderCatManage(){
     const row = el("div", "budrow");
     const ic = el("div", "br-ic");
     ic.innerHTML = iconSvg(c.id, 19);
-    ic.style.background = tint(c.h, dark);
-    ic.style.color = tintInk(c.h, dark);
+    ic.style.background = tint(c, dark);
+    ic.style.color = tintInk(c, dark);
     row.appendChild(ic);
     row.appendChild(el("div", "br-n", c.n));
 
@@ -5503,7 +5626,8 @@ function addCategory(){
   const clash = allCats(catAddType).some(c => c.n.toLowerCase() === name.toLowerCase());
   if (clash){ toast("That category already exists"); return; }
 
-  const cat = { id: "c_" + uid(), n: name, h: nextCatHue(), custom: true };
+  const got = pickCatColor(nextCatHue(), allCats(catAddType));
+  const cat = { id: "c_" + uid(), n: name, h: got.h, l: got.l, custom: true };
   const guess = guessIcon(name);
   if (guess) cat.icon = guess;
   state.cats[catAddType].push(cat);
@@ -5705,8 +5829,8 @@ function renderRules(){
 
     const sw = el("div", "mono");
     sw.innerHTML = iconSvg(c.id, 18);
-    sw.style.background = tint(c.h, dark);
-    sw.style.color = tintInk(c.h, dark);
+    sw.style.background = tint(c, dark);
+    sw.style.color = tintInk(c, dark);
     row.appendChild(sw);
 
     const m = el("div", "rm");
@@ -5901,13 +6025,13 @@ function renderRuleCats(){
     if (c.legacy) b.title = c.n + " is no longer offered for new entries, but stays on this one";
     const ic = el("span", "cic");
     ic.innerHTML = iconSvg(c.id, 19);
-    ic.style.color = tintInk(c.h, dark);
+    ic.style.color = tintInk(c, dark);
     b.appendChild(ic);
     b.appendChild(el("span", null, c.n));
     if (c.id === rDraft.category){
-      b.style.background = tint(c.h, dark);
-      b.style.color = tintInk(c.h, dark);
-      b.style.borderColor = tintInk(c.h, dark);
+      b.style.background = tint(c, dark);
+      b.style.color = tintInk(c, dark);
+      b.style.borderColor = tintInk(c, dark);
     }
     b.addEventListener("click", () => {
       rDraft.category = c.id;
@@ -8859,7 +8983,7 @@ function repByCategory(rows, side){
   rows.forEach(t => {
     if (repSideOf(t) !== want) return;
     const c = repCatOf(t);
-    const cur = by.get(c.id) || { id:c.id, n:c.n, h:c.h, total:0, count:0 };
+    const cur = by.get(c.id) || { id:c.id, n:c.n, h:c.h, l:c.l, total:0, count:0 };
     cur.total += t.amount;
     cur.count++;
     by.set(c.id, cur);
@@ -8918,21 +9042,30 @@ const pieY = a => PIE.cy + PIE.ry * Math.sin(a);
  * tints could not hold on a shape this size. `on` is the same colour with the
  * light turned up, for the slice that has been chosen.
  */
-function pieShades(h, dark, on){
+function pieShades(c, dark, on){
   /* A chosen slice is not simply made lighter. Gloss is contrast: a highlight
      only reads as wet if there is depth beneath it for it to sit on, so the top
      of the range comes up and the bottom goes down. */
   const up = on ? 6 : 0, down = on ? 5 : 0;
+  const h = c.h;
+  /* The stack is built from the category's own depth rather than one lightness
+     shared by every slice — that shared lightness was what left neighbouring
+     hues with nothing but hue to tell them apart. */
+  const bl = catL(c);
+  const L = v => Math.max(7, Math.min(88, v)).toFixed(1);
+  /* The gloss reaches 20 points above the base rather than 26. The highlight
+     still has depth beneath it to sit on, but the lit face no longer climbs so
+     far that every colour arrives pale whatever depth it started from. */
   return {
-    lit:  "hsl(" + h + " 95% " + ((dark ? 74 : 71) + up) + "%)",
-    top:  "hsl(" + h + " 86% " + ((dark ? 62 : 57) + up * 0.4) + "%)",
-    base: "hsl(" + h + " 78% " + ((dark ? 50 : 46) - down * 0.6) + "%)",
-    wall: "hsl(" + h + " 72% " + ((dark ? 35 : 32) - down * 0.8) + "%)",
-    foot: "hsl(" + h + " 70% " + ((dark ? 24 : 21) - down * 0.6) + "%)"
+    lit:  "hsl(" + h + " " + CAT_SAT + "% " + L(bl + 14 + up) + "%)",
+    top:  "hsl(" + h + " " + CAT_SAT + "% " + L(bl + 6 + up * 0.4) + "%)",
+    base: "hsl(" + h + " " + CAT_SAT + "% " + L(bl - down * 0.6) + "%)",
+    wall: "hsl(" + h + " " + (CAT_SAT - 8) + "% " + L(bl - 11 - down * 0.8) + "%)",
+    foot: "hsl(" + h + " " + (CAT_SAT - 12) + "% " + L(bl - 19 - down * 0.6) + "%)"
   };
 }
 /** The one flat colour that stands for a slice away from the pie. */
-function pieSwatch(h, dark){ return pieShades(h, dark, false).base; }
+function pieSwatch(c, dark){ return pieShades(c, dark, false).base; }
 
 /** The wedge of the top face between two angles. */
 function pieTop(a1, a2){
@@ -8996,7 +9129,7 @@ function repDrawChart(cats, total, side, rowCount){
   const yTop = PIE.cy - PIE.ry, yBot = PIE.cy + PIE.ry + PIE.depth;
   const chosen = spans.find(s => s.on);
   const defs = spans.map((s, i) => {
-    const k = pieShades(s.c.h, dark, s.on);
+    const k = pieShades(s.c, dark, s.on);
     return '<linearGradient id="pgt' + i + '" gradientUnits="userSpaceOnUse" ' +
              'x1="0" y1="' + yTop + '" x2="0" y2="' + (PIE.cy + PIE.ry) + '">' +
              '<stop offset="0" stop-color="' + k.lit + '"/>' +
@@ -9012,9 +9145,13 @@ function repDrawChart(cats, total, side, rowCount){
     '<stop offset="0" stop-color="' + (dark ? "rgba(0,0,0,.6)" : "rgba(15,25,34,.24)") + '"/>' +
     '<stop offset="1" stop-color="rgba(0,0,0,0)"/></radialGradient>' +
   /* one sheen for the whole surface, laid on after every slice is down */
+  /* Softer than it was. A wash of white this broad lifts every slice toward the
+     same pale, which both undoes the depth each colour is carrying and pulls
+     neighbouring colours back toward each other — the sheen was doing quietly
+     what the shared lightness used to do outright. */
   '<radialGradient id="pgGloss" cx="0.34" cy="0.20" r="0.78">' +
-    '<stop offset="0" stop-color="rgba(255,255,255,' + (dark ? ".30" : ".46") + ')"/>' +
-    '<stop offset="0.5" stop-color="rgba(255,255,255,' + (dark ? ".07" : ".12") + ')"/>' +
+    '<stop offset="0" stop-color="rgba(255,255,255,' + (dark ? ".17" : ".30") + ')"/>' +
+    '<stop offset="0.5" stop-color="rgba(255,255,255,' + (dark ? ".04" : ".08") + ')"/>' +
     '<stop offset="1" stop-color="rgba(255,255,255,0)"/></radialGradient>' +
   /* The chosen slice is polished, not outlined and not lit from its own edges:
      lighting the alpha's slope gave a hard rim that read as plastic. It gets a
@@ -9124,20 +9261,20 @@ function repDrawInfo(cat, total){
   }
   host.hidden = false;
   const dark = isDark();
-  host.style.background = tint(cat.h, dark);
-  host.style.borderColor = tintInk(cat.h, dark);
+  host.style.background = tint(cat, dark);
+  host.style.borderColor = tintInk(cat, dark);
 
   const head = el("div", "rp-i-h");
   const sw = el("span", "rp-sw");
-  sw.style.background = pieSwatch(cat.h, dark);
+  sw.style.background = pieSwatch(cat, dark);
   head.appendChild(sw);
   const nm = el("b", null, cat.n);
-  nm.style.color = tintInk(cat.h, dark);
+  nm.style.color = tintInk(cat, dark);
   head.appendChild(nm);
   host.appendChild(head);
 
   const amt = el("div", "rp-i-a", fmt(cat.total));
-  amt.style.color = tintInk(cat.h, dark);
+  amt.style.color = tintInk(cat, dark);
   host.appendChild(amt);
 
   host.appendChild(el("div", "rp-i-s",
@@ -9174,12 +9311,12 @@ function repDrawLegend(cats, total){
     const row = el("button", "rp-lg" + (repSelCat === c.id ? " on" : ""));
     row.type = "button";
     const sw = el("span", "rp-sw");
-    sw.style.background = pieSwatch(c.h, dark);
+    sw.style.background = pieSwatch(c, dark);
     row.appendChild(sw);
     row.appendChild(el("span", "rp-ln", c.n));
     row.appendChild(el("span", "rp-lp", ((c.total / total) * 100).toFixed(1) + "%"));
     const amt = el("span", "rp-la", fmt(c.total));
-    amt.style.color = tintInk(c.h, dark);
+    amt.style.color = tintInk(c, dark);
     row.appendChild(amt);
     /* the legend picks the same slice the pie does, so the two never disagree */
     row.addEventListener("click", () => repPick(c.id));
@@ -9247,8 +9384,8 @@ function repDrawTable(rows){
 
     const cd = el("td");
     const pill = el("span", "rp-cpill", c.n);
-    pill.style.background = tint(c.h, dark);
-    pill.style.color = tintInk(c.h, dark);
+    pill.style.background = tint(c, dark);
+    pill.style.color = tintInk(c, dark);
     cd.appendChild(pill);
     r.appendChild(cd);
 
