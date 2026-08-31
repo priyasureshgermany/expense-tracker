@@ -1208,6 +1208,45 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   margin:0 0 13px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--ink-3);font-weight:600;
 }
+/* ---------- foldable dashboard panels ----------
+
+   The title is the control, not the whole header row. The budget card's header
+   already carries an Edit button, and a button cannot nest inside another — so
+   wrapping the row would have meant either invalid markup or losing Edit.
+   ------------------------------------------------------------------------- */
+.foldt{
+  display:flex;align-items:center;gap:7px;
+  text-align:left;color:inherit;min-width:0;
+}
+.foldchev{
+  flex:none;color:var(--ink-3);
+  transition:transform .26s cubic-bezier(.2,.8,.3,1),color .15s;
+}
+.foldt:hover .foldchev{color:var(--ink-2)}
+.folded .foldchev{transform:rotate(-90deg)}
+.foldt:focus-visible{outline:2px solid var(--accent-mid);outline-offset:3px;border-radius:7px}
+
+/* 1fr → 0fr animates to the panel's real height, whatever that turns out to
+   be, which max-height cannot do without a guess that is wrong for one panel
+   or another. */
+.foldbody{
+  display:grid;grid-template-rows:1fr;
+  transition:grid-template-rows .28s cubic-bezier(.2,.8,.3,1),opacity .2s ease;
+}
+.foldinner{overflow:hidden;min-height:0}
+.folded .foldbody{grid-template-rows:0fr;opacity:0}
+
+/* a folded panel should close up to its title, so the header's own spacing
+   below it goes too */
+.folded .chartblock-h,
+.folded .bc-head{margin-bottom:0}
+.folded .card h3{margin-bottom:0}
+.card h3{transition:margin-bottom .28s cubic-bezier(.2,.8,.3,1)}
+.chartblock-h,.bc-head{transition:margin-bottom .28s cubic-bezier(.2,.8,.3,1)}
+/* the strip's gap moves off the title and onto the body, so it folds with it */
+.foldt .monthstrip-t{margin-bottom:0}
+.monthstrip-wrap .foldinner{padding-top:8px}
+
 .bars{display:flex;flex-direction:column;gap:9px}
 .bar{display:grid;grid-template-columns:1fr auto;gap:3px 10px;align-items:baseline}
 .bar .bn{font-size:13px;font-weight:500}
@@ -3245,7 +3284,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.2.0";
+const APP_VERSION = "1.2.1";
 const APP_BUILT = "2026-08-31";
 
 const KEY = "panappai.v1";
@@ -4226,6 +4265,10 @@ function render(){
   renderBudgets();
   renderBalance();
   renderMonthStrip();
+  /* These two are in the markup rather than rebuilt, so this only does anything
+     the first time — makeFoldable leaves a panel it has already wrapped alone. */
+  makeFoldable($("#budgetCard"), "budget", $("#budgetCard .bc-t"));
+  makeFoldable($(".monthstrip-wrap"), "health", $(".monthstrip-t"));
   $("#demoBar").hidden = !state.demo;
   $$("#viewEntries .seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.f === filter)));
 }
@@ -5018,6 +5061,63 @@ function periodStats(txns){
   return { income, plannedExp, actualExp };
 }
 
+/* ---------- foldable dashboard panels ---------- */
+
+/* Which panels are folded away, remembered: a dashboard folded down to the
+   parts you actually watch is no use if it springs open again next time. */
+const FOLD_KEY = "panappai.folds";
+let folds = {};
+try{ folds = JSON.parse(localStorage.getItem(FOLD_KEY) || "{}") || {}; }catch(e){ folds = {}; }
+function saveFolds(){ try{ localStorage.setItem(FOLD_KEY, JSON.stringify(folds)); }catch(e){} }
+
+let foldSeq = 0;
+/**
+ * Makes one dashboard panel fold away by its title.
+ *
+ * `titleEl` becomes the button. Everything after the row that title sits in
+ * becomes the body — collected before any of it moves, because on a panel
+ * whose title *is* its header row that row stops being the panel's own child
+ * the moment it is wrapped.
+ */
+function makeFoldable(panel, key, titleEl){
+  if (!panel || !titleEl || panel.dataset.foldKey) return;
+  panel.dataset.foldKey = key;
+
+  const headRow = titleEl.parentElement === panel ? titleEl : titleEl.parentElement;
+  const rest = [];
+  for (let n = headRow.nextSibling; n; n = n.nextSibling) rest.push(n);
+
+  const btn = el("button", "foldt");
+  btn.type = "button";
+  titleEl.parentElement.insertBefore(btn, titleEl);
+  btn.appendChild(titleEl);
+  btn.insertAdjacentHTML("beforeend",
+    '<svg class="foldchev" viewBox="0 0 24 24" width="15" height="15" fill="none" ' +
+    'stroke="currentColor" stroke-width="2.1" stroke-linecap="round" ' +
+    'stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>');
+
+  const body = el("div", "foldbody");
+  body.id = "fold" + (++foldSeq);
+  const inner = el("div", "foldinner");
+  rest.forEach(n => inner.appendChild(n));
+  body.appendChild(inner);
+  panel.appendChild(body);
+  btn.setAttribute("aria-controls", body.id);
+
+  const apply = () => {
+    const shut = !!folds[key];
+    panel.classList.toggle("folded", shut);
+    btn.setAttribute("aria-expanded", String(!shut));
+    btn.title = shut ? "Show this" : "Hide this";
+  };
+  btn.addEventListener("click", () => {
+    folds[key] = !folds[key];
+    saveFolds();
+    apply();
+  });
+  apply();
+}
+
 /** One horizontal bar; clicking it reveals the `sub` caption underneath. */
 function barRow(label, value, max, colorVar, sub){
   const row = el("button", "barrow");
@@ -5055,6 +5155,7 @@ function chartBlock(title, note, rows){
   block.appendChild(h);
   const max = Math.max(1, ...rows.map(r => r.value));
   rows.forEach(r => block.appendChild(barRow(r.label, r.value, max, r.color, r.sub)));
+  makeFoldable(block, "flow", h.querySelector(".cb-t"));
   return block;
 }
 
@@ -5215,6 +5316,7 @@ function renderBreakdown(all, dark){
     bars.appendChild(b);
   });
   card.appendChild(bars);
+  makeFoldable(card, "spend", card.querySelector("h3"));
   host.appendChild(card);
 }
 
