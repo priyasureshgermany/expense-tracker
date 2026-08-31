@@ -8,6 +8,13 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.2.8 — 2026-08-31
+- fix: Reports count only settled entries. An entry dated last month and still not ticked off is money that has not moved, and a report of what was spent no longer carries it
+- fix: The monthly average is back wherever the stretch is longer than a month, and each category is divided by the months it actually ran in. Investment at 500 in one August reads 500 a month, not 500 divided by twelve
+- new: Each account carries a mark: a bank or card glyph in a colour of its own, and your bank's logo in its place once you add one. Tap the tile beside an account in Settings to pick the image
+- better: Bank names in the ledger are shown in their account's colour
+- better: The Income, Expenses and Transfers filters carry the same marks the + button uses
+
 ## 1.2.7 — 2026-08-31
 - fix: The monthly average is over the months a category actually ran in, not the length of the report. 500 spent on Investment in one August now reads 500, where dividing it by the eight months of the year had said 62,50. A category that ran in only one month shows no average at all
 - better: Category and account are rows of chips you slide and tap, several at once, each carrying the colour its slice has
