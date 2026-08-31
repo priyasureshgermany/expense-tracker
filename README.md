@@ -25,7 +25,9 @@ Open `index.html` in any browser, or host the file anywhere static.
   money out*, *Budget*, *Period health* and *Where the money goes* — collapses to
   its title when you tap it, and stays that way next time. The title is the
   control rather than the whole header row, so **Edit** on the budget card and
-  the health word beside *Money in, money out* stay reachable while folded.
+  the health word beside *Money in, money out* stay reachable while folded. The
+  four are one panel repeated: the same card, the same title, the same gap
+  beneath it, and the same height once folded.
 - **Period health colours**, on the dashboard's period strip, based on
   (income − expenses) ÷ income:
   - 🔴 **Red** — expenses exceed income

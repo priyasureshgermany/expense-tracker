@@ -408,7 +408,7 @@ button.tile:hover .tile-go{color:var(--accent)}
   background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--line);
 }
 .budgetcard[hidden]{display:none}
-.bc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.bc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:11px}
 .bc-t{font-size:12.5px;font-weight:600;color:var(--ink)}
 .bc-edit{font-size:12px;font-weight:600;color:var(--accent)}
 .bc-foot{
@@ -496,7 +496,7 @@ button.tile:hover .tile-go{color:var(--accent)}
   margin:14px 14px 0;padding:14px 15px 8px;
   background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--line);
 }
-.chartblock-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px}
+.chartblock-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:11px}
 .cb-t{font-size:12.5px;font-weight:600;color:var(--ink)}
 .cb-n{
   font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
@@ -1069,7 +1069,13 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .inp.sf-total{flex:none;width:120px;text-align:right;font-family:var(--mono);font-weight:600}
 
 /* ---------- Monthly health strip ---------- */
-.monthstrip-wrap{margin:16px 14px 0}
+/* the same card the other dashboard panels sit in — it was the one left as a
+   bare label on the page, which read as a heading over the background rather
+   than a panel of its own */
+.monthstrip-wrap{
+  margin:14px 14px 0;padding:14px 15px 12px;
+  background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--line);
+}
 .monthstrip-t{
   font-size:11px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--ink-3);font-weight:600;margin-bottom:8px;
@@ -1218,6 +1224,20 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   display:flex;align-items:center;gap:7px;
   text-align:left;color:inherit;min-width:0;
 }
+/* Four panels had three title treatments between them — two sentence-case
+   titles and two grey uppercase eyebrows, which read as headings *over* the
+   page rather than titles *of* a card. On a row of identical cards they are
+   all titles, so they are all written as one. */
+.foldt > .cb-t,
+.foldt > .bc-t,
+.foldt > .monthstrip-t,
+.foldt > h3{
+  font-size:12.5px;font-weight:600;color:var(--ink);
+  letter-spacing:-.005em;text-transform:none;margin:0;
+}
+/* Folded, a panel is a title bar, and title bars want one height. Expanded,
+   each keeps the bottom padding its own content was tuned for. */
+.folded{padding-top:14px;padding-bottom:14px}
 .foldchev{
   flex:none;color:var(--ink-3);
   transition:transform .26s cubic-bezier(.2,.8,.3,1),color .15s;
@@ -1243,9 +1263,12 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .folded .card h3{margin-bottom:0}
 .card h3{transition:margin-bottom .28s cubic-bezier(.2,.8,.3,1)}
 .chartblock-h,.bc-head{transition:margin-bottom .28s cubic-bezier(.2,.8,.3,1)}
-/* the strip's gap moves off the title and onto the body, so it folds with it */
+/* The gap belongs to the strip, not to the fold body: padding on the body sits
+   outside `min-height:0` and so survives the collapse, leaving this one panel
+   8px taller than the rest when folded. A margin on the strip is clipped. */
 .foldt .monthstrip-t{margin-bottom:0}
-.monthstrip-wrap .foldinner{padding-top:8px}
+.monthstrip-wrap .foldinner > .monthstrip,
+#breakdown .card .foldinner > .bars{margin-top:11px}
 
 .bars{display:flex;flex-direction:column;gap:9px}
 .bar{display:grid;grid-template-columns:1fr auto;gap:3px 10px;align-items:baseline}
@@ -3284,7 +3307,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.2.1";
+const APP_VERSION = "1.2.2";
 const APP_BUILT = "2026-08-31";
 
 const KEY = "panappai.v1";
