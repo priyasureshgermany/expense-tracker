@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.2.2 — 2026-08-31
+- better: Period health sits in a panel like the rest of the dashboard instead of a bare label on the page, and all four panels now share one title style, one gap and one folded height
+
 ## 1.2.1 — 2026-08-31
 - new: The dashboard panels fold away. Tap the title of Money in, money out, Budget, Period health or Where the money goes to collapse it, and what you fold stays folded next time
 
