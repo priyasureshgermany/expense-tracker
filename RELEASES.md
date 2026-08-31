@@ -8,6 +8,12 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.2.3 — 2026-08-31
+- better: Each dashboard panel now carries its own icon, with the fold arrow on the left
+- better: Edit on the Budget panel is a button at the bottom of it rather than a small link in the corner
+- fix: Period health shows five periods with this one in the middle, two either side, and scrolls. It used to run three back and two forward, then drop anything before the app's first period — so early on it showed three, none of them centred
+- better: Net this period sits in a rounded panel like the rest of the dashboard instead of a full-width band
+
 ## 1.2.2 — 2026-08-31
 - better: Period health sits in a panel like the rest of the dashboard instead of a bare label on the page, and all four panels now share one title style, one gap and one folded height
 

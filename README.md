@@ -23,13 +23,15 @@ Open `index.html` in any browser, or host the file anywhere static.
   duplicate views and have gone.)
 - **Foldable panels.** Everything on the dashboard below the tiles — *Money in,
   money out*, *Budget*, *Period health* and *Where the money goes* — collapses to
-  its title when you tap it, and stays that way next time. The title is the
-  control rather than the whole header row, so **Edit** on the budget card and
-  the health word beside *Money in, money out* stay reachable while folded. The
-  four are one panel repeated: the same card, the same title, the same gap
-  beneath it, and the same height once folded.
-- **Period health colours**, on the dashboard's period strip, based on
-  (income − expenses) ÷ income:
+  its title when you tap it, and stays that way next time. Each carries its own
+  mark — money going both ways, the envelope budgets are kept in, a pulse, the
+  pie from Reports — with the fold arrow to the left of it. The four are one
+  panel repeated: the same card, the same title, the same gap beneath it, and
+  the same height once folded.
+- **Period health**, five periods with this one in the middle and two either
+  side, scrolling if they do not all fit. A period with nothing in it reads as
+  "No data" rather than being left out, which is what keeps this one centred.
+  Coloured on (income − expenses) ÷ income:
   - 🔴 **Red** — expenses exceed income
   - 🟠 **Orange** — a thin buffer, under 5% surplus
   - 🟡 **Yellow** — a comfortable 5–15% surplus
@@ -301,7 +303,7 @@ Every region has a stable name, so a change can be asked for precisely —
 | Statement | "Net this period", the Income/Expenses tiles and the paid meter |
 | Money in, money out | Income vs planned vs actual bars |
 | What's left to spend | The budget envelopes |
-| Period health | The scrollable strip of periods |
+| Period health | Five periods, this one centred, scrollable |
 | Where the money goes | Spending by category |
 
 **வரவு செலவு**: the status tabs (All / Planned / Filled), the type pill
