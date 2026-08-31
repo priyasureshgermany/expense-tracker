@@ -292,7 +292,7 @@ Every region has a stable name, so a change can be asked for precisely —
 | Tab bar | Fixed along the bottom: Dashboard · வரவு செலவு · Shopping cart · More |
 | More | A short sheet of three: Reports, What's new, Settings. A red dot on the tab means a newer build is waiting. |
 | What's new | The release notes, each line marked with what kind of change it was — a repair, something new, or something existing made better. The version itself, and the update button, stay in **Settings › About**. |
-| Reports | Three readings of a stretch of time: a ring of expenses by category, five bars of income against expenses, and every line of it in a table you can filter, sort and export. The range is **1W / 1M / 12M / the year / Flex**, and every one of them **stops at today** — a report is of what has happened, not of what is planned for the months ahead. Flex is the exception, honouring the two dates you type. The bars count in whatever unit the range implies, take their colour and their lit-when-chosen highlight from the ring, carry values up the side, and tap to read out the income and expense behind a column. Category and account are rows of chips you slide and tap, several at once, and a cross beside the search box clears the lot. Each category shows what it costs a month **over the months it actually ran in** — 500 spent in one August is 500 a month, not 500 ÷ 12 — and a category that ran in one month shows no average at all. |
+| Reports | Three readings of a stretch of time: a ring of expenses by category, five bars of income against expenses, and every line of it in a table you can filter, sort and export. The range is **1W / 1M / 12M / the year / Flex**, and every one of them **stops at today** and counts only **settled** entries — a report is of what has happened, not of what is planned for the months ahead. Flex is the exception, honouring the two dates you type. The bars count in whatever unit the range implies, take their colour and their lit-when-chosen highlight from the ring, carry values up the side, and tap to read out the income and expense behind a column. Category and account are rows of chips you slide and tap, several at once, and a cross beside the search box clears the lot. Wherever the stretch runs longer than a month, each category shows what it costs a month **over the months it actually ran in** — 500 spent in one August is 500 a month, not 500 ÷ 12 — and a category that ran in one month shows no average at all. |
 | Add button | The round **+** above the tab bar; tapping it offers Income then Expense |
 
 **Dashboard**, top to bottom
@@ -300,6 +300,15 @@ Every region has a stable name, so a change can be asked for precisely —
 | Name | What it is |
 |---|---|
 | Balance card | "In the account now" |
+
+Each account carries a mark — a bank or card glyph in a colour held by its
+name, kept clear of the other accounts' colours by the same OKLab measure the
+categories use. **Settings › Accounts › tap the tile** puts your bank's own logo
+there instead: the file is squared to 64px and kept with your data, so it
+travels with your backup. Logos are not fetched or shipped with the app — a
+bank's mark is its trademark, and your own copy on your own ledger is yours to
+put there, not the app's to distribute.
+
 | Statement | "Net this period", the Income/Expenses tiles and the paid meter |
 | Money in, money out | Income vs planned vs actual bars |
 | What's left to spend | The budget envelopes |
