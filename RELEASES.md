@@ -8,6 +8,12 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.2.6 — 2026-08-31
+- fix: Reports count only what has happened. 1W, 1M, 1Y and 12M all stop at today, so planned entries dated in the months ahead no longer swell the totals. Flex still honours the dates you type
+- fix: The monthly average appears only where there is more than one month to average, and is gone from 1M where it was just the total again
+- better: The bar chart is deeper green and red, its columns are tappable, and it carries values up the side
+- better: The bar chart says Income and Expense rather than In and Out, and tapping a column shows both figures for it
+
 ## 1.2.5 — 2026-08-31
 - better: The report ranges are 1W, 1M, 1Y, 12M and Flex on a single row
 - new: A bar chart of income against expenses over the last five, above the export buttons. It counts in days for 1W, weeks for 1M and months for 1Y and 12M

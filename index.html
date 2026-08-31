@@ -46,6 +46,9 @@ try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documen
   --accent-soft:#E3EDF3;
   --accent-mid:#5D93B0;
 
+  --bar-in:#0A5C41;       /* deeper than --pos: a solid block of colour reads
+                             lighter than a thin bar or a word does */
+  --bar-out:#8E2C1D;
   --pos:#0B6B4B;          /* income */
   --pos-soft:#DFF0E8;
   --neg:#A93724;          /* expense */
@@ -83,6 +86,8 @@ try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documen
     --accent-soft:#152833;
     --accent-mid:#3D7F9E;
 
+    --bar-in:#1F9A6B;
+    --bar-out:#C4553F;
     --pos:#3FCB92;
     --pos-soft:#0F2A20;
     --neg:#FF7F6B;
@@ -115,6 +120,8 @@ try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documen
   --accent-soft:#152833;
   --accent-mid:#3D7F9E;
 
+  --bar-in:#1F9A6B;
+  --bar-out:#C4553F;
   --pos:#3FCB92;
   --pos-soft:#0F2A20;
   --neg:#FF7F6B;
@@ -1078,12 +1085,29 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 }
 .rp-barskey{display:flex;align-items:center;gap:5px;letter-spacing:0;text-transform:none;font-weight:500}
 .rp-barskey i{width:9px;height:9px;border-radius:3px;display:inline-block}
-.rp-barskey i.k-in{background:var(--pos)}
-.rp-barskey i.k-out{background:var(--neg);margin-left:7px}
+.rp-barskey i.k-in{background:var(--bar-in)}
+.rp-barskey i.k-out{background:var(--bar-out);margin-left:7px}
 .rp-bars svg{display:block;width:100%;height:auto;overflow:visible}
 .rp-bars .bx-lb{font-size:8.5px;fill:var(--ink-3)}
+.rp-bars .bx-lb.on{fill:var(--ink);font-weight:600}
+.rp-bars .bx-ax{font-size:8px;fill:var(--ink-3);font-variant-numeric:tabular-nums}
 .rp-bars .bx-gl{stroke:var(--line);stroke-width:1}
 .rp-bars .bx-zero{stroke:var(--line-strong);stroke-width:1}
+.rp-bars .bx-sel{fill:var(--surface-sunk)}
+.rp-bars .bx-hit{fill:transparent;cursor:pointer}
+
+/* what the column being read actually holds */
+.rp-barsval{
+  display:flex;align-items:center;flex-wrap:wrap;gap:4px 14px;
+  margin-top:10px;padding-top:9px;border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--ink-3);
+}
+.bv-when{font-weight:600;color:var(--ink-2)}
+.bv-p{display:flex;align-items:center;gap:5px}
+.bv-p i{width:8px;height:8px;border-radius:2.5px;flex:none}
+.bv-p i.k-in{background:var(--bar-in)}
+.bv-p i.k-out{background:var(--bar-out)}
+.bv-p b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
 .inp.sm{padding:8px 10px;font-size:12.5px}
 .rp-count{font-size:11px;color:var(--ink-3);margin-bottom:8px}
 
@@ -3113,10 +3137,11 @@ html.locked #lockScreen::before{
       <div class="rp-barscap">
         <span id="repBarsT">Income and expenses</span>
         <span class="rp-barskey">
-          <i class="k-in"></i>In <i class="k-out"></i>Out
+          <i class="k-in"></i>Income <i class="k-out"></i>Expense
         </span>
       </div>
       <div id="repBarsChart"></div>
+      <div class="rp-barsval" id="repBarsVal"></div>
     </div>
 
     <div class="rp-exports">
@@ -3439,7 +3464,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.2.5";
+const APP_VERSION = "1.2.6";
 const APP_BUILT = "2026-08-31";
 
 const KEY = "panappai.v1";
@@ -9171,7 +9196,26 @@ function addDays(iso, n){
 }
 
 /** The stretch the report covers, as two dates and a sentence describing it. */
+/**
+ * The stretch, ended at today.
+ *
+ * "This year" runs to December and "this month" to the 31st, and both used to
+ * carry every planned entry dated between now and then — which inflated the
+ * totals with money not yet spent and, worse, made a monthly average out of
+ * months that have not happened. A report is of what has happened.
+ *
+ * Flex is left alone: those two dates were typed on purpose, and capping a
+ * range someone deliberately pointed at next month would hand them an empty
+ * report instead of the one they asked for.
+ */
 function repDates(){
+  const r = repDatesRaw();
+  const today = todayISO();
+  if (repRange !== "custom" && r.to > today) return { from:r.from, to:today };
+  return r;
+}
+
+function repDatesRaw(){
   const today = todayISO();
   const cal = repBasis === "calendar";
 
@@ -9642,26 +9686,20 @@ function repDrawInfo(cat, total){
 }
 
 /**
- * How many months the stretch covers, over its whole length rather than the
- * part of it that has already happened.
- *
- * Elapsed months read better at first glance — a year eight months old is eight
- * months of spending — but the total being divided is the ring's, and the ring
- * counts every entry in the range, planned ones in the months ahead included.
- * Dividing a full year's figure by eight months claimed 2.450 a month where the
- * true rate was 1.631. An average and its total have to answer for the same
- * stretch of time.
+ * How many months the stretch covers. The range itself now stops at today, so
+ * this and the total it divides answer for the same months either way.
  */
 function repMonthsSpanned(){
   const r = repDates();
   const days = Math.round((new Date(r.to) - new Date(r.from)) / 86400000) + 1;
   return days / 30.4375;
 }
-/** A per-month average is only worth showing over a stretch of several. */
-function repShowsAverage(){
-  return (repRange === "year" || repRange === "last12" || repRange === "custom") &&
-         repMonthsSpanned() >= 1.8;
-}
+/**
+ * A per-month average says nothing over a single month — it is the total again,
+ * to the penny. It earns its place from the second month on, whichever range
+ * happens to produce it.
+ */
+function repShowsAverage(){ return repMonthsSpanned() >= 1.5; }
 
 function repDrawLegend(cats, total){
   const host = $("#repLegend");
@@ -9761,28 +9799,62 @@ function repBuckets(){
   }
 
   return spans.map(sp => {
+    /* The bucket holding today runs past it — the week ending Sunday, the month
+       ending on the 31st — and counting to its far edge pulled next week's
+       planned entries into this bar. A week's bar read 3.986,60 against a month
+       whose whole spend was 2.157,92. Bars stop where the report stops. */
+    const to = sp.to > today ? today : sp.to;
     let inc = 0, out = 0;
     state.txns.forEach(t => {
-      if (t.date < sp.from || t.date > sp.to) return;
+      if (t.date < sp.from || t.date > to) return;
       if (isTransfer(t)) return;              /* own money moving is neither */
       if (t.type === "income") inc += t.amount; else out += t.amount;
     });
-    return { label:sp.label, inc:inc, out:out, from:sp.from, to:sp.to };
+    return { label:sp.label, inc:inc, out:out, from:sp.from, to:to };
   });
 }
 
-const RBAR = { w:320, h:118, padL:4, padR:4, padT:6, base:96 };
+const RBAR = { w:320, h:120, padL:40, padR:4, padT:8, base:96 };
+let repBarPick = null;      /* which bucket is being read, by index */
+
+/**
+ * The scale rounded up to a number worth printing. Scaling to the tallest bar
+ * exactly gives an axis reading 183, 367, 550 and a bar that touches the top
+ * line with nowhere left to go; rounding to 600 gives 200, 400, 600 and a
+ * little air above.
+ */
+function repNiceMax(v){
+  if (v <= 0) return 1;
+  const e = Math.pow(10, Math.floor(Math.log10(v)));
+  const n = v / e;
+  const steps = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+  return e * steps.find(x => n <= x + 1e-9);
+}
+
+/** An axis label has about 34px: enough for "2,5k", not for "2.450,00 €". */
+function repAxisNum(cents){
+  if (amountsHidden) return AMOUNT_MASK;
+  const v = cents / 100;
+  if (v >= 1000){
+    return (v / 1000).toFixed(v >= 10000 ? 0 : 1)
+      .replace(/\.0$/, "").replace(".", ",") + "k";
+  }
+  return Math.round(v).toString();
+}
 
 function repDrawBars(){
   const wrap = $("#repBars");
   const b = repBuckets();
-  const max = Math.max(1, ...b.map(x => Math.max(x.inc, x.out)));
-  if (!b.some(x => x.inc || x.out)){ wrap.hidden = true; return; }
+  if (!b.some(x => x.inc || x.out)){ wrap.hidden = true; repBarPick = null; return; }
   wrap.hidden = false;
 
+  const max = repNiceMax(Math.max(1, ...b.map(x => Math.max(x.inc, x.out))));
   const unit = repBucketUnit();
   $("#repBarsT").textContent =
     "Last 5 " + (unit === "day" ? "days" : unit === "week" ? "weeks" : "months");
+
+  /* the newest bucket is the one being asked about until another is tapped */
+  if (repBarPick === null || repBarPick >= b.length) repBarPick = b.length - 1;
 
   const { w, padL, padR, padT, base } = RBAR;
   const inner = w - padL - padR;
@@ -9792,35 +9864,58 @@ function repDrawBars(){
   const span = base - padT;
 
   let g = "";
-  /* three quiet gridlines, so a bar can be read against something */
-  for (let k = 1; k <= 3; k++){
+  /* Gridlines carry their value now. A bar you cannot put a number to only
+     says "bigger than that one", which the shape had already said. */
+  for (let k = 0; k <= 3; k++){
     const y = base - (span * k / 3);
-    g += '<line class="bx-gl" x1="' + padL + '" y1="' + y.toFixed(1) +
-         '" x2="' + (w - padR) + '" y2="' + y.toFixed(1) + '"/>';
+    if (k) g += '<line class="bx-gl" x1="' + padL + '" y1="' + y.toFixed(1) +
+                '" x2="' + (w - padR) + '" y2="' + y.toFixed(1) + '"/>';
+    g += '<text class="bx-ax" x="' + (padL - 6) + '" y="' + (y + 3).toFixed(1) +
+         '" text-anchor="end">' + esc(repAxisNum(max * k / 3)) + '</text>';
   }
   g += '<line class="bx-zero" x1="' + padL + '" y1="' + base +
        '" x2="' + (w - padR) + '" y2="' + base + '"/>';
 
   b.forEach((x, i) => {
     const cx = padL + slot * i + slot / 2;
+    const on = i === repBarPick;
+    if (on){
+      g += '<rect class="bx-sel" x="' + (cx - slot / 2 + 1).toFixed(1) + '" y="' + (padT - 4) +
+           '" width="' + (slot - 2).toFixed(1) + '" height="' + (base - padT + 8).toFixed(1) +
+           '" rx="7"/>';
+    }
     const hi = Math.max(x.inc ? 1.5 : 0, (x.inc / max) * span);
     const ho = Math.max(x.out ? 1.5 : 0, (x.out / max) * span);
     const bar = (xx, hh, fill) => hh <= 0 ? "" :
       '<rect x="' + xx.toFixed(1) + '" y="' + (base - hh).toFixed(1) +
       '" width="' + bw.toFixed(1) + '" height="' + hh.toFixed(1) +
       '" rx="' + Math.min(3, bw / 2).toFixed(1) + '" fill="' + fill + '"/>';
-    g += bar(cx - bw - gap / 2, hi, "var(--pos)");
-    g += bar(cx + gap / 2,      ho, "var(--neg)");
-    g += '<text class="bx-lb" x="' + cx.toFixed(1) + '" y="' + (base + 12) +
-         '" text-anchor="middle">' + esc(x.label) + '</text>';
-    /* the numbers themselves, for the reading a shape cannot give */
-    g += '<title>' + esc(x.label + " · in " + fmt(x.inc) + " · out " + fmt(x.out)) + '</title>';
+    g += bar(cx - bw - gap / 2, hi, "var(--bar-in)");
+    g += bar(cx + gap / 2,      ho, "var(--bar-out)");
+    g += '<text class="bx-lb' + (on ? " on" : "") + '" x="' + cx.toFixed(1) +
+         '" y="' + (base + 13) + '" text-anchor="middle">' + esc(x.label) + '</text>';
+    /* the whole column is the target, not the two thin bars inside it */
+    g += '<rect class="bx-hit" data-i="' + i + '" x="' + (cx - slot / 2).toFixed(1) +
+         '" y="0" width="' + slot.toFixed(1) + '" height="' + RBAR.h + '"/>';
   });
 
   $("#repBarsChart").innerHTML =
-    '<svg viewBox="0 0 ' + w + ' ' + RBAR.h + '" role="img" aria-label="' +
-    esc("Income and expenses over the last five " + unit + "s") + '">' + g + '</svg>';
+    '<svg viewBox="0 0 ' + w + ' ' + RBAR.h + '" aria-hidden="true">' + g + '</svg>';
+
+  const pick = b[repBarPick];
+  $("#repBarsVal").innerHTML =
+    '<span class="bv-when">' + esc(pick.label) + '</span>' +
+    '<span class="bv-p"><i class="k-in"></i>Income<b>' + esc(fmt(pick.inc)) + '</b></span>' +
+    '<span class="bv-p"><i class="k-out"></i>Expense<b>' + esc(fmt(pick.out)) + '</b></span>';
 }
+
+/* tapping a column reads it out; delegated, since the svg is redrawn each time */
+$("#repBarsChart").addEventListener("click", e => {
+  const hit = e.target.closest(".bx-hit");
+  if (!hit) return;
+  repBarPick = +hit.dataset.i;
+  repDrawBars();
+});
 
 /* ---------- the table ---------- */
 const REP_COLS = [
