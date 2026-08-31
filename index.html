@@ -228,8 +228,13 @@ html.amounts-shown .eyebtn{color:var(--accent)}
 .iconbtn svg{width:19px;height:19px;stroke-width:1.8}
 
 /* ---------- Month strip ---------- */
+/* Pinned *below* the top bar, not under it. Both used to stop at 0, and since
+   the top bar is opaque and sits higher, the period slid beneath it and out of
+   sight — exactly when you most want to know which period you are reading.
+   The height is measured rather than guessed: the greeting line appears and
+   disappears, which changes it. */
 .monthbar{
-  position:sticky; top:0; z-index:29;
+  position:sticky; top:var(--topbar-h, 56px); z-index:29;
   display:flex;align-items:center;gap:4px;
   background:var(--surface);
   border-bottom:1px solid var(--line);
@@ -3321,7 +3326,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.2.3";
+const APP_VERSION = "1.2.4";
 const APP_BUILT = "2026-08-31";
 
 const KEY = "panappai.v1";
@@ -4142,6 +4147,20 @@ function tintInk(c, dark){
   return dark ? "hsl(" + h + " 78% " + (76 + b * 14).toFixed(1) + "%)"
               : "hsl(" + h + " 62% " + (34 + b * 12).toFixed(1) + "%)";
 }
+/** Keeps --topbar-h in step with the top bar, so the period bar pins under it. */
+function syncTopbarH(){
+  const tb = $(".topbar");
+  if (!tb) return;
+  document.documentElement.style.setProperty("--topbar-h", tb.offsetHeight + "px");
+}
+if (window.ResizeObserver){
+  const tb = $(".topbar");
+  if (tb) new ResizeObserver(syncTopbarH).observe(tb);
+} else {
+  window.addEventListener("resize", syncTopbarH);
+}
+syncTopbarH();
+
 function isDark(){
   const t = document.documentElement.getAttribute("data-theme");
   if (t === "dark") return true;

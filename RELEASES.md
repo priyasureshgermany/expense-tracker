@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.2.4 — 2026-08-31
+- better: The date range stays put at the top while you scroll, under the app bar, on the dashboard and the entry list alike. It was already pinned, but to the same place as the bar above it, so it slid underneath and out of sight
+
 ## 1.2.3 — 2026-08-31
 - better: Each dashboard panel now carries its own icon, with the fold arrow on the left
 - better: Edit on the Budget panel is a button at the bottom of it rather than a small link in the corner
