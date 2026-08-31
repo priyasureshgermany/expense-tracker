@@ -288,7 +288,7 @@ Every region has a stable name, so a change can be asked for precisely —
 | Name | What it is |
 |---|---|
 | Top bar | Brand + greeting (tap to return to this period's dashboard), 👁 show/hide amounts, 🔔 reminders |
-| Period bar | `‹ 15 Aug – 14 Sept 2026 ›`, plus a **Today** pill once you've navigated away |
+| Period bar | `‹ 15 Aug – 14 Sept 2026 ›`, plus a **Today** pill once you've navigated away. Frozen below the top bar as you scroll, so which period you are reading stays answered. Its offset is measured from the top bar rather than hard-coded, since the greeting line changes that height. |
 | Tab bar | Fixed along the bottom: Dashboard · வரவு செலவு · Shopping cart · More |
 | More | A short sheet of three: Reports, What's new, Settings. A red dot on the tab means a newer build is waiting. |
 | What's new | The release notes, each line marked with what kind of change it was — a repair, something new, or something existing made better. The version itself, and the update button, stay in **Settings › About**. |
