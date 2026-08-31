@@ -255,10 +255,12 @@ html.amounts-shown .eyebtn{color:var(--accent)}
 }
 
 /* ---------- Statement ---------- */
+/* A card like the rest of the dashboard rather than a full-bleed band divided
+   off by a rule underneath it. */
 .statement{
-  background:var(--surface);
-  padding:22px 18px 18px;
-  border-bottom:1px solid var(--line);
+  margin:14px 14px 0;padding:17px 16px 16px;
+  background:var(--surface);border-radius:var(--r-lg);
+  border:1px solid var(--line);
 }
 .eyebrow{
   font-size:10px;letter-spacing:.16em;text-transform:uppercase;
@@ -410,7 +412,18 @@ button.tile:hover .tile-go{color:var(--accent)}
 .budgetcard[hidden]{display:none}
 .bc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:11px}
 .bc-t{font-size:12.5px;font-weight:600;color:var(--ink)}
-.bc-edit{font-size:12px;font-weight:600;color:var(--accent)}
+/* An action of the panel rather than a word tucked in its corner — and one
+   that folds away with the rest, since there is nothing to edit while the
+   budgets themselves are out of sight. */
+.bc-edit{
+  display:block;width:100%;margin-top:12px;
+  font-size:12.5px;font-weight:600;color:var(--accent);
+  background:var(--surface-2);border:1px solid var(--line);
+  padding:10px 14px;border-radius:11px;
+  transition:background .15s,border-color .15s;
+}
+.bc-edit:hover{background:var(--surface-sunk);border-color:var(--accent-mid)}
+.bc-edit:active{background:var(--accent-soft)}
 .bc-foot{
   margin-top:4px;padding:10px 0 4px;border-top:1px solid var(--line);
   font-size:11.5px;color:var(--ink-3);
@@ -1221,9 +1234,10 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
    wrapping the row would have meant either invalid markup or losing Edit.
    ------------------------------------------------------------------------- */
 .foldt{
-  display:flex;align-items:center;gap:7px;
+  display:flex;align-items:center;gap:7px;flex:1;
   text-align:left;color:inherit;min-width:0;
 }
+.foldic{flex:none;display:grid;place-items:center;color:var(--accent)}
 /* Four panels had three title treatments between them — two sentence-case
    titles and two grey uppercase eyebrows, which read as headings *over* the
    page rather than titles *of* a card. On a row of identical cards they are
@@ -2268,10 +2282,10 @@ html.locked #lockScreen::before{
     <section class="budgetcard" id="budgetCard" hidden>
       <div class="bc-head">
         <div class="bc-t">Budget</div>
-        <button class="bc-edit" id="budgetEdit">Edit</button>
       </div>
       <div id="budgetRows"></div>
       <div class="bc-foot" id="budgetFoot"></div>
+      <button class="bc-edit" id="budgetEdit" type="button">Edit budgets</button>
     </section>
 
     <div class="emptybudget" id="budgetEmpty" hidden>
@@ -3307,7 +3321,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.2.2";
+const APP_VERSION = "1.2.3";
 const APP_BUILT = "2026-08-31";
 
 const KEY = "panappai.v1";
@@ -4290,8 +4304,8 @@ function render(){
   renderMonthStrip();
   /* These two are in the markup rather than rebuilt, so this only does anything
      the first time — makeFoldable leaves a panel it has already wrapped alone. */
-  makeFoldable($("#budgetCard"), "budget", $("#budgetCard .bc-t"));
-  makeFoldable($(".monthstrip-wrap"), "health", $(".monthstrip-t"));
+  makeFoldable($("#budgetCard"), "budget", $("#budgetCard .bc-t"), PANEL_ICON.budget);
+  makeFoldable($(".monthstrip-wrap"), "health", $(".monthstrip-t"), PANEL_ICON.health);
   $("#demoBar").hidden = !state.demo;
   $$("#viewEntries .seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.f === filter)));
 }
@@ -5086,6 +5100,18 @@ function periodStats(txns){
 
 /* ---------- foldable dashboard panels ---------- */
 
+/* One mark each, so a folded row is recognisable before its title is read:
+   money going both ways, the envelope budgets are kept in, a pulse for health,
+   and the same pie the Reports screen uses for where it went. */
+const PANEL_ICON = {
+  flow:   '<path d="M7 3.5v12"/><path d="M3.6 12.1L7 15.5l3.4-3.4"/>' +
+          '<path d="M17 20.5v-12"/><path d="M13.6 11.9L17 8.5l3.4 3.4"/>',
+  budget: '<rect x="3" y="5.5" width="18" height="13" rx="2"/>' +
+          '<path d="M3.7 6.9L12 12.9l8.3-6"/>',
+  health: '<path d="M3 12h3.6l2.2-6.2 4.1 12.4 2.2-6.2H21"/>',
+  spend:  '<path d="M12 3a9 9 0 109 9h-9z"/><path d="M14.5 2.5A8 8 0 0121.5 9.5h-7z"/>'
+};
+
 /* Which panels are folded away, remembered: a dashboard folded down to the
    parts you actually watch is no use if it springs open again next time. */
 const FOLD_KEY = "panappai.folds";
@@ -5102,7 +5128,7 @@ let foldSeq = 0;
  * whose title *is* its header row that row stops being the panel's own child
  * the moment it is wrapped.
  */
-function makeFoldable(panel, key, titleEl){
+function makeFoldable(panel, key, titleEl, glyph){
   if (!panel || !titleEl || panel.dataset.foldKey) return;
   panel.dataset.foldKey = key;
 
@@ -5113,11 +5139,18 @@ function makeFoldable(panel, key, titleEl){
   const btn = el("button", "foldt");
   btn.type = "button";
   titleEl.parentElement.insertBefore(btn, titleEl);
-  btn.appendChild(titleEl);
+  /* arrow, then the panel's own mark, then the title */
   btn.insertAdjacentHTML("beforeend",
     '<svg class="foldchev" viewBox="0 0 24 24" width="15" height="15" fill="none" ' +
     'stroke="currentColor" stroke-width="2.1" stroke-linecap="round" ' +
     'stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>');
+  if (glyph){
+    btn.insertAdjacentHTML("beforeend",
+      '<span class="foldic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" ' +
+      'stroke-linejoin="round" aria-hidden="true">' + glyph + '</svg></span>');
+  }
+  btn.appendChild(titleEl);
 
   const body = el("div", "foldbody");
   body.id = "fold" + (++foldSeq);
@@ -5178,7 +5211,7 @@ function chartBlock(title, note, rows){
   block.appendChild(h);
   const max = Math.max(1, ...rows.map(r => r.value));
   rows.forEach(r => block.appendChild(barRow(r.label, r.value, max, r.color, r.sub)));
-  makeFoldable(block, "flow", h.querySelector(".cb-t"));
+  makeFoldable(block, "flow", h.querySelector(".cb-t"), PANEL_ICON.flow);
   return block;
 }
 
@@ -5206,14 +5239,23 @@ function renderCharts(all, budgetLeft){
      both, per category and with real drawdown, so they were duplicate views. */
 }
 
-/** A scrollable strip of the surrounding periods, colour-coded by healthBand so overspending stands out at a glance. */
+/**
+ * Five periods, this one in the middle: two behind for what has just gone, two
+ * ahead for what is already committed. It used to run −3..+2, which put the
+ * current period fourth of six — and then dropped anything before the first
+ * period the app ever recorded, so early on it showed three chips, none of them
+ * centred. A period with nothing in it reads as "No data" with a grey dot,
+ * which is the truth about it, so there is no reason to hide one.
+ *
+ * Colour-coded by healthBand, so overspending stands out at a glance.
+ */
 function renderMonthStrip(){
   const host = $("#monthStrip");
   host.innerHTML = "";
   const center = periodOf(todayISO());
-  for (let n = -3; n <= 2; n++){
+  let mid = null;
+  for (let n = -2; n <= 2; n++){
     const ym = shiftPeriod(center, n);
-    if (ym < FIRST_PERIOD) continue;
     const { inc, exp } = monthTotals(ym);
     const band = healthBand(inc, exp);
     const chip = el("button", "monthchip");
@@ -5226,9 +5268,31 @@ function renderMonthStrip(){
       '<span class="mc-pct">' + (inc > 0 ? Math.round((inc - exp) / inc * 100) + "%" : "—") + '</span>';
     chip.setAttribute("aria-label", esc(periodTitle(ym)) + " — " + HEALTH_LABEL[band]);
     chip.addEventListener("click", () => { view = ym; render(); });
+    if (n === 0) mid = chip;
     host.appendChild(chip);
   }
+
+  /* Being in the middle of the strip is the point, so put it in the middle of
+     the view too when the five do not fit. Once only — render() runs on every
+     edit, and re-centring each time would drag the strip back from wherever it
+     had been scrolled to. */
+  if (mid && !stripCentred){
+    stripCentred = true;
+    /* Measured as the gap between two rectangles rather than from offsetLeft:
+       the strip is not a positioned element, so offsetLeft is counted from the
+       shell and carries the card's own inset with it — which computed a target
+       past the end of the scroll and landed the strip hard against it, the
+       opposite of centred. A delta needs no such assumption, and applying it
+       twice settles any width that was not final on the first frame. */
+    const centre = () => {
+      if (!host.clientWidth) return;
+      const m = mid.getBoundingClientRect(), h = host.getBoundingClientRect();
+      host.scrollLeft += (m.left + m.width / 2) - (h.left + h.width / 2);
+    };
+    requestAnimationFrame(() => { centre(); requestAnimationFrame(centre); });
+  }
 }
+let stripCentred = false;
 
 function emptyState(monthCount){
   const e = el("div", "empty");
@@ -5339,7 +5403,7 @@ function renderBreakdown(all, dark){
     bars.appendChild(b);
   });
   card.appendChild(bars);
-  makeFoldable(card, "spend", card.querySelector("h3"));
+  makeFoldable(card, "spend", card.querySelector("h3"), PANEL_ICON.spend);
   host.appendChild(card);
 }
 
