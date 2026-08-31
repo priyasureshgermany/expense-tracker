@@ -1025,53 +1025,30 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 
 .rp-picks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
-/* ---------- pick several, not one ----------
-   A native <select multiple> is a scrolled list box on desktop and a modal
-   wheel on a phone, and neither shows what is currently ticked without being
-   opened. A button that says so, over a list of checkboxes, does. */
-.mpick{position:relative;min-width:0}
-.mpick-b{
-  display:flex;align-items:center;gap:6px;width:100%;
-  padding:8px 10px;border-radius:10px;font-size:12.5px;text-align:left;
-  background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
-  transition:border-color .15s,background .15s;
+/* A row of chips you slide, rather than a menu you open. The filter is then
+   readable without being opened, and several can be on at once. */
+.rp-chips.slide{
+  flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+  padding-bottom:1px;
+  -webkit-overflow-scrolling:touch;
 }
-.mpick-b:hover{border-color:var(--line-strong)}
-.mpick-b[aria-expanded="true"]{border-color:var(--accent-mid);background:var(--surface-sunk)}
-.mpick-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mpick.on .mpick-t{color:var(--accent);font-weight:600}
-.mpick-c{flex:none;color:var(--ink-3);transition:transform .2s}
-.mpick-b[aria-expanded="true"] .mpick-c{transform:rotate(180deg)}
-.mpick-menu{
-  position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:12;
-  background:var(--surface);border:1px solid var(--line-strong);
-  border-radius:12px;box-shadow:var(--shadow-lg);
-  padding:8px;
+.rp-chips.slide::-webkit-scrollbar{display:none}
+.rp-chips.slide button{flex:none;white-space:nowrap}
+.rp-chips button .rp-dot{
+  display:inline-block;width:7px;height:7px;border-radius:50%;
+  margin-right:5px;vertical-align:1px;
 }
-.mpick-head{
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:2px 4px 7px;margin-bottom:5px;border-bottom:1px solid var(--line);
-}
-.mpick-head b{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
-.mpick-clear{font-size:11.5px;font-weight:600;color:var(--accent)}
-.mpick-list{max-height:238px;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
-.mpick-row{
-  display:flex;align-items:center;gap:9px;cursor:pointer;
-  padding:7px 6px;border-radius:8px;font-size:12.5px;color:var(--ink-2);
-}
-.mpick-row:hover{background:var(--surface-2)}
-.mpick-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mpick-empty{padding:10px 6px;font-size:11.5px;color:var(--ink-3)}
 
-/* back to no filters at all */
-.rp-clear{
-  display:block;width:100%;margin-top:9px;
-  padding:8px 12px;border-radius:10px;
-  font-size:12px;font-weight:600;color:var(--ink-2);
+/* undoing the lot: a cross where a cross belongs, not a bar underneath */
+.rp-searchrow{display:flex;align-items:center;gap:8px}
+.rp-searchrow .inp{flex:1;min-width:0}
+.rp-x{
+  flex:none;width:32px;height:32px;border-radius:50%;
+  display:grid;place-items:center;color:var(--ink-3);
   background:var(--surface-2);border:1px solid var(--line);
   transition:background .15s,border-color .15s,color .15s;
 }
-.rp-clear:hover{background:var(--surface-sunk);border-color:var(--accent-mid);color:var(--accent)}
+.rp-x:hover{background:var(--surface-sunk);border-color:var(--neg);color:var(--neg)}
 
 /* ---------- income against expenses, over the last five ---------- */
 .rp-bars{
@@ -3046,8 +3023,8 @@ html.locked #lockScreen::before{
     <div class="rp-ranges" id="repRanges">
       <button type="button" data-range="week"   aria-pressed="false" title="This week"      aria-label="This week">1W</button>
       <button type="button" data-range="month"  aria-pressed="true"  title="This month"     aria-label="This month">1M</button>
-      <button type="button" data-range="year"   aria-pressed="false" title="This year"      aria-label="This year">1Y</button>
       <button type="button" data-range="last12" aria-pressed="false" title="Last 12 months" aria-label="Last 12 months">12M</button>
+      <button type="button" data-range="year"   aria-pressed="false" title="This year so far" aria-label="This year so far" id="repYearBtn">2026</button>
       <button type="button" data-range="custom" aria-pressed="false" title="Pick your own dates" aria-label="Pick your own dates">Flex</button>
     </div>
 
@@ -3090,44 +3067,20 @@ html.locked #lockScreen::before{
     <!-- 2 : every line of it -->
     <div class="rp-pane" id="repPane_table" hidden>
       <div class="rp-filters">
-        <input class="inp sm" id="repSearch" type="search" placeholder="Search notes, category, account…" autocomplete="off">
+        <div class="rp-searchrow">
+          <input class="inp sm" id="repSearch" type="search" placeholder="Search notes, category, account…" autocomplete="off">
+          <button class="rp-x" id="repClear" type="button" hidden title="Clear every filter" aria-label="Clear every filter">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
         <div class="rp-chips" id="repKind">
           <button type="button" data-kind="all"      aria-pressed="true">All</button>
           <button type="button" data-kind="income"   aria-pressed="false">Income</button>
           <button type="button" data-kind="expense"  aria-pressed="false">Expenses</button>
           <button type="button" data-kind="transfer" aria-pressed="false">Transfers</button>
         </div>
-        <div class="rp-chips" id="repStatus">
-          <button type="button" data-status="all"     aria-pressed="true">Paid &amp; planned</button>
-          <button type="button" data-status="done"    aria-pressed="false">Paid</button>
-          <button type="button" data-status="planned" aria-pressed="false">Planned</button>
-        </div>
-        <div class="rp-picks">
-          <div class="mpick" id="repCatPick">
-            <button class="mpick-b" type="button" aria-expanded="false">
-              <span class="mpick-t">Every category</span>
-              <svg class="mpick-c" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div class="mpick-menu" hidden>
-              <div class="mpick-head"><b>Categories</b><button class="mpick-clear" type="button">Clear</button></div>
-              <div class="mpick-list"></div>
-            </div>
-          </div>
-          <div class="mpick" id="repAcctPick">
-            <button class="mpick-b" type="button" aria-expanded="false">
-              <span class="mpick-t">Every account</span>
-              <svg class="mpick-c" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div class="mpick-menu" hidden>
-              <div class="mpick-head"><b>Accounts</b><button class="mpick-clear" type="button">Clear</button></div>
-              <div class="mpick-list"></div>
-            </div>
-          </div>
-        </div>
-        <button class="rp-clear" id="repClear" type="button" hidden>
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          Clear filters
-        </button>
+        <div class="rp-chips slide" id="repCatChips"></div>
+        <div class="rp-chips slide" id="repAcctChips"></div>
       </div>
       <div class="rp-count" id="repCount">—</div>
       <div class="rp-tablewrap"><table class="rp-table" id="repTable"></table></div>
@@ -3464,7 +3417,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.2.6";
+const APP_VERSION = "1.2.7";
 const APP_BUILT = "2026-08-31";
 
 const KEY = "panappai.v1";
@@ -5116,9 +5069,8 @@ function renderAccountSettings(){
     name.addEventListener("click", () => {
       sheetClose();
       repAccts = [a.id];
-      repKind = "all"; repStatus = "all"; repCats = []; repQuery = ""; repSelCat = null;
+      repKind = "all"; repCats = []; repQuery = ""; repSelCat = null;
       syncChips("#repKind", "kind", repKind);
-      syncChips("#repStatus", "status", repStatus);
       $("#repSearch").value = "";
       /* the stretch the dashboard is on, not today's — you may have navigated */
       repRange = "custom";
@@ -9168,7 +9120,6 @@ let repRange = "month";        /* week | month | year | last12 | custom */
 let repBasis = "calendar";     /* calendar | period */
 let repTab = "chart";
 let repKind = "all";
-let repStatus = "all";
 /* Empty means every one of them, which is why these are not seeded with the
    full list: "nothing ticked" and "all ticked" mean the same thing to a reader
    and should not mean different things to the filter. */
@@ -9178,7 +9129,7 @@ let repAccts = [];
    the same row is money out of one and into the other, so it has none. */
 function repSoleAcct(){ return repAccts.length === 1 ? repAccts[0] : ""; }
 function repAnyFilter(){
-  return repKind !== "all" || repStatus !== "all" ||
+  return repKind !== "all" ||
          repCats.length > 0 || repAccts.length > 0 || repQuery.trim() !== "";
 }
 let repQuery = "";
@@ -9275,7 +9226,6 @@ function repRows(){
   const q = repQuery.trim().toLowerCase();
   let rows = repInRange().filter(t => {
     if (repKind !== "all" && t.type !== repKind) return false;
-    if (repStatus !== "all" && t.status !== repStatus) return false;
     if (repCats.length && repCats.indexOf(repCatOf(t).id) === -1) return false;
     if (repAccts.length &&
         repAccts.indexOf(t.account) === -1 &&
@@ -9361,12 +9311,18 @@ function repByCategory(rows, side){
   rows.forEach(t => {
     if (repSideOf(t) !== want) return;
     const c = repCatOf(t);
-    const cur = by.get(c.id) || { id:c.id, n:c.n, h:c.h, l:c.l, total:0, count:0 };
+    const cur = by.get(c.id) ||
+      { id:c.id, n:c.n, h:c.h, l:c.l, total:0, count:0, mset:new Set() };
     cur.total += t.amount;
     cur.count++;
+    /* which months this category actually ran in, for an average over those
+       rather than over the whole stretch */
+    cur.mset.add(t.date.slice(0, 7));
     by.set(c.id, cur);
   });
-  return [...by.values()].sort((a, b) => b.total - a.total);
+  return [...by.values()]
+    .map(c => { c.months = c.mset.size; delete c.mset; return c; })
+    .sort((a, b) => b.total - a.total);
 }
 
 /**
@@ -9686,8 +9642,8 @@ function repDrawInfo(cat, total){
 }
 
 /**
- * How many months the stretch covers. The range itself now stops at today, so
- * this and the total it divides answer for the same months either way.
+ * How many months the stretch covers. Used to decide whether an average is
+ * worth showing at all — not to compute one.
  */
 function repMonthsSpanned(){
   const r = repDates();
@@ -9701,21 +9657,21 @@ function repMonthsSpanned(){
  */
 function repShowsAverage(){ return repMonthsSpanned() >= 1.5; }
 
-function repDrawLegend(cats, total){
+function repDrawLegend(cats, total, ringMonths){
   const host = $("#repLegend");
   host.innerHTML = "";
   const dark = isDark();
   const avg = repShowsAverage();
-  const months = Math.max(1, repMonthsSpanned());
 
-  /* Over a long stretch the total answers "how much altogether", which is not
-     the question a year-long report is usually asked — "how much a month" is,
-     and it is the only figure comparable with a shorter report. */
-  if (avg && total){
+  /* Each category is averaged over the months it actually ran in, not over the
+     length of the report. 500 spent on Investment in one August is 500 a month
+     when investing; dividing it by the eight months of the year says 62,50,
+     which is a figure describing nothing that happened. */
+  if (avg && total && ringMonths > 1){
     const cap = el("div", "rp-avgtot");
-    cap.appendChild(el("b", null, fmt(total / months) + " a month"));
+    cap.appendChild(el("b", null, fmt(total / ringMonths) + " a month"));
     cap.appendChild(el("span", null, fmt(total) + " over " +
-      (months < 11.6 ? months.toFixed(1).replace(/\.0$/, "") + " months" : "the year")));
+      ringMonths + " months of spending"));
     host.appendChild(cap);
   }
   cats.forEach(c => {
@@ -9725,7 +9681,10 @@ function repDrawLegend(cats, total){
     sw.style.background = pieSwatch(c, dark);
     row.appendChild(sw);
     const nm = el("span", "rp-ln", c.n);
-    if (avg) nm.appendChild(el("i", "rp-avg", fmt(c.total / months) + "/mo"));
+    if (avg && (c.months || 1) > 1){
+      nm.appendChild(el("i", "rp-avg",
+        fmt(c.total / c.months) + "/mo over " + c.months + " months"));
+    }
     row.appendChild(nm);
     row.appendChild(el("span", "rp-lp", ((c.total / total) * 100).toFixed(1) + "%"));
     const amt = el("span", "rp-la", fmt(c.total));
@@ -9817,6 +9776,12 @@ function repBuckets(){
 const RBAR = { w:320, h:120, padL:40, padR:4, padT:8, base:96 };
 let repBarPick = null;      /* which bucket is being read, by index */
 
+/* The two series are drawn as the ring draws a category: a hue with a depth,
+   shaded top to bottom, and lit rather than outlined when chosen. Green and red
+   from the same wheel the slices come from, so the two charts plainly belong
+   to one another. */
+const BAR_CAT = { inc:{ h:150, l:33 }, out:{ h:6, l:33 } };
+
 /**
  * The scale rounded up to a number worth printing. Scaling to the tallest bar
  * exactly gives an axis reading 183, 367, 550 and a bar that touches the top
@@ -9862,8 +9827,31 @@ function repDrawBars(){
   const bw = Math.min(17, slot * 0.30);
   const gap = 3.5;
   const span = base - padT;
+  const dark = isDark();
 
-  let g = "";
+  /* one gradient per series per state, rather than per bar */
+  let defs = "";
+  ["inc", "out"].forEach(k => {
+    [false, true].forEach(on => {
+      const sh = pieShades(BAR_CAT[k], dark, on);
+      defs += '<linearGradient id="bg' + k + (on ? "1" : "0") + '" x1="0" y1="0" x2="0" y2="1">' +
+              '<stop offset="0" stop-color="' + sh.lit + '"/>' +
+              '<stop offset="0.55" stop-color="' + sh.top + '"/>' +
+              '<stop offset="1" stop-color="' + sh.base + '"/></linearGradient>';
+    });
+  });
+  defs += '<filter id="bgLit" x="-40%" y="-40%" width="180%" height="180%">' +
+          '<feDropShadow dx="0" dy="1" stdDeviation="1.6" flood-color="' +
+          (dark ? "#000" : "#0F1922") + '" flood-opacity="' + (dark ? "0.5" : "0.3") +
+          '"/></filter>';
+
+  /* the key takes the same colours, so it names what is actually drawn */
+  $$("#repBars .rp-barskey i").forEach(i => {
+    i.style.background = pieShades(BAR_CAT[i.classList.contains("k-in") ? "inc" : "out"],
+                                   dark, false).base;
+  });
+
+  let g = '<defs>' + defs + '</defs>';
   /* Gridlines carry their value now. A bar you cannot put a number to only
      says "bigger than that one", which the shape had already said. */
   for (let k = 0; k <= 3; k++){
@@ -9879,19 +9867,19 @@ function repDrawBars(){
   b.forEach((x, i) => {
     const cx = padL + slot * i + slot / 2;
     const on = i === repBarPick;
-    if (on){
-      g += '<rect class="bx-sel" x="' + (cx - slot / 2 + 1).toFixed(1) + '" y="' + (padT - 4) +
-           '" width="' + (slot - 2).toFixed(1) + '" height="' + (base - padT + 8).toFixed(1) +
-           '" rx="7"/>';
-    }
     const hi = Math.max(x.inc ? 1.5 : 0, (x.inc / max) * span);
     const ho = Math.max(x.out ? 1.5 : 0, (x.out / max) * span);
-    const bar = (xx, hh, fill) => hh <= 0 ? "" :
+    /* Chosen is lit and lifted, the way a slice is — not a slab of background
+       behind the whole column, which said "this region" where what is meant is
+       "these two bars". */
+    const bar = (xx, hh, k) => hh <= 0 ? "" :
       '<rect x="' + xx.toFixed(1) + '" y="' + (base - hh).toFixed(1) +
       '" width="' + bw.toFixed(1) + '" height="' + hh.toFixed(1) +
-      '" rx="' + Math.min(3, bw / 2).toFixed(1) + '" fill="' + fill + '"/>';
-    g += bar(cx - bw - gap / 2, hi, "var(--bar-in)");
-    g += bar(cx + gap / 2,      ho, "var(--bar-out)");
+      '" rx="' + Math.min(3, bw / 2).toFixed(1) +
+      '" fill="url(#bg' + k + (on ? "1" : "0") + ')"' +
+      (on ? ' filter="url(#bgLit)"' : ' opacity="0.72"') + '/>';
+    g += bar(cx - bw - gap / 2, hi, "inc");
+    g += bar(cx + gap / 2,      ho, "out");
     g += '<text class="bx-lb' + (on ? " on" : "") + '" x="' + cx.toFixed(1) +
          '" y="' + (base + 13) + '" text-anchor="middle">' + esc(x.label) + '</text>';
     /* the whole column is the target, not the two thin bars inside it */
@@ -10028,49 +10016,11 @@ function repSetTab(t){
 }
 
 /**
- * Fills the two pickers from what the stretch actually contains. A category
- * chosen for August may not appear in a report of last week at all, and a
- * filter that is still on while its option has gone leaves the list looking
+ * Fills the two chip rows from what the stretch actually contains.
+ *
+ * A category chosen for August may not appear in a report of last week at all,
+ * and a filter still on while its option has gone leaves the list looking
  * unaccountably short — so a selection that no longer exists is dropped.
- */
-/**
- * Fills one multi-picker. The list is rebuilt only when the options themselves
- * change: ticking a box re-renders the report, and rebuilding the list under
- * the finger that is ticking would shut the menu on every choice.
- */
-function repFillPick(host, opts, chosen, noun, plural){
-  const list = host.querySelector(".mpick-list");
-  const sig = opts.map(o => o.id).join("|");
-  if (list.dataset.sig !== sig){
-    list.dataset.sig = sig;
-    list.innerHTML = "";
-    if (!opts.length){
-      list.appendChild(el("div", "mpick-empty", "Nothing in this stretch to pick from."));
-    }
-    opts.forEach(o => {
-      const row = el("label", "mpick-row");
-      const cb = el("input");
-      cb.type = "checkbox";
-      cb.value = o.id;
-      row.appendChild(cb);
-      row.appendChild(el("span", null, o.n));
-      list.appendChild(row);
-    });
-  }
-  list.querySelectorAll("input").forEach(cb => { cb.checked = chosen.indexOf(cb.value) !== -1; });
-
-  const names = opts.filter(o => chosen.indexOf(o.id) !== -1).map(o => o.n);
-  host.querySelector(".mpick-t").textContent =
-    !names.length ? "Every " + noun
-    : names.length === 1 ? names[0]
-    : names.length + " " + plural;
-  host.classList.toggle("on", names.length > 0);
-}
-
-/**
- * A stretch you cannot see cannot be filtered by: the options are the ones the
- * stretch actually contains, and a choice that has fallen out of it is dropped
- * rather than left filtering everything away.
  */
 function repFillPickers(){
   const inRange = repInRange();
@@ -10078,13 +10028,20 @@ function repFillPickers(){
   const seen = new Set(inRange.map(t => repCatOf(t).id));
   const cats = allCats("expense").concat(allCats("income")).filter(c => seen.has(c.id));
   repCats = repCats.filter(id => cats.some(c => c.id === id));
-  repFillPick($("#repCatPick"), cats, repCats, "category", "categories");
+  /* each chip carries the colour its slice has, so the ring and the filter are
+     plainly the same set of things */
+  repChipRow($("#repCatChips"), "All categories", cats, repCats,
+             v => { repCats = v; }, true);
 
   const accts = accountsOf();
   repAccts = repAccts.filter(id => accts.some(a => a.id === id));
-  repFillPick($("#repAcctPick"), accts, repAccts, "account", "accounts");
+  repChipRow($("#repAcctChips"), "All accounts", accts, repAccts,
+             v => { repAccts = v; }, false);
 
   $("#repClear").hidden = !repAnyFilter();
+  /* the year button says which year it is */
+  const yb = $("#repYearBtn");
+  if (yb) yb.textContent = todayISO().slice(0, 4);
 }
 
 function repRender(){
@@ -10124,7 +10081,11 @@ function repRender(){
   $("#repChartCap").textContent = side === "income" ? "Where it came from" : "Where it went";
   $("#repChartCap").hidden = !cats.length;
   repDrawChart(cats, ringTotal, side, rows.length);
-  repDrawLegend(cats, ringTotal);
+  /* the months the ring's own rows fall in, which is what its total is spread
+     over — not the length of the report */
+  const ringMonths = new Set(
+    rows.filter(t => repSideOf(t) === side).map(t => t.date.slice(0, 7))).size;
+  repDrawLegend(cats, ringTotal, ringMonths);
   repDrawBars();
 
   const xfer = rows.filter(t => t.type === "transfer").length;
@@ -10161,52 +10122,47 @@ $$("#repKind button").forEach(b => b.addEventListener("click", () => {
   syncChips("#repKind", "kind", repKind);
   repRender();
 }));
-$$("#repStatus button").forEach(b => b.addEventListener("click", () => {
-  repStatus = b.dataset.status;
-  syncChips("#repStatus", "status", repStatus);
-  repRender();
-}));
-/* ---------- the multi-pickers ---------- */
-function repBindPick(hostSel, get, set){
-  const host = $(hostSel);
-  const btn = host.querySelector(".mpick-b");
-  const menu = host.querySelector(".mpick-menu");
-  btn.addEventListener("click", e => {
-    e.stopPropagation();
-    const open = menu.hidden;
-    repShutPicks();
-    menu.hidden = !open;
-    btn.setAttribute("aria-expanded", String(open));
-  });
-  /* the menu must not count as a click outside itself */
-  menu.addEventListener("click", e => e.stopPropagation());
-  host.querySelector(".mpick-clear").addEventListener("click", () => { set([]); repRender(); });
-  host.querySelector(".mpick-list").addEventListener("change", e => {
-    const cb = e.target;
-    if (!cb || cb.type !== "checkbox") return;
-    const cur = get().slice();
-    const at = cur.indexOf(cb.value);
-    if (cb.checked && at === -1) cur.push(cb.value);
-    if (!cb.checked && at !== -1) cur.splice(at, 1);
-    set(cur);
-    repRender();
+/* ---------- category and account, as chips you slide ---------- */
+
+/**
+ * One sliding row. "All" is not a value but the absence of one, so it lights up
+ * exactly when nothing else does, and tapping it clears rather than selects.
+ */
+function repChipRow(host, allLabel, opts, chosen, set, swatch){
+  host.innerHTML = "";
+  const chip = (label, on, onClick, dotColor) => {
+    const b = el("button");
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(on));
+    if (dotColor){
+      const d = el("span", "rp-dot");
+      d.style.background = dotColor;
+      b.appendChild(d);
+    }
+    b.appendChild(document.createTextNode(label));
+    b.addEventListener("click", onClick);
+    host.appendChild(b);
+    return b;
+  };
+  chip(allLabel, chosen.length === 0, () => { set([]); repRender(); }, null);
+  const dark = isDark();
+  opts.forEach(o => {
+    const on = chosen.indexOf(o.id) !== -1;
+    chip(o.n, on, () => {
+      const cur = chosen.slice();
+      const at = cur.indexOf(o.id);
+      if (at === -1) cur.push(o.id); else cur.splice(at, 1);
+      set(cur);
+      repRender();
+    }, swatch ? pieSwatch(o, dark) : null);
   });
 }
-function repShutPicks(){
-  $$(".mpick-menu").forEach(m => { m.hidden = true; });
-  $$(".mpick-b").forEach(b => b.setAttribute("aria-expanded", "false"));
-}
-repBindPick("#repCatPick",   () => repCats,   v => { repCats = v; });
-repBindPick("#repAcctPick",  () => repAccts,  v => { repAccts = v; });
-document.addEventListener("click", repShutPicks);
 
 $("#repClear").addEventListener("click", () => {
-  repKind = "all"; repStatus = "all";
+  repKind = "all";
   repCats = []; repAccts = []; repQuery = ""; repSelCat = null;
   syncChips("#repKind", "kind", repKind);
-  syncChips("#repStatus", "status", repStatus);
   $("#repSearch").value = "";
-  repShutPicks();
   repRender();
   toast("Filters cleared");
 });
