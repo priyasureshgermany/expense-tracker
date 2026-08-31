@@ -2829,9 +2829,9 @@
     {
       "id": "weh2ridjx783",
       "type": "expense",
-      "amount": 5141,
+      "amount": 4292,
       "category": "groceries_de",
-      "note": "Lidl",
+      "note": "German shopping",
       "date": "2026-08-29",
       "status": "done",
       "account": "a_gch8xl46opp7",
@@ -2892,6 +2892,17 @@
       "date": "2027-08-10",
       "status": "planned",
       "ruleId": "8wc0ww8pnzas",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "vcsg1cezn5af",
+      "type": "expense",
+      "amount": 849,
+      "category": "nonveg",
+      "note": "Hanchen",
+      "date": "2026-08-29",
+      "status": "done",
       "account": "a_gch8xl46opp7",
       "fromAccount": null
     }
@@ -3239,7 +3250,8 @@
           }
         ],
         "txnId": "fhumwps8em8p",
-        "account": "a_gch8xl46opp7"
+        "account": "a_gch8xl46opp7",
+        "bookmark": null
       },
       {
         "id": "pp51aij00xgg",
@@ -3309,7 +3321,8 @@
           }
         ],
         "txnId": "sz9pyoj50xgg",
-        "account": "a_gch8xl46opp7"
+        "account": "a_gch8xl46opp7",
+        "bookmark": null
       },
       {
         "id": "hri98mslrm8m",
@@ -3339,7 +3352,8 @@
           }
         ],
         "txnId": "3ct5rd3orm8m",
-        "account": "a_gch8xl46opp7"
+        "account": "a_gch8xl46opp7",
+        "bookmark": null
       },
       {
         "id": "t35mibjbpd9e",
@@ -3364,13 +3378,14 @@
           }
         ],
         "txnId": "4jgthfkupd9e",
-        "account": "a_gch8xl46opp7"
+        "account": "a_gch8xl46opp7",
+        "bookmark": null
       },
       {
         "id": "7w2apxu4x783",
         "store": "de",
         "date": "2026-08-29",
-        "total": 5141,
+        "total": 4292,
         "account": "a_gch8xl46opp7",
         "items": [
           {
@@ -3494,7 +3509,9 @@
             "price": 275
           }
         ],
-        "txnId": "weh2ridjx783"
+        "txnId": "weh2ridjx783",
+        "bookmark": null,
+        "note": null
       }
     ]
   },
@@ -3511,30 +3528,34 @@
       {
         "id": "c_4bvswqhm",
         "n": "Telecom",
-        "h": 265,
+        "h": 273,
         "custom": true,
+        "l": 37,
         "icon": "telecom"
       },
       {
         "id": "c_teeeb8sq",
         "n": "Loan",
-        "h": 18,
+        "h": 4,
         "custom": true,
+        "l": 30,
         "icon": "loan"
       },
       {
         "id": "c_v31n14bizpl9",
         "n": "Entertainment",
-        "h": 72,
-        "custom": true
+        "h": 86,
+        "custom": true,
+        "l": 42
       }
     ],
     "income": [
       {
         "id": "c_65s3renj",
         "n": "Benefits",
-        "h": 120,
+        "h": 134,
         "custom": true,
+        "l": 32,
         "icon": "family"
       }
     ]
