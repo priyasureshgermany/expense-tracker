@@ -2905,6 +2905,28 @@
       "status": "done",
       "account": "a_gch8xl46opp7",
       "fromAccount": null
+    },
+    {
+      "id": "whwl1hdn1oef",
+      "type": "expense",
+      "amount": 973,
+      "category": "buffer",
+      "note": "Penny",
+      "date": "2026-08-31",
+      "status": "done",
+      "account": "a_9gbih0jvp6la",
+      "fromAccount": null
+    },
+    {
+      "id": "1kjjx6g722vr",
+      "type": "transfer",
+      "amount": 20000,
+      "category": null,
+      "note": "",
+      "date": "2026-08-31",
+      "status": "done",
+      "account": "a_9gbih0jvp6la",
+      "fromAccount": "a_gch8xl46opp7"
     }
   ],
   "rules": [
