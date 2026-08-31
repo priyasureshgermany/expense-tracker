@@ -1010,11 +1010,24 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   background:var(--surface-2);border:1px solid var(--line);color:var(--ink-3);
 }
 .rp-chips button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-mid);color:var(--accent)}
-/* the same marks the + menu uses, so a filter is named the way the thing it
-   filters was created */
+/* The same marks the + menu uses, in the same colours the + menu gives them:
+   income green, expense red, a transfer the accent. Carried by the icon even
+   when the chip is off, so the three are told apart before they are read, and
+   taken up by the whole chip when it is on. */
 .rp-chips .kic{width:12px;height:12px;vertical-align:-2px;margin-right:5px}
-#repKind button[data-kind="income"][aria-pressed="true"]{color:var(--pos);border-color:var(--pos)}
-#repKind button[data-kind="expense"][aria-pressed="true"]{color:var(--neg);border-color:var(--neg)}
+#repKind button[data-kind="income"]   .kic{color:var(--pos)}
+#repKind button[data-kind="expense"]  .kic{color:var(--neg)}
+#repKind button[data-kind="transfer"] .kic{color:var(--accent)}
+#repKind button[data-kind="income"][aria-pressed="true"]{
+  background:var(--pos-soft);border-color:var(--pos);color:var(--pos);
+}
+#repKind button[data-kind="expense"][aria-pressed="true"]{
+  background:var(--neg-soft);border-color:var(--neg);color:var(--neg);
+}
+#repKind button[data-kind="transfer"][aria-pressed="true"]{
+  background:var(--accent-soft);border-color:var(--accent);color:var(--accent);
+}
+#repKind button[aria-pressed="true"] .kic{color:inherit}
 /* the per-month reading, beside the total it is derived from */
 .rp-avgtot{
   display:flex;align-items:baseline;justify-content:space-between;gap:10px;
@@ -1113,7 +1126,15 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   display:inline-block;padding:2px 7px;border-radius:99px;
   font-size:10.5px;font-weight:600;white-space:nowrap;
 }
-.rp-st{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+/* A column of identical grey words is a column you read rather than scan.
+   The same three colours, so a row's kind lands before its text does. */
+.rp-st{
+  font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3);
+}
+.rp-st.k-income{color:var(--pos)}
+.rp-st.k-expense{color:var(--neg)}
+.rp-st.k-transfer{color:var(--accent)}
 .rp-table tfoot td{
   padding:9px 10px;font-weight:700;font-variant-numeric:tabular-nums;
   background:var(--surface-2);border-top:1px solid var(--line-strong);
@@ -3443,7 +3464,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.2.8";
+const APP_VERSION = "1.2.9";
 const APP_BUILT = "2026-08-31";
 
 const KEY = "panappai.v1";
@@ -10145,7 +10166,8 @@ function repDrawTable(rows){
     r.appendChild(el("td", null, prettyDate(t.date)));
 
     const ty = el("td");
-    ty.appendChild(el("span", "rp-st", t.type === "transfer" ? "Transfer" : t.type));
+    ty.appendChild(el("span", "rp-st k-" + t.type,
+                      t.type === "transfer" ? "Transfer" : t.type));
     r.appendChild(ty);
 
     const cd = el("td");
