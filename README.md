@@ -21,6 +21,11 @@ Open `index.html` in any browser, or host the file anywhere static.
   number. (Groceries and Misc buffer charts used to sit alongside it — budget
   envelopes cover both per category and with real drawdown, so they were
   duplicate views and have gone.)
+- **Foldable panels.** Everything on the dashboard below the tiles — *Money in,
+  money out*, *Budget*, *Period health* and *Where the money goes* — collapses to
+  its title when you tap it, and stays that way next time. The title is the
+  control rather than the whole header row, so **Edit** on the budget card and
+  the health word beside *Money in, money out* stay reachable while folded.
 - **Period health colours**, on the dashboard's period strip, based on
   (income − expenses) ÷ income:
   - 🔴 **Red** — expenses exceed income

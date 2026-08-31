@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.2.1 — 2026-08-31
+- new: The dashboard panels fold away. Tap the title of Money in, money out, Budget, Period health or Where the money goes to collapse it, and what you fold stays folded next time
+
 ## 1.2.0 — 2026-08-31
 - fix: Categories that looked like one colour in the report chart now tell apart. Investment and Groceries — German were all but identical, and a custom category could match a built-in one exactly
 - better: Chart colours are deeper, and a category keeps its colour everywhere it appears
