@@ -8,6 +8,14 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.2.7 — 2026-08-31
+- fix: The monthly average is over the months a category actually ran in, not the length of the report. 500 spent on Investment in one August now reads 500, where dividing it by the eight months of the year had said 62,50. A category that ran in only one month shows no average at all
+- better: Category and account are rows of chips you slide and tap, several at once, each carrying the colour its slice has
+- better: Clearing every filter is a cross beside the search box rather than a bar underneath the list
+- better: The bar chart takes its colours and its highlight from the ring: the chosen pair is lit and lifted rather than sitting on a slab of background
+- better: Paid and planned are gone from the report filters. A report already stops at today, so the entries in it have happened
+- better: The ranges read 1W, 1M, 12M, then the year itself, then Flex
+
 ## 1.2.6 — 2026-08-31
 - fix: Reports count only what has happened. 1W, 1M, 1Y and 12M all stop at today, so planned entries dated in the months ahead no longer swell the totals. Flex still honours the dates you type
 - fix: The monthly average appears only where there is more than one month to average, and is gone from 1M where it was just the total again
