@@ -918,9 +918,10 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .sheet-tall{height:94dvh}
 .sheet-tall .sheet-body{flex:1;min-height:0}
 
-.rp-ranges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.rp-ranges{display:flex;gap:6px;margin-bottom:12px}
 .rp-ranges button{
-  padding:7px 12px;border-radius:99px;font-size:12px;font-weight:600;
+  flex:1;min-width:0;
+  padding:8px 4px;border-radius:99px;font-size:12px;font-weight:600;
   background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);
   transition:background .15s,border-color .15s,color .15s;
 }
@@ -1002,7 +1003,87 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   background:var(--surface-2);border:1px solid var(--line);color:var(--ink-3);
 }
 .rp-chips button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-mid);color:var(--accent)}
+/* the per-month reading, beside the total it is derived from */
+.rp-avgtot{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding:9px 11px;margin-bottom:9px;border-radius:11px;
+  background:var(--surface-2);border:1px solid var(--line);
+}
+.rp-avgtot b{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.rp-avgtot span{font-size:11px;color:var(--ink-3)}
+.rp-avg{
+  display:block;font-style:normal;font-size:10.5px;color:var(--ink-3);
+  margin-top:1px;font-variant-numeric:tabular-nums;
+}
+
 .rp-picks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* ---------- pick several, not one ----------
+   A native <select multiple> is a scrolled list box on desktop and a modal
+   wheel on a phone, and neither shows what is currently ticked without being
+   opened. A button that says so, over a list of checkboxes, does. */
+.mpick{position:relative;min-width:0}
+.mpick-b{
+  display:flex;align-items:center;gap:6px;width:100%;
+  padding:8px 10px;border-radius:10px;font-size:12.5px;text-align:left;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+  transition:border-color .15s,background .15s;
+}
+.mpick-b:hover{border-color:var(--line-strong)}
+.mpick-b[aria-expanded="true"]{border-color:var(--accent-mid);background:var(--surface-sunk)}
+.mpick-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mpick.on .mpick-t{color:var(--accent);font-weight:600}
+.mpick-c{flex:none;color:var(--ink-3);transition:transform .2s}
+.mpick-b[aria-expanded="true"] .mpick-c{transform:rotate(180deg)}
+.mpick-menu{
+  position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:12;
+  background:var(--surface);border:1px solid var(--line-strong);
+  border-radius:12px;box-shadow:var(--shadow-lg);
+  padding:8px;
+}
+.mpick-head{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:2px 4px 7px;margin-bottom:5px;border-bottom:1px solid var(--line);
+}
+.mpick-head b{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.mpick-clear{font-size:11.5px;font-weight:600;color:var(--accent)}
+.mpick-list{max-height:238px;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.mpick-row{
+  display:flex;align-items:center;gap:9px;cursor:pointer;
+  padding:7px 6px;border-radius:8px;font-size:12.5px;color:var(--ink-2);
+}
+.mpick-row:hover{background:var(--surface-2)}
+.mpick-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mpick-empty{padding:10px 6px;font-size:11.5px;color:var(--ink-3)}
+
+/* back to no filters at all */
+.rp-clear{
+  display:block;width:100%;margin-top:9px;
+  padding:8px 12px;border-radius:10px;
+  font-size:12px;font-weight:600;color:var(--ink-2);
+  background:var(--surface-2);border:1px solid var(--line);
+  transition:background .15s,border-color .15s,color .15s;
+}
+.rp-clear:hover{background:var(--surface-sunk);border-color:var(--accent-mid);color:var(--accent)}
+
+/* ---------- income against expenses, over the last five ---------- */
+.rp-bars{
+  margin-top:16px;padding:13px 14px 10px;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-lg);
+}
+.rp-barscap{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin-bottom:10px;
+}
+.rp-barskey{display:flex;align-items:center;gap:5px;letter-spacing:0;text-transform:none;font-weight:500}
+.rp-barskey i{width:9px;height:9px;border-radius:3px;display:inline-block}
+.rp-barskey i.k-in{background:var(--pos)}
+.rp-barskey i.k-out{background:var(--neg);margin-left:7px}
+.rp-bars svg{display:block;width:100%;height:auto;overflow:visible}
+.rp-bars .bx-lb{font-size:8.5px;fill:var(--ink-3)}
+.rp-bars .bx-gl{stroke:var(--line);stroke-width:1}
+.rp-bars .bx-zero{stroke:var(--line-strong);stroke-width:1}
 .inp.sm{padding:8px 10px;font-size:12.5px}
 .rp-count{font-size:11px;color:var(--ink-3);margin-bottom:8px}
 
@@ -2939,11 +3020,11 @@ html.locked #lockScreen::before{
   <div class="sheet-body" id="repBody">
     <!-- which stretch of time -->
     <div class="rp-ranges" id="repRanges">
-      <button type="button" data-range="week"   aria-pressed="false">This week</button>
-      <button type="button" data-range="month"  aria-pressed="true">This month</button>
-      <button type="button" data-range="year"   aria-pressed="false">This year</button>
-      <button type="button" data-range="last12" aria-pressed="false">Last 12 months</button>
-      <button type="button" data-range="custom" aria-pressed="false">Custom</button>
+      <button type="button" data-range="week"   aria-pressed="false" title="This week"      aria-label="This week">1W</button>
+      <button type="button" data-range="month"  aria-pressed="true"  title="This month"     aria-label="This month">1M</button>
+      <button type="button" data-range="year"   aria-pressed="false" title="This year"      aria-label="This year">1Y</button>
+      <button type="button" data-range="last12" aria-pressed="false" title="Last 12 months" aria-label="Last 12 months">12M</button>
+      <button type="button" data-range="custom" aria-pressed="false" title="Pick your own dates" aria-label="Pick your own dates">Flex</button>
     </div>
 
     <div class="rp-basis" id="repBasisWrap">
@@ -2998,12 +3079,44 @@ html.locked #lockScreen::before{
           <button type="button" data-status="planned" aria-pressed="false">Planned</button>
         </div>
         <div class="rp-picks">
-          <select class="inp sm" id="repCat"><option value="">Every category</option></select>
-          <select class="inp sm" id="repAcct"><option value="">Every account</option></select>
+          <div class="mpick" id="repCatPick">
+            <button class="mpick-b" type="button" aria-expanded="false">
+              <span class="mpick-t">Every category</span>
+              <svg class="mpick-c" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="mpick-menu" hidden>
+              <div class="mpick-head"><b>Categories</b><button class="mpick-clear" type="button">Clear</button></div>
+              <div class="mpick-list"></div>
+            </div>
+          </div>
+          <div class="mpick" id="repAcctPick">
+            <button class="mpick-b" type="button" aria-expanded="false">
+              <span class="mpick-t">Every account</span>
+              <svg class="mpick-c" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="mpick-menu" hidden>
+              <div class="mpick-head"><b>Accounts</b><button class="mpick-clear" type="button">Clear</button></div>
+              <div class="mpick-list"></div>
+            </div>
+          </div>
         </div>
+        <button class="rp-clear" id="repClear" type="button" hidden>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          Clear filters
+        </button>
       </div>
       <div class="rp-count" id="repCount">—</div>
       <div class="rp-tablewrap"><table class="rp-table" id="repTable"></table></div>
+    </div>
+
+    <div class="rp-bars" id="repBars" hidden>
+      <div class="rp-barscap">
+        <span id="repBarsT">Income and expenses</span>
+        <span class="rp-barskey">
+          <i class="k-in"></i>In <i class="k-out"></i>Out
+        </span>
+      </div>
+      <div id="repBarsChart"></div>
     </div>
 
     <div class="rp-exports">
@@ -3326,7 +3439,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.2.4";
+const APP_VERSION = "1.2.5";
 const APP_BUILT = "2026-08-31";
 
 const KEY = "panappai.v1";
@@ -4977,8 +5090,8 @@ function renderAccountSettings(){
     name.appendChild(el("span", "ar-k", ACCT_KIND[a.kind] || "Bank"));
     name.addEventListener("click", () => {
       sheetClose();
-      repAcct = a.id;
-      repKind = "all"; repStatus = "all"; repCat = ""; repQuery = ""; repSelCat = null;
+      repAccts = [a.id];
+      repKind = "all"; repStatus = "all"; repCats = []; repQuery = ""; repSelCat = null;
       syncChips("#repKind", "kind", repKind);
       syncChips("#repStatus", "status", repStatus);
       $("#repSearch").value = "";
@@ -9031,8 +9144,18 @@ let repBasis = "calendar";     /* calendar | period */
 let repTab = "chart";
 let repKind = "all";
 let repStatus = "all";
-let repCat = "";
-let repAcct = "";
+/* Empty means every one of them, which is why these are not seeded with the
+   full list: "nothing ticked" and "all ticked" mean the same thing to a reader
+   and should not mean different things to the filter. */
+let repCats = [];
+let repAccts = [];
+/* A transfer only has a side when it is seen from one account. Asked from two,
+   the same row is money out of one and into the other, so it has none. */
+function repSoleAcct(){ return repAccts.length === 1 ? repAccts[0] : ""; }
+function repAnyFilter(){
+  return repKind !== "all" || repStatus !== "all" ||
+         repCats.length > 0 || repAccts.length > 0 || repQuery.trim() !== "";
+}
 let repQuery = "";
 let repSort = { col: "date", dir: -1 };
 
@@ -9109,8 +9232,10 @@ function repRows(){
   let rows = repInRange().filter(t => {
     if (repKind !== "all" && t.type !== repKind) return false;
     if (repStatus !== "all" && t.status !== repStatus) return false;
-    if (repCat && repCatOf(t).id !== repCat) return false;
-    if (repAcct && t.account !== repAcct && t.fromAccount !== repAcct) return false;
+    if (repCats.length && repCats.indexOf(repCatOf(t).id) === -1) return false;
+    if (repAccts.length &&
+        repAccts.indexOf(t.account) === -1 &&
+        repAccts.indexOf(t.fromAccount) === -1) return false;
     if (q){
       const hay = [t.note, repCatOf(t).n, acctName(t.account), acctName(t.fromAccount)]
         .join(" ").toLowerCase();
@@ -9153,9 +9278,10 @@ function acctName(id){
 function repSideOf(t){
   if (t.type === "income") return "income";
   if (t.type === "expense") return "expense";
-  if (t.type === "transfer" && repAcct){
-    if (t.fromAccount === repAcct) return "expense";
-    if (t.account === repAcct) return "income";
+  const sole = repSoleAcct();
+  if (t.type === "transfer" && sole){
+    if (t.fromAccount === sole) return "expense";
+    if (t.account === sole) return "income";
   }
   return null;
 }
@@ -9314,8 +9440,12 @@ function repDrawChart(cats, total, side, rowCount){
        account is shown, where neither side applies — so say that instead. */
     host.innerHTML = '<div class="rp-empty">' + (rowCount
       ? "These are all transfers, and a transfer is money moving between your " +
-        "own accounts — neither in nor out until you choose one account to see " +
-        "it from."
+        "own accounts — neither in nor out until you pick the one account to " +
+        "see it from." +
+        (repAccts.length > 1
+          ? " You have picked " + repAccts.length + ", and money moving between " +
+            "two of your own accounts is still neither."
+          : "")
       : "Nothing in this stretch to chart.") + "</div>";
     repSelCat = null;
     repDrawInfo(null, 0);
@@ -9495,7 +9625,7 @@ function repDrawInfo(cat, total){
   go.type = "button";
   go.style.marginTop = "10px";
   go.addEventListener("click", () => {
-    repCat = cat.id;
+    repCats = [cat.id];
     /* Not "expense", which is what this used to say. The ring counts a slice by
        which side it falls on, and with an account chosen a transfer out of it
        falls on the expense side — but the kind chip tests t.type, where that
@@ -9511,17 +9641,54 @@ function repDrawInfo(cat, total){
   host.appendChild(go);
 }
 
+/**
+ * How many months the stretch covers, over its whole length rather than the
+ * part of it that has already happened.
+ *
+ * Elapsed months read better at first glance — a year eight months old is eight
+ * months of spending — but the total being divided is the ring's, and the ring
+ * counts every entry in the range, planned ones in the months ahead included.
+ * Dividing a full year's figure by eight months claimed 2.450 a month where the
+ * true rate was 1.631. An average and its total have to answer for the same
+ * stretch of time.
+ */
+function repMonthsSpanned(){
+  const r = repDates();
+  const days = Math.round((new Date(r.to) - new Date(r.from)) / 86400000) + 1;
+  return days / 30.4375;
+}
+/** A per-month average is only worth showing over a stretch of several. */
+function repShowsAverage(){
+  return (repRange === "year" || repRange === "last12" || repRange === "custom") &&
+         repMonthsSpanned() >= 1.8;
+}
+
 function repDrawLegend(cats, total){
   const host = $("#repLegend");
   host.innerHTML = "";
   const dark = isDark();
+  const avg = repShowsAverage();
+  const months = Math.max(1, repMonthsSpanned());
+
+  /* Over a long stretch the total answers "how much altogether", which is not
+     the question a year-long report is usually asked — "how much a month" is,
+     and it is the only figure comparable with a shorter report. */
+  if (avg && total){
+    const cap = el("div", "rp-avgtot");
+    cap.appendChild(el("b", null, fmt(total / months) + " a month"));
+    cap.appendChild(el("span", null, fmt(total) + " over " +
+      (months < 11.6 ? months.toFixed(1).replace(/\.0$/, "") + " months" : "the year")));
+    host.appendChild(cap);
+  }
   cats.forEach(c => {
     const row = el("button", "rp-lg" + (repSelCat === c.id ? " on" : ""));
     row.type = "button";
     const sw = el("span", "rp-sw");
     sw.style.background = pieSwatch(c, dark);
     row.appendChild(sw);
-    row.appendChild(el("span", "rp-ln", c.n));
+    const nm = el("span", "rp-ln", c.n);
+    if (avg) nm.appendChild(el("i", "rp-avg", fmt(c.total / months) + "/mo"));
+    row.appendChild(nm);
     row.appendChild(el("span", "rp-lp", ((c.total / total) * 100).toFixed(1) + "%"));
     const amt = el("span", "rp-la", fmt(c.total));
     amt.style.color = tintInk(c, dark);
@@ -9532,6 +9699,128 @@ function repDrawLegend(cats, total){
   });
 }
 
+
+/* =========================================================================
+   INCOME AGAINST EXPENSES, OVER THE LAST FIVE
+   The ring says how one stretch was divided; it cannot say whether the stretch
+   was better or worse than the one before it. Five bars can, and the unit they
+   count in follows the range being read: days for a week, weeks for a month,
+   months for a year.
+   ========================================================================= */
+const REP_BUCKET = { week:"day", month:"week", year:"month", last12:"month" };
+
+/** How wide one bar is for the range on screen. */
+function repBucketUnit(){
+  if (REP_BUCKET[repRange]) return REP_BUCKET[repRange];
+  /* Flex has no natural unit, so it takes one from how long it actually is */
+  const r = repDates();
+  const days = Math.round((new Date(r.to) - new Date(r.from)) / 86400000) + 1;
+  return days <= 14 ? "day" : days <= 84 ? "week" : "month";
+}
+
+/** The five buckets, oldest first, each with what came in and what went out. */
+function repBuckets(){
+  const unit = repBucketUnit();
+  const r = repDates();
+  const today = todayISO();
+  /* Ending at today rather than at the range's end: "this year" runs to
+     December, and three empty bars for months that have not happened say
+     nothing about how the year is going. */
+  const end = r.to > today ? today : r.to;
+
+  /* Five labels across a phone leaves about 60px each, so the year goes: every
+     bar is in the same one, and it is written above the chart anyway. */
+  const shortDay = iso => {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString("en-GB", { day:"numeric", month:"short" });
+  };
+
+  const spans = [];
+  if (unit === "day"){
+    for (let i = 4; i >= 0; i--){
+      const d = addDays(end, -i);
+      spans.push({ from:d, to:d, label:shortDay(d) });
+    }
+  } else if (unit === "week"){
+    /* the week the range ends in, back four more */
+    const dow = (new Date(end + "T00:00:00").getDay() + 6) % 7;
+    const thisMon = addDays(end, -dow);
+    for (let i = 4; i >= 0; i--){
+      const from = addDays(thisMon, -7 * i);
+      spans.push({ from:from, to:addDays(from, 6), label:shortDay(from) });
+    }
+  } else {
+    const [ey, em] = end.slice(0, 7).split("-").map(Number);
+    for (let i = 4; i >= 0; i--){
+      let y = ey, m = em - i;
+      while (m < 1){ m += 12; y -= 1; }
+      const ym = y + "-" + pad(m);
+      spans.push({ from:ym + "-01", to:lastDayOfMonth(ym),
+                   label:new Date(y, m - 1, 1).toLocaleDateString("en-GB", { month:"short" }) });
+    }
+  }
+
+  return spans.map(sp => {
+    let inc = 0, out = 0;
+    state.txns.forEach(t => {
+      if (t.date < sp.from || t.date > sp.to) return;
+      if (isTransfer(t)) return;              /* own money moving is neither */
+      if (t.type === "income") inc += t.amount; else out += t.amount;
+    });
+    return { label:sp.label, inc:inc, out:out, from:sp.from, to:sp.to };
+  });
+}
+
+const RBAR = { w:320, h:118, padL:4, padR:4, padT:6, base:96 };
+
+function repDrawBars(){
+  const wrap = $("#repBars");
+  const b = repBuckets();
+  const max = Math.max(1, ...b.map(x => Math.max(x.inc, x.out)));
+  if (!b.some(x => x.inc || x.out)){ wrap.hidden = true; return; }
+  wrap.hidden = false;
+
+  const unit = repBucketUnit();
+  $("#repBarsT").textContent =
+    "Last 5 " + (unit === "day" ? "days" : unit === "week" ? "weeks" : "months");
+
+  const { w, padL, padR, padT, base } = RBAR;
+  const inner = w - padL - padR;
+  const slot = inner / b.length;
+  const bw = Math.min(17, slot * 0.30);
+  const gap = 3.5;
+  const span = base - padT;
+
+  let g = "";
+  /* three quiet gridlines, so a bar can be read against something */
+  for (let k = 1; k <= 3; k++){
+    const y = base - (span * k / 3);
+    g += '<line class="bx-gl" x1="' + padL + '" y1="' + y.toFixed(1) +
+         '" x2="' + (w - padR) + '" y2="' + y.toFixed(1) + '"/>';
+  }
+  g += '<line class="bx-zero" x1="' + padL + '" y1="' + base +
+       '" x2="' + (w - padR) + '" y2="' + base + '"/>';
+
+  b.forEach((x, i) => {
+    const cx = padL + slot * i + slot / 2;
+    const hi = Math.max(x.inc ? 1.5 : 0, (x.inc / max) * span);
+    const ho = Math.max(x.out ? 1.5 : 0, (x.out / max) * span);
+    const bar = (xx, hh, fill) => hh <= 0 ? "" :
+      '<rect x="' + xx.toFixed(1) + '" y="' + (base - hh).toFixed(1) +
+      '" width="' + bw.toFixed(1) + '" height="' + hh.toFixed(1) +
+      '" rx="' + Math.min(3, bw / 2).toFixed(1) + '" fill="' + fill + '"/>';
+    g += bar(cx - bw - gap / 2, hi, "var(--pos)");
+    g += bar(cx + gap / 2,      ho, "var(--neg)");
+    g += '<text class="bx-lb" x="' + cx.toFixed(1) + '" y="' + (base + 12) +
+         '" text-anchor="middle">' + esc(x.label) + '</text>';
+    /* the numbers themselves, for the reading a shape cannot give */
+    g += '<title>' + esc(x.label + " · in " + fmt(x.inc) + " · out " + fmt(x.out)) + '</title>';
+  });
+
+  $("#repBarsChart").innerHTML =
+    '<svg viewBox="0 0 ' + w + ' ' + RBAR.h + '" role="img" aria-label="' +
+    esc("Income and expenses over the last five " + unit + "s") + '">' + g + '</svg>';
+}
 
 /* ---------- the table ---------- */
 const REP_COLS = [
@@ -9649,30 +9938,58 @@ function repSetTab(t){
  * filter that is still on while its option has gone leaves the list looking
  * unaccountably short — so a selection that no longer exists is dropped.
  */
+/**
+ * Fills one multi-picker. The list is rebuilt only when the options themselves
+ * change: ticking a box re-renders the report, and rebuilding the list under
+ * the finger that is ticking would shut the menu on every choice.
+ */
+function repFillPick(host, opts, chosen, noun, plural){
+  const list = host.querySelector(".mpick-list");
+  const sig = opts.map(o => o.id).join("|");
+  if (list.dataset.sig !== sig){
+    list.dataset.sig = sig;
+    list.innerHTML = "";
+    if (!opts.length){
+      list.appendChild(el("div", "mpick-empty", "Nothing in this stretch to pick from."));
+    }
+    opts.forEach(o => {
+      const row = el("label", "mpick-row");
+      const cb = el("input");
+      cb.type = "checkbox";
+      cb.value = o.id;
+      row.appendChild(cb);
+      row.appendChild(el("span", null, o.n));
+      list.appendChild(row);
+    });
+  }
+  list.querySelectorAll("input").forEach(cb => { cb.checked = chosen.indexOf(cb.value) !== -1; });
+
+  const names = opts.filter(o => chosen.indexOf(o.id) !== -1).map(o => o.n);
+  host.querySelector(".mpick-t").textContent =
+    !names.length ? "Every " + noun
+    : names.length === 1 ? names[0]
+    : names.length + " " + plural;
+  host.classList.toggle("on", names.length > 0);
+}
+
+/**
+ * A stretch you cannot see cannot be filtered by: the options are the ones the
+ * stretch actually contains, and a choice that has fallen out of it is dropped
+ * rather than left filtering everything away.
+ */
 function repFillPickers(){
   const inRange = repInRange();
 
-  const cat = $("#repCat");
   const seen = new Set(inRange.map(t => repCatOf(t).id));
-  const opts = allCats("expense").concat(allCats("income")).filter(c => seen.has(c.id));
-  if (repCat && !opts.some(c => c.id === repCat)) repCat = "";
-  cat.innerHTML = '<option value="">Every category</option>';
-  opts.forEach(c => {
-    const o = el("option", null, c.n);
-    o.value = c.id;
-    cat.appendChild(o);
-  });
-  cat.value = repCat;
+  const cats = allCats("expense").concat(allCats("income")).filter(c => seen.has(c.id));
+  repCats = repCats.filter(id => cats.some(c => c.id === id));
+  repFillPick($("#repCatPick"), cats, repCats, "category", "categories");
 
-  const ac = $("#repAcct");
-  if (repAcct && !accountsOf().some(a => a.id === repAcct)) repAcct = "";
-  ac.innerHTML = '<option value="">Every account</option>';
-  accountsOf().forEach(a => {
-    const o = el("option", null, a.n);
-    o.value = a.id;
-    ac.appendChild(o);
-  });
-  ac.value = repAcct;
+  const accts = accountsOf();
+  repAccts = repAccts.filter(id => accts.some(a => a.id === id));
+  repFillPick($("#repAcctPick"), accts, repAccts, "account", "accounts");
+
+  $("#repClear").hidden = !repAnyFilter();
 }
 
 function repRender(){
@@ -9713,13 +10030,14 @@ function repRender(){
   $("#repChartCap").hidden = !cats.length;
   repDrawChart(cats, ringTotal, side, rows.length);
   repDrawLegend(cats, ringTotal);
+  repDrawBars();
 
   const xfer = rows.filter(t => t.type === "transfer").length;
   $("#repCount").textContent =
     rows.length + " of " + repInRange().length + " shown" +
-    (repCat || repAcct || repKind !== "all" || repStatus !== "all" || repQuery ? " · filtered" : "") +
-    (xfer && repAcct ? " · " + xfer + " transfer" + (xfer === 1 ? "" : "s") +
-                       " counted against " + acctName(repAcct) : "");
+    (repAnyFilter() ? " · filtered" : "") +
+    (xfer && repSoleAcct() ? " · " + xfer + " transfer" + (xfer === 1 ? "" : "s") +
+                       " counted against " + acctName(repSoleAcct()) : "");
   repDrawTable(rows);
 }
 
@@ -9753,8 +10071,50 @@ $$("#repStatus button").forEach(b => b.addEventListener("click", () => {
   syncChips("#repStatus", "status", repStatus);
   repRender();
 }));
-$("#repCat").addEventListener("change", e => { repCat = e.target.value; repRender(); });
-$("#repAcct").addEventListener("change", e => { repAcct = e.target.value; repRender(); });
+/* ---------- the multi-pickers ---------- */
+function repBindPick(hostSel, get, set){
+  const host = $(hostSel);
+  const btn = host.querySelector(".mpick-b");
+  const menu = host.querySelector(".mpick-menu");
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    repShutPicks();
+    menu.hidden = !open;
+    btn.setAttribute("aria-expanded", String(open));
+  });
+  /* the menu must not count as a click outside itself */
+  menu.addEventListener("click", e => e.stopPropagation());
+  host.querySelector(".mpick-clear").addEventListener("click", () => { set([]); repRender(); });
+  host.querySelector(".mpick-list").addEventListener("change", e => {
+    const cb = e.target;
+    if (!cb || cb.type !== "checkbox") return;
+    const cur = get().slice();
+    const at = cur.indexOf(cb.value);
+    if (cb.checked && at === -1) cur.push(cb.value);
+    if (!cb.checked && at !== -1) cur.splice(at, 1);
+    set(cur);
+    repRender();
+  });
+}
+function repShutPicks(){
+  $$(".mpick-menu").forEach(m => { m.hidden = true; });
+  $$(".mpick-b").forEach(b => b.setAttribute("aria-expanded", "false"));
+}
+repBindPick("#repCatPick",   () => repCats,   v => { repCats = v; });
+repBindPick("#repAcctPick",  () => repAccts,  v => { repAccts = v; });
+document.addEventListener("click", repShutPicks);
+
+$("#repClear").addEventListener("click", () => {
+  repKind = "all"; repStatus = "all";
+  repCats = []; repAccts = []; repQuery = ""; repSelCat = null;
+  syncChips("#repKind", "kind", repKind);
+  syncChips("#repStatus", "status", repStatus);
+  $("#repSearch").value = "";
+  repShutPicks();
+  repRender();
+  toast("Filters cleared");
+});
 $("#repSearch").addEventListener("input", e => { repQuery = e.target.value; repRender(); });
 $("#repBack").addEventListener("click", () => { sheetClose(); openMore(); });
 $("#repEye").addEventListener("click", toggleAmounts);
@@ -9955,6 +10315,16 @@ function saveBlob(blob, name){
 }
 
 /** The rows as the spreadsheet wants them: a title block, then the table. */
+/** What the export should say the account filter was, transfers included. */
+function repAcctsText(){
+  if (!repAccts.length) return "All accounts — transfers counted as neither";
+  if (repAccts.length === 1)
+    return acctName(repAccts[0]) + " — transfers counted from its side";
+  return repAccts.map(acctName).join(", ") +
+         " — transfers counted as neither, a transfer having no one side once " +
+         "more than one account is asked about";
+}
+
 function repExportRows(){
   const r = repDates();
   const rows = repRows();
@@ -9963,8 +10333,10 @@ function repExportRows(){
     [{ v:"பணப்பை — report", h:1 }],
     [{ v:"Range" }, { v:prettyDate(r.from) + " to " + prettyDate(r.to) }],
     [{ v:"Counted by" }, { v:repBasis === "calendar" ? "Calendar" : "15th–14th periods" }],
-    [{ v:"Account" }, { v:repAcct ? acctName(repAcct) + " — transfers counted from its side"
-                                  : "All accounts — transfers counted as neither" }],
+    [{ v:"Accounts" }, { v:repAcctsText() }],
+    [{ v:"Categories" }, { v:repCats.length
+                             ? repCats.map(id => catOf(id).n).join(", ")
+                             : "All categories" }],
     [{ v:"Generated" }, { v:prettyDate(todayISO()) }],
     [],
     ["Date", "Type", "Category", "Note", "Account", "Income", "Expense", "Status"]
