@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.2.9 — 2026-08-31
+- better: Income, expenses and transfers are colour coded through the report: green, red and blue on the filter chips whether they are on or off, and on the Type column of the table. The same three colours the + button and the ledger already use
+
 ## 1.2.8 — 2026-08-31
 - fix: Reports count only settled entries. An entry dated last month and still not ticked off is money that has not moved, and a report of what was spent no longer carries it
 - fix: The monthly average is back wherever the stretch is longer than a month, and each category is divided by the months it actually ran in. Investment at 500 in one August reads 500 a month, not 500 divided by twelve
