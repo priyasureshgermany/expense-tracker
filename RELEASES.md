@@ -8,6 +8,13 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 1.2.5 — 2026-08-31
+- better: The report ranges are 1W, 1M, 1Y, 12M and Flex on a single row
+- new: A bar chart of income against expenses over the last five, above the export buttons. It counts in days for 1W, weeks for 1M and months for 1Y and 12M
+- new: Category and account can both be filtered to several at once, not just one
+- new: Over 1Y and 12M the categories show what each one costs a month as well as in total
+- new: A Clear filters button in Details puts every filter back to showing everything
+
 ## 1.2.4 — 2026-08-31
 - better: The date range stays put at the top while you scroll, under the app bar, on the dashboard and the entry list alike. It was already pinned, but to the same place as the bar above it, so it slid underneath and out of sight
 

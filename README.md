@@ -292,7 +292,7 @@ Every region has a stable name, so a change can be asked for precisely —
 | Tab bar | Fixed along the bottom: Dashboard · வரவு செலவு · Shopping cart · More |
 | More | A short sheet of three: Reports, What's new, Settings. A red dot on the tab means a newer build is waiting. |
 | What's new | The release notes, each line marked with what kind of change it was — a repair, something new, or something existing made better. The version itself, and the update button, stay in **Settings › About**. |
-| Reports | Two readings of a stretch of time: a ring of expenses by category, and every line of it in a table you can filter, sort and export. |
+| Reports | Three readings of a stretch of time: a ring of expenses by category, five bars of income against expenses, and every line of it in a table you can filter, sort and export. The range is **1W / 1M / 1Y / 12M / Flex**; the bars count in whatever unit that range implies — days for a week, weeks for a month, months for a year. Category and account each filter to as many as you like, and **Clear filters** puts them all back. Over 1Y and 12M each category also shows what it costs a month, since a total over a year is not comparable with anything shorter. |
 | Add button | The round **+** above the tab bar; tapping it offers Income then Expense |
 
 **Dashboard**, top to bottom
