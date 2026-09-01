@@ -2773,6 +2773,9 @@ html.locked #lockScreen::before{
 <section class="sheet" id="shBell" role="dialog" aria-modal="true" aria-labelledby="bellTitle">
   <div class="sheet-head" style="position:relative">
     <h2 id="bellTitle">Reminders</h2>
+    <button class="iconbtn" id="bellRefresh" type="button" title="Check these again" aria-label="Check these again">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11a9 9 0 0 1 15.5-6.2L21 7"/><path d="M21 3v4.5h-4.5"/><path d="M21 13a9 9 0 0 1-15.5 6.2L3 17"/><path d="M3 21v-4.5h4.5"/></svg>
+    </button>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
@@ -3526,7 +3529,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.4";
+const APP_VERSION = "2.0.5";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -6562,11 +6565,35 @@ function daysUntil(iso){
  * Reads the ledger rather than the rules, so an occurrence ticked off as paid
  * drops out and one you edited keeps whatever date you gave it.
  */
+/**
+ * Whether this rule has already been settled for the period the occurrence
+ * belongs to.
+ *
+ * A bill paid by hand — entered separately, or ticked off on a copy left over
+ * from before occurrences remembered their slot — leaves its planned twin still
+ * asking to be paid, and paying it twice is how a ledger stops matching a bank.
+ *
+ * Judged by the month for a rule that falls at most once in one, and by the slot
+ * for the rest. Weekly and every-28-days can legitimately fall twice in a month,
+ * and suppressing the second because the first was paid would hide a real bill.
+ */
+function ruleSettledFor(rule, occ){
+  const monthly = !!FREQ_MONTHS[rule.freq];
+  const key = occ.slot || occ.date;
+  const month = key.slice(0, 7);
+  return state.txns.some(x =>
+    x.ruleId === rule.id && x.status === "done" && x.id !== occ.id &&
+    (monthly ? (x.slot || x.date).slice(0, 7) === month
+             : (x.slot || x.date) === key));
+}
+
 function dueSoon(){
   if (!notifOn()) return [];
-  const ruleIds = new Set(state.rules.filter(r => r.active !== false).map(r => r.id));
+  const rules = new Map();
+  state.rules.forEach(r => { if (r.active !== false) rules.set(r.id, r); });
   return state.txns
-    .filter(t => t.ruleId && ruleIds.has(t.ruleId) && t.status === "planned")
+    .filter(t => t.ruleId && rules.has(t.ruleId) && t.status === "planned")
+    .filter(t => !ruleSettledFor(rules.get(t.ruleId), t))
     .map(t => ({ t: t, d: daysUntil(t.date) }))
     .filter(o => o.d <= 3)
     .sort((a, b) => a.d - b.d || b.t.amount - a.t.amount);
@@ -6659,6 +6686,26 @@ function renderBell(){
     host.appendChild(row);
   });
 }
+
+/* Works the schedule out again and looks once more at what has been settled,
+   for when a bill was paid somewhere other than here — in the ledger, or on
+   another device that has since synced. */
+$("#bellRefresh").addEventListener("click", () => {
+  /* Counted from what is on the screen, not from dueSoon(). A bill settled
+     somewhere else has already left dueSoon() by the time the button is
+     pressed, so comparing it with itself always says nothing has changed — the
+     stale thing, and the point of the comparison, is the list being looked at. */
+  const n0 = $$("#bellBody .nrow").length;
+  materialise();
+  save();
+  syncBell();
+  renderBell();
+  const n1 = $$("#bellBody .nrow").length;
+  toast(n0 === n1
+    ? "Checked · nothing has changed"
+    : "Checked · " + (n1 < n0 ? (n0 - n1) + " no longer due"
+                                  : (n1 - n0) + " more due"));
+});
 
 $("#btnBell").addEventListener("click", () => {
   notifMarkSeen();
