@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.9 — 2026-09-01
+- better: The starting balance rows are just account names and empty boxes. What each one currently holds is said once, as an In force now snapshot under Clear all balances, alongside the ones saved before it
+
 ## 2.0.8 — 2026-09-01
 - better: The refresh on the reminders panel is gone. Opening the panel already builds the list afresh, and the schedule is worked out a year ahead on load, so it was a control that could find nothing
 
