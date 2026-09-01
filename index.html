@@ -2109,8 +2109,11 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   font-size:12px;color:var(--ink-2);padding:2px 0;
 }
 .bl-sr i{font-style:normal;font-family:var(--mono);font-variant-numeric:tabular-nums}
-.bl-n b{display:block;font-size:13.5px;font-weight:500}
-.bl-cur{display:block;font-size:10.5px;color:var(--ink-3);margin-top:1px}
+.bl-snap.now{border-color:var(--accent-mid);background:var(--accent-soft)}
+.bl-snap + .bl-lt{margin-top:15px}
+.bl-sr em{
+  display:block;font-style:normal;font-size:10px;color:var(--ink-3);margin-top:1px;
+}
 
 .balrow{display:flex;align-items:center;gap:10px;padding:7px 0}
 .balrow .bl-ic{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--surface-sunk);color:var(--ink-2)}
@@ -3550,7 +3553,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.8";
+const APP_VERSION = "2.0.9";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -5306,19 +5309,14 @@ function renderBalanceRows(){
     const ic = el("span", "bl-ic");
     ic.innerHTML = ACCT_ICON[a.kind] || ACCT_ICON.bank;
     row.appendChild(ic);
-    const nm = el("div", "bl-n");
-    nm.appendChild(el("b", null, a.n));
-    /* What is in force, said rather than sat in the box. The box is for the
-       next figure, so it starts empty — and a blank one is left alone rather
-       than taken as an instruction to forget what is there. */
-    nm.appendChild(el("span", "bl-cur", a.start
-      ? fmt(a.start.amount) + " as of " + dayTitle(a.start.date)
-      : "not set"));
-    row.appendChild(nm);
+    /* Just the name. What each account currently holds is said once, in the
+       snapshot below, rather than repeated on every row above the box that is
+       there to replace it. */
+    row.appendChild(el("div", "bl-n", a.n));
     const inp = el("input", "inp bl-a");
     inp.type = "text";
     inp.inputMode = "decimal";
-    inp.placeholder = a.start ? "new figure" : "0,00";
+    inp.placeholder = "0,00";
     inp.autocomplete = "off";
     inp.dataset.acct = a.id;
     row.appendChild(inp);
@@ -5584,6 +5582,25 @@ function renderBalanceSettings(){
 function renderBalanceLog(){
   const host = $("#balLog");
   host.innerHTML = "";
+  /* What is in force now, as a snapshot of its own. Without it the only record
+     was of baselines *replaced*, so the figures actually being counted forward
+     from appeared nowhere — and the ones set before there was a log would never
+     appear at all. */
+  const live = balanceableAccounts().filter(a => a.start);
+  if (live.length){
+    host.appendChild(el("div", "bl-lt", "In force now"));
+    const box = el("div", "bl-snap now");
+    live.forEach(a => {
+      const line = el("div", "bl-sr");
+      const nm = el("span", null, a.n);
+      nm.appendChild(el("em", null, "as of " + dayTitle(a.start.date)));
+      line.appendChild(nm);
+      line.appendChild(el("i", null, fmt(a.start.amount)));
+      box.appendChild(line);
+    });
+    host.appendChild(box);
+  }
+
   const log = (state.balanceLog || []).slice().reverse();
   if (!log.length) return;
 
