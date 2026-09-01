@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.3 — 2026-09-01
+- fix: A recurring entry paid on a different day no longer comes back a second time. Each occurrence remembers the date the schedule asked for, so moving it to the day you actually paid does not leave the original looking unfilled — which is what was putting the same bill in a period twice and moving Net this period with it
+- new: Ticking a recurring entry off asks when it was paid, if it is not sitting on today. One tap for the scheduled day, one for today
+
 ## 2.0.2 — 2026-09-01
 - fix: Saving a recurring entry no longer puts a date you had moved by hand back on the schedule. Correcting an amount or marking one automatic leaves every planned date where it is; only changing how often it repeats, or the date it counts from, rebuilds them, and that asks first
 - new: The recurring entries list shows A or M on each one, the same letters its entries carry
