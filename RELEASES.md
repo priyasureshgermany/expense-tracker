@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.14 — 2026-09-01
+- fix: The bar chart follows the Income, Expenses and Transfers chips too. Filtering to Income left the report reading Expenses 0,00 over a chart still drawing expenses, which is the chart disagreeing with the total above it
+
 ## 2.0.13 — 2026-09-01
 - fix: Tapping a slice on the ring narrows the bar chart to that category, the same way the chips do. It was only ever a highlight, so the ring showed one category while the bars underneath still showed all of them
 

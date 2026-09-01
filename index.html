@@ -3558,7 +3558,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.13";
+const APP_VERSION = "2.0.14";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -10360,16 +10360,18 @@ function repBucketUnit(){
 /**
  * Which entries the bars count, beyond the stretch itself.
  *
- * The category and account chips say *whose* money is being looked at, so the
- * bars follow them: pick Groceries and the bars are groceries, month by month,
- * which is the comparison the chips were reached for in the first place.
+ * Every chip above the tabs applies. I first left the kind chips out, reasoning
+ * that filtering to Income empties the expense series and leaves nothing to
+ * compare. That was the wrong thing to weigh: a report reading *Expenses 0,00*
+ * over a chart drawing expenses contradicts itself on the screen, which is worse
+ * than a chart with one series in it. An empty half is an answer; a chart
+ * disagreeing with the total above it is a fault.
  *
- * The kind chips and the search box are deliberately not applied. These bars are
- * income against expense by construction — filtering to one of them empties a
- * series and leaves a chart with nothing to compare — and a search is a question
- * about one entry rather than about a run of months.
+ * The search box still does not apply — a search is a question about one entry
+ * rather than about a run of months.
  */
 function repBarKeeps(t){
+  if (repKind !== "all" && t.type !== repKind) return false;
   /* A slice lit on the ring is the same question asked by tapping rather than by
      chip — "this category, then" — so the bars answer it the same way. It was
      only ever a highlight, which left the ring showing one category and the bars
@@ -10487,7 +10489,24 @@ function repAxisNum(cents){
 function repDrawBars(){
   const wrap = $("#repBars");
   const b = repBuckets();
-  const narrow = !!(repSelCat || repCats.length || repAccts.length);
+  const narrow = !!(repSelCat || repCats.length || repAccts.length ||
+                    repKind !== "all");
+  /* Worked out before the empty check, so a chart with nothing in it still says
+     what it found nothing of. */
+  const KIND_WORD = { income:"Income", expense:"Expenses", transfer:"Transfers" };
+  const narrowed = [].concat(
+    repKind !== "all" ? [KIND_WORD[repKind]] : [],
+    repSelCat ? [catOf(repSelCat).n] : repCats.map(id => catOf(id).n),
+    repAccts.map(acctName)
+  ).filter(Boolean);
+  const unitWord = () => {
+    const u = repBucketUnit();
+    return u === "day" ? "days" : u === "week" ? "weeks" : "months";
+  };
+  const caption = "Last 5 " + unitWord() +
+    (narrowed.length ? " · " + (narrowed.length > 2
+      ? narrowed.length + " picked"
+      : narrowed.join(", ")) : "");
   if (!b.some(x => x.inc || x.out)){
     /* Empty because nothing was narrowed is nothing to draw; empty because a
        category was picked is an answer — "none of it in the last five" — and the
@@ -10495,10 +10514,7 @@ function repDrawBars(){
     repBarPick = null;
     if (!narrow){ wrap.hidden = true; return; }
     wrap.hidden = false;
-    $("#repBarsT").textContent = "Last 5 " + (() => {
-      const u = repBucketUnit();
-      return u === "day" ? "days" : u === "week" ? "weeks" : "months";
-    })();
+    $("#repBarsT").textContent = caption;
     $("#repBarsChart").innerHTML = "";
     $("#repBarsVal").innerHTML =
       '<span class="bv-when">Nothing in this stretch</span>';
@@ -10509,15 +10525,7 @@ function repDrawBars(){
   const max = repNiceMax(Math.max(1, ...b.map(x => Math.max(x.inc, x.out))));
   const unit = repBucketUnit();
   /* Named, so a filtered chart is not mistaken for the whole picture */
-  const narrowed = [].concat(
-    repSelCat ? [catOf(repSelCat).n] : repCats.map(id => catOf(id).n),
-    repAccts.map(acctName)
-  ).filter(Boolean);
-  $("#repBarsT").textContent =
-    "Last 5 " + (unit === "day" ? "days" : unit === "week" ? "weeks" : "months") +
-    (narrowed.length ? " · " + (narrowed.length > 2
-      ? narrowed.length + " picked"
-      : narrowed.join(", ")) : "");
+  $("#repBarsT").textContent = caption;
 
   /* the newest bucket is the one being asked about until another is tapped */
   if (repBarPick === null || repBarPick >= b.length) repBarPick = b.length - 1;
