@@ -3558,7 +3558,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.12";
+const APP_VERSION = "2.0.13";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -10370,6 +10370,11 @@ function repBucketUnit(){
  * about one entry rather than about a run of months.
  */
 function repBarKeeps(t){
+  /* A slice lit on the ring is the same question asked by tapping rather than by
+     chip — "this category, then" — so the bars answer it the same way. It was
+     only ever a highlight, which left the ring showing one category and the bars
+     underneath still showing all of them. */
+  if (repSelCat && repCatOf(t).id !== repSelCat) return false;
   if (repCats.length && repCats.indexOf(repCatOf(t).id) === -1) return false;
   if (repAccts.length &&
       repAccts.indexOf(t.account) === -1 &&
@@ -10482,14 +10487,30 @@ function repAxisNum(cents){
 function repDrawBars(){
   const wrap = $("#repBars");
   const b = repBuckets();
-  if (!b.some(x => x.inc || x.out)){ wrap.hidden = true; repBarPick = null; return; }
+  const narrow = !!(repSelCat || repCats.length || repAccts.length);
+  if (!b.some(x => x.inc || x.out)){
+    /* Empty because nothing was narrowed is nothing to draw; empty because a
+       category was picked is an answer — "none of it in the last five" — and the
+       panel vanishing on the tap that asked reads as the chart breaking. */
+    repBarPick = null;
+    if (!narrow){ wrap.hidden = true; return; }
+    wrap.hidden = false;
+    $("#repBarsT").textContent = "Last 5 " + (() => {
+      const u = repBucketUnit();
+      return u === "day" ? "days" : u === "week" ? "weeks" : "months";
+    })();
+    $("#repBarsChart").innerHTML = "";
+    $("#repBarsVal").innerHTML =
+      '<span class="bv-when">Nothing in this stretch</span>';
+    return;
+  }
   wrap.hidden = false;
 
   const max = repNiceMax(Math.max(1, ...b.map(x => Math.max(x.inc, x.out))));
   const unit = repBucketUnit();
   /* Named, so a filtered chart is not mistaken for the whole picture */
   const narrowed = [].concat(
-    repCats.map(id => catOf(id).n),
+    repSelCat ? [catOf(repSelCat).n] : repCats.map(id => catOf(id).n),
     repAccts.map(acctName)
   ).filter(Boolean);
   $("#repBarsT").textContent =
