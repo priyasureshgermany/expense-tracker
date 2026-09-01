@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.6 — 2026-09-01
+- fix: The slot stamped on each recurring occurrence is written down rather than worked out afresh on every load. Left in memory it was recomputed from whatever date the entry happened to be sitting on, so an entry moved and not otherwise saved came back with the wrong slot and let the duplicate through again
+
 ## 2.0.5 — 2026-09-01
 - new: A refresh on the reminders panel works the schedule out again and looks once more at what has been settled, for a bill paid somewhere other than here
 - fix: A reminder no longer asks for a bill already settled for its period. Paying one by hand used to leave its planned twin still asking, and paying that too is how a ledger stops matching a bank. Weekly and every-28-days entries are judged by the date they fall on rather than the month, so a second one in the same month still shows
