@@ -22,7 +22,8 @@
       "status": "done",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-08-20"
     },
     {
       "id": "jvv6wlxyssun",
@@ -34,7 +35,8 @@
       "status": "done",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-08-15"
     },
     {
       "id": "3vucgt7ptk16",
@@ -46,7 +48,8 @@
       "status": "done",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-08-15"
     },
     {
       "id": "5r6kgkk3w9xg",
@@ -69,7 +72,8 @@
       "status": "done",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-08-20"
     },
     {
       "id": "d7096dh083xq",
@@ -92,7 +96,8 @@
       "status": "done",
       "ruleId": "zdw0s17ya40v",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-08-17"
     },
     {
       "id": "96m6vvddbqpo",
@@ -115,7 +120,8 @@
       "status": "done",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-01"
     },
     {
       "id": "sllr4qhxp9ut",
@@ -127,7 +133,8 @@
       "status": "done",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-01"
     },
     {
       "id": "puo0ke9qmy6g",
@@ -139,19 +146,8 @@
       "status": "done",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
-    },
-    {
-      "id": "i50exxwipjnn",
-      "type": "expense",
-      "amount": 6000,
-      "category": "dining",
-      "note": "Shakthi lunch",
-      "date": "2026-09-03",
-      "status": "done",
-      "ruleId": "j9kso8pzpjnm",
-      "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-01"
     },
     {
       "id": "by9ng8sdt0ez",
@@ -284,7 +280,8 @@
       "status": "done",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-08-15"
     },
     {
       "id": "brsz1ge1e8cu",
@@ -317,18 +314,6 @@
       "date": "2026-08-24",
       "status": "done",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
-    },
-    {
-      "id": "rntmt8kdhay",
-      "type": "expense",
-      "amount": 128000,
-      "category": "rent",
-      "note": "",
-      "date": "2026-09-02",
-      "status": "done",
-      "ruleId": "5q98aay2rqyf",
-      "account": "a_0mh73fi9ovlw",
       "fromAccount": null
     },
     {
@@ -396,7 +381,8 @@
       "status": "done",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-01"
     },
     {
       "id": "nuw9k55fl2kf",
@@ -542,18 +528,6 @@
       "fromAccount": null
     },
     {
-      "id": "varkrypib1nq",
-      "type": "expense",
-      "amount": 2990,
-      "category": "health",
-      "note": "For McFit",
-      "date": "2026-09-05",
-      "status": "done",
-      "ruleId": "ep2y84vu91qg",
-      "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
-    },
-    {
       "id": "3dzc4qq07ctc",
       "type": "income",
       "amount": 504500,
@@ -563,7 +537,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-15"
     },
     {
       "id": "p3kbp3oh7ctc",
@@ -575,7 +550,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-15"
     },
     {
       "id": "hf1r24pw7ctc",
@@ -587,7 +563,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-15"
     },
     {
       "id": "4kyyd9d27ctc",
@@ -599,7 +576,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-15"
     },
     {
       "id": "z6qdw4u77ctc",
@@ -611,7 +589,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-15"
     },
     {
       "id": "q0zybew67ctc",
@@ -623,7 +602,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-15"
     },
     {
       "id": "w6gcmqxz7ctc",
@@ -635,7 +615,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-15"
     },
     {
       "id": "07nczr8b7ctc",
@@ -647,7 +628,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-15"
     },
     {
       "id": "ojanauxr7ctc",
@@ -659,7 +641,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-15"
     },
     {
       "id": "8t8addd77ctc",
@@ -671,7 +654,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-15"
     },
     {
       "id": "r05d554y7ctc",
@@ -683,7 +667,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-15"
     },
     {
       "id": "5vycg41x7ctc",
@@ -695,7 +680,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-15"
     },
     {
       "id": "jdwusti57ctc",
@@ -707,7 +693,8 @@
       "status": "planned",
       "ruleId": "bk0qrzhxrhex",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-15"
     },
     {
       "id": "9dfes3wo7nft",
@@ -719,7 +706,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-01"
     },
     {
       "id": "0010pv1c7nft",
@@ -731,7 +719,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-01"
     },
     {
       "id": "z6jhgxse7nft",
@@ -743,7 +732,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-01"
     },
     {
       "id": "ehnd5bj97nft",
@@ -755,7 +745,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-01"
     },
     {
       "id": "s0utrmty7nft",
@@ -767,7 +758,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-01"
     },
     {
       "id": "p20n33pl7nft",
@@ -779,7 +771,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-01"
     },
     {
       "id": "bttoh9gx7nft",
@@ -791,7 +784,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-01"
     },
     {
       "id": "jfp2elhb7nft",
@@ -803,7 +797,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-01"
     },
     {
       "id": "cqnjqy857nft",
@@ -815,7 +810,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-01"
     },
     {
       "id": "u34fl03g7nft",
@@ -827,7 +823,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-01"
     },
     {
       "id": "3b3cjlac7nft",
@@ -839,7 +836,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-01"
     },
     {
       "id": "nbfhgtjo7nft",
@@ -851,7 +849,8 @@
       "status": "planned",
       "ruleId": "11j7m9lmmy6f",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-01"
     },
     {
       "id": "dj0lqlsf8jhp",
@@ -863,7 +862,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-02"
     },
     {
       "id": "zscbljnh8jhp",
@@ -875,7 +875,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-02"
     },
     {
       "id": "cvgtu1kg8jhp",
@@ -887,7 +888,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-02"
     },
     {
       "id": "ecb4bvqg8jhp",
@@ -899,7 +901,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-02"
     },
     {
       "id": "w71sfl678jhp",
@@ -911,7 +914,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-02"
     },
     {
       "id": "4ooshm2q8jhp",
@@ -923,7 +927,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-02"
     },
     {
       "id": "ercd16f18jhp",
@@ -935,7 +940,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-02"
     },
     {
       "id": "chpvopwx8jhp",
@@ -947,7 +953,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-02"
     },
     {
       "id": "uut20qtd8jhq",
@@ -959,7 +966,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-02"
     },
     {
       "id": "lzdxex2d8jhq",
@@ -971,7 +979,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-02"
     },
     {
       "id": "d1bg3czb8jhq",
@@ -983,7 +992,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-02"
     },
     {
       "id": "cwnkkxft8jhq",
@@ -995,7 +1005,8 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-02"
     },
     {
       "id": "dygld8cs98rr",
@@ -1007,7 +1018,8 @@
       "status": "planned",
       "ruleId": "8wc0ww8pnzas",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-10"
     },
     {
       "id": "v1bggszh9x7d",
@@ -1019,7 +1031,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-03"
     },
     {
       "id": "y2kx5bt89x7d",
@@ -1031,7 +1044,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-03"
     },
     {
       "id": "ugz6a5i89x7e",
@@ -1043,7 +1057,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-03"
     },
     {
       "id": "zjlq2e359x7e",
@@ -1055,7 +1070,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-03"
     },
     {
       "id": "4a051o9x9x7e",
@@ -1067,7 +1083,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-03"
     },
     {
       "id": "886qw2ic9x7e",
@@ -1079,7 +1096,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-03"
     },
     {
       "id": "gzsbk4ji9x7e",
@@ -1091,7 +1109,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-03"
     },
     {
       "id": "k9gk1xsi9x7e",
@@ -1103,7 +1122,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-03"
     },
     {
       "id": "i28t4agi9x7e",
@@ -1115,7 +1135,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-03"
     },
     {
       "id": "14jh0n4i9x7e",
@@ -1127,7 +1148,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-03"
     },
     {
       "id": "7y3obtka9x7e",
@@ -1139,7 +1161,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-03"
     },
     {
       "id": "edcqi4hk9x7e",
@@ -1151,7 +1174,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-03"
     },
     {
       "id": "sr0pee329x7e",
@@ -1163,7 +1187,8 @@
       "status": "planned",
       "ruleId": "nzysz1jsslx6",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-03"
     },
     {
       "id": "0dxpp89ha7c9",
@@ -1175,7 +1200,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-20"
     },
     {
       "id": "tdi8f8y4a7c9",
@@ -1187,7 +1213,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-20"
     },
     {
       "id": "jevtqrcza7c9",
@@ -1199,7 +1226,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-20"
     },
     {
       "id": "j70t3goha7c9",
@@ -1211,7 +1239,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-20"
     },
     {
       "id": "64cmmrj3a7c9",
@@ -1223,7 +1252,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-20"
     },
     {
       "id": "qt7w599qa7c9",
@@ -1235,7 +1265,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-20"
     },
     {
       "id": "dbufgtssa7c9",
@@ -1247,7 +1278,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-20"
     },
     {
       "id": "txf1amrya7c9",
@@ -1259,7 +1291,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-20"
     },
     {
       "id": "nlc0mry8a7c9",
@@ -1271,7 +1304,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-20"
     },
     {
       "id": "t15t20swa7c9",
@@ -1283,7 +1317,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-20"
     },
     {
       "id": "chy4fq2ya7c9",
@@ -1295,7 +1330,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-20"
     },
     {
       "id": "naeruw9sa7c9",
@@ -1307,7 +1343,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-20"
     },
     {
       "id": "up845xvla7c9",
@@ -1319,7 +1356,8 @@
       "status": "planned",
       "ruleId": "famje82zlzu3",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-20"
     },
     {
       "id": "dmqw5vx6ajev",
@@ -1331,7 +1369,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-15"
     },
     {
       "id": "5mcvznj3ajev",
@@ -1343,7 +1382,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-15"
     },
     {
       "id": "wx07mh65ajev",
@@ -1355,7 +1395,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-15"
     },
     {
       "id": "s37cqrn9ajev",
@@ -1367,7 +1408,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-15"
     },
     {
       "id": "0am5f3qsajev",
@@ -1379,7 +1421,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-15"
     },
     {
       "id": "1sdap9l2ajev",
@@ -1391,7 +1434,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-15"
     },
     {
       "id": "k8wgd7kiajev",
@@ -1403,7 +1447,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-15"
     },
     {
       "id": "l2sglwa4ajev",
@@ -1415,7 +1460,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-15"
     },
     {
       "id": "j9vy7cy6ajev",
@@ -1427,7 +1473,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-15"
     },
     {
       "id": "r983khbeajev",
@@ -1439,7 +1486,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-15"
     },
     {
       "id": "3w2owyokajev",
@@ -1451,7 +1499,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-15"
     },
     {
       "id": "w1gnbnzgajev",
@@ -1463,7 +1512,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-15"
     },
     {
       "id": "llpqck9eajev",
@@ -1475,7 +1525,8 @@
       "status": "planned",
       "ruleId": "41nv5gwqtk16",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-15"
     },
     {
       "id": "l8kf4sn6ap2n",
@@ -1487,7 +1538,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-20"
     },
     {
       "id": "a03bbsovap2n",
@@ -1499,7 +1551,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-20"
     },
     {
       "id": "ejuyu60jap2n",
@@ -1511,7 +1564,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-20"
     },
     {
       "id": "in3i0e4xap2n",
@@ -1523,7 +1577,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-20"
     },
     {
       "id": "lb9l8n30ap2n",
@@ -1535,7 +1590,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-20"
     },
     {
       "id": "ttvyyclfap2n",
@@ -1547,7 +1603,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-20"
     },
     {
       "id": "rmzcpbkoap2n",
@@ -1559,7 +1616,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-20"
     },
     {
       "id": "akjl8252ap2n",
@@ -1571,7 +1629,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-20"
     },
     {
       "id": "bcajl1bfap2n",
@@ -1583,7 +1642,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-20"
     },
     {
       "id": "w2dt4mroap2n",
@@ -1595,7 +1655,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-20"
     },
     {
       "id": "ofnrlojvap2n",
@@ -1607,7 +1668,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-20"
     },
     {
       "id": "gfoubg41ap2n",
@@ -1619,7 +1681,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-20"
     },
     {
       "id": "oj0phzymap2n",
@@ -1631,7 +1694,8 @@
       "status": "planned",
       "ruleId": "k92gdt2cyfpp",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-20"
     },
     {
       "id": "f6zsdoehawhs",
@@ -1643,7 +1707,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-01"
     },
     {
       "id": "vzyn5v8uawhs",
@@ -1655,7 +1720,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-01"
     },
     {
       "id": "kxzkdp62awhs",
@@ -1667,7 +1733,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-01"
     },
     {
       "id": "7z2ofgvkawhs",
@@ -1679,7 +1746,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-01"
     },
     {
       "id": "dla267mdawhs",
@@ -1691,7 +1759,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-01"
     },
     {
       "id": "54e6kwjtawhs",
@@ -1703,7 +1772,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-01"
     },
     {
       "id": "wpwryr72awhs",
@@ -1715,7 +1785,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-01"
     },
     {
       "id": "h52ecxp8awhs",
@@ -1727,7 +1798,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-01"
     },
     {
       "id": "lc9popt0awhs",
@@ -1739,7 +1811,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-01"
     },
     {
       "id": "zst1mq9nawhs",
@@ -1751,7 +1824,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-01"
     },
     {
       "id": "zi7ylgfeawhs",
@@ -1763,7 +1837,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-01"
     },
     {
       "id": "9vsm3m0pawhs",
@@ -1775,7 +1850,8 @@
       "status": "planned",
       "ruleId": "by4k0ohgxjkg",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-01"
     },
     {
       "id": "oal3bkirb21t",
@@ -1787,7 +1863,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-15"
     },
     {
       "id": "9sscdyiub21t",
@@ -1799,7 +1876,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-15"
     },
     {
       "id": "y9awfgfab21t",
@@ -1811,7 +1889,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-15"
     },
     {
       "id": "7ydj030tb21t",
@@ -1823,7 +1902,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-15"
     },
     {
       "id": "dyyfjzx9b21t",
@@ -1835,7 +1915,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-15"
     },
     {
       "id": "6coi475yb21t",
@@ -1847,7 +1928,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-15"
     },
     {
       "id": "wd9joeoob21t",
@@ -1859,7 +1941,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-15"
     },
     {
       "id": "ybd0l3fib21t",
@@ -1871,7 +1954,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-15"
     },
     {
       "id": "xp0ofwunb21t",
@@ -1883,7 +1967,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-15"
     },
     {
       "id": "4b3oqzabb21t",
@@ -1895,7 +1980,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-15"
     },
     {
       "id": "hz1epfjwb21t",
@@ -1907,7 +1993,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-15"
     },
     {
       "id": "81wzubj9b21t",
@@ -1919,7 +2006,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-15"
     },
     {
       "id": "8dq9anjhb21t",
@@ -1931,7 +2019,8 @@
       "status": "planned",
       "ruleId": "lr83cp4ussun",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-15"
     },
     {
       "id": "78eclt75bbw3",
@@ -1943,7 +2032,8 @@
       "status": "planned",
       "ruleId": "hw1leafxc2iz",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-07"
     },
     {
       "id": "7znoat9zbbw3",
@@ -1955,7 +2045,8 @@
       "status": "planned",
       "ruleId": "hw1leafxc2iz",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-07"
     },
     {
       "id": "wd380k2vbbw3",
@@ -1967,7 +2058,8 @@
       "status": "planned",
       "ruleId": "hw1leafxc2iz",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-07"
     },
     {
       "id": "as78gv1sbbw3",
@@ -1979,7 +2071,8 @@
       "status": "planned",
       "ruleId": "hw1leafxc2iz",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-07"
     },
     {
       "id": "rptlnpsobk78",
@@ -1991,7 +2084,8 @@
       "status": "planned",
       "ruleId": "evq34oywcskm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-01"
     },
     {
       "id": "cpezsha1c9bz",
@@ -2003,7 +2097,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-01"
     },
     {
       "id": "y1a7az2cc9bz",
@@ -2015,7 +2110,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-01"
     },
     {
       "id": "zm5b9rm3c9bz",
@@ -2027,7 +2123,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-01"
     },
     {
       "id": "ndlwj0s3c9bz",
@@ -2039,7 +2136,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-01"
     },
     {
       "id": "0am4pxi5c9bz",
@@ -2051,7 +2149,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-01"
     },
     {
       "id": "zam68f93c9bz",
@@ -2063,7 +2162,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-01"
     },
     {
       "id": "xvq6w9sdc9bz",
@@ -2075,7 +2175,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-01"
     },
     {
       "id": "mljzh2toc9bz",
@@ -2087,7 +2188,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-01"
     },
     {
       "id": "qxnft6djc9bz",
@@ -2099,7 +2201,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-01"
     },
     {
       "id": "qblvzfj0c9bz",
@@ -2111,7 +2214,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-01"
     },
     {
       "id": "bta9dep4c9bz",
@@ -2123,7 +2227,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-01"
     },
     {
       "id": "sef43rx3c9bz",
@@ -2135,7 +2240,8 @@
       "status": "planned",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-01"
     },
     {
       "id": "an5rdb57cjrk",
@@ -2147,7 +2253,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-03"
     },
     {
       "id": "iysath93cjrk",
@@ -2159,7 +2266,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-03"
     },
     {
       "id": "y3lc2xn8cjrk",
@@ -2171,7 +2279,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-03"
     },
     {
       "id": "s16w4wjdcjrk",
@@ -2183,7 +2292,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-03"
     },
     {
       "id": "yhly7ku2cjrk",
@@ -2195,7 +2305,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-03"
     },
     {
       "id": "jcwzbyxmcjrk",
@@ -2207,7 +2318,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-03"
     },
     {
       "id": "0pn2oj5gcjrk",
@@ -2219,7 +2331,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-03"
     },
     {
       "id": "b7sij30lcjrk",
@@ -2231,7 +2344,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-03"
     },
     {
       "id": "aqt96s53cjrk",
@@ -2243,7 +2357,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-03"
     },
     {
       "id": "eg8s530acjrk",
@@ -2255,7 +2370,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-03"
     },
     {
       "id": "84f69aagcjrk",
@@ -2267,7 +2383,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-03"
     },
     {
       "id": "w37s1s36cjrk",
@@ -2279,7 +2396,8 @@
       "status": "planned",
       "ruleId": "j9kso8pzpjnm",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-03"
     },
     {
       "id": "kayzcursctz6",
@@ -2291,7 +2409,8 @@
       "status": "planned",
       "ruleId": "uh0rhafhlp1l",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-15"
     },
     {
       "id": "uqvrq11xd32g",
@@ -2303,7 +2422,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-01"
     },
     {
       "id": "nrgkoylhd32g",
@@ -2315,7 +2435,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-01"
     },
     {
       "id": "mg2o6odod32g",
@@ -2327,7 +2448,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-01"
     },
     {
       "id": "8smg2g5pd32g",
@@ -2339,7 +2461,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-01"
     },
     {
       "id": "mc37zzamd32g",
@@ -2351,7 +2474,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-01"
     },
     {
       "id": "4w16iqm0d32g",
@@ -2363,7 +2487,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-01"
     },
     {
       "id": "bl190m7yd32g",
@@ -2375,7 +2500,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-01"
     },
     {
       "id": "ixioqug7d32g",
@@ -2387,7 +2513,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-01"
     },
     {
       "id": "34cixk9jd32g",
@@ -2399,7 +2526,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-01"
     },
     {
       "id": "tjxdlhjed32g",
@@ -2411,7 +2539,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-01"
     },
     {
       "id": "b7r2ano8d32g",
@@ -2423,7 +2552,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-01"
     },
     {
       "id": "n1pbpjdgd32g",
@@ -2435,7 +2565,8 @@
       "status": "planned",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-01"
     },
     {
       "id": "qi1d46tcdciv",
@@ -2447,7 +2578,8 @@
       "status": "planned",
       "ruleId": "zdw0s17ya40v",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-15"
     },
     {
       "id": "muilm4budciv",
@@ -2459,7 +2591,8 @@
       "status": "planned",
       "ruleId": "zdw0s17ya40v",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-15"
     },
     {
       "id": "runeafezdciv",
@@ -2471,7 +2604,8 @@
       "status": "planned",
       "ruleId": "zdw0s17ya40v",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-15"
     },
     {
       "id": "h1vn6iy7dciv",
@@ -2483,7 +2617,8 @@
       "status": "planned",
       "ruleId": "zdw0s17ya40v",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-15"
     },
     {
       "id": "9c71l6dudj7q",
@@ -2495,7 +2630,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-05"
     },
     {
       "id": "2ik2wot5dj7q",
@@ -2507,7 +2643,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-05"
     },
     {
       "id": "066km6l8dj7q",
@@ -2519,7 +2656,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-05"
     },
     {
       "id": "8zu0hea8dj7q",
@@ -2531,7 +2669,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-05"
     },
     {
       "id": "c9fz1dujdj7q",
@@ -2543,7 +2682,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-05"
     },
     {
       "id": "y10j0u06dj7q",
@@ -2555,7 +2695,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-05"
     },
     {
       "id": "gd3zy7cddj7q",
@@ -2567,7 +2708,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-05"
     },
     {
       "id": "f18cq3m1dj7q",
@@ -2579,7 +2721,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-05"
     },
     {
       "id": "60vbhyu4dj7q",
@@ -2591,7 +2734,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-05"
     },
     {
       "id": "rnj00h0hdj7q",
@@ -2603,7 +2747,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-05"
     },
     {
       "id": "27abenobdj7q",
@@ -2615,7 +2760,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-05"
     },
     {
       "id": "fzpexhxwdj7q",
@@ -2627,7 +2773,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-05"
     },
     {
       "id": "ot3ot5l6dj7q",
@@ -2639,7 +2786,8 @@
       "status": "planned",
       "ruleId": "soeg7dlmttqu",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-05"
     },
     {
       "id": "8awvzm89dowd",
@@ -2651,7 +2799,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-05"
     },
     {
       "id": "ckrrvduddowd",
@@ -2663,7 +2812,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-05"
     },
     {
       "id": "bkt1oancdowd",
@@ -2675,7 +2825,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-05"
     },
     {
       "id": "4hbotvg0dowd",
@@ -2687,7 +2838,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-05"
     },
     {
       "id": "qd29c5bedowd",
@@ -2699,7 +2851,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-05"
     },
     {
       "id": "ka0hkxpudowd",
@@ -2711,7 +2864,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-05"
     },
     {
       "id": "45pep1zqdowd",
@@ -2723,7 +2877,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-05"
     },
     {
       "id": "1wu577wkdowd",
@@ -2735,7 +2890,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-05"
     },
     {
       "id": "hb2tgmuldowd",
@@ -2747,7 +2903,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-05"
     },
     {
       "id": "khgys4wndowd",
@@ -2759,7 +2916,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-05"
     },
     {
       "id": "i5j3a29fdowd",
@@ -2771,7 +2929,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-05"
     },
     {
       "id": "xv6ekywwdowd",
@@ -2783,7 +2942,8 @@
       "status": "planned",
       "ruleId": "ep2y84vu91qg",
       "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-05"
     },
     {
       "id": "ga06nyhredkg",
@@ -2795,7 +2955,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-07"
     },
     {
       "id": "vpo4wsgoedkg",
@@ -2807,7 +2968,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-05"
     },
     {
       "id": "z7q8ba3qedkh",
@@ -2819,7 +2981,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-02"
     },
     {
       "id": "kz2jw7wzedkh",
@@ -2831,7 +2994,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-30"
     },
     {
       "id": "nep4awpyedkh",
@@ -2843,7 +3007,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-28"
     },
     {
       "id": "r6a7ny8dedkh",
@@ -2855,7 +3020,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-25"
     },
     {
       "id": "kmckgct6edkh",
@@ -2867,7 +3033,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-22"
     },
     {
       "id": "flv604l7edkh",
@@ -2879,7 +3046,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-22"
     },
     {
       "id": "kdgfb644edkh",
@@ -2891,7 +3059,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-19"
     },
     {
       "id": "l3nw95vbedkh",
@@ -2903,7 +3072,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-17"
     },
     {
       "id": "3lt9huxkedkh",
@@ -2915,7 +3085,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-14"
     },
     {
       "id": "lsn4rzliedkh",
@@ -2927,7 +3098,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-12"
     },
     {
       "id": "17c6v2vbedkh",
@@ -2939,7 +3111,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-09"
     },
     {
       "id": "n9fn9l9hedkh",
@@ -2951,7 +3124,8 @@
       "status": "planned",
       "ruleId": "k87e26jiwknw",
       "account": "a_gch8xl46opp7",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-06"
     },
     {
       "id": "0b5nypp6eo21",
@@ -2963,7 +3137,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-07"
     },
     {
       "id": "jbe7jeq3eo21",
@@ -2975,7 +3150,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-05"
     },
     {
       "id": "azel1yb7eo21",
@@ -2987,7 +3163,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-02"
     },
     {
       "id": "32iarmlneo21",
@@ -2999,7 +3176,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-30"
     },
     {
       "id": "6k5ppqoxeo21",
@@ -3011,7 +3189,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-28"
     },
     {
       "id": "aulg39eoeo21",
@@ -3023,7 +3202,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-25"
     },
     {
       "id": "p14avprieo21",
@@ -3035,7 +3215,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-22"
     },
     {
       "id": "11jjmizoeo21",
@@ -3047,7 +3228,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-22"
     },
     {
       "id": "r8kx8059eo21",
@@ -3059,7 +3241,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-19"
     },
     {
       "id": "hfnn3ehbeo21",
@@ -3071,7 +3254,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-17"
     },
     {
       "id": "b6boq7bqeo21",
@@ -3083,7 +3267,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-14"
     },
     {
       "id": "5zizp5vmeo21",
@@ -3095,7 +3280,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-12"
     },
     {
       "id": "jgbu33s9eo21",
@@ -3107,7 +3293,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-09"
     },
     {
       "id": "5vk06xt6eo21",
@@ -3119,7 +3306,8 @@
       "status": "planned",
       "ruleId": "0h08ylyuxbhc",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-09-06"
     },
     {
       "id": "ldumqopietu6",
@@ -3131,7 +3319,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-09-19"
     },
     {
       "id": "69br19ctetu6",
@@ -3143,7 +3332,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-10-17"
     },
     {
       "id": "gwbqv3t2etu6",
@@ -3155,7 +3345,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-11-14"
     },
     {
       "id": "w5mgu8ucetu6",
@@ -3167,7 +3358,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2026-12-12"
     },
     {
       "id": "59at332hetu6",
@@ -3179,7 +3371,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-01-09"
     },
     {
       "id": "qkik9padetu6",
@@ -3191,7 +3384,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-02-06"
     },
     {
       "id": "8x74fap5etu6",
@@ -3203,7 +3397,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-03-06"
     },
     {
       "id": "zmr3ie5jetu6",
@@ -3215,7 +3410,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-04-03"
     },
     {
       "id": "5e7fihcmetu6",
@@ -3227,7 +3423,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-01"
     },
     {
       "id": "izw4jaidetu6",
@@ -3239,7 +3436,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-05-29"
     },
     {
       "id": "6ne6t45aetu6",
@@ -3251,7 +3449,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-06-26"
     },
     {
       "id": "akyj8kcbetu6",
@@ -3263,7 +3462,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-07-24"
     },
     {
       "id": "kgpuzeofetu6",
@@ -3275,7 +3475,8 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
-      "fromAccount": null
+      "fromAccount": null,
+      "slot": "2027-08-21"
     },
     {
       "id": "6qrc3mzxetu6",
@@ -3287,6 +3488,44 @@
       "status": "planned",
       "ruleId": "b687bcbvxt8c",
       "account": "a_9gbih0jvp6la",
+      "fromAccount": null,
+      "slot": "2027-09-18"
+    },
+    {
+      "id": "yujda1d2dc4t",
+      "type": "expense",
+      "amount": 6000,
+      "category": "dining",
+      "note": "Shakthi lunch",
+      "date": "2026-09-01",
+      "status": "done",
+      "ruleId": "j9kso8pzpjnm",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null,
+      "slot": "2026-09-03"
+    },
+    {
+      "id": "7mbjh1kmdc4t",
+      "type": "expense",
+      "amount": 2990,
+      "category": "health",
+      "note": "For McFit",
+      "date": "2026-09-01",
+      "status": "done",
+      "ruleId": "ep2y84vu91qg",
+      "account": "a_0mh73fi9ovlw",
+      "fromAccount": null,
+      "slot": "2026-09-05"
+    },
+    {
+      "id": "rp7pcfynnc1j",
+      "type": "expense",
+      "amount": 899,
+      "category": "groceries_de",
+      "note": "Lidl",
+      "date": "2026-09-01",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
       "fromAccount": null
     }
   ],
@@ -3603,7 +3842,11 @@
     "pqouodf8hgzf|2026-10-22",
     "o3c24zevikma|2026-08-05",
     "mdickgcqsw7j|2026-08-27",
-    "zdw0s17ya40v|2026-08-15"
+    "zdw0s17ya40v|2026-08-15",
+    "5q98aay2rqyf|2026-09-01",
+    "ep2y84vu91qg|2026-09-01",
+    "5q98aay2rqyf|2026-09-02",
+    "j9kso8pzpjnm|2026-09-01"
   ],
   "shop": {
     "lists": {
@@ -3921,6 +4164,32 @@
         "txnId": "weh2ridjx783",
         "bookmark": null,
         "note": null
+      },
+      {
+        "id": "ved5mjkjnc1i",
+        "store": "de",
+        "date": "2026-09-01",
+        "total": 899,
+        "account": "a_gch8xl46opp7",
+        "note": "Lidl",
+        "items": [
+          {
+            "name": "Joghurt",
+            "qty": "2",
+            "price": 0
+          },
+          {
+            "name": "Tomaten",
+            "qty": "1.5kg",
+            "price": 0
+          },
+          {
+            "name": "Zwiebeln",
+            "qty": "2",
+            "price": 0
+          }
+        ],
+        "txnId": "rp7pcfynnc1j"
       }
     ]
   },
