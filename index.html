@@ -3184,6 +3184,27 @@ html.locked #lockScreen::before{
       <div class="rp-tile net"><span>Net</span><b id="repNet">—</b><i id="repNetSub"></i></div>
     </div>
 
+    <!-- Above the tabs, because it always governed both of them. Sitting inside
+         Details it looked like the table's own controls, so narrowing to a
+         category and switching to Chart left no way to see what was on, or to
+         change it, on the view that shows the shape of it. -->
+    <div class="rp-filters">
+      <div class="rp-searchrow">
+        <input class="inp sm" id="repSearch" type="search" placeholder="Search notes, category, account…" autocomplete="off">
+        <button class="rp-x" id="repClear" type="button" hidden title="Clear every filter" aria-label="Clear every filter">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="rp-chips" id="repKind">
+        <button type="button" data-kind="all"      aria-pressed="true">All</button>
+        <button type="button" data-kind="income"   aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg>Income</button>
+        <button type="button" data-kind="expense"  aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg>Expenses</button>
+        <button type="button" data-kind="transfer" aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg>Transfers</button>
+      </div>
+      <div class="rp-chips slide" id="repCatChips"></div>
+      <div class="rp-chips slide" id="repAcctChips"></div>
+      </div>
+
     <div class="tabbar2" id="repTabs" role="tablist">
       <button role="tab" data-rtab="chart" aria-selected="true">Chart</button>
       <button role="tab" data-rtab="table" aria-selected="false">Details</button>
@@ -3200,22 +3221,6 @@ html.locked #lockScreen::before{
 
     <!-- 2 : every line of it -->
     <div class="rp-pane" id="repPane_table" hidden>
-      <div class="rp-filters">
-        <div class="rp-searchrow">
-          <input class="inp sm" id="repSearch" type="search" placeholder="Search notes, category, account…" autocomplete="off">
-          <button class="rp-x" id="repClear" type="button" hidden title="Clear every filter" aria-label="Clear every filter">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </button>
-        </div>
-        <div class="rp-chips" id="repKind">
-          <button type="button" data-kind="all"      aria-pressed="true">All</button>
-          <button type="button" data-kind="income"   aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg>Income</button>
-          <button type="button" data-kind="expense"  aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg>Expenses</button>
-          <button type="button" data-kind="transfer" aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg>Transfers</button>
-        </div>
-        <div class="rp-chips slide" id="repCatChips"></div>
-        <div class="rp-chips slide" id="repAcctChips"></div>
-      </div>
       <div class="rp-count" id="repCount">—</div>
       <div class="rp-tablewrap"><table class="rp-table" id="repTable"></table></div>
     </div>
@@ -3553,7 +3558,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.11";
+const APP_VERSION = "2.0.12";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";

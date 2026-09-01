@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.12 — 2026-09-01
+- fix: The report filters sit above Chart and Details rather than inside Details. They always governed both, so narrowing to a category and switching to Chart left the ring and the bars filtered with no way to see what was on, or to change it
+
 ## 2.0.11 — 2026-09-01
 - new: The bar chart follows the category and account chips. Pick Groceries and the bars are groceries, month by month, with the caption naming what is being shown. Pick nothing and it is income against expenses as before
 
