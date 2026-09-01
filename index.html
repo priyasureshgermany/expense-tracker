@@ -2089,6 +2089,29 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   color:var(--ink-3);flex:none;
 }
 .acctrow .ar-b{font-family:var(--mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto;padding:0 10px}
+/* the record of baselines already set */
+.bl-lt{
+  font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin-bottom:8px;
+}
+.bl-snap{
+  padding:10px 12px;margin-bottom:7px;border-radius:11px;
+  background:var(--surface-2);border:1px solid var(--line);
+}
+.bl-sh{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  margin-bottom:6px;
+}
+.bl-sh b{font-size:12.5px;font-weight:600}
+.bl-sh span{font-size:10.5px;color:var(--ink-3)}
+.bl-sr{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:12px;color:var(--ink-2);padding:2px 0;
+}
+.bl-sr i{font-style:normal;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.bl-n b{display:block;font-size:13.5px;font-weight:500}
+.bl-cur{display:block;font-size:10.5px;color:var(--ink-3);margin-top:1px}
+
 .balrow{display:flex;align-items:center;gap:10px;padding:7px 0}
 .balrow .bl-ic{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--surface-sunk);color:var(--ink-2)}
 .balrow .bl-n{flex:1;min-width:0;font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -3347,6 +3370,7 @@ html.locked #lockScreen::before{
         <button class="btn ghost sm" id="balSave">Save balances</button>
         <button class="btn danger sm" id="balClear" hidden>Clear all balances</button>
       </div>
+      <div id="balLog" style="margin-top:18px"></div>
     </div>
   </div>
   <div class="sheet-body setpane" id="setPane_lock" hidden>
@@ -3529,7 +3553,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.6";
+const APP_VERSION = "2.0.7";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -3894,7 +3918,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], shop:null, budgets:{}, catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null };
+let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -4174,6 +4198,7 @@ function stateFromPayload(p){
     v: 1,
     txns: Array.isArray(p.txns) ? p.txns : [],
     rules: Array.isArray(p.rules) ? p.rules : [],
+    balanceLog: Array.isArray(p.balanceLog) ? p.balanceLog : [],
     skips: Array.isArray(p.skips) ? p.skips : [],
     shop: normaliseShop(p.shop),
     budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
@@ -4190,7 +4215,7 @@ function stateFromPayload(p){
 /** An emptied book that keeps your setup: accounts, budgets, categories, you. */
 function stateCleared(){
   return {
-    v:1, txns:[], rules:[], skips:[],
+    v:1, txns:[], rules:[], skips:[], balanceLog:[],
     shop: state.shop || normaliseShop(null),
     budgets: state.budgets || {},
     catchAll: state.catchAll || null,
@@ -5284,14 +5309,21 @@ function renderBalanceRows(){
     const ic = el("span", "bl-ic");
     ic.innerHTML = ACCT_ICON[a.kind] || ACCT_ICON.bank;
     row.appendChild(ic);
-    row.appendChild(el("div", "bl-n", a.n));
+    const nm = el("div", "bl-n");
+    nm.appendChild(el("b", null, a.n));
+    /* What is in force, said rather than sat in the box. The box is for the
+       next figure, so it starts empty — and a blank one is left alone rather
+       than taken as an instruction to forget what is there. */
+    nm.appendChild(el("span", "bl-cur", a.start
+      ? fmt(a.start.amount) + " as of " + dayTitle(a.start.date)
+      : "not set"));
+    row.appendChild(nm);
     const inp = el("input", "inp bl-a");
     inp.type = "text";
     inp.inputMode = "decimal";
-    inp.placeholder = "0,00";
+    inp.placeholder = a.start ? "new figure" : "0,00";
     inp.autocomplete = "off";
     inp.dataset.acct = a.id;
-    if (a.start) inp.value = (a.start.amount / 100).toFixed(2).replace(".", ",");
     row.appendChild(inp);
     host.appendChild(row);
   });
@@ -5304,18 +5336,41 @@ $("#balSave").addEventListener("click", () => {
     const a = accountById(inp.dataset.acct);
     if (!a) return;
     const raw = inp.value.trim();
-    if (!raw){ delete a.start; return; }
+    /**
+     * Blank leaves the account as it is. It used to mean "forget this one",
+     * which was safe only while the boxes arrived pre-filled with what was
+     * already there — now that they start empty, that reading would make Save
+     * wipe every balance the moment it was pressed for one account. Clearing is
+     * what Clear all balances is for.
+     */
+    if (!raw) return;
     const amt = parseAmount(raw);
-    if (amt == null){ delete a.start; return; }
+    if (amt == null) return;
     a.start = { amount: Math.round(amt), date: date };
     set++;
   });
   /* a card can no longer show a row, so drop any figure one carried before,
      rather than leaving a number nothing can edit */
   accountsOf().forEach(a => { if (a.kind === "card") delete a.start; });
+  if (!set){ toast("Nothing entered — fill in at least one account"); return; }
+
   state.balance = null;   /* superseded by the per-account figures */
+  /* A note of what was set and when, so a baseline replaced later can still be
+     accounted for. The figures themselves live on the accounts; this is the
+     record of the moment they were put there. */
+  state.balanceLog = (state.balanceLog || []).concat([{
+    at: new Date().toISOString(),
+    asOf: date,
+    rows: balanceableAccounts().filter(a => a.start).map(a => ({
+      n: a.n, amount: a.start.amount, date: a.start.date
+    }))
+  }]);
+
   save(); renderBalanceSettings(); renderAccountSettings(); render();
-  toast(set ? set + " balance" + (set === 1 ? "" : "s") + " saved" : "Balances cleared");
+  /* the boxes empty again, ready for the next baseline rather than showing the
+     last one back to you */
+  $$("#balRows .bl-a").forEach(i => { i.value = ""; });
+  toast(set + " balance" + (set === 1 ? "" : "s") + " saved · snapshot kept");
 });
 $("#balClear").addEventListener("click", async () => {
   if (!(await askConfirm({
@@ -5515,9 +5570,44 @@ $("#acctAdd").addEventListener("click", () => {
 
 function renderBalanceSettings(){
   renderBalanceRows();
+  renderBalanceLog();
   const any = accountsOf().some(a => a.start);
   setDateVal("#balDate", earliestStart() || todayISO());
   $("#balClear").hidden = !any;
+}
+
+/**
+ * Every baseline that has been set, newest first.
+ *
+ * A starting balance is replaced rather than amended, and the one it replaced
+ * used to vanish with it — so a figure that turned out to be wrong left nothing
+ * to compare against. These are a record only: the figures in force are the ones
+ * on the accounts.
+ */
+function renderBalanceLog(){
+  const host = $("#balLog");
+  host.innerHTML = "";
+  const log = (state.balanceLog || []).slice().reverse();
+  if (!log.length) return;
+
+  host.appendChild(el("div", "bl-lt", "Saved before"));
+  log.forEach(snap => {
+    const box = el("div", "bl-snap");
+    const head = el("div", "bl-sh");
+    head.appendChild(el("b", null, "As of " + dayTitle(snap.asOf)));
+    head.appendChild(el("span", null, "saved " + dayTitle(snap.at.slice(0, 10))));
+    box.appendChild(head);
+    (snap.rows || []).forEach(r => {
+      const line = el("div", "bl-sr");
+      line.appendChild(el("span", null, r.n));
+      line.appendChild(el("i", null, fmt(r.amount)));
+      box.appendChild(line);
+    });
+    if (!(snap.rows || []).length){
+      box.appendChild(el("div", "bl-sr", "Nothing set"));
+    }
+    host.appendChild(box);
+  });
 }
 
 /**
