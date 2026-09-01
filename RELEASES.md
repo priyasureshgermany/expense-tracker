@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.1 — 2026-09-01
+- better: The app's own mark sits in the middle of the top bar on the dashboard
+
 ## 2.0.0 — 2026-09-01
 - new: Recurring entries say whether they are taken automatically or paid by hand. Entries carry a green A or an amber M in the ledger and in the report table, so the ones still wanting doing stand out
 - new: A bank logo can be changed or removed. Tapping a tile that already has one asks which

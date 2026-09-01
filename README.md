@@ -294,7 +294,7 @@ Every region has a stable name, so a change can be asked for precisely —
 
 | Name | What it is |
 |---|---|
-| Top bar | Brand + greeting (tap to return to this period's dashboard), 👁 show/hide amounts, 🔔 reminders |
+| Top bar | Brand + greeting (tap to return to this period's dashboard), 👁 show/hide amounts, 🔔 reminders. On the dashboard the app's own mark sits centred between them — positioned on the bar rather than in its flow, so it is centred on the bar itself and cannot squeeze the greeting. |
 | Period bar | `‹ 15 Aug – 14 Sept 2026 ›`, plus a **Today** pill once you've navigated away. Frozen below the top bar as you scroll, so which period you are reading stays answered. Its offset is measured from the top bar rather than hard-coded, since the greeting line changes that height. |
 | Tab bar | Fixed along the bottom: Dashboard · வரவு செலவு · Shopping cart · More |
 | More | A short sheet of three: Reports, What's new, Settings. A red dot on the tab means a newer build is waiting. |

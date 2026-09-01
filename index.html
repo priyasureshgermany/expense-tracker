@@ -199,6 +199,18 @@ button{cursor:pointer;background:none;border:none;padding:0}
   padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
   display:flex; align-items:center; gap:10px;
 }
+/* Centred on the bar itself, not in the flow: the brand sits left and the two
+   buttons right, so a flow item would be centred between whatever is left of
+   them rather than on the bar. Out of the flow it also cannot squeeze the
+   greeting, which is the thing that would truncate first. */
+.applogo{
+  position:absolute; left:50%; transform:translateX(-50%);
+  top:calc(8px + env(safe-area-inset-top));
+  width:34px; height:34px; border-radius:10px;
+  pointer-events:none; user-select:none;
+  box-shadow:0 1px 4px rgba(0,0,0,.18);
+}
+.applogo[hidden]{display:none}
 .brand{
   display:flex; flex-direction:column; align-items:flex-start; gap:1px;
   margin-right:auto; min-width:0; text-align:left;
@@ -2350,6 +2362,9 @@ html.locked #lockScreen::before{
 
 <div class="shell">
   <header class="topbar">
+    <!-- not hidden to begin with: the app opens on the dashboard, and setPanel
+         only runs from the first tab change onward -->
+    <img class="applogo" id="appLogo" src="icons/icon-192.png" alt="" aria-hidden="true">
     <button class="brand" id="btnBrand" type="button" title="Go to this month's dashboard">
       <span class="brand-top"><b>பணப்பை</b><span class="brand-cur">EUR</span></span>
       <span class="brand-hi" id="brandHi" hidden></span>
@@ -3493,7 +3508,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.0";
+const APP_VERSION = "2.0.1";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -8511,6 +8526,8 @@ let panel = "dash";
 function setPanel(p){
   panel = p;
   $("#viewDash").hidden = p !== "dash";
+  /* the mark belongs to the dashboard, which is the app's front page */
+  $("#appLogo").hidden = p !== "dash";
   $("#viewEntries").hidden = p !== "entries";
   $("#viewShop").hidden = p !== "shop";
   /* the month bar and add button drive the ledger only; shopping lists aren't period-scoped */
