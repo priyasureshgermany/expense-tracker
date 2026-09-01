@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.16 — 2026-09-01
+- better: Reports count by the 15th-14th period by default, and that reading now sits first. Calendar months are the second option
+- fix: The pie came out of Export PDF cut in half. The shell was still in the flow at a full viewport height, putting a blank page in front of everything, and the sheet is a flex column that Chrome fragments by clipping rather than by breaking
+- fix: Exporting from dark mode gave pale grey type on white paper. The print styles forced the background light and left the ink dark
+
 ## 2.0.15 — 2026-09-01
 - fix: Transfers seen from one account now show in the bar chart. They were skipped outright, so picking Transfers and a bank listed three entries above bars sitting at nothing
 - fix: A report of nothing but transfers draws the ring around its larger side. Three transfers into Commerzbank and one out of it drew the ring around the 200 that left and said nothing of the 3.000 that arrived
