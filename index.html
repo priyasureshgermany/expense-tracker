@@ -1177,7 +1177,22 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
    are shown whichever one is on screen, and the sheet becomes a document. */
 @media print{
   @page{margin:14mm}
+  /* Paper is white whatever the app is set to, so the reading has to be the
+     light one. Exported from dark mode the page came out with pale grey type
+     on white — the background was forced and the ink was not. */
+  :root{
+    color-scheme:light !important;
+    --ground:#F4F6F8 !important; --surface:#FFFFFF !important; --surface-2:#EFF2F5 !important; --surface-sunk:#E7EBEF !important;
+    --ink:#0F1922 !important; --ink-2:#465563 !important; --ink-3:#5C6C7E !important;
+    --line:#DFE4EA !important; --line-strong:#C6CED7 !important;
+    --accent:#0F5273 !important; --accent-ink:#FFFFFF !important; --accent-soft:#E3EDF3 !important; --accent-mid:#5D93B0 !important;
+    --pos:#0B6B4B !important; --pos-soft:#DFF0E8 !important;
+    --neg:#A93724 !important; --neg-deep:#6E1B10 !important; --neg-soft:#F8E4E0 !important;
+    --warn:#8A5B10 !important; --warn-soft:#FBEEDA !important;
+    --bar-in:#0A5C41 !important; --bar-out:#8E2C1D !important;
+  }
   html,body{background:#fff !important;height:auto !important;overflow:visible !important}
+  body{color:var(--ink) !important}
   .topbar,.monthbar,.tabbar,.fabwrap,.scrim,.toast,#viewDash,#viewEntries,#viewShop,
   .sheet:not(#shReport),.rp-exports,.rp-ranges,.rp-basis,.rp-custom,.tabbar2,
   .rp-filters,.sheet-head .iconbtn{display:none !important}
@@ -1194,7 +1209,32 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   .rp-table{font-size:10px}
   .rp-table thead th{background:#eee !important;color:#000 !important}
   .rp-table tbody tr{break-inside:avoid}
-  .rp-chart{break-inside:avoid;break-after:avoid}
+  /* Two things cut the pie in half on the way to paper.
+
+     The shell is still in the flow with a viewport of minimum height, which on
+     paper is a whole page of nothing before the report starts — and everything
+     after it lands one page further down than it was measured for.
+
+     And the sheet is a flex column, the chart pane a grid. Chrome breaks a
+     flex or grid container across pages by clipping it, not by moving the
+     child that would not fit, so break-inside:avoid was being asked of a box
+     that could not honour it. Laid out as plain blocks they paginate the
+     ordinary way and the rule holds. */
+  .shell{display:none !important}
+  #shReport,#shReport .sheet-body,#shReport .rp-pane{display:block !important}
+  .rp-chart{
+    display:block !important;break-inside:avoid;break-after:avoid;
+    text-align:center;
+  }
+  /* 84vw against a sheet of paper is most of its width; the pie is drawn at
+     300px and prints at the size it was drawn */
+  .rp-chart svg{width:300px !important;margin:0 auto}
+  .rp-chartcap{break-after:avoid}
+  /* the legend is a list, so it breaks between rows rather than being carried
+     whole to the next page and leaving half of this one empty */
+  .rp-legend{display:block !important}
+  .rp-lg{break-inside:avoid}
+  .rp-bars{break-inside:avoid}
   .rp-hint{display:none !important}
   .rp-print-only{display:block !important}
 }
@@ -3165,8 +3205,8 @@ html.locked #lockScreen::before{
     <div class="rp-basis" id="repBasisWrap">
       <span class="rp-bl">Counted by</span>
       <div class="toggle2" id="repBasis">
-        <button class="a" data-v="calendar" aria-pressed="true">Calendar</button>
-        <button class="a" data-v="period" aria-pressed="false">15th–14th</button>
+        <button class="a" data-v="period" aria-pressed="true">15th–14th</button>
+        <button class="a" data-v="calendar" aria-pressed="false">Calendar</button>
       </div>
     </div>
 
@@ -3558,7 +3598,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.15";
+const APP_VERSION = "2.0.16";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -9739,7 +9779,10 @@ $("#ghDisable").addEventListener("click", async () => {
    questions.
    ========================================================================= */
 let repRange = "month";        /* week | month | year | last12 | custom */
-let repBasis = "calendar";     /* calendar | period */
+/* The budget runs the 15th to the 14th, so that is what a month means here and
+   what the reports open on. Calendar months are the second reading, not the
+   first. */
+let repBasis = "period";       /* period | calendar */
 let repTab = "chart";
 let repKind = "all";
 /* Empty means every one of them, which is why these are not seeded with the
