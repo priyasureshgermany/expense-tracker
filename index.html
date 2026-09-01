@@ -3558,7 +3558,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.14";
+const APP_VERSION = "2.0.15";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -9971,9 +9971,20 @@ function repByCategory(rows, side){
  * question usually being asked, and income when that is all there is.
  */
 function repChartSide(rows){
-  if (rows.some(t => repSideOf(t) === "expense")) return "expense";
-  if (rows.some(t => repSideOf(t) === "income")) return "income";
-  return null;
+  const sideSum = want => rows.reduce((n, t) =>
+    repSideOf(t) === want ? n + t.amount : n, 0);
+  const exp = sideSum("expense"), inc = sideSum("income");
+  if (!exp && !inc) return null;
+
+  /* A report of nothing but transfers has no spending in it to ask about — both
+     sides are the same money, seen from the one account it is being read from.
+     So the larger side leads, which is the one worth looking at: three transfers
+     into Commerzbank and one out of it drew the ring around the 200 that left
+     and said nothing of the 3.000 that arrived. */
+  if (rows.length && rows.every(isTransfer)) return exp >= inc ? "expense" : "income";
+
+  /* Otherwise expenses win, being the question usually being asked. */
+  return exp ? "expense" : "income";
 }
 
 /* ---------- the pie ----------
@@ -10444,9 +10455,22 @@ function repBuckets(){
     state.txns.forEach(t => {
       if (!repCounts(t)) return;              /* the bars count what the report counts */
       if (t.date < sp.from || t.date > to) return;
-      if (isTransfer(t)) return;              /* own money moving is neither */
       if (!repBarKeeps(t)) return;
-      if (t.type === "income") inc += t.amount; else out += t.amount;
+      /**
+       * Sided the way the ring and the table side it, rather than by type.
+       *
+       * Transfers were skipped outright, on the grounds that own money moving
+       * between own accounts is neither in nor out. True while every account is
+       * in view — but pick one, and a transfer leaving it is money out of it and
+       * one arriving is money in. The table has always said so; the bars sat
+       * empty beneath a list of three.
+       *
+       * repSideOf gives null for a transfer with no single account to judge it
+       * from, so that case still counts for nothing, as it should.
+       */
+      const side = repSideOf(t);
+      if (!side) return;
+      if (side === "income") inc += t.amount; else out += t.amount;
     });
     return { label:sp.label, inc:inc, out:out, from:sp.from, to:to };
   });

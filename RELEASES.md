@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.15 — 2026-09-01
+- fix: Transfers seen from one account now show in the bar chart. They were skipped outright, so picking Transfers and a bank listed three entries above bars sitting at nothing
+- fix: A report of nothing but transfers draws the ring around its larger side. Three transfers into Commerzbank and one out of it drew the ring around the 200 that left and said nothing of the 3.000 that arrived
+
 ## 2.0.14 — 2026-09-01
 - fix: The bar chart follows the Income, Expenses and Transfers chips too. Filtering to Income left the report reading Expenses 0,00 over a chart still drawing expenses, which is the chart disagreeing with the total above it
 
