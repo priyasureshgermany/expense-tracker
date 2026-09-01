@@ -1991,11 +1991,18 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .nrow .nh svg{width:15px;height:15px}
 
 .nrow{
-  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
-  padding:12px 4px;border-radius:12px;transition:background .14s;
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:12px 4px;border-radius:12px;
 }
-.nrow:hover{background:var(--surface-2)}
 .nrow + .nrow{border-top:1px solid var(--line)}
+.nopen{
+  display:flex;align-items:center;gap:10px;flex:1;min-width:0;
+  text-align:left;padding:2px 4px;margin:-2px -4px;border-radius:10px;
+  transition:background .14s;
+}
+.nopen:hover{background:var(--surface-2)}
+/* a rounded square here rather than the ledger's circle */
+.nrow .tick{border-radius:9px;width:27px;height:27px}
 .nrow .nh{font-size:16px;line-height:1;flex:none;width:20px;text-align:center}
 .nrow .nm{flex:1;min-width:0}
 .nrow .nt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -3519,7 +3526,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.3";
+const APP_VERSION = "2.0.4";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -5783,49 +5790,60 @@ function txnRow(t, dark){
   const tick = el("button", "tick" + (t.status === "done" ? " on" : ""));
   tick.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
   tick.setAttribute("aria-label", t.status === "done" ? "Mark as planned" : "Mark as paid");
-  tick.addEventListener("click", async e => {
+  tick.addEventListener("click", e => {
     e.stopPropagation();
-    const nowDone = t.status !== "done";
-    /**
-     * A recurring entry sits on the day the schedule says, which is not always
-     * the day it was paid — a bill settled two days early was recorded on the
-     * day it was due, because ticking it never touched the date. So when the two
-     * differ, ask; the answer is one tap either way and the ledger ends up
-     * saying what actually happened.
-     */
-    if (nowDone && t.ruleId && t.date !== todayISO()){
-      const ans = await askConfirm({
-        title: "When was it paid?",
-        message: (t.note || catOf(t.category).n) + " is scheduled for " +
-                 dayTitle(t.date) + ".",
-        alt: "On " + dayTitle(t.date),
-        confirm: "Today",
-        tone: "plain"
-      });
-      if (ans !== true && ans !== "alt") return;
-      userTouched();
-      /* the slot it was made for stays put, so the schedule does not fill the
-         gap with a second copy */
-      if (ans === true) t.date = todayISO();
-      t.status = "done";
-      const r0 = tick.getBoundingClientRect();
-      burstConfetti(r0.left + r0.width / 2, r0.top + r0.height / 2);
-      save(); render();
-      toast("Marked as paid · " + dayTitle(t.date).toLowerCase());
-      return;
-    }
-    userTouched();
-    t.status = nowDone ? "done" : "planned";
-    if (nowDone){
-      const r = tick.getBoundingClientRect();
-      burstConfetti(r.left + r.width / 2, r.top + r.height / 2);
-    }
-    save(); render();
-    toast(t.status === "done" ? "Marked as paid" : "Moved back to planned");
+    togglePaid(t, tick);
   });
   row.appendChild(tick);
 
   return row;
+}
+
+/**
+ * Ticking an entry off, wherever the tick happens to be.
+ *
+ * A recurring entry sits on the day the schedule says, which is not always the
+ * day it was paid — a bill settled two days early used to be recorded on the day
+ * it was due, because ticking it never touched the date. So when the two differ,
+ * ask. The slot it was made for stays put either way, so answering "today" does
+ * not leave the schedule looking for a copy it never made.
+ *
+ * The ledger and the reminders both call this rather than each keeping their
+ * own version, which is how two ticks come to behave differently.
+ */
+async function togglePaid(t, fromEl, after){
+  const nowDone = t.status !== "done";
+  const pop = () => {
+    if (!fromEl) return;
+    const r = fromEl.getBoundingClientRect();
+    burstConfetti(r.left + r.width / 2, r.top + r.height / 2);
+  };
+
+  if (nowDone && t.ruleId && t.date !== todayISO()){
+    const ans = await askConfirm({
+      title: "When was it paid?",
+      message: (t.note || catOf(t.category).n) + " is scheduled for " +
+               dayTitle(t.date) + ".",
+      alt: "On " + dayTitle(t.date),
+      confirm: "Today",
+      tone: "plain"
+    });
+    if (ans !== true && ans !== "alt") return false;
+    userTouched();
+    if (ans === true) t.date = todayISO();
+    t.status = "done";
+    pop();
+    save(); render(); if (after) after();
+    toast("Marked as paid · " + dayTitle(t.date).toLowerCase());
+    return true;
+  }
+
+  userTouched();
+  t.status = nowDone ? "done" : "planned";
+  if (nowDone) pop();
+  save(); render(); if (after) after();
+  toast(t.status === "done" ? "Marked as paid" : "Moved back to planned");
+  return true;
 }
 
 function renderBreakdown(all, dark){
@@ -6605,21 +6623,39 @@ function renderBell(){
   const dark = isDark();
   list.forEach(o => {
     const c = catOf(o.t.category);
-    const row = el("button", "nrow");
-    row.type = "button";
-    row.appendChild(dueHeart(dueTone(o.d), "nh"));
+    /* The row was a button, so the tick could not live inside it — a button
+       cannot nest in a button. It is a div now, holding one button that opens
+       the entry and one that ticks it off, which is how the ledger row is put
+       together and how this one should always have been. */
+    const row = el("div", "nrow");
 
+    const open = el("button", "nopen");
+    open.type = "button";
+    open.appendChild(dueHeart(dueTone(o.d), "nh"));
     const m = el("div", "nm");
     m.appendChild(el("div", "nt", o.t.note || c.n));
     m.appendChild(el("div", "ns", dueWords(o.d) + " · " + dayTitle(o.t.date).toLowerCase()));
-    row.appendChild(m);
-
+    open.appendChild(m);
     const a = el("div", "na", (o.t.type === "income" ? "+" : "−") + fmt(o.t.amount));
     a.style.color = o.t.type === "income" ? "var(--pos)" : "var(--ink)";
-    row.appendChild(a);
+    open.appendChild(a);
+    open.setAttribute("aria-label", "Open " + (o.t.note || c.n));
+    open.addEventListener("click", () => { sheetClose(); openEntry(o.t); });
+    row.appendChild(open);
 
-    /* tapping opens the entry, which is where it gets ticked off as paid */
-    row.addEventListener("click", () => { sheetClose(); openEntry(o.t); });
+    /* ticked off here rather than only inside the entry: this is the list of
+       things wanting doing, so doing one should not need a detour */
+    const tick = el("button", "tick");
+    tick.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+    tick.setAttribute("aria-label", "Mark " + (o.t.note || c.n) + " as paid");
+    tick.title = "Mark as paid";
+    tick.addEventListener("click", e => {
+      e.stopPropagation();
+      /* the list is what is still due, so a paid one leaves it */
+      togglePaid(o.t, tick, () => { renderBell(); syncBell(); });
+    });
+    row.appendChild(tick);
+
     host.appendChild(row);
   });
 }
