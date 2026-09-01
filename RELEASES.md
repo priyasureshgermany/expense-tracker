@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.0 — 2026-09-01
+- new: Recurring entries say whether they are taken automatically or paid by hand. Entries carry a green A or an amber M in the ledger and in the report table, so the ones still wanting doing stand out
+- new: A bank logo can be changed or removed. Tapping a tile that already has one asks which
+
 ## 1.2.9 — 2026-08-31
 - better: Income, expenses and transfers are colour coded through the report: green, red and blue on the filter chips whether they are on or off, and on the Type column of the table. The same three colours the + button and the ledger already use
 
