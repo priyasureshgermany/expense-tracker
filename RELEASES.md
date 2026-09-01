@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.11 — 2026-09-01
+- new: The bar chart follows the category and account chips. Pick Groceries and the bars are groceries, month by month, with the caption naming what is being shown. Pick nothing and it is income against expenses as before
+
 ## 2.0.10 — 2026-09-01
 - fix: The bar chart's monthly bars follow Counted by. They were always calendar months, so on the 15th-14th setting the range and the bars were measuring two different things
 

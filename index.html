@@ -3553,7 +3553,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.10";
+const APP_VERSION = "2.0.11";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -10352,6 +10352,26 @@ function repBucketUnit(){
 }
 
 /** The five buckets, oldest first, each with what came in and what went out. */
+/**
+ * Which entries the bars count, beyond the stretch itself.
+ *
+ * The category and account chips say *whose* money is being looked at, so the
+ * bars follow them: pick Groceries and the bars are groceries, month by month,
+ * which is the comparison the chips were reached for in the first place.
+ *
+ * The kind chips and the search box are deliberately not applied. These bars are
+ * income against expense by construction — filtering to one of them empties a
+ * series and leaves a chart with nothing to compare — and a search is a question
+ * about one entry rather than about a run of months.
+ */
+function repBarKeeps(t){
+  if (repCats.length && repCats.indexOf(repCatOf(t).id) === -1) return false;
+  if (repAccts.length &&
+      repAccts.indexOf(t.account) === -1 &&
+      repAccts.indexOf(t.fromAccount) === -1) return false;
+  return true;
+}
+
 function repBuckets(){
   const unit = repBucketUnit();
   const r = repDates();
@@ -10413,6 +10433,7 @@ function repBuckets(){
       if (!repCounts(t)) return;              /* the bars count what the report counts */
       if (t.date < sp.from || t.date > to) return;
       if (isTransfer(t)) return;              /* own money moving is neither */
+      if (!repBarKeeps(t)) return;
       if (t.type === "income") inc += t.amount; else out += t.amount;
     });
     return { label:sp.label, inc:inc, out:out, from:sp.from, to:to };
@@ -10461,8 +10482,16 @@ function repDrawBars(){
 
   const max = repNiceMax(Math.max(1, ...b.map(x => Math.max(x.inc, x.out))));
   const unit = repBucketUnit();
+  /* Named, so a filtered chart is not mistaken for the whole picture */
+  const narrowed = [].concat(
+    repCats.map(id => catOf(id).n),
+    repAccts.map(acctName)
+  ).filter(Boolean);
   $("#repBarsT").textContent =
-    "Last 5 " + (unit === "day" ? "days" : unit === "week" ? "weeks" : "months");
+    "Last 5 " + (unit === "day" ? "days" : unit === "week" ? "weeks" : "months") +
+    (narrowed.length ? " · " + (narrowed.length > 2
+      ? narrowed.length + " picked"
+      : narrowed.join(", ")) : "");
 
   /* the newest bucket is the one being asked about until another is tapped */
   if (repBarPick === null || repBarPick >= b.length) repBarPick = b.length - 1;
