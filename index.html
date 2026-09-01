@@ -916,6 +916,10 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .cfbox p{margin:0 0 18px;font-size:12.5px;line-height:1.5;color:var(--ink-2);white-space:pre-line}
 .cf-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .cf-actions .btn{width:auto}
+/* With a third answer the grid still holds two per row, which would leave the
+   last one stranded in a half-width box on the left. The one that acts spans
+   the row instead, under the two that do not. */
+.cf-actions:has(#cfAlt:not([hidden])) #cfYes{grid-column:1 / -1}
 
 /* ================= REPORTS =================
    A report is read, not operated, so the controls stay quiet and the numbers
@@ -1308,6 +1312,16 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .pill.due{background:var(--warn-soft);color:var(--warn)}
 .pill.rep{background:var(--accent-soft);color:var(--accent)}
 .pill.late{background:var(--neg-soft);color:var(--neg)}
+/* Round, so it is not read as another of the word pills beside it. Green for
+   one that takes care of itself, amber for one still wanting doing. */
+.ampill{
+  display:inline-grid;place-items:center;flex:none;
+  width:16px;height:16px;border-radius:50%;
+  font-size:9.5px;font-weight:700;letter-spacing:0;
+  margin-left:5px;vertical-align:-3px;
+}
+.ampill.a{background:var(--pos-soft);color:var(--pos)}
+.ampill.m{background:var(--warn-soft);color:var(--warn)}
 
 .tick{
   width:26px;height:26px;flex:none;border-radius:99px;
@@ -2789,6 +2803,20 @@ html.locked #lockScreen::before{
     </div>
 
     <div class="field">
+      <label>Taken how</label>
+      <div class="toggle2" id="rAuto">
+        <button class="a" data-v="manual" aria-pressed="true">Manual</button>
+        <button class="a" data-v="auto" aria-pressed="false">Automatic</button>
+      </div>
+      <div class="note" style="margin-top:6px">
+        <b>Automatic</b> is taken by the bank without you — a standing order or
+        direct debit. <b>Manual</b> is one you pay yourself each time. Entries
+        carry an <b>A</b> or <b>M</b> so you can see at a glance which still want
+        doing.
+      </div>
+    </div>
+
+    <div class="field">
       <label for="rDate">Starting from</label>
       <input id="rDate" type="date">
       <div class="note" style="margin-top:6px">
@@ -3450,6 +3478,7 @@ html.locked #lockScreen::before{
     <p id="cfMsg"></p>
     <div class="cf-actions">
       <button class="btn ghost" id="cfNo" type="button">Cancel</button>
+      <button class="btn ghost" id="cfAlt" type="button" hidden>Change</button>
       <button class="btn danger" id="cfYes" type="button">Delete</button>
     </div>
   </div>
@@ -3464,8 +3493,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "1.2.9";
-const APP_BUILT = "2026-08-31";
+const APP_VERSION = "2.0.0";
+const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -3929,6 +3958,24 @@ function accountsOf(){ return Array.isArray(state.accounts) ? state.accounts : [
 function accountById(id){ return accountsOf().find(a => a.id === id) || null; }
 function accountName(id){ const a = accountById(id); return a ? a.n : ""; }
 
+/**
+ * A or M for an entry that came from a recurring rule.
+ *
+ * A round letter rather than another word-shaped pill: a row can already carry
+ * DUE and 1M, and a third pill of the same shape reads as more of the same
+ * where this is a different kind of fact.
+ */
+function autoBadge(ruleId){
+  if (!ruleId) return null;
+  const r = state.rules.find(x => x.id === ruleId);
+  if (!r) return null;
+  const auto = r.auto === true;
+  const b = el("span", "ampill " + (auto ? "a" : "m"), auto ? "A" : "M");
+  b.title = auto ? "Automatic — the bank takes this one"
+                 : "Manual — you pay this one yourself";
+  return b;
+}
+
 /* ---------- a mark for each account ----------
 
    Not the banks' own logos. Those are their trademarks, and drawing an
@@ -4297,6 +4344,12 @@ function askConfirm(opts){
   $("#cfTitle").textContent = o.title || "Are you sure?";
   $("#cfMsg").textContent = o.message || "This cannot be undone.";
   $("#cfYes").textContent = o.confirm || "Delete";
+  /* Some questions have three answers rather than two — a logo can be changed
+     as well as taken off — and forcing those into yes/no makes one of them
+     unreachable. */
+  const alt = $("#cfAlt");
+  alt.hidden = !o.alt;
+  if (o.alt) alt.textContent = o.alt;
   $("#shConfirm").hidden = false;
   $("#cfNo").focus();
   return new Promise(resolve => { confirmResolve = resolve; });
@@ -4311,6 +4364,7 @@ function closeConfirm(answer){
 
 $("#cfYes").addEventListener("click", () => closeConfirm(true));
 $("#cfNo").addEventListener("click", () => closeConfirm(false));
+$("#cfAlt").addEventListener("click", () => closeConfirm("alt"));
 $("#shConfirm").addEventListener("click", e => {
   if (e.target === $("#shConfirm")) closeConfirm(false);      /* tapping outside */
 });
@@ -5240,7 +5294,22 @@ function renderAccountSettings(){
     mark.title = a.logo ? "Change the logo for " + a.n : "Add a logo for " + a.n;
     mark.setAttribute("aria-label", mark.title);
     mark.appendChild(acctBadge(a));
-    mark.addEventListener("click", e => { e.stopPropagation(); pickAcctLogo(a); });
+    mark.addEventListener("click", async e => {
+      e.stopPropagation();
+      if (!a.logo){ pickAcctLogo(a); return; }
+      const ans = await askConfirm({
+        title: "Logo for " + a.n,
+        message: "Change it for another image, or take it off and go back to the plain mark.",
+        confirm: "Remove",
+        alt: "Change"
+      });
+      if (ans === "alt"){ pickAcctLogo(a); return; }
+      if (ans !== true) return;
+      userTouched();
+      delete a.logo;
+      save(); render(); renderAccountSettings();
+      toast("Logo removed from " + a.n);
+    });
     row.appendChild(mark);
     name.appendChild(el("b", null, a.n));
     name.appendChild(el("span", "ar-k", ACCT_KIND[a.kind] || "Bank"));
@@ -5638,6 +5707,8 @@ function txnRow(t, dark){
     const p = el("span", "pill rep", r ? FREQ_SHORT[r.freq] : "↻");
     if (r) p.title = FREQ_LABEL[r.freq];
     t2.appendChild(p);
+    const am = autoBadge(t.ruleId);
+    if (am) t2.appendChild(am);
   }
   main.appendChild(t2);
 
@@ -6563,6 +6634,16 @@ function syncRuleType(){
   $("#rAmtWrap").className = "amtfield " + (rDraft.type === "income" ? "in" : "out");
 }
 
+/** Which of the two is lit; the draft is the only thing it reads. */
+function syncRuleAuto(){
+  $$("#rAuto button").forEach(b =>
+    b.setAttribute("aria-pressed", String((b.dataset.v === "auto") === !!rDraft.auto)));
+}
+$$("#rAuto button").forEach(b => b.addEventListener("click", () => {
+  rDraft.auto = b.dataset.v === "auto";
+  syncRuleAuto();
+}));
+
 function openRule(rule){
   ruleEditing = rule || null;
   if (rule){
@@ -6572,7 +6653,8 @@ function openRule(rule){
          empty picker, so opening one and saving is enough to tag it — nothing
          is written until you do save. */
       account: rule.account || defaultAccountId(),
-      fromAccount: rule.fromAccount || null
+      fromAccount: rule.fromAccount || null,
+      auto: rule.auto === true
     };
     $("#ruleTitle").textContent = "Recurring entry";
     $("#rAmt").value = (rule.amount / 100).toFixed(2).replace(".", ",");
@@ -6583,7 +6665,11 @@ function openRule(rule){
   } else {
     rDraft = {
       type: "expense", category: allCats("expense")[0].id, freq: "monthly",
-      account: defaultAccountId(), fromAccount: null
+      account: defaultAccountId(), fromAccount: null,
+      /* Manual by default, for new rules and the ones that predate this alike.
+         Wrong the other way — an entry you must pay yourself, labelled as taken
+         care of — is how a payment gets missed. */
+      auto: false
     };
     $("#ruleTitle").textContent = "New recurring entry";
     $("#rAmt").value = "";
@@ -6592,6 +6678,7 @@ function openRule(rule){
     $("#rDeleteWrap").style.display = "none";
   }
   syncRuleType();
+  syncRuleAuto();
   renderRuleCats();
   renderRuleAccounts();
   renderRuleFreq();
@@ -6658,7 +6745,7 @@ $("#rSave").addEventListener("click", () => {
   if (ruleEditing){
     Object.assign(ruleEditing, {
       type: rDraft.type, amount: cents, category: rDraft.category, note: note,
-      freq: rDraft.freq, anchor: date,
+      freq: rDraft.freq, anchor: date, auto: !!rDraft.auto,
       account: rDraft.account || null, fromAccount: rDraft.fromAccount || null
     });
     respinRule(ruleEditing.id);
@@ -6670,6 +6757,7 @@ $("#rSave").addEventListener("click", () => {
   const rule = {
     id: uid(), type: rDraft.type, amount: cents, category: rDraft.category,
     note: note, freq: rDraft.freq, anchor: date, active: true,
+    auto: !!rDraft.auto,
     account: rDraft.account || null, fromAccount: rDraft.fromAccount || null
   };
   state.rules.push(rule);
@@ -10168,6 +10256,8 @@ function repDrawTable(rows){
     const ty = el("td");
     ty.appendChild(el("span", "rp-st k-" + t.type,
                       t.type === "transfer" ? "Transfer" : t.type));
+    const am = autoBadge(t.ruleId);
+    if (am) ty.appendChild(am);
     r.appendChild(ty);
 
     const cd = el("td");

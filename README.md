@@ -28,6 +28,13 @@ Open `index.html` in any browser, or host the file anywhere static.
   pie from Reports — with the fold arrow to the left of it. The four are one
   panel repeated: the same card, the same title, the same gap beneath it, and
   the same height once folded.
+- **Automatic or manual**, on every recurring entry. An **automatic** one is
+  taken by the bank without you — a standing order or direct debit; a
+  **manual** one you pay yourself each time. Entries born of a rule carry a
+  green **A** or an amber **M** in the ledger and in the report table, so the
+  ones still wanting doing stand out. Rules that predate the setting read as
+  manual: labelling a payment you must make yourself as taken care of is how
+  one gets missed, so the default errs that way.
 - **Period health**, five periods with this one in the middle and two either
   side, scrolling if they do not all fit. A period with nothing in it reads as
   "No data" rather than being left out, which is what keeps this one centred.
@@ -305,7 +312,8 @@ Each account carries a mark — a bank or card glyph in a colour held by its
 name, kept clear of the other accounts' colours by the same OKLab measure the
 categories use. **Settings › Accounts › tap the tile** puts your bank's own logo
 there instead: the file is squared to 64px and kept with your data, so it
-travels with your backup. Logos are not fetched or shipped with the app — a
+travels with your backup. Tapping a tile that already carries one asks whether
+to change it or take it off. Logos are not fetched or shipped with the app — a
 bank's mark is its trademark, and your own copy on your own ledger is yours to
 put there, not the app's to distribute.
 
