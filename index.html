@@ -2796,9 +2796,6 @@ html.locked #lockScreen::before{
 <section class="sheet" id="shBell" role="dialog" aria-modal="true" aria-labelledby="bellTitle">
   <div class="sheet-head" style="position:relative">
     <h2 id="bellTitle">Reminders</h2>
-    <button class="iconbtn" id="bellRefresh" type="button" title="Check these again" aria-label="Check these again">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11a9 9 0 0 1 15.5-6.2L21 7"/><path d="M21 3v4.5h-4.5"/><path d="M21 13a9 9 0 0 1-15.5 6.2L3 17"/><path d="M3 21v-4.5h4.5"/></svg>
-    </button>
     <button class="iconbtn" data-close aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
@@ -3553,7 +3550,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.7";
+const APP_VERSION = "2.0.8";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -6791,26 +6788,10 @@ function renderBell(){
   });
 }
 
-/* Works the schedule out again and looks once more at what has been settled,
-   for when a bill was paid somewhere other than here — in the ledger, or on
-   another device that has since synced. */
-$("#bellRefresh").addEventListener("click", () => {
-  /* Counted from what is on the screen, not from dueSoon(). A bill settled
-     somewhere else has already left dueSoon() by the time the button is
-     pressed, so comparing it with itself always says nothing has changed — the
-     stale thing, and the point of the comparison, is the list being looked at. */
-  const n0 = $$("#bellBody .nrow").length;
-  materialise();
-  save();
-  syncBell();
-  renderBell();
-  const n1 = $$("#bellBody .nrow").length;
-  toast(n0 === n1
-    ? "Checked · nothing has changed"
-    : "Checked · " + (n1 < n0 ? (n0 - n1) + " no longer due"
-                                  : (n1 - n0) + " more due"));
-});
-
+/* Opening the panel builds the list afresh, so it already sees anything settled
+   since it was last looked at. And the schedule is worked out on load, a year
+   ahead — so the next three days' occurrences exist before the panel is ever
+   opened, and there was nothing for a refresh button to go and find. */
 $("#btnBell").addEventListener("click", () => {
   notifMarkSeen();
   syncBell();
