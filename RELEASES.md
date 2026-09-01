@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.7 — 2026-09-01
+- new: Saving starting balances keeps a snapshot of what was set and when, listed under Saved before, so a baseline replaced later can still be accounted for
+- better: The starting balance boxes start empty and each account says what it currently holds underneath its name. A box left blank leaves that account alone rather than forgetting its figure \u2014 clearing is what Clear all balances is for
+
 ## 2.0.6 — 2026-09-01
 - fix: The slot stamped on each recurring occurrence is written down rather than worked out afresh on every load. Left in memory it was recomputed from whatever date the entry happened to be sitting on, so an entry moved and not otherwise saved came back with the wrong slot and let the duplicate through again
 
