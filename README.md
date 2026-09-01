@@ -28,11 +28,18 @@ Open `index.html` in any browser, or host the file anywhere static.
   pie from Reports — with the fold arrow to the left of it. The four are one
   panel repeated: the same card, the same title, the same gap beneath it, and
   the same height once folded.
+- **A rule's schedule is `freq` and `anchor`, nothing else.** Saving a rule
+  used to rebuild every future occurrence whichever field had been touched,
+  which silently put a date moved by hand — a bill paid two days early — back
+  on the schedule. Leave those two alone and the dates are left alone too;
+  the occurrences are updated where they stand. Change one and the dates are
+  rebuilt, which is what changing a schedule means, but it asks first and
+  offers to keep them.
 - **Automatic or manual**, on every recurring entry. An **automatic** one is
   taken by the bank without you — a standing order or direct debit; a
   **manual** one you pay yourself each time. Entries born of a rule carry a
-  green **A** or an amber **M** in the ledger and in the report table, so the
-  ones still wanting doing stand out. Rules that predate the setting read as
+  green **A** or an amber **M** in the ledger, in the report table and on the
+  rule itself, so the ones still wanting doing stand out. Rules that predate the setting read as
   manual: labelling a payment you must make yourself as taken care of is how
   one gets missed, so the default errs that way.
 - **Period health**, five periods with this one in the middle and two either

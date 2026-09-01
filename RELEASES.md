@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.2 — 2026-09-01
+- fix: Saving a recurring entry no longer puts a date you had moved by hand back on the schedule. Correcting an amount or marking one automatic leaves every planned date where it is; only changing how often it repeats, or the date it counts from, rebuilds them, and that asks first
+- new: The recurring entries list shows A or M on each one, the same letters its entries carry
+- better: On the dark theme the app mark is turned toward the blue the rest of it is built from, rather than sitting on the bar as a tan stain
+
 ## 2.0.1 — 2026-09-01
 - better: The app's own mark sits in the middle of the top bar on the dashboard
 

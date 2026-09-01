@@ -209,6 +209,16 @@ button{cursor:pointer;background:none;border:none;padding:0}
   width:34px; height:34px; border-radius:10px;
   pointer-events:none; user-select:none;
   box-shadow:0 1px 4px rgba(0,0,0,.18);
+  transition:filter .2s;
+}
+/* The mark is tanned leather, which against a near-black blue ground reads as
+   an orange stain rather than as the app's own. Turned toward the blue the rest
+   of the dark theme is built from, it belongs to the bar it sits on — the grain
+   and the emboss survive, only the dye changes. Light theme keeps the tan,
+   which sits perfectly well on white. */
+:root[data-theme="dark"] .applogo{ filter:hue-rotate(178deg) saturate(.72) brightness(.94) }
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .applogo{ filter:hue-rotate(178deg) saturate(.72) brightness(.94) }
 }
 .applogo[hidden]{display:none}
 .brand{
@@ -3508,7 +3518,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.1";
+const APP_VERSION = "2.0.2";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -6405,7 +6415,15 @@ function renderRules(){
     row.appendChild(sw);
 
     const m = el("div", "rm");
-    m.appendChild(el("div", "rt", r.note || c.n));
+    const ttl = el("div", "rt");
+    ttl.appendChild(document.createTextNode(r.note || c.n));
+    /* the same letter its entries carry, so the list and the ledger agree */
+    const auto = r.auto === true;
+    const am = el("span", "ampill " + (auto ? "a" : "m"), auto ? "A" : "M");
+    am.title = auto ? "Automatic — the bank takes this one"
+                    : "Manual — you pay this one yourself";
+    ttl.appendChild(am);
+    m.appendChild(ttl);
     const next = nextDue(r);
     m.appendChild(el("div", "rs", r.active === false
       ? "Paused"
@@ -6733,6 +6751,18 @@ $("#rulesBack").addEventListener("click", () => { sheetClose(); openSettings(); 
  * last month — so only planned entries from today forward are dropped and
  * regenerated.
  */
+/** Carries a rule's fields onto the occurrences it has already made, dates untouched. */
+function applyRuleToFuture(rule, rows){
+  rows.forEach(x => {
+    x.type = rule.type;
+    x.amount = rule.amount;
+    x.category = rule.category;
+    x.note = rule.note;
+    x.account = rule.account || null;
+    x.fromAccount = rule.fromAccount || null;
+  });
+}
+
 function respinRule(id){
   const t = todayISO();
   state.txns = state.txns.filter(x =>
@@ -6749,25 +6779,75 @@ function respinRule(id){
   materialise();
 }
 
-$("#rSave").addEventListener("click", () => {
+$("#rSave").addEventListener("click", async () => {
   const cents = parseAmount($("#rAmt").value);
   if (!cents || cents <= 0){ toast("Enter an amount greater than zero"); $("#rAmt").focus(); return; }
   if (!rDraft.freq){ toast("Pick how often it repeats"); return; }
   const date = $("#rDate").value || todayISO();
   const note = $("#rNote").value.trim();
-  userTouched();
 
   if (ruleEditing){
+    /**
+     * Saving used to respin the rule whichever field had been touched, and
+     * respinning throws away every future planned occurrence and builds them
+     * again from the anchor. So a date moved by hand — a bill paid two days
+     * early — was silently put back on the schedule by an edit that had nothing
+     * to do with dates, such as correcting the amount or marking it automatic.
+     *
+     * The schedule is `freq` and `anchor` and nothing else. Leave those alone
+     * and the dates are left alone too: the occurrences are updated where they
+     * stand. Change one of them and the dates must be rebuilt — that is what
+     * changing a schedule means — but not without saying so first.
+     */
+    const t = todayISO();
+    const future = state.txns.filter(x =>
+      x.ruleId === ruleEditing.id && x.status === "planned" && x.date >= t);
+    const scheduleMoved =
+      ruleEditing.freq !== rDraft.freq || ruleEditing.anchor !== date;
+
+    if (scheduleMoved && future.length){
+      const ans = await askConfirm({
+        title: "Rebuild the dates?",
+        message: "The schedule has changed, so " + future.length + " planned date" +
+          (future.length === 1 ? "" : "s") + " will be worked out again from it — " +
+          "including any you had moved by hand. Keeping them leaves the dates " +
+          "where they are and changes only the rest.",
+        confirm: "Rebuild dates",
+        alt: "Keep dates"
+      });
+      if (ans !== true && ans !== "alt") return;
+      if (ans === "alt"){
+        /* everything but the schedule, so the dates already set survive */
+        userTouched();
+        Object.assign(ruleEditing, {
+          type: rDraft.type, amount: cents, category: rDraft.category, note: note,
+          auto: !!rDraft.auto,
+          account: rDraft.account || null, fromAccount: rDraft.fromAccount || null
+        });
+        applyRuleToFuture(ruleEditing, future);
+        save(); renderRules(); render(); sheetClose();
+        toast("Updated · dates left as they are");
+        return;
+      }
+    }
+
+    userTouched();
     Object.assign(ruleEditing, {
       type: rDraft.type, amount: cents, category: rDraft.category, note: note,
       freq: rDraft.freq, anchor: date, auto: !!rDraft.auto,
       account: rDraft.account || null, fromAccount: rDraft.fromAccount || null
     });
-    respinRule(ruleEditing.id);
+    if (scheduleMoved){
+      respinRule(ruleEditing.id);
+    } else {
+      applyRuleToFuture(ruleEditing, future);
+    }
     save(); renderRules(); render(); sheetClose();
-    toast("Recurring entry updated");
+    toast(scheduleMoved ? "Recurring entry updated · dates rebuilt"
+                        : "Recurring entry updated");
     return;
   }
+  userTouched();
 
   const rule = {
     id: uid(), type: rDraft.type, amount: cents, category: rDraft.category,
