@@ -3553,7 +3553,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.9";
+const APP_VERSION = "2.0.10";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -10381,6 +10381,15 @@ function repBuckets(){
     for (let i = 4; i >= 0; i--){
       const from = addDays(thisMon, -7 * i);
       spans.push({ from:from, to:addDays(from, 6), label:shortDay(from) });
+    }
+  } else if (repBasis === "period"){
+    /* A month means whatever Counted by says it means. These bars were always
+       calendar months, so on the 15th–14th setting the range and the bars were
+       measuring two different things and their totals could not be reconciled. */
+    const here = periodOf(end);
+    for (let i = 4; i >= 0; i--){
+      const pm = shiftPeriod(here, -i);
+      spans.push({ from:periodStart(pm), to:periodEnd(pm), label:periodChipLabel(pm) });
     }
   } else {
     const [ey, em] = end.slice(0, 7).split("-").map(Number);
