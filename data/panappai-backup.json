@@ -3378,9 +3378,9 @@
       "amount": 128000,
       "category": "rent",
       "note": "",
-      "date": "2026-09-03",
+      "date": "2026-09-01",
       "slot": "2026-09-03",
-      "status": "planned",
+      "status": "done",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
       "fromAccount": null
@@ -3830,6 +3830,7 @@
       "auto": false
     }
   ],
+  "balanceLog": [],
   "skips": [
     "07mh5egsobpm|2026-09-03",
     "t5o7gvqyobpm|2026-08-30",
