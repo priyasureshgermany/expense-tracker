@@ -28,6 +28,13 @@ Open `index.html` in any browser, or host the file anywhere static.
   pie from Reports — with the fold arrow to the left of it. The four are one
   panel repeated: the same card, the same title, the same gap beneath it, and
   the same height once folded.
+- **An occurrence remembers its slot.** `slot` is the date the schedule asked
+  for; `date` is where the entry actually sits. They start equal and part only
+  when one is moved by hand. `materialise()` keys on the slot, so paying a bill
+  early and dating it accordingly no longer leaves the original day looking
+  unfilled — which used to put the same bill in a period twice and move **Net
+  this period** with it. Occurrences from before this carry no slot; their date
+  stands in, which is what it meant for every one that had not been moved.
 - **A rule's schedule is `freq` and `anchor`, nothing else.** Saving a rule
   used to rebuild every future occurrence whichever field had been touched,
   which silently put a date moved by hand — a bill paid two days early — back

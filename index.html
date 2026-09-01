@@ -936,6 +936,7 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .cfbox h3{margin:0 0 6px;font-size:16px;font-weight:700;letter-spacing:-.01em}
 /* pre-line so a message can list what it is about to take, one per line */
 .cfbox p{margin:0 0 18px;font-size:12.5px;line-height:1.5;color:var(--ink-2);white-space:pre-line}
+.cf-ic.plain{background:var(--accent-soft);color:var(--accent)}
 .cf-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .cf-actions .btn{width:auto}
 /* With a third answer the grid still holds two per row, which would leave the
@@ -3518,7 +3519,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.2";
+const APP_VERSION = "2.0.3";
 const APP_BUILT = "2026-09-01";
 
 const KEY = "panappai.v1";
@@ -4212,6 +4213,7 @@ function load(){
   migrateBalanceToAccounts();
   migrateLostCats();
   migrateImpossibleDates();
+  migrateOccurrenceSlots();
   migrateCatDepth();
   refreshCats();
 }
@@ -4246,6 +4248,23 @@ function save(){
  * "Telecom" at 265° is the same colour as Credit Card Payment at 264°. Each
  * gets the depth that sits furthest from everything already spoken for.
  */
+/**
+ * Stamps the slot on occurrences made before there was one.
+ *
+ * The slot is the date the schedule asked for; the date is where the entry
+ * actually sits. They start equal, and only a hand-moved entry parts them — so
+ * for everything already on file the current date *is* the slot. Done now, once,
+ * while that is still true: after a move there is no way back to it, and the
+ * schedule would fill the gap it thinks it has found.
+ */
+function migrateOccurrenceSlots(){
+  let n = 0;
+  state.txns.forEach(t => {
+    if (t.ruleId && !t.slot){ t.slot = t.date; n++; }
+  });
+  return n;
+}
+
 function migrateCatDepth(){
   let changed = 0;
   ["expense", "income"].forEach(type => {
@@ -4275,8 +4294,18 @@ function migrateImpossibleDates(){
 function materialise(){
   const horizon = shiftMonth(monthOf(todayISO()), 12) + "-31";
   const floor = shiftMonth(monthOf(todayISO()), -3) + "-01";
+  /**
+   * Keyed on the slot an occurrence was made for, not on the date it now
+   * carries. Move a bill to the day you actually paid it and its date no longer
+   * matches the schedule, so the slot read as unfilled and a second copy was
+   * made on the original day — September's rent paid on the 4th, and September's
+   * rent still sitting there planned for the 2nd.
+   *
+   * Occurrences from before this carry no slot; their date stands in, which is
+   * what it meant for every one that had not been moved.
+   */
   const existing = new Set();
-  state.txns.forEach(t => { if (t.ruleId) existing.add(t.ruleId + "|" + t.date); });
+  state.txns.forEach(t => { if (t.ruleId) existing.add(t.ruleId + "|" + (t.slot || t.date)); });
   const skips = new Set(state.skips);
 
   state.rules.forEach(rule => {
@@ -4293,7 +4322,7 @@ function materialise(){
       existing.add(k);
       state.txns.push({
         id: uid(), type: rule.type, amount: rule.amount, category: rule.category,
-        note: rule.note, date: d, status:"planned", ruleId: rule.id,
+        note: rule.note, date: d, slot: d, status:"planned", ruleId: rule.id,
         account: rule.account || null, fromAccount: rule.fromAccount || null
       });
     }
@@ -4375,6 +4404,9 @@ function askConfirm(opts){
   const alt = $("#cfAlt");
   alt.hidden = !o.alt;
   if (o.alt) alt.textContent = o.alt;
+  /* not every three-way question is a destructive one */
+  $("#cfYes").className = "btn " + (o.tone === "plain" ? "" : "danger");
+  $("#cfIcon").classList.toggle("plain", o.tone === "plain");
   $("#shConfirm").hidden = false;
   $("#cfNo").focus();
   return new Promise(resolve => { confirmResolve = resolve; });
@@ -5751,10 +5783,38 @@ function txnRow(t, dark){
   const tick = el("button", "tick" + (t.status === "done" ? " on" : ""));
   tick.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
   tick.setAttribute("aria-label", t.status === "done" ? "Mark as planned" : "Mark as paid");
-  tick.addEventListener("click", e => {
+  tick.addEventListener("click", async e => {
     e.stopPropagation();
-    userTouched();
     const nowDone = t.status !== "done";
+    /**
+     * A recurring entry sits on the day the schedule says, which is not always
+     * the day it was paid — a bill settled two days early was recorded on the
+     * day it was due, because ticking it never touched the date. So when the two
+     * differ, ask; the answer is one tap either way and the ledger ends up
+     * saying what actually happened.
+     */
+    if (nowDone && t.ruleId && t.date !== todayISO()){
+      const ans = await askConfirm({
+        title: "When was it paid?",
+        message: (t.note || catOf(t.category).n) + " is scheduled for " +
+                 dayTitle(t.date) + ".",
+        alt: "On " + dayTitle(t.date),
+        confirm: "Today",
+        tone: "plain"
+      });
+      if (ans !== true && ans !== "alt") return;
+      userTouched();
+      /* the slot it was made for stays put, so the schedule does not fill the
+         gap with a second copy */
+      if (ans === true) t.date = todayISO();
+      t.status = "done";
+      const r0 = tick.getBoundingClientRect();
+      burstConfetti(r0.left + r0.width / 2, r0.top + r0.height / 2);
+      save(); render();
+      toast("Marked as paid · " + dayTitle(t.date).toLowerCase());
+      return;
+    }
+    userTouched();
     t.status = nowDone ? "done" : "planned";
     if (nowDone){
       const r = tick.getBoundingClientRect();
@@ -6766,7 +6826,7 @@ function applyRuleToFuture(rule, rows){
 function respinRule(id){
   const t = todayISO();
   state.txns = state.txns.filter(x =>
-    !(x.ruleId === id && x.status === "planned" && x.date >= t));
+    !(x.ruleId === id && x.status === "planned" && (x.slot || x.date) >= t));
   /* Deleting a planned entry records a skip, which suppresses that date for
      good — there is nothing in the app that shows a skip or takes one back, so
      one deleted month silently vanishes from every total thereafter. Saving the
