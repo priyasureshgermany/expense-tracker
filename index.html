@@ -352,14 +352,7 @@ button.tile:hover .tile-go{color:var(--accent)}
   font-size:12.5px;font-weight:600;color:var(--accent);
 }
 .filterpill[hidden]{display:none}
-/* the same pill, in the warning colour: this one is saying the figures below
-   it are not the whole picture */
-.hidepill{
-  background:var(--warn-soft);color:var(--warn);
-  border-color:color-mix(in srgb, var(--warn) 30%, transparent);
-}
-.hidepill button{color:var(--warn)}
-.hidepill button:hover{background:color-mix(in srgb, var(--warn) 18%, transparent)}
+
 .filterpill span{flex:1;min-width:0}
 .filterpill button{
   flex:none;width:22px;height:22px;border-radius:50%;
@@ -1622,6 +1615,17 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .if-x:hover{background:var(--surface-2);color:var(--ink)}
 .if-x:active{transform:scale(.92)}
 
+/* ---------- the secret question, asked before an income category comes back --- */
+.sc-q{
+  font-size:13px;font-weight:600;color:var(--ink);text-align:left;
+  margin:14px 0 8px;line-height:1.35;
+}
+#shSecret .inp{text-align:left}
+.sc-err{
+  font-size:12px;color:var(--neg);text-align:left;margin-top:8px;line-height:1.4;
+}
+#shSecret .cf-actions{margin-top:14px}
+
 /* ---------- Hide a category ---------- */
 /* Reminders stay put and the categories scroll under them. There are two dozen
    of these and they pushed the reminder switch — the thing this panel is named
@@ -2707,17 +2711,6 @@ html.locked #lockScreen::before{
 
 
   <div id="viewDash">
-    <!-- Leaving a category out changes every figure below this line, so the
-         line says so. Without it the dashboard would quietly report a total
-         that is not your money and give no way of telling. -->
-    <div class="filterpill hidepill" id="hidePill" hidden>
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M3 3l18 18"/><path d="M10.6 5.2A9.9 9.9 0 0112 5c7 0 11 7 11 7a18.6 18.6 0 01-3.4 4.3"/><path d="M6.6 6.7A18.5 18.5 0 001 12s4 7 11 7a9.9 9.9 0 004.4-1"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
-      <span id="hidePillText">1 category left out</span>
-      <button id="hidePillClear" aria-label="Show every category again">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
-
     <section class="balcard" id="balCard" hidden>
       <div class="bal-k">In the account now</div>
       <div class="bal-v" id="balNow">€0.00</div>
@@ -3898,6 +3891,23 @@ html.locked #lockScreen::before{
   </div>
 </div>
 
+<div class="cfwrap" id="shSecret" hidden role="dialog" aria-modal="true" aria-labelledby="scTitle">
+  <div class="cfbox" role="document">
+    <div class="cf-ic plain" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg>
+    </div>
+    <h3 id="scTitle">Show this again?</h3>
+    <p id="scMsg"></p>
+    <div class="sc-q" id="scQ"></div>
+    <input class="inp" id="scAnswer" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Your answer">
+    <div class="sc-err" id="scErr" hidden></div>
+    <div class="cf-actions">
+      <button class="btn ghost" id="scNo" type="button">Cancel</button>
+      <button class="btn" id="scYes" type="button">Show it</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 "use strict";
@@ -3907,7 +3917,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.21";
+const APP_VERSION = "2.0.22";
 const APP_BUILT = "2026-09-02";
 
 const KEY = "panappai.v1";
@@ -5115,17 +5125,6 @@ function render(){
       "Showing " + (typeFilter === "income" ? "income" : "expenses") + " only";
   }
 
-  /* Every figure on this screen is now "everything except what is hidden", and
-     a total that is not your money has to say so where the total is. */
-  const hp = $("#hidePill");
-  const hid = (state.hiddenCats || []);
-  hp.hidden = !hid.length;
-  if (hid.length){
-    const names = hid.map(id => catOf(id).n);
-    $("#hidePillText").textContent = names.length <= 2
-      ? names.join(" and ") + " left out of every figure"
-      : names.length + " categories left out of every figure";
-  }
   const list = $("#list");
   list.innerHTML = "";
 
@@ -7294,16 +7293,88 @@ function renderHideCats(){
   });
 }
 
-function toggleCatHidden(id){
+/** Whether a category is one money comes in by, which is the set that is gated. */
+function isIncomeCat(id){
+  return allCats("income").some(c => c.id === id);
+}
+
+/* =========================================================================
+   THE SECRET QUESTION
+
+   Hiding an income category is free. Bringing one back is not.
+
+   Hiding is a thing you do for yourself and it takes nothing away — the worst
+   case is a figure you cannot see. Revealing is the direction that matters: it
+   is what someone holding your unlocked phone would do, and what they would
+   see is what you earn. So the way back asks the question you already answered
+   once, and the answer is compared against the same salted hash the lock uses.
+   Nothing new is stored and the answer itself is never written down.
+
+   Expense categories are not gated. Gating them would be ceremony without a
+   secret to keep, and it would make the panel tiresome enough to go unused.
+   ========================================================================= */
+let secretResolve = null;
+
+function askSecret(catName){
+  $("#scMsg").textContent =
+    catName + " is money coming in, so the way back asks your security question.";
+  $("#scQ").textContent = localStorage.getItem(LOCK_Q_KEY) || "Your security question";
+  $("#scAnswer").value = "";
+  $("#scErr").hidden = true;
+  $("#shSecret").hidden = false;
+  setTimeout(() => $("#scAnswer").focus(), 60);
+  return new Promise(resolve => { secretResolve = resolve; });
+}
+function secretEnd(ok){
+  $("#shSecret").hidden = true;
+  $("#scAnswer").value = "";
+  const r = secretResolve;
+  secretResolve = null;
+  if (r) r(ok);
+}
+async function secretTry(){
+  const given = await answerHash($("#scAnswer").value);
+  if (given === localStorage.getItem(LOCK_A_KEY)){ secretEnd(true); return; }
+  const err = $("#scErr");
+  err.textContent = "That answer doesn't match. Spacing and capitals are ignored, " +
+                    "so it is the wording itself that has to be right.";
+  err.hidden = false;
+  $("#scAnswer").value = "";
+  $("#scAnswer").focus();
+}
+$("#scYes").addEventListener("click", secretTry);
+$("#scNo").addEventListener("click", () => secretEnd(false));
+$("#scAnswer").addEventListener("keydown", e => { if (e.key === "Enter") secretTry(); });
+$("#shSecret").addEventListener("click", e => {
+  if (e.target === $("#shSecret")) secretEnd(false);
+});
+
+async function toggleCatHidden(id){
   const list = state.hiddenCats || (state.hiddenCats = []);
   const i = list.indexOf(id);
+
+  let ungated = false;
+  if (i !== -1 && isIncomeCat(id)){
+    if (!lockHasQuestion()){
+      /* Refusing outright would shut you out of your own category with no way
+         back, so it goes through. But it has to be said, and said in the one
+         toast that follows — a warning of its own would be overwritten by it
+         a moment later and never read. */
+      ungated = true;
+    } else {
+      const ok = await askSecret(catOf(id).n);
+      if (!ok) return;
+    }
+  }
+
   if (i === -1) list.push(id); else list.splice(i, 1);
   saveLocal();
   renderHideCats();
   renderNotifSettings();
   render(); renderShop();
   if (openSheet === "#shReport") repRender();
-  toast(catOf(id).n + (i === -1 ? " hidden" : " showing"));
+  toast(catOf(id).n + (i === -1 ? " hidden" : " showing") +
+        (ungated ? " · no security question set to protect it" : ""));
 }
 
 function renderNotifSettings(){
@@ -7616,8 +7687,9 @@ $("#hideInfo").addEventListener("click", () => showInfo("Hiding a category",
   "except what you have hidden. That is the point — blanking the rows and " +
   "leaving them in the totals let a hidden salary show through the Income tile — " +
   "but it does mean these figures are no longer your whole picture.</p>" +
-  "<p>So while anything is hidden the dashboard carries a bar saying what is left " +
-  "out, and tapping the cross on it puts everything back.</p>" +
+  "<p>An <b>income</b> category is gated on the way back: showing one again asks " +
+  "the security question from Settings › App lock, because revealing what you " +
+  "earn is the direction that matters. Hiding is free.</p>" +
   "<p><b>Reminders stop too.</b> A hidden category raises nothing on the bell and " +
   "notifies nothing to this device, so do not hide something you still need to be " +
   "told to pay.</p>"));
@@ -7724,16 +7796,6 @@ $("#pushTog").addEventListener("click", async () => {
 /* Opened, or brought back to the front — the only two moments this can fire. */
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) firePushDue();
-});
-
-$("#hidePillClear").addEventListener("click", () => {
-  state.hiddenCats = [];
-  saveLocal();
-  renderHideCats();
-  renderNotifSettings();
-  render(); renderShop();
-  if (openSheet === "#shReport") repRender();
-  toast("Every category is showing again");
 });
 
 $("#notifTog").addEventListener("click", () => {
