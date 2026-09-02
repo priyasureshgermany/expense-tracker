@@ -352,6 +352,14 @@ button.tile:hover .tile-go{color:var(--accent)}
   font-size:12.5px;font-weight:600;color:var(--accent);
 }
 .filterpill[hidden]{display:none}
+/* the same pill, in the warning colour: this one is saying the figures below
+   it are not the whole picture */
+.hidepill{
+  background:var(--warn-soft);color:var(--warn);
+  border-color:color-mix(in srgb, var(--warn) 30%, transparent);
+}
+.hidepill button{color:var(--warn)}
+.hidepill button:hover{background:color-mix(in srgb, var(--warn) 18%, transparent)}
 .filterpill span{flex:1;min-width:0}
 .filterpill button{
   flex:none;width:22px;height:22px;border-radius:50%;
@@ -1583,8 +1591,59 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 
 .morerow .updot{top:8px;right:8px;padding:2px 6px;font-size:8.5px}
 
+/* ---------- info button and info sheet ---------- */
+/* The explanation was always on the page, taking four lines of a panel whose
+   list needed them. It goes behind a button, where it is there when it is
+   wanted and out of the way when it is not. */
+.lbl-i{display:flex;align-items:center;gap:7px;margin-bottom:2px}
+.lbl-i label{margin-bottom:0}
+.ibtn{
+  width:20px;height:20px;flex:none;border-radius:50%;display:grid;place-items:center;
+  color:var(--ink-3);border:1px solid var(--line);background:var(--surface-2);
+  transition:color .14s,border-color .14s,background .14s;
+}
+.ibtn svg{width:13px;height:13px}
+.ibtn:hover{color:var(--accent);border-color:var(--accent)}
+.ibtn:active{transform:scale(.92)}
+.if-body{font-size:13px;line-height:1.55;color:var(--ink-2);text-align:left}
+.if-body p{margin:0 0 10px}
+.if-body p:last-child{margin-bottom:0}
+.if-body b{color:var(--ink)}
+.if-body .legend{margin-top:12px}
+/* Nothing to agree to here, so nothing to press: a cross in the corner, which is
+   how every other sheet in the app is closed. */
+#shInfo .cfbox{position:relative;padding-bottom:22px}
+.if-x{
+  position:absolute;top:10px;right:10px;
+  width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  color:var(--ink-3);transition:background .14s,color .14s;
+}
+.if-x svg{width:16px;height:16px}
+.if-x:hover{background:var(--surface-2);color:var(--ink)}
+.if-x:active{transform:scale(.92)}
+
 /* ---------- Hide a category ---------- */
-.hidecats{display:flex;flex-direction:column;margin-top:12px}
+/* Reminders stay put and the categories scroll under them. There are two dozen
+   of these and they pushed the reminder switch — the thing this panel is named
+   after — off the top of the screen on the way down the list.
+
+   The pane stops scrolling as a whole and gives what is left to the list. The
+   heading and the note above it are part of the fixed half, so what is scrolling
+   is only ever the rows. */
+#setPane_prefs{display:flex;flex-direction:column;overflow:hidden}
+#setPane_prefs > .field{flex:none}
+#setPane_prefs > .field.grows{
+  flex:1;min-height:0;display:flex;flex-direction:column;
+}
+.hidecats{
+  display:flex;flex-direction:column;margin-top:12px;
+  flex:1;min-height:140px;overflow-y:auto;overscroll-behavior:contain;
+  /* the app hides its scrollbars, so the edge of the scrolling area is said
+     with a rule instead — otherwise the list reads as simply cut off */
+  border-top:1px solid var(--line);padding-top:4px;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+.hidecats::-webkit-scrollbar{width:0;height:0;display:none}
 .hcrow{
   display:flex;align-items:center;gap:11px;
   padding:8px 2px;border-bottom:1px solid var(--line);
@@ -1837,7 +1896,10 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 
 /* ---------- Form ---------- */
 .field{margin-bottom:15px}
-.field > label{
+/* Also the label inside a .lbl-i row: putting an info button beside a heading
+   stopped it being a direct child, and it silently lost the whole style. */
+.field > label,
+.field > .lbl-i > label{
   display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--ink-3);font-weight:600;margin-bottom:6px;
 }
@@ -2645,6 +2707,17 @@ html.locked #lockScreen::before{
 
 
   <div id="viewDash">
+    <!-- Leaving a category out changes every figure below this line, so the
+         line says so. Without it the dashboard would quietly report a total
+         that is not your money and give no way of telling. -->
+    <div class="filterpill hidepill" id="hidePill" hidden>
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M3 3l18 18"/><path d="M10.6 5.2A9.9 9.9 0 0112 5c7 0 11 7 11 7a18.6 18.6 0 01-3.4 4.3"/><path d="M6.6 6.7A18.5 18.5 0 001 12s4 7 11 7a9.9 9.9 0 004.4-1"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+      <span id="hidePillText">1 category left out</span>
+      <button id="hidePillClear" aria-label="Show every category again">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
     <section class="balcard" id="balCard" hidden>
       <div class="bal-k">In the account now</div>
       <div class="bal-v" id="balNow">€0.00</div>
@@ -3659,7 +3732,12 @@ html.locked #lockScreen::before{
   </div>
   <div class="sheet-body setpane" id="setPane_prefs" hidden>
     <div class="field">
-      <label>Notifications</label>
+      <div class="lbl-i">
+        <label>Notifications</label>
+        <button class="ibtn" id="notifInfo" type="button" aria-label="About reminders" title="About reminders">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8h.01"/></svg>
+        </button>
+      </div>
       <div class="togrow">
         <div class="tr-t">
           <b>Recurring payment reminders</b>
@@ -3669,30 +3747,26 @@ html.locked #lockScreen::before{
           <span class="knob"></span>
         </button>
       </div>
-      <div class="note" style="margin-top:10px">
-        Reminders appear on the bell in the top bar, and are counted from
-        <b>5am</b> on the day they start. They stay there until you open the
-        bell. Nothing leaves this device and nothing is sent to your phone —
-        the app has to be open to show them.
-      </div>
-      <div class="legend">
-        <div><span class="hb g">♥</span> three days away</div>
-        <div><span class="hb y">♥</span> two days away</div>
-        <div><span class="hb r">♥</span> tomorrow</div>
-        <div><span class="hb x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.4 20.6C11.4 20.6 3 14.4 3 8.9A4.9 4.9 0 0 1 11.4 5.4L9.6 9.1 12.4 11.3 10.2 14.3 11.4 20.6Z"/><path d="M13.4 20.6L14.6 14.3 12.4 11.3 15.2 9.1 13.4 5.4A4.9 4.9 0 0 1 21.8 8.9C21.8 14.4 13.4 20.6 13.4 20.6Z"/></svg></span> due today, or overdue</div>
+      <div class="togrow">
+        <div class="tr-t">
+          <b>Notify this device</b>
+          <span id="pushSub">A notification on your phone or laptop the day before, and on the day.</span>
+        </div>
+        <button class="switch" id="pushTog" type="button" role="switch" aria-checked="false">
+          <span class="knob"></span>
+        </button>
       </div>
     </div>
 
-    <div class="field" style="margin-top:22px;padding-top:18px;border-top:1px solid var(--line)">
-      <label>Keep a category off the screen</label>
-      <div class="note" id="hideCatNote">
-        The eye in the top bar hides every amount at once. These hide one
-        category wherever it appears — its entries, its budget row, its slice
-        and its line in a report — while everything else stays readable.
+    <div class="field grows" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line)">
+      <div class="lbl-i">
+        <label>Keep a category off the screen</label>
+        <button class="ibtn" id="hideInfo" type="button" aria-label="About hiding a category" title="About hiding a category">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8h.01"/></svg>
+        </button>
       </div>
       <div class="hidecats" id="hideCats"></div>
     </div>
-
   </div>
   <div class="sheet-body setpane" id="setPane_github" hidden>
 <div class="field">
@@ -3811,6 +3885,19 @@ html.locked #lockScreen::before{
   </div>
 </div>
 
+<div class="cfwrap" id="shInfo" hidden role="dialog" aria-modal="true" aria-labelledby="ifTitle">
+  <div class="cfbox" role="document">
+    <div class="cf-ic plain" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8h.01"/></svg>
+    </div>
+    <h3 id="ifTitle">About</h3>
+    <div class="if-body" id="ifBody"></div>
+    <button class="if-x" id="ifClose" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 "use strict";
@@ -3820,7 +3907,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.20";
+const APP_VERSION = "2.0.21";
 const APP_BUILT = "2026-09-02";
 
 const KEY = "panappai.v1";
@@ -4898,12 +4985,32 @@ function isDark(){
  * envelope and ledger row passes through — rather than at each of them.
  */
 function isTransfer(t){ return t.type === "transfer"; }
+
+/**
+ * A hidden category is not shown quietly — it is left out.
+ *
+ * Masking the figures and leaving them in the totals meant a hidden Salary
+ * still showed through: the Income tile added up to the truth, so with one
+ * income the total said what the row would not. Left out instead, nothing shows
+ * through, and the cost is that every figure in the app becomes "everything
+ * except what you have hidden" rather than everything.
+ *
+ * That cost is real and it is not hidden: while anything is hidden the
+ * dashboard says so, in a bar you can tap to put it all back.
+ */
+function catShown(id){
+  const list = state.hiddenCats;
+  return !list || !list.length || list.indexOf(id) === -1;
+}
+function txnShown(t){ return catShown(t.category); }
+function anyHidden(){ return !!(state.hiddenCats && state.hiddenCats.length); }
+
 function periodTxns(p){
-  return state.txns.filter(t => periodOf(t.date) === p && !isTransfer(t));
+  return state.txns.filter(t => periodOf(t.date) === p && !isTransfer(t) && txnShown(t));
 }
 /** Transfers for a period, which only the Transfers tab and balances want. */
 function periodTransfers(p){
-  return state.txns.filter(t => periodOf(t.date) === p && isTransfer(t));
+  return state.txns.filter(t => periodOf(t.date) === p && isTransfer(t) && txnShown(t));
 }
 
 /* ---------- period health (income vs. expense) ---------- */
@@ -5007,6 +5114,18 @@ function render(){
     $("#typePillText").textContent =
       "Showing " + (typeFilter === "income" ? "income" : "expenses") + " only";
   }
+
+  /* Every figure on this screen is now "everything except what is hidden", and
+     a total that is not your money has to say so where the total is. */
+  const hp = $("#hidePill");
+  const hid = (state.hiddenCats || []);
+  hp.hidden = !hid.length;
+  if (hid.length){
+    const names = hid.map(id => catOf(id).n);
+    $("#hidePillText").textContent = names.length <= 2
+      ? names.join(" and ") + " left out of every figure"
+      : names.length + " categories left out of every figure";
+  }
   const list = $("#list");
   list.innerHTML = "";
 
@@ -5063,7 +5182,7 @@ function budgetableCats(){ return pickableCats("expense").filter(c => !c.noBudge
 /** Only categories carrying an amount are envelopes; the rest are untouched. */
 function budgetList(){
   return budgetableCats()
-    .filter(c => (state.budgets[c.id] || 0) > 0)
+    .filter(c => (state.budgets[c.id] || 0) > 0 && catShown(c.id))
     .map(c => ({ cat:c, planned: state.budgets[c.id] }));
 }
 
@@ -5570,6 +5689,7 @@ function renderBalance(){
   let inc = 0, exp = 0;
   state.txns.forEach(t => {
     if (t.status !== "done" || isTransfer(t)) return;
+    if (!txnShown(t)) return;
     if (from && t.date < from) return;
     /* This card says what is in the account now, so it stops at today. There
        was a lower bound and no upper one, which let an entry ticked off ahead
@@ -7017,7 +7137,7 @@ function dueSoon(){
   const rules = new Map();
   state.rules.forEach(r => { if (r.active !== false) rules.set(r.id, r); });
   return state.txns
-    .filter(t => t.ruleId && rules.has(t.ruleId) && t.status === "planned")
+    .filter(t => t.ruleId && rules.has(t.ruleId) && t.status === "planned" && txnShown(t))
     .filter(t => !ruleSettledFor(rules.get(t.ruleId), t))
     .map(t => ({ t: t, d: daysUntil(t.date) }))
     .filter(o => o.d <= 3)
@@ -7189,10 +7309,26 @@ function toggleCatHidden(id){
 function renderNotifSettings(){
   const on = notifOn();
   $("#notifTog").setAttribute("aria-checked", String(on));
+
+  /* The switch says what is actually true, which is not the same as what was
+     asked for: permission can be revoked in the browser long after it was
+     given here, and a switch still reading "on" would be lying. */
+  const push = pushOn();
+  $("#pushTog").setAttribute("aria-checked", String(push));
+  const sub = $("#pushSub");
+  if (sub){
+    sub.textContent =
+      !pushSupported() ? "This browser cannot show notifications"
+      : (pushWanted() && !pushGranted()) ? "Blocked in your browser settings"
+      : !on && push ? "Waiting on reminders above"
+      : "A notification on your phone or laptop the day before, and on the day.";
+  }
+
   const n = on ? dueSoon().length : 0;
   const h = (state.hiddenCats || []).length;
   const bits = [];
   bits.push(!on ? "Reminders off" : (n ? n + " due soon" : "Reminders on"));
+  if (push) bits.push("on this device");
   if (h) bits.push(h + " categor" + (h === 1 ? "y" : "ies") + " hidden");
   $("#setPrefsSub").textContent = bits.join(" · ");
 }
@@ -7426,6 +7562,180 @@ function openFeedback(id){
   showSetPane("fbone");
 }
 
+/* =========================================================================
+   INFO SHEET
+
+   Its own dialog rather than askConfirm dressed down. A confirm asks a
+   question and its buttons mean yes and no; borrowing it for a page of prose
+   would leave a Cancel on something there is nothing to cancel.
+   ========================================================================= */
+function showInfo(title, html){
+  $("#ifTitle").textContent = title;
+  $("#ifBody").innerHTML = html;
+  $("#shInfo").hidden = false;
+  $("#ifClose").focus();
+}
+function hideInfoSheet(){ $("#shInfo").hidden = true; }
+$("#ifClose").addEventListener("click", hideInfoSheet);
+/* the backdrop and Escape close it too — with no button to press, those are
+   the ways out anyone will actually reach for */
+$("#shInfo").addEventListener("click", e => {
+  if (e.target === $("#shInfo")) hideInfoSheet();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("#shInfo").hidden) hideInfoSheet();
+});
+
+const HEART_LEGEND =
+  '<div class="legend">' +
+    '<div><span class="hb g">♥</span> three days away</div>' +
+    '<div><span class="hb y">♥</span> two days away</div>' +
+    '<div><span class="hb r">♥</span> tomorrow</div>' +
+    '<div><span class="hb x">' + HEART_BROKEN + '</span> due today, or overdue</div>' +
+  '</div>';
+
+$("#notifInfo").addEventListener("click", () => showInfo("Reminders",
+  "<p><b>Recurring payment reminders</b> put anything due in the next three days " +
+  "on the bell in the top bar, counted from <b>5am</b> on the day they start. " +
+  "They stay there until you open the bell.</p>" +
+  "<p><b>Notify this device</b> also raises a notification on the phone or laptop " +
+  "you are reading this on, for anything due <b>tomorrow or today</b> — once per " +
+  "entry per day, so the same bill does not ask twice.</p>" +
+  "<p>That notification is made by the app on this device. There is no server " +
+  "behind it and nothing about your money leaves the device — which is also its " +
+  "limit: <b>it can only fire while the app is open</b>, or when you next open it " +
+  "that day. It will not wake a closed phone the way a bank app does.</p>" +
+  HEART_LEGEND));
+
+$("#hideInfo").addEventListener("click", () => showInfo("Hiding a category",
+  "<p>The eye in the top bar hides <b>every</b> amount at once. These take one " +
+  "category out of the app altogether — its entries, its budget envelope, its " +
+  "slice, its bars, its lines in a report, its exports, and its reminders.</p>" +
+  "<p>It is left out rather than blanked, which means <b>the totals change</b>. " +
+  "Income, Expenses, Net and <b>In the account now</b> all become everything " +
+  "except what you have hidden. That is the point — blanking the rows and " +
+  "leaving them in the totals let a hidden salary show through the Income tile — " +
+  "but it does mean these figures are no longer your whole picture.</p>" +
+  "<p>So while anything is hidden the dashboard carries a bar saying what is left " +
+  "out, and tapping the cross on it puts everything back.</p>" +
+  "<p><b>Reminders stop too.</b> A hidden category raises nothing on the bell and " +
+  "notifies nothing to this device, so do not hide something you still need to be " +
+  "told to pay.</p>"));
+
+
+/* =========================================================================
+   NOTIFY THIS DEVICE
+
+   The bell in the top bar only says anything once the app is open and looked
+   at. This raises the same warning as a notification the operating system
+   shows, for the two days that actually matter — tomorrow, and today.
+
+   It is deliberately not Web Push. Web Push needs a server holding a
+   subscription and a key, which would mean this app having a back end and your
+   bills passing through it. This uses the notification the page can raise
+   itself, which costs nothing and tells nobody — and cannot fire while the app
+   is closed. That trade is stated in the info sheet rather than hidden.
+   ========================================================================= */
+const PUSH_ON_KEY   = "panappai.push.on";
+const PUSH_SENT_KEY = "panappai.push.sent";   /* {day, ids} — one per entry per day */
+
+function pushSupported(){ return typeof Notification !== "undefined"; }
+function pushGranted(){ return pushSupported() && Notification.permission === "granted"; }
+function pushWanted(){ return localStorage.getItem(PUSH_ON_KEY) === "1"; }
+function pushOn(){ return pushWanted() && pushGranted(); }
+
+function pushSentToday(){
+  let v = null;
+  try{ v = JSON.parse(localStorage.getItem(PUSH_SENT_KEY) || "null"); }catch(e){}
+  if (!v || v.day !== todayISO()) return { day: todayISO(), ids: [] };
+  return { day: v.day, ids: Array.isArray(v.ids) ? v.ids : [] };
+}
+
+/**
+ * Everything due tomorrow or today that has not been raised yet today.
+ *
+ * dueSoon() already returns nothing when reminders are off, so this channel
+ * follows that switch rather than carrying an idea of its own about what is
+ * due — two answers to that question is one too many.
+ */
+async function firePushDue(){
+  if (!pushOn()) return 0;
+  const sent = pushSentToday();
+  const fresh = dueSoon().filter(o => o.d <= 1 && sent.ids.indexOf(o.t.id) === -1);
+  if (!fresh.length) return 0;
+
+  let reg = null;
+  try{
+    if (navigator.serviceWorker) reg = await navigator.serviceWorker.getRegistration();
+  }catch(e){}
+
+  for (const o of fresh){
+    const title = o.t.note || catOf(o.t.category).n;
+    const opts = {
+      /* the amount is masked here the same as anywhere else: a notification
+         lands on a lock screen, which is the last place to undo that */
+      body: fmt(o.t.amount, o.t.category) + "  ·  " +
+            (o.d === 0 ? "due today" : "due tomorrow"),
+      icon: "./icons/icon-192.png",
+      badge: "./icons/icon-192.png",
+      tag: "panappai-" + o.t.id,
+      data: { url: "./" }
+    };
+    try{
+      if (reg && reg.showNotification) await reg.showNotification(title, opts);
+      else new Notification(title, opts);
+      sent.ids.push(o.t.id);
+    }catch(e){ /* a browser that refuses one will refuse them all */ break; }
+  }
+  try{ localStorage.setItem(PUSH_SENT_KEY, JSON.stringify(sent)); }catch(e){}
+  return fresh.length;
+}
+
+$("#pushTog").addEventListener("click", async () => {
+  if (pushWanted()){
+    localStorage.setItem(PUSH_ON_KEY, "0");
+    renderNotifSettings();
+    toast("This device will not be notified");
+    return;
+  }
+  if (!pushSupported()){
+    toast("This browser cannot show notifications");
+    return;
+  }
+  let perm = Notification.permission;
+  if (perm === "default"){
+    try{ perm = await Notification.requestPermission(); }catch(e){ perm = "denied"; }
+  }
+  if (perm !== "granted"){
+    /* Turning the switch on without permission would leave it saying yes to
+       something that cannot happen. */
+    renderNotifSettings();
+    toast(perm === "denied"
+      ? "Notifications are blocked for this app in your browser settings"
+      : "Notifications were not allowed");
+    return;
+  }
+  localStorage.setItem(PUSH_ON_KEY, "1");
+  renderNotifSettings();
+  const n = await firePushDue();
+  toast(n ? "On · " + n + " sent now" : "This device will be notified");
+});
+
+/* Opened, or brought back to the front — the only two moments this can fire. */
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) firePushDue();
+});
+
+$("#hidePillClear").addEventListener("click", () => {
+  state.hiddenCats = [];
+  saveLocal();
+  renderHideCats();
+  renderNotifSettings();
+  render(); renderShop();
+  if (openSheet === "#shReport") repRender();
+  toast("Every category is showing again");
+});
+
 $("#notifTog").addEventListener("click", () => {
   const on = !notifOn();
   notifSetOn(on);
@@ -7433,6 +7743,7 @@ $("#notifTog").addEventListener("click", () => {
   if (on) localStorage.removeItem(NOTIF_SEEN_KEY);
   renderNotifSettings();
   syncBell();
+  if (on) firePushDue();
   toast(on ? "Reminders on" : "Reminders off");
 });
 
@@ -9582,6 +9893,8 @@ function unlockApp(){
   document.documentElement.classList.remove("locked");
   lockHiddenAt = 0;
   lockResetIdle();
+  /* held back at boot while the PIN was outstanding, so it fires here instead */
+  if (typeof firePushDue === "function") firePushDue();
 }
 
 /* Confirming a destructive action reuses the lock screen: same keypad, same
@@ -10328,6 +10641,10 @@ $("#ghDisable").addEventListener("click", async () => {
   checkForUpdate().then(showUpdate);
   if (lockEnabled()) lockOpenUnlock(); else document.documentElement.classList.remove("locked");
   lockResetIdle();
+  /* Opening the app is one of only two moments this channel can fire — the
+     other is coming back to the tab. Behind the lock on purpose: a notification
+     naming a bill is not something to raise before the PIN is answered. */
+  if (!lockEnabled()) firePushDue();
 })();
 
 /* =========================================================================
@@ -10439,7 +10756,8 @@ function repDatesRaw(){
 
 function repSpanText(){
   const r = repDates();
-  const n = state.txns.filter(t => t.date >= r.from && t.date <= r.to).length;
+  const n = state.txns.filter(t =>
+    txnShown(t) && t.date >= r.from && t.date <= r.to).length;
   return prettyDate(r.from) + "  →  " + prettyDate(r.to) +
          "  ·  " + n + " entr" + (n === 1 ? "y" : "ies");
 }
@@ -10458,7 +10776,8 @@ function repCounts(t){ return t.status === "done"; }
 /** Everything inside the stretch, before the table's own filters. */
 function repInRange(){
   const r = repDates();
-  return state.txns.filter(t => repCounts(t) && t.date >= r.from && t.date <= r.to);
+  return state.txns.filter(t =>
+    repCounts(t) && txnShown(t) && t.date >= r.from && t.date <= r.to);
 }
 
 /** What the table shows: the stretch, narrowed by every filter that is on. */
@@ -11064,6 +11383,10 @@ function repBuckets(){
     let inc = 0, out = 0;
     state.txns.forEach(t => {
       if (!repCounts(t)) return;              /* the bars count what the report counts */
+      /* and leave out what the report leaves out: this loop walks state.txns
+         rather than repInRange(), so the hidden-category gate has to be
+         repeated here or the bars keep drawing what nothing else shows */
+      if (!txnShown(t)) return;
       if (t.date < sp.from || t.date > to) return;
       if (!repBarKeeps(t)) return;
       /**

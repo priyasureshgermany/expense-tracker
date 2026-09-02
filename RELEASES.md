@@ -8,6 +8,12 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.21 — 2026-09-02
+- new: Notify this device: a notification on your phone or laptop for anything due tomorrow or today, once per entry per day
+- better: A hidden category is now left out of everything rather than blanked. Its entries, budget, slice, bars, exports and reminders all go, so the totals change and the dashboard says so in a bar you can tap to put it back
+- new: An info button beside Reminders and beside Keep a category off the screen, which is also where the explanations went so the category list has room to scroll
+- better: Reminders stay put in the Notifications panel while the category list scrolls under them
+
 ## 2.0.20 — 2026-09-02
 - better: Settings panels carry their colour on the left edge only, the same as More. The icon chips and names go back to the accent
 
