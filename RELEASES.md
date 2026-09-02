@@ -8,6 +8,14 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.17 — 2026-09-02
+- fix: The balance card counted entries ticked off ahead of their date. A bill dated next January, settled early, came out of a balance the money was still sitting in
+- better: Every panel in Settings and on More carries its own colour down its left edge, drawn from the pie chart's own palette
+- better: Light or dark moved out of Notifications and onto More, as three buttons under the three tiles
+- new: Any category can be kept off the screen on its own. Hide Salary and its entries, budget row, slice and report lines all read as dots while everything else stays readable
+- better: Starting balance moved inside Accounts, which is what it is a fact about
+- new: Feedback and Report a bug, each asking one question at a time, saved on the device with a list and a detail view
+
 ## 2.0.16 — 2026-09-01
 - better: Reports count by the 15th-14th period by default, and that reading now sits first. Calendar months are the second option
 - fix: The pie came out of Export PDF cut in half. The shell was still in the flow at a full viewport height, putting a blank page in front of everything, and the sheet is a flex column that Chrome fragments by clipping rather than by breaking

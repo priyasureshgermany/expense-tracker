@@ -1545,17 +1545,187 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   background:var(--surface-2);border:1px solid var(--line);
   transition:background .15s,border-color .15s,transform .12s;
 }
-.morerow:hover{background:var(--surface-sunk);border-color:var(--line-strong)}
+.morerow:hover{
+  background:var(--surface-sunk);
+  border-top-color:var(--line-strong);border-right-color:var(--line-strong);
+  border-bottom-color:var(--line-strong);
+}
 .morerow:active{transform:scale(.97)}
 .morerow .sr-ic{
   width:48px;height:48px;border-radius:14px;flex:none;
   display:grid;place-items:center;
   background:var(--accent-soft);color:var(--accent);
 }
-.morerow .sr-ic svg{width:26px;height:26px}
-.morerow b{font-size:12.5px;font-weight:600;letter-spacing:-.005em;line-height:1.25}
-.morerow .ms{font-size:10.5px;color:var(--ink-3);line-height:1.3}
+
+/* The three ways on, told apart the way the money tiles are: a bar down the
+   left edge, in the colour, over a plain ground. Red, plain and green.
+
+   The colours are the pie's own — hsl(h 82% L) with L in the 22–42 band the
+   slices are drawn from — so a tile edge and a slice of the same hue are the
+   same paint. The middle one carries no hue: "white" here is the surface the
+   app is printed on, which in dark mode is the dark card rather than a literal
+   white that would glare. */
+.morerow{
+  border-left:3px solid hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
+  align-items:flex-start;text-align:left;padding:15px 12px 14px;
+}
+.morerow .sr-ic{
+  background:hsl(var(--tile-h, 210) 72% 92%);
+  color:hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
+}
+.morerow b{color:hsl(var(--tile-h, 210) 62% 34%)}
+.morerow[data-more="report"]  { --tile-h:6;   --tile-l:30% }   /* dark red */
+.morerow[data-more="settings"]{ --tile-h:152; --tile-l:26% }   /* dark green */
+
+/* The middle one is white rather than a hue. White on a dark card is the
+   brightest edge there is; on a light card it would vanish, so there it gets a
+   hairline to stand it off the surface — the colour stays white either way. */
+.morerow[data-more="about"]{
+  border-left-color:#FFFFFF;
+  box-shadow:inset 3px 0 0 -2px var(--line-strong);
+}
+.morerow[data-more="about"] .sr-ic{background:var(--surface-sunk);color:var(--ink)}
+.morerow[data-more="about"] b{color:var(--ink)}
+
+/* ---------- theme row ---------- */
+/* Under the three tiles, in their three colours and their three positions:
+   the red one, the white one, the green one. */
+.themerow{
+  grid-column:1 / -1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px;
+}
+.themerow button{
+  padding:11px 8px;border-radius:12px;font-size:12.5px;font-weight:600;
+  background:var(--surface-2);border:1px solid var(--line);
+  border-left:3px solid hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
+  color:var(--ink-3);
+  transition:background .15s,color .15s,border-color .15s;
+}
+.themerow button:nth-child(1){ --tile-h:6;   --tile-l:30% }
+.themerow button:nth-child(3){ --tile-h:152; --tile-l:26% }
+.themerow button:nth-child(2){
+  border-left-color:#FFFFFF;
+  box-shadow:inset 3px 0 0 -2px var(--line-strong);
+}
+/* the chosen one takes its own colour rather than a shared highlight */
+.themerow button[aria-pressed="true"]{
+  background:var(--surface);
+  color:hsl(var(--tile-h, 210) 62% 34%);
+  border-color:var(--line-strong);
+  border-left-color:hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
+}
+.themerow button:nth-child(2)[aria-pressed="true"]{color:var(--ink);border-left-color:#FFFFFF}
+:root[data-theme="dark"] .themerow button[aria-pressed="true"]{
+  color:hsl(var(--tile-h, 210) 78% 76%);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .themerow button[aria-pressed="true"]{
+    color:hsl(var(--tile-h, 210) 78% 76%);
+  }
+}
+
 .morerow .updot{top:8px;right:8px;padding:2px 6px;font-size:8.5px}
+
+/* ---------- Hide a category ---------- */
+.hidecats{display:flex;flex-direction:column;margin-top:12px}
+.hcrow{
+  display:flex;align-items:center;gap:11px;
+  padding:8px 2px;border-bottom:1px solid var(--line);
+}
+.hcrow:last-child{border-bottom:none}
+.hcrow .hc-ic{width:26px;height:26px;flex:none;border-radius:7px;display:grid;place-items:center}
+.hcrow .hc-n{flex:1;min-width:0;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hcrow .hc-e{
+  flex:none;width:38px;height:34px;border-radius:10px;display:grid;place-items:center;
+  border:1px solid var(--line);background:var(--surface-2);color:var(--ink-3);
+  transition:background .14s,color .14s,border-color .14s;
+}
+.hcrow .hc-e svg{width:18px;height:18px}
+/* Pressed means hidden, so the shut eye is the on-state — the same reading as
+   the eye in the top bar, where pressed is "amounts are showing". Here the
+   button is the category's own privacy, so it lights when it is doing something. */
+.hcrow .hc-e[aria-pressed="true"]{
+  background:var(--accent);border-color:var(--accent);color:var(--accent-ink);
+}
+.hcrow.off .hc-n{color:var(--ink-3)}
+
+/* ---------- Feedback ---------- */
+.fb-start{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.fb-new{
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  padding:14px 13px;border-radius:15px;text-align:left;
+  border:1px solid var(--line);background:var(--surface-2);
+  transition:background .15s,border-color .15s,transform .12s;
+}
+.fb-new:active{transform:scale(.97)}
+.fb-new b{font-size:13px;font-weight:600;line-height:1.2}
+.fb-new span:last-child{font-size:10.5px;color:var(--ink-3);line-height:1.3}
+.fb-ic{
+  width:42px;height:42px;border-radius:13px;display:grid;place-items:center;
+  background:var(--surface);
+}
+.fb-ic svg{width:23px;height:23px}
+.fb-new.idea{
+  background:var(--warn-soft);border-color:color-mix(in srgb, var(--warn) 26%, transparent);
+}
+.fb-new.idea .fb-ic,.fb-new.idea b{color:var(--warn)}
+.fb-new.idea:hover{background:color-mix(in srgb, var(--warn) 15%, var(--surface));border-color:var(--warn)}
+.fb-new.bug{
+  background:var(--neg-soft);border-color:color-mix(in srgb, var(--neg) 26%, transparent);
+}
+.fb-new.bug .fb-ic,.fb-new.bug b{color:var(--neg)}
+.fb-new.bug:hover{background:color-mix(in srgb, var(--neg) 15%, var(--surface));border-color:var(--neg)}
+
+.fb-steps{display:flex;gap:5px;margin:14px 0 12px}
+.fb-steps i{
+  height:3px;flex:1;border-radius:99px;background:var(--surface-sunk);
+  transition:background .2s;
+}
+.fb-steps i.on{background:var(--accent)}
+.fb-q{font-size:14.5px;font-weight:600;line-height:1.3;margin-bottom:4px}
+.fb-h{font-size:11.5px;color:var(--ink-3);line-height:1.4;margin-bottom:11px}
+.fb-opts{display:flex;flex-wrap:wrap;gap:6px}
+.fb-opts button{
+  padding:9px 13px;border-radius:99px;font-size:12.5px;
+  border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);
+  transition:background .14s,border-color .14s,color .14s;
+}
+.fb-opts button[aria-pressed="true"]{
+  background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600;
+}
+.fb-nav{display:flex;gap:8px;margin-top:16px}
+.fb-nav .btn{flex:1}
+.fb-nav #fbBack[hidden]{display:none}
+
+.fb-row{
+  display:flex;align-items:flex-start;gap:11px;width:100%;
+  padding:11px 12px;border-radius:13px;text-align:left;
+  border:1px solid var(--line);background:var(--surface-2);margin-bottom:7px;
+  transition:background .14s,border-color .14s;
+}
+.fb-row:hover{background:var(--surface-sunk);border-color:var(--line-strong)}
+.fb-row .fb-tag{
+  width:28px;height:28px;border-radius:9px;flex:none;display:grid;place-items:center;
+  background:var(--surface);
+}
+.fb-row .fb-tag svg{width:16px;height:16px}
+.fb-row.bug .fb-tag{color:var(--neg)}
+.fb-row.idea .fb-tag{color:var(--warn)}
+.fb-row .fb-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.fb-row .fb-one{
+  font-size:12.5px;color:var(--ink);line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.fb-row .fb-when{font-size:10.5px;color:var(--ink-3)}
+.fb-det dt{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-top:14px}
+.fb-det dd{margin:5px 0 0;font-size:13px;line-height:1.5;color:var(--ink);white-space:pre-wrap}
+
+/* A second subject on a pane that already has one, told apart by a rule and a
+   heading rather than by being moved somewhere else. */
+.panegroup{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+.panegroup > h3{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:700;margin:0 0 12px;
+}
 .tabbar button[aria-selected="true"]{color:var(--accent);font-weight:600}
 .tabbar button[aria-selected="true"] svg{stroke-width:2.1}
 
@@ -1910,7 +2080,13 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   background:var(--surface-2);border:1px solid var(--line);
   transition:background .15s,border-color .15s,transform .12s;
 }
-.setrow:hover{background:var(--surface-sunk);border-color:var(--line-strong)}
+/* hover moves the other three sides only: border-color would take the coloured
+   left edge with it, and the tile would lose its identity under the cursor */
+.setrow:hover{
+  background:var(--surface-sunk);
+  border-top-color:var(--line-strong);border-right-color:var(--line-strong);
+  border-bottom-color:var(--line-strong);
+}
 .setrow:active{transform:scale(.97)}
 .setrow .sr-ic{
   width:52px;height:52px;border-radius:15px;flex:none;
@@ -1922,6 +2098,62 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .setrow .sr-t b{font-size:13.5px;font-weight:600;letter-spacing:-.005em;line-height:1.25}
 .setrow .sr-t span{font-size:11px;color:var(--ink-3);line-height:1.35}
 .setrow .sr-go{display:none}
+
+/* Each panel in its own colour, told apart the way the money tiles are: a bar
+   down the left edge over a plain ground, rather than a tinted card.
+
+   The hues run through the pie's own formula — hsl(h 82% L), L inside the
+   22–42 band the slices are drawn from — so the edge of a tile is the same
+   paint as a slice of that hue, dark and saturated in either theme. Only the
+   hue changes per tile; the three shades below are written once.
+
+   Deliberately not the category palette itself. That palette is load-bearing:
+   it says which category a figure belongs to, and borrowing from it here would
+   have Settings tiles reading as categories. */
+.setrow{
+  border-left:3px solid hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
+}
+.setrow[data-pane] .sr-ic{
+  background:hsl(var(--tile-h) 72% 92%);
+  color:hsl(var(--tile-h) 82% var(--tile-l, 32%));
+}
+.setrow[data-pane] .sr-t b{color:hsl(var(--tile-h) 62% 34%)}
+
+.setrow[data-pane="profile"] { --tile-h:210; --tile-l:34% }
+.setrow[data-pane="accounts"]{ --tile-h:155; --tile-l:30% }
+.setrow[data-pane="rules"]   { --tile-h:275; --tile-l:36% }
+.setrow[data-pane="feedback"]{ --tile-h:30;  --tile-l:32% }
+.setrow[data-pane="lock"]    { --tile-h:340; --tile-l:30% }
+.setrow[data-pane="prefs"]   { --tile-h:188; --tile-l:28% }
+.setrow[data-pane="github"]  { --tile-h:240; --tile-l:38% }
+.setrow[data-pane="data"]    { --tile-h:52;  --tile-l:26% }
+.setrow[data-pane="about"]   { --tile-h:200; --tile-l:32% }
+
+/* The edge keeps the deep colour in dark mode — that is the point of taking it
+   from the pie — but a 32%-light title on a dark card is unreadable, so the
+   name and the icon chip lift the same way a category name does in the reports
+   legend. Same hue, carried at a lightness the ground can hold. */
+:root[data-theme="dark"] .setrow[data-pane] .sr-ic,
+:root[data-theme="dark"] .morerow[data-more]:not([data-more="about"]) .sr-ic{
+  background:hsl(var(--tile-h) 58% 22%);
+  color:hsl(var(--tile-h) 78% 76%);
+}
+:root[data-theme="dark"] .setrow[data-pane] .sr-t b,
+:root[data-theme="dark"] .morerow[data-more]:not([data-more="about"]) b{
+  color:hsl(var(--tile-h) 78% 76%);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .setrow[data-pane] .sr-ic,
+  :root:not([data-theme="light"]) .morerow[data-more]:not([data-more="about"]) .sr-ic{
+    background:hsl(var(--tile-h) 58% 22%);
+    color:hsl(var(--tile-h) 78% 76%);
+  }
+  :root:not([data-theme="light"]) .setrow[data-pane] .sr-t b,
+  :root:not([data-theme="light"]) .morerow[data-more]:not([data-more="about"]) b{
+    color:hsl(var(--tile-h) 78% 76%);
+  }
+}
+
 /* A newer build being available is worth saying on the tile, not only inside it. */
 .updot{
   position:absolute;top:10px;right:10px;
@@ -1936,9 +2168,16 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .setrow-wide{
   grid-column:1 / -1;min-height:0;
   flex-direction:row;align-items:center;gap:13px;
-  background:var(--accent-soft);border-color:transparent;
+  background:var(--accent-soft);
+  /* the three sides only — blanking all four took the coloured left edge with
+     them, which is the one thing every tile on this page now carries */
+  border-top-color:transparent;border-right-color:transparent;border-bottom-color:transparent;
+  border-left-color:var(--accent);
 }
-.setrow-wide:hover{background:var(--accent-soft);border-color:var(--accent)}
+.setrow-wide:hover{
+  background:var(--accent-soft);
+  border-top-color:var(--accent);border-right-color:var(--accent);border-bottom-color:var(--accent);
+}
 .setrow-wide .sr-ic{background:var(--surface);width:46px;height:46px;border-radius:14px}
 .setrow-wide .sr-ic svg{width:25px;height:25px}
 .setrow-wide .sr-t{flex:1}
@@ -3314,6 +3553,15 @@ html.locked #lockScreen::before{
       <b>Settings</b>
       <span class="ms">Accounts, backup, the rest</span>
     </button>
+
+    <!-- Light or dark is a thing you reach for, not a thing you configure once.
+         No card and no heading: three buttons under the three tiles, carrying
+         the same three colours in the same order. -->
+    <div class="themerow" id="themeTog">
+      <button data-v="system" aria-pressed="true">System</button>
+      <button data-v="light" aria-pressed="false">Light</button>
+      <button data-v="dark" aria-pressed="false">Dark</button>
+    </div>
   </div>
 </section>
 
@@ -3344,9 +3592,9 @@ html.locked #lockScreen::before{
       <span class="sr-t"><b>Recurring entries</b><span id="setRulesSub">Rent, salary, subscriptions</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
-    <button class="setrow" type="button" data-pane="balance">
-      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.4"/></svg></span>
-      <span class="sr-t"><b>Starting balance</b><span>What the account already holds</span></span>
+    <button class="setrow" type="button" data-pane="feedback">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.1-3.9A8.4 8.4 0 1121 11.5z"/><path d="M12 8.2v3.6"/><path d="M12 15.2h.01"/></svg></span>
+      <span class="sr-t"><b>Feedback</b><span id="setFbSub">Ideas and bugs</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow" type="button" data-pane="lock">
@@ -3356,7 +3604,7 @@ html.locked #lockScreen::before{
     </button>
     <button class="setrow" type="button" data-pane="prefs">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></span>
-      <span class="sr-t"><b>Notifications &amp; appearance</b><span id="setPrefsSub">Reminders, light or dark</span></span>
+      <span class="sr-t"><b>Notifications</b><span id="setPrefsSub">Reminders and what stays hidden</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow" type="button" data-pane="github">
@@ -3396,8 +3644,13 @@ html.locked #lockScreen::before{
       <div class="pick" id="acctKind" role="listbox" aria-label="Account type" style="margin-top:8px"></div>
       <button class="btn ghost sm" id="acctAdd" style="margin-top:8px">Add account</button>
     </div>
-  </div>
-  <div class="sheet-body setpane" id="setPane_balance" hidden>
+
+    <!-- What an account starts with is a fact about that account, so it belongs
+         on the page the accounts are on rather than in a topic of its own two
+         tiles away. -->
+    <div class="panegroup">
+      <h3>Starting balance</h3>
+
     <div class="field">
       <label>What each account holds</label>
       <div class="note">
@@ -3417,6 +3670,46 @@ html.locked #lockScreen::before{
       </div>
       <div id="balLog" style="margin-top:18px"></div>
     </div>
+    </div>
+  </div>
+  <div class="sheet-body setpane" id="setPane_feedback" hidden>
+    <div class="field">
+      <div class="note">
+        Ideas and faults, kept on this device and carried along in your backup.
+        Nothing is sent anywhere.
+      </div>
+
+      <div class="fb-start" id="fbStart">
+        <button class="fb-new idea" type="button" data-kind="idea">
+          <span class="fb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21.5h4"/><path d="M12 2.5a6.5 6.5 0 00-3.8 11.8c.5.4.8 1 .8 1.7h6c0-.7.3-1.3.8-1.7A6.5 6.5 0 0012 2.5z"/></svg></span>
+          <b>Feedback</b>
+          <span>Something you'd like it to do</span>
+        </button>
+        <button class="fb-new bug" type="button" data-kind="bug">
+          <span class="fb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6.5a4 4 0 018 0"/><rect x="6" y="6.5" width="12" height="12" rx="6"/><path d="M3 10.5h3M18 10.5h3M3 15h3M18 15h3M12 18.5v3"/></svg></span>
+          <b>Report a bug</b>
+          <span>Something that went wrong</span>
+        </button>
+      </div>
+
+      <!-- The form is one question at a time. A single box headed "describe the
+           problem" gets a sentence back; asking where it happened, then what was
+           expected, then what happened instead, gets something that can actually
+           be acted on later. -->
+      <form class="fb-form" id="fbForm" hidden>
+        <div class="fb-steps" id="fbSteps"></div>
+        <div class="fb-body" id="fbBody"></div>
+        <div class="fb-nav">
+          <button class="btn ghost sm" type="button" id="fbBack">Back</button>
+          <button class="btn sm" type="submit" id="fbNext">Next</button>
+        </div>
+      </form>
+
+      <div id="fbList" style="margin-top:20px"></div>
+    </div>
+  </div>
+  <div class="sheet-body setpane" id="setPane_fbone" hidden>
+    <div class="field" id="fbOne"></div>
   </div>
   <div class="sheet-body setpane" id="setPane_lock" hidden>
 <div class="field">
@@ -3464,13 +3757,15 @@ html.locked #lockScreen::before{
     </div>
 
     <div class="field" style="margin-top:22px;padding-top:18px;border-top:1px solid var(--line)">
-      <label>Appearance</label>
-      <div class="toggle2" id="themeTog" style="grid-template-columns:repeat(3,1fr)">
-        <button class="a" data-v="system" aria-pressed="true">System</button>
-        <button class="a" data-v="light" aria-pressed="false">Light</button>
-        <button class="a" data-v="dark" aria-pressed="false">Dark</button>
+      <label>Keep a category off the screen</label>
+      <div class="note" id="hideCatNote">
+        The eye in the top bar hides every amount at once. These hide one
+        category wherever it appears — its entries, its budget row, its slice
+        and its line in a report — while everything else stays readable.
       </div>
+      <div class="hidecats" id="hideCats"></div>
     </div>
+
   </div>
   <div class="sheet-body setpane" id="setPane_github" hidden>
 <div class="field">
@@ -3598,8 +3893,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.16";
-const APP_BUILT = "2026-09-01";
+const APP_VERSION = "2.0.17";
+const APP_BUILT = "2026-09-02";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -3790,7 +4085,32 @@ const AMOUNT_MASK = "••••";
 let amountsHidden = true;
 try{ amountsHidden = localStorage.getItem(HIDE_KEY) !== "0"; }catch(e){}
 
-function fmt(cents){ return amountsHidden ? AMOUNT_MASK : eur.format((cents||0)/100); }
+/**
+ * A category can be kept off the screen on its own, without hiding everything.
+ *
+ * Masking already happened at one point for the whole app, so per-category
+ * masking happens at the same one: pass the category an amount belongs to and
+ * it is masked when that category is hidden. Callers that have no category —
+ * an account balance, a period total — pass nothing and are unaffected.
+ *
+ * This hides the figures a category is made of, not the totals it feeds into.
+ * Blanking every total that contains a hidden category would blank most of the
+ * dashboard; subtracting it out instead would leave totals that no longer match
+ * the money. So a hidden Salary means no salary figure on any row, while Income
+ * for the period still adds up to the truth — which is worth knowing if it is
+ * your only income, because then the total does say what the row will not.
+ */
+function catHidden(cat){
+  if (!cat) return false;
+  const list = state.hiddenCats;
+  if (!list || !list.length) return false;
+  const id = typeof cat === "string" ? cat : cat.id;
+  return list.indexOf(id) !== -1;
+}
+function fmt(cents, cat){
+  if (amountsHidden || catHidden(cat)) return AMOUNT_MASK;
+  return eur.format((cents||0)/100);
+}
 function fmtShort(cents){
   if (amountsHidden) return AMOUNT_MASK;
   const v = Math.abs(cents||0)/100;
@@ -4251,7 +4571,9 @@ function stateFromPayload(p){
     balance: normaliseBalance(p.balance),
     cats: normaliseCats(p.cats),
     accounts: normaliseAccounts(p.accounts),
-    profile: normaliseProfile(p.profile)
+    profile: normaliseProfile(p.profile),
+    feedback: Array.isArray(p.feedback) ? p.feedback : [],
+    hiddenCats: Array.isArray(p.hiddenCats) ? p.hiddenCats.filter(x => typeof x === "string") : []
   };
   if (p.demo) st.demo = true;
   return st;
@@ -4267,7 +4589,11 @@ function stateCleared(){
     balance: state.balance || null,
     cats: state.cats || normaliseCats(null),
     accounts: normaliseAccounts(state.accounts),
-    profile: state.profile || null
+    profile: state.profile || null,
+    /* Clearing empties the book, not the setup around it — and what you have
+       chosen to keep off the screen is setup. */
+    feedback: state.feedback || [],
+    hiddenCats: state.hiddenCats || []
   };
 }
 
@@ -4897,7 +5223,8 @@ function renderBudgets(){
     top.appendChild(ic);
     top.appendChild(el("div", "env-n", cat.n));
 
-    const leftEl = el("div", "env-left", left >= 0 ? fmt(left) + " left" : fmt(-left) + " over");
+    const leftEl = el("div", "env-left",
+      left >= 0 ? fmt(left, cat.id) + " left" : fmt(-left, cat.id) + " over");
     leftEl.style.color = left >= 0 ? "var(--ink-2)" : "var(--health-red)";
     top.appendChild(leftEl);
     row.appendChild(top);
@@ -4911,7 +5238,8 @@ function renderBudgets(){
     row.appendChild(track);
 
     row.appendChild(el("div", "env-sub",
-      fmt(spent) + " of " + fmt(planned) + " · " + pct + "%" +
+      fmt(spent, cat.id) + " of " + fmt(planned, cat.id) + " · " +
+      (catHidden(cat.id) ? AMOUNT_MASK : pct + "%") +
       (state.catchAll === cat.id ? " · takes everything not budgeted" : "")));
     row.setAttribute("aria-label", cat.n + ", " + pct + "% used");
     row.addEventListener("click", () => openEnvelope(cat.id));
@@ -4964,7 +5292,7 @@ function openEnvelope(catId){
         label.appendChild(tag);
       }
       r.appendChild(label);
-      r.appendChild(el("span", "sp-a", fmt(t.amount)));
+      r.appendChild(el("span", "sp-a", fmt(t.amount, t.category)));
       host.appendChild(r);
     });
   }
@@ -5309,12 +5637,19 @@ function migrateBalance(){
 function renderBalance(){
   const b = balanceSetting();
   const from = b ? b.date : null;
+  const to = todayISO();
   $("#balCard").hidden = false;
 
   let inc = 0, exp = 0;
   state.txns.forEach(t => {
     if (t.status !== "done" || isTransfer(t)) return;
     if (from && t.date < from) return;
+    /* This card says what is in the account now, so it stops at today. There
+       was a lower bound and no upper one, which let an entry ticked off ahead
+       of its date — a bill dated next January, settled early — come out of a
+       balance the money is still sitting in. Ticked or not, it has not moved
+       until its date arrives. */
+    if (t.date > to) return;
     if (t.type === "income") inc += t.amount; else exp += t.amount;
   });
   const base = b ? b.amount : 0;
@@ -5584,7 +5919,7 @@ function renderAccountSettings(){
       left.appendChild(el("div", "lr-m", prettyDate(t.date) + " · " + catOf(t.category).n));
       r.appendChild(left);
       const amt = el("span", "lr-a " + (t.type === "income" ? "in" : "out"),
-                     (t.type === "income" ? "+" : "−") + fmt(t.amount).replace("-", ""));
+                     (t.type === "income" ? "+" : "−") + fmt(t.amount, t.category).replace("-", ""));
       r.appendChild(amt);
       r.title = "Open this entry to set its account";
       r.addEventListener("click", () => { sheetClose(); openEntry(t); });
@@ -5761,14 +6096,14 @@ function makeFoldable(panel, key, titleEl, glyph){
 }
 
 /** One horizontal bar; clicking it reveals the `sub` caption underneath. */
-function barRow(label, value, max, colorVar, sub){
+function barRow(label, value, max, colorVar, sub, cat){
   const row = el("button", "barrow");
   row.type = "button";
   row.setAttribute("aria-expanded", "false");
 
   const head = el("div", "barrow-head");
   head.appendChild(el("span", "barrow-l", label));
-  head.appendChild(el("span", "barrow-v", fmt(value)));
+  head.appendChild(el("span", "barrow-v", fmt(value, cat)));
   row.appendChild(head);
 
   const track = el("div", "barrow-track");
@@ -5796,7 +6131,7 @@ function chartBlock(title, note, rows){
   if (note) h.appendChild(el("span", "cb-n", note));
   block.appendChild(h);
   const max = Math.max(1, ...rows.map(r => r.value));
-  rows.forEach(r => block.appendChild(barRow(r.label, r.value, max, r.color, r.sub)));
+  rows.forEach(r => block.appendChild(barRow(r.label, r.value, max, r.color, r.sub, r.cat)));
   makeFoldable(block, "flow", h.querySelector(".cb-t"), PANEL_ICON.flow);
   return block;
 }
@@ -5950,7 +6285,7 @@ function txnRow(t, dark){
   row.appendChild(open);
 
   const amt = el("div", "amt " + (xfer ? "xf" : (t.type === "income" ? "in" : "out")),
-    (xfer ? "" : (t.type === "income" ? "+" : "−")) + fmt(t.amount).replace("-", ""));
+    (xfer ? "" : (t.type === "income" ? "+" : "−")) + fmt(t.amount, t.category).replace("-", ""));
   row.appendChild(amt);
 
   const tick = el("button", "tick" + (t.status === "done" ? " on" : ""));
@@ -6675,7 +7010,7 @@ function renderRules(){
     row.appendChild(m);
 
     row.appendChild(el("div", "ra " + (r.type === "income" ? "in" : "out"),
-      (r.type === "income" ? "+" : "−") + fmt(r.amount)));
+      (r.type === "income" ? "+" : "−") + fmt(r.amount, r.category)));
     row.insertAdjacentHTML("beforeend",
       '<svg class="rgo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>');
 
@@ -6826,7 +7161,7 @@ function renderBell(){
     m.appendChild(el("div", "nt", o.t.note || c.n));
     m.appendChild(el("div", "ns", dueWords(o.d) + " · " + dayTitle(o.t.date).toLowerCase()));
     open.appendChild(m);
-    const a = el("div", "na", (o.t.type === "income" ? "+" : "−") + fmt(o.t.amount));
+    const a = el("div", "na", (o.t.type === "income" ? "+" : "−") + fmt(o.t.amount, o.t.category));
     a.style.color = o.t.type === "income" ? "var(--pos)" : "var(--ink)";
     open.appendChild(a);
     open.setAttribute("aria-label", "Open " + (o.t.note || c.n));
@@ -6861,12 +7196,307 @@ $("#btnBell").addEventListener("click", () => {
   sheetOpen("#shBell");
 });
 
+const EYE_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_SHUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.2A9.9 9.9 0 0112 5c7 0 11 7 11 7a18.6 18.6 0 01-3.4 4.3"/><path d="M6.6 6.7A18.5 18.5 0 001 12s4 7 11 7a9.9 9.9 0 004.4-1"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>';
+
+/**
+ * Every category that could hold money, each with its own eye.
+ *
+ * Retired built-ins are listed when entries still sit under them — a category
+ * you have stopped using is exactly the sort of thing worth keeping off the
+ * screen, and leaving it out would make its old amounts unhideable.
+ */
+function hideableCats(){
+  const used = new Set();
+  state.txns.forEach(t => { if (t.category) used.add(t.category); });
+  state.rules.forEach(r => { if (r.category) used.add(r.category); });
+  return allCats("income").concat(allCats("expense"))
+    .filter(c => !c.retired || used.has(c.id))
+    .sort((a, b) => a.n.localeCompare(b.n));
+}
+
+function renderHideCats(){
+  const host = $("#hideCats");
+  if (!host) return;
+  host.innerHTML = "";
+  const dark = isDark();
+  const hidden = state.hiddenCats || [];
+  hideableCats().forEach(c => {
+    const off = hidden.indexOf(c.id) !== -1;
+    const row = el("div", "hcrow" + (off ? " off" : ""));
+
+    const ic = el("div", "hc-ic");
+    ic.innerHTML = iconSvg(c.id, 15);
+    ic.style.background = tint(c, dark);
+    ic.style.color = tintInk(c, dark);
+    row.appendChild(ic);
+
+    row.appendChild(el("div", "hc-n", c.n));
+
+    const b = el("button", "hc-e");
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(off));
+    b.innerHTML = off ? EYE_SHUT : EYE_OPEN;
+    const label = (off ? "Show " : "Hide ") + c.n + " amounts";
+    b.title = label;
+    b.setAttribute("aria-label", label);
+    b.addEventListener("click", () => toggleCatHidden(c.id));
+    row.appendChild(b);
+
+    host.appendChild(row);
+  });
+}
+
+function toggleCatHidden(id){
+  const list = state.hiddenCats || (state.hiddenCats = []);
+  const i = list.indexOf(id);
+  if (i === -1) list.push(id); else list.splice(i, 1);
+  saveLocal();
+  renderHideCats();
+  renderNotifSettings();
+  render(); renderShop();
+  if (openSheet === "#shReport") repRender();
+  toast(catOf(id).n + (i === -1 ? " hidden" : " showing"));
+}
+
 function renderNotifSettings(){
   const on = notifOn();
   $("#notifTog").setAttribute("aria-checked", String(on));
   const n = on ? dueSoon().length : 0;
-  $("#setPrefsSub").textContent = !on ? "Reminders off"
-    : (n ? n + " due soon" : "Reminders on");
+  const h = (state.hiddenCats || []).length;
+  const bits = [];
+  bits.push(!on ? "Reminders off" : (n ? n + " due soon" : "Reminders on"));
+  if (h) bits.push(h + " categor" + (h === 1 ? "y" : "ies") + " hidden");
+  $("#setPrefsSub").textContent = bits.join(" · ");
+}
+
+/* =========================================================================
+   FEEDBACK
+
+   A single box headed "describe the problem" gets a sentence back, and a
+   sentence written today is rarely enough to act on in three months. So both
+   flows ask one question at a time: where it happened, then what you expected,
+   then what actually happened. The answers are kept apart rather than run
+   together, because that is what makes the list underneath readable later.
+
+   Everything stays on this device and rides along in the backup. Nothing is
+   sent anywhere.
+   ========================================================================= */
+const FB_AREAS = [
+  "Dashboard", "Entries", "Reports", "Recurring entries", "Reminders",
+  "Accounts & balances", "Budgets", "Shopping", "Backup & sync", "Somewhere else"
+];
+
+const FB_STEPS = {
+  bug: [
+    { k:"area",   q:"Where did it happen?",   h:"Pick the part of the app.", type:"pick", opts:FB_AREAS },
+    { k:"what",   q:"What were you doing?",   h:"The steps that led up to it, as near as you remember.", type:"text", ph:"e.g. Opened Reports, picked 12M, tapped a slice" },
+    { k:"expect", q:"What did you expect?",   h:"What should have happened instead.", type:"text", ph:"e.g. The bars should match the totals above" },
+    { k:"actual", q:"What happened instead?", h:"What you actually saw.", type:"text", ph:"e.g. Both bars sat at nothing" }
+  ],
+  idea: [
+    { k:"area", q:"Which part is this about?",     h:"Pick the part of the app.", type:"pick", opts:FB_AREAS },
+    { k:"what", q:"What would you like it to do?", h:"The change itself, in a sentence or two.", type:"text", ph:"e.g. Let me tick a reminder off without opening it" },
+    { k:"why",  q:"What would that give you?",     h:"Why it would help. This is the part worth writing down — it is what decides the shape of the answer later.", type:"text", ph:"e.g. Most days I just want to mark rent paid and move on" }
+  ]
+};
+
+let fbKind = null, fbStep = 0, fbDraft = {};
+
+function fbReset(){
+  fbKind = null; fbStep = 0; fbDraft = {};
+  $("#fbForm").hidden = true;
+  $("#fbStart").hidden = false;
+  $("#fbList").hidden = false;
+}
+
+function fbBegin(kind){
+  fbKind = kind; fbStep = 0; fbDraft = {};
+  $("#fbStart").hidden = true;
+  $("#fbList").hidden = true;
+  $("#fbForm").hidden = false;
+  fbDrawStep();
+}
+
+function fbDrawStep(){
+  const steps = FB_STEPS[fbKind];
+  const st = steps[fbStep];
+
+  const bar = $("#fbSteps");
+  bar.innerHTML = "";
+  steps.forEach((_, i) => {
+    const dot = el("i");
+    if (i <= fbStep) dot.className = "on";
+    bar.appendChild(dot);
+  });
+
+  const body = $("#fbBody");
+  body.innerHTML = "";
+  body.appendChild(el("div", "fb-q", st.q));
+  body.appendChild(el("div", "fb-h", st.h));
+
+  if (st.type === "pick"){
+    const wrap = el("div", "fb-opts");
+    st.opts.forEach(o => {
+      const b = el("button", null, o);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(fbDraft[st.k] === o));
+      b.addEventListener("click", () => {
+        fbDraft[st.k] = o;
+        $$("#fbBody .fb-opts button").forEach(x =>
+          x.setAttribute("aria-pressed", String(x.textContent === o)));
+      });
+      wrap.appendChild(b);
+    });
+    body.appendChild(wrap);
+  } else {
+    const ta = el("textarea", "inp");
+    ta.rows = 4;
+    ta.placeholder = st.ph || "";
+    ta.value = fbDraft[st.k] || "";
+    ta.style.resize = "vertical";
+    ta.addEventListener("input", () => { fbDraft[st.k] = ta.value; });
+    body.appendChild(ta);
+    setTimeout(() => ta.focus(), 40);
+  }
+
+  $("#fbBack").hidden = false;
+  $("#fbBack").textContent = fbStep === 0 ? "Cancel" : "Back";
+  $("#fbNext").textContent = fbStep === steps.length - 1 ? "Save" : "Next";
+}
+
+$$("#fbStart .fb-new").forEach(b =>
+  b.addEventListener("click", () => fbBegin(b.dataset.kind)));
+
+$("#fbBack").addEventListener("click", () => {
+  if (fbStep === 0){ fbReset(); return; }
+  fbStep--;
+  fbDrawStep();
+});
+
+$("#fbForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const steps = FB_STEPS[fbKind];
+  const st = steps[fbStep];
+  const v = (fbDraft[st.k] || "").trim();
+  if (!v){
+    toast(st.type === "pick" ? "Pick one to carry on" : "Write a line to carry on");
+    return;
+  }
+  if (fbStep < steps.length - 1){ fbStep++; fbDrawStep(); return; }
+
+  state.feedback = (state.feedback || []).concat([{
+    id: uid(),
+    kind: fbKind,
+    at: new Date().toISOString(),
+    version: APP_VERSION,
+    answers: steps.map(x => ({ k:x.k, q:x.q, a:(fbDraft[x.k] || "").trim() }))
+  }]);
+  saveLocal();
+  fbReset();
+  renderFeedbackList();
+  toast(fbKind === "bug" ? "Bug saved" : "Feedback saved");
+});
+
+const FB_ICON = {
+  bug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6.5a4 4 0 018 0"/><rect x="6" y="6.5" width="12" height="12" rx="6"/><path d="M3 10.5h3M18 10.5h3M3 15h3M18 15h3M12 18.5v3"/></svg>',
+  idea: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21.5h4"/><path d="M12 2.5a6.5 6.5 0 00-3.8 11.8c.5.4.8 1 .8 1.7h6c0-.7.3-1.3.8-1.7A6.5 6.5 0 0012 2.5z"/></svg>'
+};
+
+/** The one line a saved item shows in the list: what it is actually about. */
+function fbHeadline(f){
+  const byKey = {};
+  (f.answers || []).forEach(a => { byKey[a.k] = a.a; });
+  return byKey.what || byKey.actual || byKey.why || "(no description)";
+}
+
+function renderFeedbackList(){
+  const host = $("#fbList");
+  if (!host) return;
+  host.innerHTML = "";
+  const list = (state.feedback || []).slice().sort((a, b) => a.at < b.at ? 1 : -1);
+
+  const sub = $("#setFbSub");
+  if (sub){
+    const bugs = list.filter(f => f.kind === "bug").length;
+    const ideas = list.length - bugs;
+    sub.textContent = list.length
+      ? [ideas ? ideas + " idea" + (ideas === 1 ? "" : "s") : "",
+         bugs ? bugs + " bug" + (bugs === 1 ? "" : "s") : ""].filter(Boolean).join(", ")
+      : "Ideas and bugs";
+  }
+
+  if (!list.length){
+    host.appendChild(el("div", "note", "Nothing saved yet."));
+    return;
+  }
+
+  host.appendChild(el("div", "bl-lt", "Saved"));
+  list.forEach(f => {
+    const row = el("button", "fb-row " + f.kind);
+    row.type = "button";
+
+    const tag = el("span", "fb-tag");
+    tag.innerHTML = FB_ICON[f.kind] || FB_ICON.idea;
+    row.appendChild(tag);
+
+    const txt = el("div", "fb-txt");
+    txt.appendChild(el("div", "fb-one", fbHeadline(f)));
+    txt.appendChild(el("div", "fb-when",
+      (f.kind === "bug" ? "Bug" : "Feedback") + " · " + dayTitle(f.at.slice(0, 10))));
+    row.appendChild(txt);
+
+    row.addEventListener("click", () => openFeedback(f.id));
+    host.appendChild(row);
+  });
+}
+
+/** The whole of one saved item, question by question the way it was asked. */
+function openFeedback(id){
+  const f = (state.feedback || []).find(x => x.id === id);
+  if (!f) return;
+  const host = $("#fbOne");
+  host.innerHTML = "";
+
+  const head = el("div", "fb-row " + f.kind);
+  head.style.cursor = "default";
+  const tag = el("span", "fb-tag");
+  tag.innerHTML = FB_ICON[f.kind] || FB_ICON.idea;
+  head.appendChild(tag);
+  const txt = el("div", "fb-txt");
+  txt.appendChild(el("div", "fb-one", f.kind === "bug" ? "Bug report" : "Feedback"));
+  txt.appendChild(el("div", "fb-when",
+    dayTitle(f.at.slice(0, 10)) + (f.version ? " · on v" + f.version : "")));
+  head.appendChild(txt);
+  host.appendChild(head);
+
+  const dl = el("dl", "fb-det");
+  (f.answers || []).forEach(a => {
+    dl.appendChild(el("dt", null, a.q));
+    dl.appendChild(el("dd", null, a.a || "—"));
+  });
+  host.appendChild(dl);
+
+  const del = el("button", "btn danger sm");
+  del.type = "button";
+  del.textContent = "Delete this";
+  del.style.marginTop = "22px";
+  del.addEventListener("click", async () => {
+    const ok = await askConfirm({
+      title: "Delete this " + (f.kind === "bug" ? "bug report" : "note") + "?",
+      message: "It is only stored here, so this cannot be undone.",
+      confirm: "Delete"
+    });
+    if (ok !== true) return;
+    state.feedback = (state.feedback || []).filter(x => x.id !== id);
+    saveLocal();
+    renderFeedbackList();
+    showSetPane("feedback");
+    toast("Deleted");
+  });
+  host.appendChild(del);
+
+  showSetPane("fbone");
 }
 
 $("#notifTog").addEventListener("click", () => {
@@ -7480,8 +8110,8 @@ $$("#themeTog button").forEach(b => b.addEventListener("click", () => applyTheme
 
 const SET_TITLES = {
   profile:"Your profile", accounts:"Accounts",
-  balance:"Starting balance", lock:"App lock",
-  prefs:"Notifications & appearance",
+  feedback:"Feedback", fbone:"Feedback", lock:"App lock",
+  prefs:"Notifications",
   github:"GitHub sync", data:"Data & backup", about:"About"
 };
 let setPane = null;
@@ -7506,9 +8136,14 @@ function showSetPane(key){
 $$("#setMenu .setrow").forEach(b => b.addEventListener("click", () => {
   /* Recurring entries has no settings of its own — the tile is the page */
   if (b.dataset.pane === "rules"){ sheetClose(); renderRules(); sheetOpen("#shRules"); return; }
+  /* a half-written note from last time is not what you came back for */
+  if (b.dataset.pane === "feedback"){ fbReset(); renderFeedbackList(); }
   showSetPane(b.dataset.pane);
 }));
-$("#setBack").addEventListener("click", () => showSetPane(null));
+/* One saved note sits a level below the Feedback pane, so back from there is
+   the list rather than the whole of Settings. */
+$("#setBack").addEventListener("click", () =>
+  showSetPane(setPane === "fbone" ? "feedback" : null));
 
 /* Opening settings is also how a nested sheet gets back here, so it is a
    function rather than only a click handler. */
@@ -7524,6 +8159,8 @@ function openSettings(){
   renderProfileSettings();
   renderAccountSettings();
   renderNotifSettings();
+  renderHideCats();
+  renderFeedbackList();
   const live = state.rules.filter(r => r.active !== false).length;
   $("#setRulesSub").textContent = live
     ? live + " entr" + (live === 1 ? "y" : "ies") + " repeating"
@@ -10298,15 +10935,17 @@ function repDrawInfo(cat, total){
   head.appendChild(nm);
   host.appendChild(head);
 
-  const amt = el("div", "rp-i-a", fmt(cat.total));
+  const amt = el("div", "rp-i-a", fmt(cat.total, cat.id));
   amt.style.color = tintInk(cat, dark);
   host.appendChild(amt);
 
+  /* The share has to go with the figure. 69.9% of an income total that is
+     still on screen is the hidden amount said a second way. */
   host.appendChild(el("div", "rp-i-s",
-    ((cat.total / total) * 100).toFixed(1) +
-    (repChartIsIncome ? "% of what came in  ·  " : "% of what you spent  ·  ") +
+    (catHidden(cat.id) ? AMOUNT_MASK : ((cat.total / total) * 100).toFixed(1) + "%") +
+    (repChartIsIncome ? " of what came in  ·  " : " of what you spent  ·  ") +
     cat.count + " entr" + (cat.count === 1 ? "y" : "ies") + "  ·  " +
-    fmt(Math.round(cat.total / cat.count)) + " on average"));
+    fmt(Math.round(cat.total / cat.count), cat.id) + " on average"));
 
   const go = el("button", "btn ghost sm", "See these entries");
   go.type = "button";
@@ -10377,12 +11016,13 @@ function repDrawLegend(cats, total, ringMonths){
       /* The months it was divided by, named the same way whatever the number.
          A category seen in one month has an average equal to its total, and
          without the denominator beside it that reads as a mistake. */
-      nm.appendChild(el("i", "rp-avg", fmt(c.total / m) +
+      nm.appendChild(el("i", "rp-avg", fmt(c.total / m, c.id) +
         "/mo over " + m + (m === 1 ? " month" : " months")));
     }
     row.appendChild(nm);
-    row.appendChild(el("span", "rp-lp", ((c.total / total) * 100).toFixed(1) + "%"));
-    const amt = el("span", "rp-la", fmt(c.total));
+    row.appendChild(el("span", "rp-lp",
+      catHidden(c.id) ? AMOUNT_MASK : ((c.total / total) * 100).toFixed(1) + "%"));
+    const amt = el("span", "rp-la", fmt(c.total, c.id));
     amt.style.color = tintInk(c, dark);
     row.appendChild(amt);
     /* the legend picks the same slice the pie does, so the two never disagree */
@@ -10757,8 +11397,8 @@ function repDrawTable(rows){
         ? (acctName(t.fromAccount) || "?") + " → " + (acctName(t.account) || "?")
         : (acctName(t.account) || "—")));
 
-    const inc = el("td", "num in", side === "income" ? fmt(t.amount) : "");
-    const out = el("td", "num out", side === "expense" ? fmt(t.amount) : "");
+    const inc = el("td", "num in", side === "income" ? fmt(t.amount, t.category) : "");
+    const out = el("td", "num out", side === "expense" ? fmt(t.amount, t.category) : "");
     r.appendChild(inc);
     r.appendChild(out);
     if (t.status === "planned") r.style.opacity = ".72";
