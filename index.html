@@ -2057,13 +2057,13 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .setrow .sr-t span{font-size:11px;color:var(--ink-3);line-height:1.35}
 .setrow .sr-go{display:none}
 
-/* Each panel in its own colour, told apart the way the money tiles are: a bar
-   down the left edge over a plain ground, rather than a tinted card.
+/* Each panel told apart by one thing only: a bar down its left edge, the way
+   the Income and Expenses tiles are. The chip and the name are left alone —
+   colouring those as well turned a page of tiles into a paint chart.
 
-   The hues run through the pie's own formula — hsl(h 82% L), L inside the
-   22–42 band the slices are drawn from — so the edge of a tile is the same
-   paint as a slice of that hue, dark and saturated in either theme. Only the
-   hue changes per tile; the three shades below are written once.
+   The hues run through the pie's own formula, hsl(h 82% L) with L inside the
+   22–42 band the slices are drawn from, so the edge of a tile is the same paint
+   as a slice of that hue — dark and saturated, and the same in either theme.
 
    Deliberately not the category palette itself. That palette is load-bearing:
    it says which category a figure belongs to, and borrowing from it here would
@@ -2071,12 +2071,6 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .setrow{
   border-left:3px solid hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
 }
-.setrow[data-pane] .sr-ic{
-  background:hsl(var(--tile-h) 72% 92%);
-  color:hsl(var(--tile-h) 82% var(--tile-l, 32%));
-}
-.setrow[data-pane] .sr-t b{color:hsl(var(--tile-h) 62% 34%)}
-
 .setrow[data-pane="profile"] { --tile-h:210; --tile-l:34% }
 .setrow[data-pane="accounts"]{ --tile-h:155; --tile-l:30% }
 .setrow[data-pane="rules"]   { --tile-h:275; --tile-l:36% }
@@ -2086,23 +2080,6 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .setrow[data-pane="github"]  { --tile-h:240; --tile-l:38% }
 .setrow[data-pane="data"]    { --tile-h:52;  --tile-l:26% }
 .setrow[data-pane="about"]   { --tile-h:200; --tile-l:32% }
-
-/* The edge keeps the deep colour in dark mode — that is the point of taking it
-   from the pie — but a 32%-light title on a dark card is unreadable, so the
-   name and the icon chip lift the same way a category name does in the reports
-   legend. Same hue, carried at a lightness the ground can hold. */
-:root[data-theme="dark"] .setrow[data-pane] .sr-ic{
-  background:hsl(var(--tile-h) 58% 22%);
-  color:hsl(var(--tile-h) 78% 76%);
-}
-:root[data-theme="dark"] .setrow[data-pane] .sr-t b{color:hsl(var(--tile-h) 78% 76%)}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) .setrow[data-pane] .sr-ic{
-    background:hsl(var(--tile-h) 58% 22%);
-    color:hsl(var(--tile-h) 78% 76%);
-  }
-  :root:not([data-theme="light"]) .setrow[data-pane] .sr-t b{color:hsl(var(--tile-h) 78% 76%)}
-}
 
 /* A newer build being available is worth saying on the tile, not only inside it. */
 .updot{
@@ -3843,7 +3820,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.19";
+const APP_VERSION = "2.0.20";
 const APP_BUILT = "2026-09-02";
 
 const KEY = "panappai.v1";
