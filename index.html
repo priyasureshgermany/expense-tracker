@@ -208,10 +208,22 @@ button{cursor:pointer;background:none;border:none;padding:0}
    buttons right, so a flow item would be centred between whatever is left of
    them rather than on the bar. Out of the flow it also cannot squeeze the
    greeting, which is the thing that would truncate first. */
+/* As tall as the bar itself, so it follows the bar however the brand and the
+   buttons decide its height.
+
+   Pinning top and bottom does not work here: this is a replaced element, and an
+   absolutely positioned image with height:auto takes its intrinsic size rather
+   than stretching — which put the 192px icon at 192px across the whole screen.
+   It needs a real height, and the width follows from the icon being square. */
 .applogo{
-  position:absolute; left:50%; transform:translateX(-50%);
-  top:calc(8px + env(safe-area-inset-top));
-  width:34px; height:34px; border-radius:10px;
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%, -50%);
+  /* the notch pushes the bar down, so the middle it is centred on moves too */
+  margin-top:calc(env(safe-area-inset-top) / 2);
+  /* four fifths of the bar rather than all of it: full height left no air above
+     or below and the mark read as a panel rather than a badge */
+  height:calc((100% - env(safe-area-inset-top)) * 0.8);
+  width:auto; border-radius:12px; object-fit:cover;
   pointer-events:none; user-select:none;
   box-shadow:0 1px 4px rgba(0,0,0,.18);
   transition:filter .2s;
@@ -1655,18 +1667,20 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .hcrow:last-child{border-bottom:none}
 .hcrow .hc-ic{width:26px;height:26px;flex:none;border-radius:7px;display:grid;place-items:center}
 .hcrow .hc-n{flex:1;min-width:0;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* The eye alone, no chip around it — the icon already says what it is, and a
+   box on every one of two dozen rows made the list read as a form. The tap
+   target stays the full 38x34 even though nothing is painted there. */
 .hcrow .hc-e{
-  flex:none;width:38px;height:34px;border-radius:10px;display:grid;place-items:center;
-  border:1px solid var(--line);background:var(--surface-2);color:var(--ink-3);
-  transition:background .14s,color .14s,border-color .14s;
+  flex:none;width:38px;height:34px;display:grid;place-items:center;
+  background:none;border:0;color:var(--ink-3);
+  transition:color .14s,opacity .14s;
 }
-.hcrow .hc-e svg{width:18px;height:18px}
-/* Pressed means hidden, so the shut eye is the on-state — the same reading as
-   the eye in the top bar, where pressed is "amounts are showing". Here the
-   button is the category's own privacy, so it lights when it is doing something. */
-.hcrow .hc-e[aria-pressed="true"]{
-  background:var(--accent);border-color:var(--accent);color:var(--accent-ink);
-}
+.hcrow .hc-e svg{width:19px;height:19px}
+.hcrow .hc-e:hover{color:var(--ink)}
+.hcrow .hc-e:active{transform:scale(.9)}
+/* Shut means hidden. It takes the accent so the eye doing something stands out
+   from the row of open ones that are not. */
+.hcrow .hc-e[aria-pressed="true"]{color:var(--accent)}
 .hcrow.off .hc-n{color:var(--ink-3)}
 
 /* ---------- Feedback ---------- */
@@ -3917,8 +3931,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.22";
-const APP_BUILT = "2026-09-02";
+const APP_VERSION = "2.0.23";
+const APP_BUILT = "2026-09-03";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
