@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.23 — 2026-09-03
+- better: The eyes in the hide-a-category list lost their boxes. The icon alone says what it is, and two dozen chips made the list read as a form
+- better: The mark on the dashboard is half again bigger, sized to the bar it sits in rather than to a fixed number
+
 ## 2.0.22 — 2026-09-02
 - new: Showing a hidden income category again asks the security question from App lock. Hiding one stays free
 - better: No warning bar on the dashboard when a category is hidden
