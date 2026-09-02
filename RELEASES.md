@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.20 — 2026-09-02
+- better: Settings panels carry their colour on the left edge only, the same as More. The icon chips and names go back to the accent
+
 ## 2.0.19 — 2026-09-02
 - fix: The three tiles on More are back to their old type and icons. Three rules setting them were deleted by mistake when the coloured edge went in, so the icons drew at their container size and the titles fell back to a browser default
 - better: Light or dark is the plain segmented control again, with no colour of its own
