@@ -1561,65 +1561,25 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   display:grid;place-items:center;
   background:var(--accent-soft);color:var(--accent);
 }
+.morerow .sr-ic svg{width:26px;height:26px}
+.morerow b{font-size:12.5px;font-weight:600;letter-spacing:-.005em;line-height:1.25}
+.morerow .ms{font-size:10.5px;color:var(--ink-3);line-height:1.3}
 
-/* The three ways on, told apart the way the money tiles are: a bar down the
-   left edge, in the colour, over a plain ground. Red, plain and green.
-
-   The colours are the pie's own — hsl(h 82% L) with L in the 22–42 band the
-   slices are drawn from — so a tile edge and a slice of the same hue are the
-   same paint. The middle one carries no hue: "white" here is the surface the
-   app is printed on, which in dark mode is the dark card rather than a literal
-   white that would glare. */
-.morerow{
-  border-left:3px solid hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
-  align-items:flex-start;text-align:left;padding:15px 12px 14px;
-}
-.morerow .sr-ic{
-  background:hsl(var(--tile-h, 210) 72% 92%);
-  color:hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
-}
-.morerow b{color:hsl(var(--tile-h, 210) 62% 34%)}
+/* The three tiles are as they were — centred, the same type and the same icon
+   chip. The only thing colour does here is run down the left edge, the way it
+   does on the Income and Expenses tiles: red, plain, green. The hues are the
+   pie's own, hsl(h 82% L) with L inside the 22–42 band the slices are drawn
+   from, so an edge and a slice of that hue are the same paint. */
+.morerow{border-left:3px solid hsl(var(--tile-h, 210) 82% var(--tile-l, 32%))}
 .morerow[data-more="report"]  { --tile-h:6;   --tile-l:30% }   /* dark red */
 .morerow[data-more="settings"]{ --tile-h:152; --tile-l:26% }   /* dark green */
-
-/* The middle one takes no hue: white on a dark card, and the same dark ink the
-   type is set in on a light one. */
+/* no hue: white on a dark card, the ink the type is set in on a light one */
 .morerow[data-more="about"]{border-left-color:var(--tile-plain)}
-.morerow[data-more="about"] .sr-ic{background:var(--surface-sunk);color:var(--ink)}
-.morerow[data-more="about"] b{color:var(--ink)}
 
-/* ---------- theme row ---------- */
-/* Under the three tiles, in their three colours and their three positions:
-   the red one, the white one, the green one. */
-.themerow{
-  grid-column:1 / -1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px;
-}
-.themerow button{
-  padding:11px 8px;border-radius:12px;font-size:12.5px;font-weight:600;
-  background:var(--surface-2);border:1px solid var(--line);
-  border-left:3px solid hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
-  color:var(--ink-3);
-  transition:background .15s,color .15s,border-color .15s;
-}
-.themerow button:nth-child(1){ --tile-h:6;   --tile-l:30% }
-.themerow button:nth-child(3){ --tile-h:152; --tile-l:26% }
-.themerow button:nth-child(2){border-left-color:var(--tile-plain)}
-/* the chosen one takes its own colour rather than a shared highlight */
-.themerow button[aria-pressed="true"]{
-  background:var(--surface);
-  color:hsl(var(--tile-h, 210) 62% 34%);
-  border-color:var(--line-strong);
-  border-left-color:hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
-}
-.themerow button:nth-child(2)[aria-pressed="true"]{color:var(--ink);border-left-color:var(--tile-plain)}
-:root[data-theme="dark"] .themerow button[aria-pressed="true"]{
-  color:hsl(var(--tile-h, 210) 78% 76%);
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) .themerow button[aria-pressed="true"]{
-    color:hsl(var(--tile-h, 210) 78% 76%);
-  }
-}
+/* Light or dark is the plain segmented control it has always been. It lost its
+   card and its heading when it moved here, which is all that was wanted —
+   colouring it as well made a row of buttons compete with the tiles above. */
+.themerow{grid-column:1 / -1;margin-top:2px}
 
 .morerow .updot{top:8px;right:8px;padding:2px 6px;font-size:8.5px}
 
@@ -2131,25 +2091,17 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
    from the pie — but a 32%-light title on a dark card is unreadable, so the
    name and the icon chip lift the same way a category name does in the reports
    legend. Same hue, carried at a lightness the ground can hold. */
-:root[data-theme="dark"] .setrow[data-pane] .sr-ic,
-:root[data-theme="dark"] .morerow[data-more]:not([data-more="about"]) .sr-ic{
+:root[data-theme="dark"] .setrow[data-pane] .sr-ic{
   background:hsl(var(--tile-h) 58% 22%);
   color:hsl(var(--tile-h) 78% 76%);
 }
-:root[data-theme="dark"] .setrow[data-pane] .sr-t b,
-:root[data-theme="dark"] .morerow[data-more]:not([data-more="about"]) b{
-  color:hsl(var(--tile-h) 78% 76%);
-}
+:root[data-theme="dark"] .setrow[data-pane] .sr-t b{color:hsl(var(--tile-h) 78% 76%)}
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) .setrow[data-pane] .sr-ic,
-  :root:not([data-theme="light"]) .morerow[data-more]:not([data-more="about"]) .sr-ic{
+  :root:not([data-theme="light"]) .setrow[data-pane] .sr-ic{
     background:hsl(var(--tile-h) 58% 22%);
     color:hsl(var(--tile-h) 78% 76%);
   }
-  :root:not([data-theme="light"]) .setrow[data-pane] .sr-t b,
-  :root:not([data-theme="light"]) .morerow[data-more]:not([data-more="about"]) b{
-    color:hsl(var(--tile-h) 78% 76%);
-  }
+  :root:not([data-theme="light"]) .setrow[data-pane] .sr-t b{color:hsl(var(--tile-h) 78% 76%)}
 }
 
 /* A newer build being available is worth saying on the tile, not only inside it. */
@@ -3553,12 +3505,12 @@ html.locked #lockScreen::before{
     </button>
 
     <!-- Light or dark is a thing you reach for, not a thing you configure once.
-         No card and no heading: three buttons under the three tiles, carrying
-         the same three colours in the same order. -->
-    <div class="themerow" id="themeTog">
-      <button data-v="system" aria-pressed="true">System</button>
-      <button data-v="light" aria-pressed="false">Light</button>
-      <button data-v="dark" aria-pressed="false">Dark</button>
+         It sat three taps deep under Notifications; here it is one, with no card
+         and no heading around it. -->
+    <div class="toggle2 themerow" id="themeTog" style="grid-template-columns:repeat(3,1fr)">
+      <button class="a" data-v="system" aria-pressed="true">System</button>
+      <button class="a" data-v="light" aria-pressed="false">Light</button>
+      <button class="a" data-v="dark" aria-pressed="false">Dark</button>
     </div>
   </div>
 </section>
@@ -3891,7 +3843,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.18";
+const APP_VERSION = "2.0.19";
 const APP_BUILT = "2026-09-02";
 
 const KEY = "panappai.v1";

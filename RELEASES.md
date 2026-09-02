@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.19 — 2026-09-02
+- fix: The three tiles on More are back to their old type and icons. Three rules setting them were deleted by mistake when the coloured edge went in, so the icons drew at their container size and the titles fell back to a browser default
+- better: Light or dark is the plain segmented control again, with no colour of its own
+
 ## 2.0.18 — 2026-09-02
 - fix: The hueless panel edge is dark on a light background. White was right on a dark card and all but invisible on a light one
 
