@@ -2401,10 +2401,18 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   display:block;font-style:normal;font-size:10px;color:var(--ink-3);margin-top:1px;
 }
 
-.balrow{display:flex;align-items:center;gap:10px;padding:7px 0}
-.balrow .bl-ic{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--surface-sunk);color:var(--ink-2)}
-.balrow .bl-n{flex:1;min-width:0;font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.balrow .bl-a{flex:none;width:118px;text-align:right;font-family:var(--mono);font-weight:600}
+/* Boxes sized to the figure that goes in them. At the full input height a
+   column of five stood taller than the panel had room for, and the rows sat
+   further apart than the list they are a list of. */
+.balrow{display:flex;align-items:center;gap:9px;padding:3px 0}
+.balrow .bl-ic{width:27px;height:27px;border-radius:8px;flex:none;display:grid;place-items:center;background:var(--surface-sunk);color:var(--ink-2)}
+.balrow .bl-ic svg{width:15px;height:15px}
+.balrow .bl-n{flex:1;min-width:0;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.balrow .bl-a{
+  flex:none;width:104px;text-align:right;
+  font-family:var(--mono);font-weight:600;font-size:13.5px;
+  padding:7px 10px;border-radius:10px;
+}
 /* the account on a ledger row, set apart from the category by a dot */
 .t2 .acctn{color:var(--ink-3);white-space:nowrap}
 .t2 .acctn::before{content:"\00b7";margin:0 5px;opacity:.6;color:var(--ink-3)}
@@ -3663,8 +3671,9 @@ html.locked #lockScreen::before{
       <div class="note">
         A starting point per account. Each one is then tracked forward: this
         balance, plus income received into it, minus expenses paid from it since
-        that date. Cards aren't listed — a card carries a debt rather than a
-        balance to count forward from.
+        that date. Leave a row blank to pass over it — which is what a credit
+        card usually wants, since what it holds is a debt rather than money to
+        count forward.
       </div>
       <div id="balRows" style="margin-top:12px"></div>
       <div class="field" style="margin-top:14px">
@@ -3931,7 +3940,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.23";
+const APP_VERSION = "2.0.24";
 const APP_BUILT = "2026-09-03";
 
 const KEY = "panappai.v1";
@@ -5730,7 +5739,14 @@ function renderBalance(){
  * dashboard should count forward — so cards are left out and cash is not.
  */
 function balanceableAccounts(){
-  return accountsOf().filter(a => a.kind !== "card");
+  /* Every account, cards included.
+     Cards were left out because a credit card carries a debt rather than a
+     balance to count forward from — true of a credit card, and not true of a
+     wallet like PayPal, which was filed as a card and so could never be given
+     the money it actually holds. Since a blank row already means "leave this
+     one alone", listing them costs nothing: a real credit card is simply left
+     empty, and one that does hold money can now say so. */
+  return accountsOf();
 }
 
 function renderBalanceRows(){
@@ -5784,9 +5800,6 @@ $("#balSave").addEventListener("click", () => {
     a.start = { amount: Math.round(amt), date: date };
     set++;
   });
-  /* a card can no longer show a row, so drop any figure one carried before,
-     rather than leaving a number nothing can edit */
-  accountsOf().forEach(a => { if (a.kind === "card") delete a.start; });
   if (!set){ toast("Nothing entered — fill in at least one account"); return; }
 
   state.balance = null;   /* superseded by the per-account figures */
@@ -5801,7 +5814,7 @@ $("#balSave").addEventListener("click", () => {
     }))
   }]);
 
-  save(); renderBalanceSettings(); renderAccountSettings(); render();
+  save(); renderBalanceSettings(); renderAccountSettings(); syncAccountsHeadTotal(); render();
   /* the boxes empty again, ready for the next baseline rather than showing the
      last one back to you */
   $$("#balRows .bl-a").forEach(i => { i.value = ""; });
@@ -5815,7 +5828,7 @@ $("#balClear").addEventListener("click", async () => {
   }))) return;
   accountsOf().forEach(a => { delete a.start; });
   state.balance = null;
-  save(); renderBalanceSettings(); renderAccountSettings(); render();
+  save(); renderBalanceSettings(); renderAccountSettings(); syncAccountsHeadTotal(); render();
   toast("Balances cleared");
 });
 function renderProfileSettings(){
@@ -8429,6 +8442,20 @@ const SET_TITLES = {
   github:"GitHub sync", data:"Data & backup", about:"About"
 };
 let setPane = null;
+
+/* The accounts pane is the one place a single figure answers the question the
+   pane is asking, so it goes up beside its name. Its own function because
+   saving or clearing a balance changes it, and it was only ever worked out on
+   the way in — so the header sat on the old figure until you left the pane and
+   came back. */
+function syncAccountsHeadTotal(){
+  const tot = $("#setHeadTotal");
+  if (!tot || setPane !== "accounts") return;
+  const sum = accountsOf().reduce((n, a) => n + (accountBalance(a.id) || 0), 0);
+  tot.textContent = fmt(sum);
+  tot.style.color = sum < 0 ? "var(--neg)" : "";
+}
+
 function showSetPane(key){
   setPane = key;
   $("#setMenu").hidden = !!key;
@@ -8437,13 +8464,8 @@ function showSetPane(key){
   $("#setTitle").textContent = key ? SET_TITLES[key] : "Settings";
   /* the accounts pane is the one place a single figure answers the question the
      pane is asking, so it goes up beside its name */
-  const tot = $("#setHeadTotal");
-  tot.hidden = key !== "accounts";
-  if (key === "accounts"){
-    const sum = accountsOf().reduce((n, a) => n + (accountBalance(a.id) || 0), 0);
-    tot.textContent = fmt(sum);
-    tot.style.color = sum < 0 ? "var(--neg)" : "";
-  }
+  $("#setHeadTotal").hidden = key !== "accounts";
+  if (key === "accounts") syncAccountsHeadTotal();
   const body = key ? $("#setPane_" + key) : $("#setMenu");
   if (body) body.scrollTop = 0;
 }
