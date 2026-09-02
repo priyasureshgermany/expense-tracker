@@ -6,7 +6,7 @@
       "type": "expense",
       "amount": 5400,
       "category": "groceries_de",
-      "note": "Lidl",
+      "note": "German shopping",
       "date": "2026-08-22",
       "status": "done",
       "account": "a_gch8xl46opp7",
@@ -117,7 +117,7 @@
       "category": "transport",
       "note": "Deutschland Ticket - Priya",
       "date": "2026-09-02",
-      "status": "planned",
+      "status": "done",
       "ruleId": "w09yr4drm0rp",
       "account": "a_gch8xl46opp7",
       "fromAccount": null,
@@ -130,7 +130,7 @@
       "category": "transport",
       "note": "Deutschland Ticket - Suresh",
       "date": "2026-09-02",
-      "status": "planned",
+      "status": "done",
       "ruleId": "rbx4wt3np9ur",
       "account": "a_gch8xl46opp7",
       "fromAccount": null,
@@ -343,7 +343,7 @@
       "type": "expense",
       "amount": 5836,
       "category": "groceries_in",
-      "note": "Jaffna",
+      "note": "Indian shopping",
       "date": "2026-08-26",
       "status": "done",
       "account": "a_gch8xl46opp7",
@@ -365,7 +365,7 @@
       "type": "expense",
       "amount": 2122,
       "category": "groceries_de",
-      "note": "Lidl",
+      "note": "German shopping",
       "date": "2026-08-26",
       "status": "done",
       "account": "a_gch8xl46opp7",
@@ -3344,7 +3344,7 @@
       "date": "2026-09-01",
       "status": "done",
       "ruleId": "j9kso8pzpjnm",
-      "account": "a_gch8xl46opp7",
+      "account": "a_nnfyos0fx9la",
       "fromAccount": null,
       "slot": "2026-09-03"
     },
@@ -3539,6 +3539,28 @@
       "status": "planned",
       "ruleId": "5q98aay2rqyf",
       "account": "a_0mh73fi9ovlw",
+      "fromAccount": null
+    },
+    {
+      "id": "y07itnitlofi",
+      "type": "expense",
+      "amount": 2825,
+      "category": "buffer",
+      "note": "Woolworth",
+      "date": "2026-09-02",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "y0stgt1jdihl",
+      "type": "expense",
+      "amount": 408,
+      "category": "groceries_de",
+      "note": "Lidl",
+      "date": "2026-09-02",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
       "fromAccount": null
     }
   ],
@@ -3915,7 +3937,8 @@
         ],
         "txnId": "fhumwps8em8p",
         "account": "a_gch8xl46opp7",
-        "bookmark": null
+        "bookmark": null,
+        "note": null
       },
       {
         "id": "pp51aij00xgg",
@@ -3986,7 +4009,8 @@
         ],
         "txnId": "sz9pyoj50xgg",
         "account": "a_gch8xl46opp7",
-        "bookmark": null
+        "bookmark": null,
+        "note": null
       },
       {
         "id": "hri98mslrm8m",
@@ -4017,7 +4041,8 @@
         ],
         "txnId": "3ct5rd3orm8m",
         "account": "a_gch8xl46opp7",
-        "bookmark": null
+        "bookmark": null,
+        "note": null
       },
       {
         "id": "t35mibjbpd9e",
@@ -4201,7 +4226,8 @@
             "price": 0
           }
         ],
-        "txnId": "rp7pcfynnc1j"
+        "txnId": "rp7pcfynnc1j",
+        "bookmark": null
       }
     ]
   },
