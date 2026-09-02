@@ -63,6 +63,11 @@ try{ if (localStorage.getItem("panappai.lock.enabled") === "1") document.documen
   --shadow-md:0 4px 16px rgba(15,25,34,.10);
   --shadow-lg:0 -8px 40px rgba(15,25,34,.18);
 
+  /* The one panel that carries no hue. It is the brightest edge there is on a
+     dark card and would be invisible on a light one, so it takes the opposite
+     end of the same axis in each theme rather than a colour of its own. */
+  --tile-plain:#0F1922;
+
   --r-sm:8px; --r-md:12px; --r-lg:18px; --r-xl:26px;
   --sans:"IBM Plex Sans","Noto Sans Tamil",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -1577,13 +1582,9 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .morerow[data-more="report"]  { --tile-h:6;   --tile-l:30% }   /* dark red */
 .morerow[data-more="settings"]{ --tile-h:152; --tile-l:26% }   /* dark green */
 
-/* The middle one is white rather than a hue. White on a dark card is the
-   brightest edge there is; on a light card it would vanish, so there it gets a
-   hairline to stand it off the surface — the colour stays white either way. */
-.morerow[data-more="about"]{
-  border-left-color:#FFFFFF;
-  box-shadow:inset 3px 0 0 -2px var(--line-strong);
-}
+/* The middle one takes no hue: white on a dark card, and the same dark ink the
+   type is set in on a light one. */
+.morerow[data-more="about"]{border-left-color:var(--tile-plain)}
 .morerow[data-more="about"] .sr-ic{background:var(--surface-sunk);color:var(--ink)}
 .morerow[data-more="about"] b{color:var(--ink)}
 
@@ -1602,10 +1603,7 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 }
 .themerow button:nth-child(1){ --tile-h:6;   --tile-l:30% }
 .themerow button:nth-child(3){ --tile-h:152; --tile-l:26% }
-.themerow button:nth-child(2){
-  border-left-color:#FFFFFF;
-  box-shadow:inset 3px 0 0 -2px var(--line-strong);
-}
+.themerow button:nth-child(2){border-left-color:var(--tile-plain)}
 /* the chosen one takes its own colour rather than a shared highlight */
 .themerow button[aria-pressed="true"]{
   background:var(--surface);
@@ -1613,7 +1611,7 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   border-color:var(--line-strong);
   border-left-color:hsl(var(--tile-h, 210) 82% var(--tile-l, 32%));
 }
-.themerow button:nth-child(2)[aria-pressed="true"]{color:var(--ink);border-left-color:#FFFFFF}
+.themerow button:nth-child(2)[aria-pressed="true"]{color:var(--ink);border-left-color:var(--tile-plain)}
 :root[data-theme="dark"] .themerow button[aria-pressed="true"]{
   color:hsl(var(--tile-h, 210) 78% 76%);
 }
@@ -1800,9 +1798,9 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
    turns white where the page behind it is dark. */
 :root{ --fab-rim:rgba(15,25,34,.16) }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){ --fab-rim:rgba(255,255,255,.46) }
+  :root:not([data-theme="light"]){ --fab-rim:rgba(255,255,255,.46); --tile-plain:#FFFFFF }
 }
-:root[data-theme="dark"]{ --fab-rim:rgba(255,255,255,.46) }
+:root[data-theme="dark"]{ --fab-rim:rgba(255,255,255,.46); --tile-plain:#FFFFFF }
 @supports not (backdrop-filter:blur(2px)){
   /* nothing blurred behind it means a see-through fill just looks washed out */
   .fab{
@@ -3893,7 +3891,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.17";
+const APP_VERSION = "2.0.18";
 const APP_BUILT = "2026-09-02";
 
 const KEY = "panappai.v1";

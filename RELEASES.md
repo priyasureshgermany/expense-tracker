@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.18 — 2026-09-02
+- fix: The hueless panel edge is dark on a light background. White was right on a dark card and all but invisible on a light one
+
 ## 2.0.17 — 2026-09-02
 - fix: The balance card counted entries ticked off ahead of their date. A bill dated next January, settled early, came out of a balance the money was still sitting in
 - better: Every panel in Settings and on More carries its own colour down its left edge, drawn from the pie chart's own palette
