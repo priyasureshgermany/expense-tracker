@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.22 — 2026-09-02
+- new: Showing a hidden income category again asks the security question from App lock. Hiding one stays free
+- better: No warning bar on the dashboard when a category is hidden
+
 ## 2.0.21 — 2026-09-02
 - new: Notify this device: a notification on your phone or laptop for anything due tomorrow or today, once per entry per day
 - better: A hidden category is now left out of everything rather than blanked. Its entries, budget, slice, bars, exports and reminders all go, so the totals change and the dashboard says so in a bar you can tap to put it back
