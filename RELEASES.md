@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.24 — 2026-09-03
+- fix: Cards can hold a starting balance. PayPal is filed as a card, so it never appeared in the list and could not be given the money it actually holds
+- fix: The total beside Accounts refreshes when a balance is saved or cleared, instead of sitting on the old figure until you left the pane and came back
+- better: Shorter boxes and tighter rows in the starting balance list
+
 ## 2.0.23 — 2026-09-03
 - better: The eyes in the hide-a-category list lost their boxes. The icon alone says what it is, and two dozen chips made the list read as a form
 - better: The mark on the dashboard is half again bigger, sized to the bar it sits in rather than to a fixed number
