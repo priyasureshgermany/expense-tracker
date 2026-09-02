@@ -1,6 +1,6 @@
 /* Bump VERSION on every release: activate() purges any cache that isn't the
    current one, which is what lets a new build actually replace the old one. */
-const VERSION = "2.0.20";
+const VERSION = "2.0.21";
 const CACHE = "panappai-" + VERSION;
 
 const ASSETS = [
@@ -67,6 +67,20 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => cached);
       return cached || network;
+    })
+  );
+});
+
+/* A notification raised by the page is shown through this worker, so the tap
+   lands here. Focus a window that is already open rather than adding another. */
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const c of list){
+        if ("focus" in c) return c.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow("./");
     })
   );
 });
