@@ -328,17 +328,6 @@
       "fromAccount": "a_0mh73fi9ovlw"
     },
     {
-      "id": "6n2tbqr4dls8",
-      "type": "expense",
-      "amount": 128000,
-      "category": "groceries_de",
-      "note": "Rent",
-      "date": "2027-01-02",
-      "status": "planned",
-      "account": "a_0mh73fi9ovlw",
-      "fromAccount": null
-    },
-    {
       "id": "sz9pyoj50xgg",
       "type": "expense",
       "amount": 5836,
@@ -2467,13 +2456,13 @@
     {
       "id": "9c71l6dudj7q",
       "type": "expense",
-      "amount": 4495,
+      "amount": 18365,
       "category": "c_4bvswqhm",
       "note": "Internet",
-      "date": "2026-09-05",
-      "status": "planned",
+      "date": "2026-09-03",
+      "status": "done",
       "ruleId": "soeg7dlmttqu",
-      "account": "a_gch8xl46opp7",
+      "account": "a_0mh73fi9ovlw",
       "fromAccount": null,
       "slot": "2026-09-05"
     },
@@ -3562,6 +3551,17 @@
       "status": "done",
       "account": "a_gch8xl46opp7",
       "fromAccount": null
+    },
+    {
+      "id": "dpnscdark7bv",
+      "type": "expense",
+      "amount": 1423,
+      "category": "groceries_de",
+      "note": "Lidl",
+      "date": "2026-09-03",
+      "status": "done",
+      "account": "a_9gbih0jvp6la",
+      "fromAccount": null
     }
   ],
   "rules": [
@@ -3852,7 +3852,34 @@
       "auto": false
     }
   ],
-  "balanceLog": [],
+  "balanceLog": [
+    {
+      "at": "2026-09-02T22:40:44.496Z",
+      "asOf": "2026-08-15",
+      "rows": [
+        {
+          "n": "Commerzbank",
+          "amount": 24361,
+          "date": "2026-08-15"
+        },
+        {
+          "n": "Deutsche Bank",
+          "amount": 54800,
+          "date": "2026-08-15"
+        },
+        {
+          "n": "Revolet Bank",
+          "amount": 8686,
+          "date": "2026-08-15"
+        },
+        {
+          "n": "Paypal",
+          "amount": 11000,
+          "date": "2026-08-15"
+        }
+      ]
+    }
+  ],
   "skips": [
     "07mh5egsobpm|2026-09-03",
     "t5o7gvqyobpm|2026-08-30",
@@ -4312,12 +4339,121 @@
     {
       "id": "a_nnfyos0fx9la",
       "n": "Paypal",
-      "kind": "card"
+      "kind": "card",
+      "start": {
+        "amount": 11000,
+        "date": "2026-08-15"
+      }
     }
   ],
   "profile": {
     "first": "Suresh",
     "last": "Chandramohan",
     "email": "sureshcgermany@gmail.com"
-  }
+  },
+  "feedback": [
+    {
+      "id": "exte10ebq1vn",
+      "kind": "bug",
+      "at": "2026-09-02T22:45:47.651Z",
+      "version": "2.0.24",
+      "answers": [
+        {
+          "k": "area",
+          "q": "Where did it happen?",
+          "a": "Accounts & balances"
+        },
+        {
+          "k": "what",
+          "q": "What were you doing?",
+          "a": "Check the balance in all accounts"
+        },
+        {
+          "k": "expect",
+          "q": "What did you expect?",
+          "a": "All accounts balance positive"
+        },
+        {
+          "k": "actual",
+          "q": "What happened instead?",
+          "a": "PayPal balance shows negative as original balance was missing"
+        }
+      ]
+    },
+    {
+      "id": "20hiq88tr89m",
+      "kind": "idea",
+      "at": "2026-09-02T22:46:42.586Z",
+      "version": "2.0.24",
+      "answers": [
+        {
+          "k": "area",
+          "q": "Which part is this about?",
+          "a": "Somewhere else"
+        },
+        {
+          "k": "what",
+          "q": "What would you like it to do?",
+          "a": "Color coding for all the panels"
+        },
+        {
+          "k": "why",
+          "q": "What would that give you?",
+          "a": "Same look and feel in all pages"
+        }
+      ]
+    },
+    {
+      "id": "3awok26kwna7",
+      "kind": "idea",
+      "at": "2026-09-02T22:50:55.327Z",
+      "version": "2.0.24",
+      "answers": [
+        {
+          "k": "area",
+          "q": "Which part is this about?",
+          "a": "Somewhere else"
+        },
+        {
+          "k": "what",
+          "q": "What would you like it to do?",
+          "a": "More panel size can be reduced"
+        },
+        {
+          "k": "why",
+          "q": "What would that give you?",
+          "a": "Less space occupy"
+        }
+      ]
+    },
+    {
+      "id": "ur9r16gyzm5s",
+      "kind": "bug",
+      "at": "2026-09-02T22:53:13.840Z",
+      "version": "2.0.24",
+      "answers": [
+        {
+          "k": "area",
+          "q": "Where did it happen?",
+          "a": "Dashboard"
+        },
+        {
+          "k": "what",
+          "q": "What were you doing?",
+          "a": "Scrolling through dashboard"
+        },
+        {
+          "k": "expect",
+          "q": "What did you expect?",
+          "a": "The date bar should freeze"
+        },
+        {
+          "k": "actual",
+          "q": "What happened instead?",
+          "a": "Period panel also goes inside"
+        }
+      ]
+    }
+  ],
+  "hiddenCats": []
 }
