@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.31 — 2026-09-04
+- better: Expenses paid so far is a light blue bar with a warm fill for what has been paid
+
 ## 2.0.30 — 2026-09-04
 - better: Expenses paid so far is green for what is planned and red for what has been paid, rather than a blue bar on grey
 
