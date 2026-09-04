@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.25 — 2026-09-04
+- fix: The bell shows a count whenever anything is due. It was counting what was unread, using two dates written differently, and between midnight and 5am it ran backwards - opening the bell was what made the badge appear
+
 ## 2.0.24 — 2026-09-03
 - fix: Cards can hold a starting balance. PayPal is filed as a card, so it never appeared in the list and could not be given the money it actually holds
 - fix: The total beside Accounts refreshes when a balance is saved or cleared, instead of sitting on the old figure until you left the pane and came back

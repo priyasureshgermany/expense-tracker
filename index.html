@@ -3940,8 +3940,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.24";
-const APP_BUILT = "2026-09-03";
+const APP_VERSION = "2.0.25";
+const APP_BUILT = "2026-09-04";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -7102,27 +7102,29 @@ function nextDue(rule){
 }
 /* =========================================================================
    REMINDERS — in-app only, because a page that isn't open cannot wake itself
-   without a push server. A reminder for a given day counts from 5am that day;
-   the bell keeps its dot until the panel is opened, and the day it was last
-   cleared is remembered so a new one shows up tomorrow morning.
+   without a push server.
+
+   The badge counts what is due. It used to count what was *unread*: it appeared
+   on a new reminder day and cleared once the panel had been opened, with the
+   day last cleared kept in storage and compared against a "reminder day" that
+   began at 5am rather than midnight.
+
+   Two dates, two meanings, and they were written differently — seen was stamped
+   with today's date and compared against the reminder day. Between midnight and
+   5am those disagree, and the badge ran backwards: opening the app showed
+   nothing, and opening the bell, the very thing meant to clear the badge, was
+   what made it appear.
+
+   It could have been repaired by stamping both the same way. It is deleted
+   instead, because the count is more useful than the novelty: three bills due
+   is worth seeing every time you look, not only the first time. With nothing to
+   compare there is no way for it to disagree with itself again, and the 5am
+   boundary goes with it — it existed only to decide when the dot came back.
    ========================================================================= */
-const NOTIF_ON_KEY  = "panappai.notif.on";
-const NOTIF_SEEN_KEY = "panappai.notif.seen";   /* the last day cleared, ISO */
-const NOTIF_HOUR = 5;
+const NOTIF_ON_KEY = "panappai.notif.on";
 
 function notifOn(){ return localStorage.getItem(NOTIF_ON_KEY) === "1"; }
 function notifSetOn(v){ localStorage.setItem(NOTIF_ON_KEY, v ? "1" : "0"); }
-function notifSeen(){ return localStorage.getItem(NOTIF_SEEN_KEY) || ""; }
-function notifMarkSeen(){ localStorage.setItem(NOTIF_SEEN_KEY, todayISO()); }
-
-/** The day reminders are live for: today once it's 5am, else yesterday's. */
-function notifDay(){
-  const now = new Date();
-  if (now.getHours() >= NOTIF_HOUR) return todayISO();
-  const y = new Date(now);
-  y.setDate(y.getDate() - 1);
-  return isoOf(y.getFullYear(), y.getMonth() + 1, y.getDate());
-}
 
 /** Whole days from today to `iso`; negative once it's past. */
 function daysUntil(iso){
@@ -7199,10 +7201,10 @@ function dueWords(d){
 
 function syncBell(){
   const list = dueSoon();
-  const unseen = list.length > 0 && notifSeen() !== notifDay();
+  const any = list.length > 0;
   $("#btnBell").hidden = !notifOn();
-  $("#bellDot").hidden = !unseen;
-  $("#bellDot").textContent = unseen ? (list.length > 9 ? "9+" : String(list.length)) : "";
+  $("#bellDot").hidden = !any;
+  $("#bellDot").textContent = any ? (list.length > 9 ? "9+" : String(list.length)) : "";
   $("#btnBell").setAttribute("aria-label",
     list.length ? list.length + " reminder" + (list.length === 1 ? "" : "s") : "Reminders");
 }
@@ -7263,7 +7265,6 @@ function renderBell(){
    ahead — so the next three days' occurrences exist before the panel is ever
    opened, and there was nothing for a refresh button to go and find. */
 $("#btnBell").addEventListener("click", () => {
-  notifMarkSeen();
   syncBell();
   renderBell();
   sheetOpen("#shBell");
@@ -7694,8 +7695,8 @@ const HEART_LEGEND =
 
 $("#notifInfo").addEventListener("click", () => showInfo("Reminders",
   "<p><b>Recurring payment reminders</b> put anything due in the next three days " +
-  "on the bell in the top bar, counted from <b>5am</b> on the day they start. " +
-  "They stay there until you open the bell.</p>" +
+  "on the bell in the top bar, with a count of how many. The count stays for as " +
+  "long as they are due — ticking one off as paid is what takes it away.</p>" +
   "<p><b>Notify this device</b> also raises a notification on the phone or laptop " +
   "you are reading this on, for anything due <b>tomorrow or today</b> — once per " +
   "entry per day, so the same bill does not ask twice.</p>" +
@@ -7828,8 +7829,6 @@ document.addEventListener("visibilitychange", () => {
 $("#notifTog").addEventListener("click", () => {
   const on = !notifOn();
   notifSetOn(on);
-  /* turning it on shouldn't silently swallow today's reminder */
-  if (on) localStorage.removeItem(NOTIF_SEEN_KEY);
   renderNotifSettings();
   syncBell();
   if (on) firePushDue();
