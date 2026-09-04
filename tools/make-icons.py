@@ -163,11 +163,19 @@ def euro(d, cx, cy, size, weight):
                        xx + weight / 2, yy + weight / 2), fill=255)
 
 
+# How much of the euro's height sits behind the building's bottom step.
+EURO_OVERLAP = 0.20
+STEP_BOT_F = 0.40      # kept in step with parliament()'s own STEP_BOT
+
+
 def emblem_mask(S, cx, cy, w, h, esz, ew):
     m = Image.new("L", (S, S), 0)
     d = ImageDraw.Draw(m)
     parliament(d, cx, cy, w, h)
-    euro(d, cx, cy + h * 0.72, esz, ew)
+    # top of the euro = bottom of the steps, less the overlap; so its centre is
+    # half a height lower than that, which is the line solved for here.
+    ecy = cy + h * STEP_BOT_F + esz * (0.5 - EURO_OVERLAP)
+    euro(d, cx, ecy, esz, ew)
     return m
 
 
@@ -185,7 +193,11 @@ def draw(px, maskable=False):
     bw = S - inset * 2
     cy = S * (0.48 if maskable else 0.44)
     bh = bw * 0.52
-    esz = bw * 0.155
+    # The euro, larger, and tucked under the building rather than floating below
+    # it. The overlap is derived rather than eyeballed: STEP_BOT is where the
+    # building ends, so placing the euro's centre a fixed fraction of its own
+    # height below that line puts exactly EURO_OVERLAP of it behind the steps.
+    esz = bw * 0.22
     ew = max(3, int(esz * 0.19))
     off = max(3, int(S * 0.0075))
 
