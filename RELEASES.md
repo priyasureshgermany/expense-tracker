@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.28 — 2026-09-04
+- new: Mark a saved note as sorted, then clear all the sorted ones at once instead of deleting them one at a time
+- better: The euro on the mark is larger, and tucks under the bottom step of the building rather than floating below it
+- better: The tick-off control is a rounded square, the same as every other checkbox in the app
+
 ## 2.0.27 — 2026-09-04
 - better: The three tiles on More take less room - 25px off each tile and 26px off the sheet
 - fix: The mark stays on the top bar on every panel. It was taken away on the way to transactions or shopping, which left the bar looking like a different app's
