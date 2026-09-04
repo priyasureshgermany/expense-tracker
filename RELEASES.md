@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.29 — 2026-09-04
+- better: Clearing sorted notes names them rather than counting them, and says how many stay
+
 ## 2.0.28 — 2026-09-04
 - new: Mark a saved note as sorted, then clear all the sorted ones at once instead of deleting them one at a time
 - better: The euro on the mark is larger, and tucks under the bottom step of the building rather than floating below it
