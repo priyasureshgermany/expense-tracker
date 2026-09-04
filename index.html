@@ -3958,7 +3958,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.28";
+const APP_VERSION = "2.0.29";
 const APP_BUILT = "2026-09-04";
 
 const KEY = "panappai.v1";
@@ -7693,9 +7693,22 @@ function renderFeedbackList(){
     clear.style.width = "100%";
     clear.textContent = "Clear " + doneCount + " sorted item" + (doneCount === 1 ? "" : "s");
     clear.addEventListener("click", async () => {
+      /* Names them rather than counting them. A count cannot be checked — one
+         mis-tick and a note is gone for good with nothing on screen to catch it.
+         The wording is the notes' own, so it goes in as text and never as
+         markup; .cfbox already renders newlines, so a list needs nothing more. */
+      const going = list.filter(f => f.done).map(f => {
+        const one = fbHeadline(f);
+        return "• " + (one.length > 46 ? one.slice(0, 45).trim() + "…" : one);
+      });
+      const kept = list.length - doneCount;
       const ok = await askConfirm({
         title: "Clear " + doneCount + " sorted item" + (doneCount === 1 ? "" : "s") + "?",
-        message: "The ones still open are kept. This cannot be undone.",
+        message: going.join("\n") + "\n\n" +
+          (kept
+            ? kept + (kept === 1 ? " note that is" : " notes that are") +
+              " still open stays. This cannot be undone."
+            : "Nothing else is left. This cannot be undone."),
         confirm: "Clear"
       });
       if (ok !== true) return;
