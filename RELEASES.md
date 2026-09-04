@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.30 — 2026-09-04
+- better: Expenses paid so far is green for what is planned and red for what has been paid, rather than a blue bar on grey
+
 ## 2.0.29 — 2026-09-04
 - better: Clearing sorted notes names them rather than counting them, and says how many stay
 
