@@ -4453,6 +4453,62 @@
           "a": "Period panel also goes inside"
         }
       ]
+    },
+    {
+      "id": "g1c38xe0vwk9",
+      "kind": "bug",
+      "at": "2026-09-04T05:37:55.353Z",
+      "version": "2.0.24",
+      "answers": [
+        {
+          "k": "area",
+          "q": "Where did it happen?",
+          "a": "Dashboard"
+        },
+        {
+          "k": "what",
+          "q": "What were you doing?",
+          "a": "Opened period health and oct15"
+        },
+        {
+          "k": "expect",
+          "q": "What did you expect?",
+          "a": "The corresponding message should appear on other panel"
+        },
+        {
+          "k": "actual",
+          "q": "What happened instead?",
+          "a": "Nothing, it just stuck many times"
+        }
+      ]
+    },
+    {
+      "id": "9uh00vzuz0th",
+      "kind": "bug",
+      "at": "2026-09-04T05:40:20.837Z",
+      "version": "2.0.24",
+      "answers": [
+        {
+          "k": "area",
+          "q": "Where did it happen?",
+          "a": "Reminders"
+        },
+        {
+          "k": "what",
+          "q": "What were you doing?",
+          "a": "Opening reminders"
+        },
+        {
+          "k": "expect",
+          "q": "What did you expect?",
+          "a": "There should be count indicators on the reminder icon always if it has any entry"
+        },
+        {
+          "k": "actual",
+          "q": "What happened instead?",
+          "a": "First time it is empty and once opened and closed the count shows on reminder"
+        }
+      ]
     }
   ],
   "hiddenCats": []
