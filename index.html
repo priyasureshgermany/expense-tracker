@@ -3940,7 +3940,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.25";
+const APP_VERSION = "2.0.26";
 const APP_BUILT = "2026-09-04";
 
 const KEY = "panappai.v1";
@@ -5506,6 +5506,12 @@ function showUpdate(live){
   $("#setAboutDot").hidden = !live;
   $("#moreDot").hidden = !live;
   $("#moreAboutDot").hidden = !live;
+  /* The More tile's own line, which openMore() writes when the sheet opens. An
+     answer that arrives after that has to write it too, or the badge appears
+     over a line still naming the version being replaced. */
+  $("#moreAboutSub").textContent = live
+    ? "Version " + live + " ready"
+    : "Version " + APP_VERSION;
   if (live){
     $("#abUpdateLabel").textContent = "Update to " + live;
     $("#setAboutSub").textContent = "Version " + live + " ready";
@@ -5516,6 +5522,31 @@ function showUpdate(live){
     $("#abRunNote").textContent = "\"Running\" is the copy this device has cached.";
   }
 }
+
+/**
+ * Asks again, but not more often than it is worth asking.
+ *
+ * The check used to run twice in a session: once at boot, and once more inside
+ * renderAbout() when Settings was opened. An installed app that has been open
+ * since before a release therefore never noticed one — the badge only appeared
+ * after a trip through Settings, which is the one place nobody goes looking for
+ * news of an update.
+ *
+ * So it also runs on coming back to the app, and on opening More, which is where
+ * the badge actually is. Throttled because both of those fire often and the
+ * answer cannot change in the seconds between them.
+ */
+let lastUpdateCheck = 0;
+const UPDATE_CHECK_GAP = 60000;   /* a minute is far below any release cadence */
+function refreshUpdateFlag(force){
+  const now = Date.now();
+  if (!force && now - lastUpdateCheck < UPDATE_CHECK_GAP) return;
+  lastUpdateCheck = now;
+  checkForUpdate().then(showUpdate);
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) refreshUpdateFlag();
+});
 
 /** Asks the server what it is serving, without going through the cache. */
 function checkForUpdate(){
@@ -8513,6 +8544,9 @@ function openMore(){
     ? "Version " + updateAvailable + " ready"
     : "Version " + APP_VERSION;
   $("#moreAboutDot").hidden = !updateAvailable;
+  /* asks while the sheet is opening; showUpdate writes straight to the badge,
+     so an answer arriving a moment later still lands on the tile being looked at */
+  refreshUpdateFlag();
   sheetOpen("#shMore");
 }
 $("#btnMore").addEventListener("click", openMore);
@@ -10735,7 +10769,7 @@ $("#ghDisable").addEventListener("click", async () => {
   syncEyeBtn();
   syncThemeColorMeta();
   /* so the tile carries the badge without Settings having been opened */
-  checkForUpdate().then(showUpdate);
+  refreshUpdateFlag(true);
   if (lockEnabled()) lockOpenUnlock(); else document.documentElement.classList.remove("locked");
   lockResetIdle();
   /* Opening the app is one of only two moments this channel can fire — the

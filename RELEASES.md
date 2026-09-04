@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.26 — 2026-09-04
+- fix: The update badge appears without a trip through Settings. The check only ran at boot and inside the About panel, so an app left open across a release never noticed one
+
 ## 2.0.25 — 2026-09-04
 - fix: The bell shows a count whenever anything is due. It was counting what was unread, using two dates written differently, and between midnight and 5am it ran backwards - opening the bell was what made the badge appear
 
