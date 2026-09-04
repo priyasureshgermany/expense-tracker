@@ -389,15 +389,15 @@ button.tile:hover .tile-go{color:var(--accent)}
    in, money out; paid takes --neg. Green was wrong here: green in this app means
    money that is fine, and money merely planned is not yet anything. Now the two
    panels name the same quantity with the same colour. */
-/* The light blue this bar always had, now carrying the whole of what is planned,
-   with one warm colour filling in what has been paid. Two dark colours side by
-   side was the mistake — they fought each other and neither read. A calm ground
-   and a single warm fill is easier to look at and easier to measure. */
+/* The same two colours Money in, money out uses directly below: --warn is what
+   its Planned expense bar is drawn in, --neg what its Actual expense bar is.
+   Taken as tokens rather than copied as values, so the two panels cannot drift
+   apart the next time the palette moves. */
 .meter{
-  height:8px;background:#9CC9DF;border-radius:99px;overflow:hidden;
+  height:8px;background:var(--warn);border-radius:99px;overflow:hidden;
 }
 .meter i{
-  display:block;height:100%;background:#E05A3C;
+  display:block;height:100%;background:var(--neg);
   border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1);
 }
 
@@ -3967,7 +3967,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.31";
+const APP_VERSION = "2.0.32";
 const APP_BUILT = "2026-09-04";
 
 const KEY = "panappai.v1";

@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.32 — 2026-09-04
+- better: Expenses paid so far uses the same two colours as Money in, money out below it - amber for planned, red for paid
+
 ## 2.0.31 — 2026-09-04
 - better: Expenses paid so far is a light blue bar with a warm fill for what has been paid
 
