@@ -1555,11 +1555,11 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 
 /* MORE — three ways on, as tiles rather than a list: there are only three, and
    a short sheet of them reads faster than rows. */
-#moreMenu{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#moreMenu{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .morerow{
   position:relative;
-  display:flex;flex-direction:column;align-items:center;gap:9px;
-  padding:16px 8px 14px;border-radius:16px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  padding:11px 6px 10px;border-radius:14px;text-align:center;
   background:var(--surface-2);border:1px solid var(--line);
   transition:background .15s,border-color .15s,transform .12s;
 }
@@ -1569,14 +1569,17 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   border-bottom-color:var(--line-strong);
 }
 .morerow:active{transform:scale(.97)}
+/* Smaller all round. Three tiles that are only ever tapped and never read for
+   long do not need to fill half the sheet — the icon and the name carry it, and
+   the line underneath is a detail rather than a heading. */
 .morerow .sr-ic{
-  width:48px;height:48px;border-radius:14px;flex:none;
+  width:38px;height:38px;border-radius:11px;flex:none;
   display:grid;place-items:center;
   background:var(--accent-soft);color:var(--accent);
 }
-.morerow .sr-ic svg{width:26px;height:26px}
-.morerow b{font-size:12.5px;font-weight:600;letter-spacing:-.005em;line-height:1.25}
-.morerow .ms{font-size:10.5px;color:var(--ink-3);line-height:1.3}
+.morerow .sr-ic svg{width:21px;height:21px}
+.morerow b{font-size:12px;font-weight:600;letter-spacing:-.005em;line-height:1.2}
+.morerow .ms{font-size:10px;color:var(--ink-3);line-height:1.25}
 
 /* The three tiles are as they were — centred, the same type and the same icon
    chip. The only thing colour does here is run down the left edge, the way it
@@ -3940,7 +3943,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.26";
+const APP_VERSION = "2.0.27";
 const APP_BUILT = "2026-09-04";
 
 const KEY = "panappai.v1";
@@ -9902,8 +9905,9 @@ let panel = "dash";
 function setPanel(p){
   panel = p;
   $("#viewDash").hidden = p !== "dash";
-  /* the mark belongs to the dashboard, which is the app's front page */
-  $("#appLogo").hidden = p !== "dash";
+  /* The mark stays on the bar whichever panel is showing. It was treated as
+     belonging to the dashboard and taken away on the way to the ledger or the
+     shopping list, which left the top bar looking like a different app's. */
   $("#viewEntries").hidden = p !== "entries";
   $("#viewShop").hidden = p !== "shop";
   /* the month bar and add button drive the ledger only; shopping lists aren't period-scoped */
