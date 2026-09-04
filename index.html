@@ -1404,8 +1404,12 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .ampill.a{background:var(--pos-soft);color:var(--pos)}
 .ampill.m{background:var(--warn-soft);color:var(--warn)}
 
+/* A rounded square, like every other checkbox in the app — the native ones at
+   6px, the shopping list's at 7px. This was the last round one, and the
+   reminders panel had already been given a square of its own, which left the
+   same control drawn two different ways on two screens. */
 .tick{
-  width:26px;height:26px;flex:none;border-radius:99px;
+  width:26px;height:26px;flex:none;border-radius:8px;
   border:1.6px solid var(--line-strong);
   display:grid;place-items:center;color:transparent;
   transition:border-color .15s,background .15s,color .15s;
@@ -1735,12 +1739,22 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .fb-nav #fbBack[hidden]{display:none}
 
 .fb-row{
-  display:flex;align-items:flex-start;gap:11px;width:100%;
+  display:flex;align-items:center;gap:10px;width:100%;
   padding:11px 12px;border-radius:13px;text-align:left;
   border:1px solid var(--line);background:var(--surface-2);margin-bottom:7px;
-  transition:background .14s,border-color .14s;
+  transition:background .14s,border-color .14s,opacity .14s;
 }
 .fb-row:hover{background:var(--surface-sunk);border-color:var(--line-strong)}
+/* the row opens the note; the tick beside it settles the note. Two buttons,
+   because one cannot contain the other. */
+.fb-open{
+  flex:1;min-width:0;display:flex;align-items:center;gap:11px;text-align:left;
+}
+.fb-row .tick{margin-left:auto}
+/* Sorted, but still here until it is cleared — present enough to be found and
+   undone, quiet enough not to compete with what is still open. */
+.fb-row.done{opacity:.55}
+.fb-row.done .fb-one{text-decoration:line-through;text-decoration-thickness:1px}
 .fb-row .fb-tag{
   width:28px;height:28px;border-radius:9px;flex:none;display:grid;place-items:center;
   background:var(--surface);
@@ -2291,7 +2305,8 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 }
 .nopen:hover{background:var(--surface-2)}
 /* a rounded square here rather than the ledger's circle */
-.nrow .tick{border-radius:9px;width:27px;height:27px}
+/* the radius comes from .tick now; only the size differs here */
+.nrow .tick{width:27px;height:27px}
 .nrow .nh{font-size:16px;line-height:1;flex:none;width:20px;text-align:center}
 .nrow .nm{flex:1;min-width:0}
 .nrow .nt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -3943,7 +3958,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.27";
+const APP_VERSION = "2.0.28";
 const APP_BUILT = "2026-09-04";
 
 const KEY = "panappai.v1";
@@ -7614,12 +7629,15 @@ function renderFeedbackList(){
 
   const sub = $("#setFbSub");
   if (sub){
-    const bugs = list.filter(f => f.kind === "bug").length;
-    const ideas = list.length - bugs;
-    sub.textContent = list.length
+    /* Counts what is still open. A tile saying "3 bugs" over a list where all
+       three are sorted is reporting the wrong thing. */
+    const open = list.filter(f => !f.done);
+    const bugs = open.filter(f => f.kind === "bug").length;
+    const ideas = open.length - bugs;
+    sub.textContent = open.length
       ? [ideas ? ideas + " idea" + (ideas === 1 ? "" : "s") : "",
          bugs ? bugs + " bug" + (bugs === 1 ? "" : "s") : ""].filter(Boolean).join(", ")
-      : "Ideas and bugs";
+      : (list.length ? "All sorted" : "Ideas and bugs");
   }
 
   if (!list.length){
@@ -7627,24 +7645,67 @@ function renderFeedbackList(){
     return;
   }
 
+  const doneCount = list.filter(f => f.done).length;
+
   host.appendChild(el("div", "bl-lt", "Saved"));
   list.forEach(f => {
-    const row = el("button", "fb-row " + f.kind);
-    row.type = "button";
+    /* A div holding two buttons rather than one button, because a button cannot
+       nest inside a button — the same shape the reminder row settled on. */
+    const row = el("div", "fb-row " + f.kind + (f.done ? " done" : ""));
 
+    const open = el("button", "fb-open");
+    open.type = "button";
     const tag = el("span", "fb-tag");
     tag.innerHTML = FB_ICON[f.kind] || FB_ICON.idea;
-    row.appendChild(tag);
-
+    open.appendChild(tag);
     const txt = el("div", "fb-txt");
     txt.appendChild(el("div", "fb-one", fbHeadline(f)));
     txt.appendChild(el("div", "fb-when",
-      (f.kind === "bug" ? "Bug" : "Feedback") + " · " + dayTitle(f.at.slice(0, 10))));
-    row.appendChild(txt);
+      (f.kind === "bug" ? "Bug" : "Feedback") + " · " + dayTitle(f.at.slice(0, 10)) +
+      (f.done ? " · sorted" : "")));
+    open.appendChild(txt);
+    open.addEventListener("click", () => openFeedback(f.id));
+    row.appendChild(open);
 
-    row.addEventListener("click", () => openFeedback(f.id));
+    const tick = el("button", "tick" + (f.done ? " on" : ""));
+    tick.type = "button";
+    tick.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+    const lbl = f.done ? "Mark as still open" : "Mark as sorted";
+    tick.title = lbl;
+    tick.setAttribute("aria-label", lbl);
+    tick.setAttribute("aria-pressed", String(!!f.done));
+    tick.addEventListener("click", () => {
+      f.done = !f.done;
+      saveLocal();
+      renderFeedbackList();
+    });
+    row.appendChild(tick);
+
     host.appendChild(row);
   });
+
+  /* Deleting five things one at a time, each behind its own confirm, is what
+     made this worth adding. Only shown when there is something to clear. */
+  if (doneCount){
+    const clear = el("button", "btn danger sm");
+    clear.type = "button";
+    clear.style.marginTop = "12px";
+    clear.style.width = "100%";
+    clear.textContent = "Clear " + doneCount + " sorted item" + (doneCount === 1 ? "" : "s");
+    clear.addEventListener("click", async () => {
+      const ok = await askConfirm({
+        title: "Clear " + doneCount + " sorted item" + (doneCount === 1 ? "" : "s") + "?",
+        message: "The ones still open are kept. This cannot be undone.",
+        confirm: "Clear"
+      });
+      if (ok !== true) return;
+      state.feedback = (state.feedback || []).filter(f => !f.done);
+      saveLocal();
+      renderFeedbackList();
+      toast("Cleared " + doneCount + " item" + (doneCount === 1 ? "" : "s"));
+    });
+    host.appendChild(clear);
+  }
 }
 
 /** The whole of one saved item, question by question the way it was asked. */
