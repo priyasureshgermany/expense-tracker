@@ -384,20 +384,21 @@ button.tile:hover .tile-go{color:var(--accent)}
   font-size:12px;color:var(--ink-2);font-family:var(--mono);
   font-variant-numeric:tabular-nums;
 }
-/* The whole bar is what is planned, and it is green; the part filled is what has
-   actually been paid, and it is red. Both at full strength rather than a tint,
-   because the point of the bar is to be read at a glance from across the room.
-   It is also the colour language the rest of the app already speaks — green for
-   money that is fine, red for money gone. */
+/* The whole bar is what is planned and the part filled is what has been paid.
+   Planned takes --warn, the same amber the Planned expense bar carries in Money
+   in, money out; paid takes --neg. Green was wrong here: green in this app means
+   money that is fine, and money merely planned is not yet anything. Now the two
+   panels name the same quantity with the same colour. */
+/* The light blue this bar always had, now carrying the whole of what is planned,
+   with one warm colour filling in what has been paid. Two dark colours side by
+   side was the mistake — they fought each other and neither read. A calm ground
+   and a single warm fill is easier to look at and easier to measure. */
 .meter{
-  height:8px;background:var(--pos);border-radius:99px;overflow:hidden;
+  height:8px;background:#9CC9DF;border-radius:99px;overflow:hidden;
 }
 .meter i{
-  display:block;height:100%;background:var(--neg);
+  display:block;height:100%;background:#E05A3C;
   border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1);
-  /* a hairline of the green showing through at the join, so the boundary
-     between two dark saturated colours does not have to be guessed at */
-  box-shadow:1px 0 0 0 rgba(255,255,255,.35);
 }
 
 /* ---------- Demo banner ---------- */
@@ -3966,7 +3967,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.30";
+const APP_VERSION = "2.0.31";
 const APP_BUILT = "2026-09-04";
 
 const KEY = "panappai.v1";
