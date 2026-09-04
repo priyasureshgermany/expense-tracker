@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.27 — 2026-09-04
+- better: The three tiles on More take less room - 25px off each tile and 26px off the sheet
+- fix: The mark stays on the top bar on every panel. It was taken away on the way to transactions or shopping, which left the bar looking like a different app's
+
 ## 2.0.26 — 2026-09-04
 - fix: The update badge appears without a trip through Settings. The check only ran at boot and inside the About panel, so an app left open across a release never noticed one
 
