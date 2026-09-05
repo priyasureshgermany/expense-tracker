@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.35 — 2026-09-05
+- new: The data stored on this device can be encrypted with a passphrase. The PIN hides the screen; this makes what is stored unreadable without it
+- new: The PIN and the passphrase are separate options, both from App lock. The passphrase opens the app, the PIN comes back from an idle screen
+
 ## 2.0.34 — 2026-09-05
 - new: Backups can push on their own - after edits settle, when you leave the app, and on opening. Off unless you switch it on, and it stands down rather than send an empty or example book
 - better: The app no longer updates itself. It stays on the build you have until you press Update
