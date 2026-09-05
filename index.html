@@ -2652,7 +2652,9 @@ html.locked #lockScreen::before{
           <linearGradient id="n20"  x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#9AC6E8"/><stop offset=".55" stop-color="#5B8FC7"/><stop offset="1" stop-color="#38609C"/></linearGradient>
           <linearGradient id="n50"  x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#F7CE8A"/><stop offset=".55" stop-color="#E0A248"/><stop offset="1" stop-color="#B87A22"/></linearGradient>
           <linearGradient id="n100" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#9FD8AF"/><stop offset=".55" stop-color="#59A876"/><stop offset="1" stop-color="#357C51"/></linearGradient>
-          <linearGradient id="n200" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#F0DE95"/><stop offset=".55" stop-color="#D2B054"/><stop offset="1" stop-color="#A98A24"/></linearGradient>
+          <!-- 200: yellow-brown, which is what the series actually is — it was a
+               yellow-gold before and sat too near the 50's orange to tell apart -->
+          <linearGradient id="n200" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#D9C48C"/><stop offset=".55" stop-color="#A98D4E"/><stop offset="1" stop-color="#7E6530"/></linearGradient>
 
           <!-- the foil stripe down the right edge, and the sheen across it -->
           <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1">
@@ -4083,7 +4085,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.38";
+const APP_VERSION = "2.0.39";
 const APP_BUILT = "2026-09-05";
 
 const KEY = "panappai.v1";
