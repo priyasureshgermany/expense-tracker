@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.33 — 2026-09-05
+- better: The app icon is blue leather in the artwork itself, so the home screen icon matches the app instead of staying brown
+- better: The euro on the mark is bigger and centred in the space below the building
+
 ## 2.0.32 — 2026-09-04
 - better: Expenses paid so far uses the same two colours as Money in, money out below it - amber for planned, red for paid
 
