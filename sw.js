@@ -15,7 +15,7 @@
    The check that raises the Update badge is unaffected: it asks the network
    directly with a cache-busting query, so it still sees a newer version even
    while this worker keeps serving the old one. */
-const VERSION = "2.0.35";
+const VERSION = "2.0.36";
 const ASSETS = "panappai-" + VERSION;   /* icons, manifest — versioned, purged */
 const SHELL = "panappai-shell";         /* the page itself — replaced only on request */
 
