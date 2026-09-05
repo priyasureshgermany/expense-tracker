@@ -2700,6 +2700,11 @@ html.locked #lockScreen::before{
     <div class="lock-sub" id="lockSub">Enter your PIN</div>
     <div class="lock-dots" id="lockDots"><span></span><span></span><span></span><span></span></div>
     <div class="lock-msg" id="lockMsg" hidden></div>
+    <div class="lock-recover" id="lockPassWrap" hidden>
+      <input class="lr-in" id="lockPass" type="password" autocomplete="current-password"
+             autocapitalize="none" spellcheck="false" placeholder="Your passphrase">
+      <button class="lr-go" id="lockPassGo">Unlock</button>
+    </div>
     <div class="lock-recover" id="lockRecover" hidden>
       <div class="lr-q" id="lockRecoverQ"></div>
       <input class="lr-in" id="lockAnswer" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Your answer">
@@ -3752,6 +3757,20 @@ html.locked #lockScreen::before{
   <div class="sheet-body setpane" id="setPane_lock" hidden>
 <div class="field">
       <div class="note" id="lockStatus">Off — anyone with this device can open the app.</div>
+      <div class="panegroup" style="margin-top:18px;padding-top:14px">
+        <h3>Encrypt what is stored here</h3>
+        <div class="note" id="encStatus">—</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <button class="btn ghost sm" id="encEnable" hidden>Encrypt this device</button>
+          <button class="btn ghost sm" id="encChange" hidden>Change passphrase</button>
+          <button class="btn danger sm" id="encDisable" hidden>Stop encrypting</button>
+        </div>
+        <div class="note" style="margin-top:8px">
+          The PIN hides the screen; this makes the stored data unreadable. Your
+          passphrase and your security answer each open it, so forgetting one is
+          not the end of the book — forgetting both is.
+        </div>
+      </div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
         <button class="btn ghost sm" id="lockSetPin">Set a 4-digit PIN</button>
         <button class="btn danger sm" id="lockTurnOff" hidden>Turn off app lock</button>
@@ -3765,7 +3784,7 @@ html.locked #lockScreen::before{
           <button class="btn ghost sm" id="lockQSave">Save security question</button>
         </div>
       </div>
-      <div class="note" style="margin-top:6px">Locks the screen only — it does not encrypt the data stored on this device.</div>
+      <div class="note" style="margin-top:6px" id="lockFootNote">Locks the screen only — it does not encrypt the data stored on this device.</div>
     </div>
   </div>
   <div class="sheet-body setpane" id="setPane_prefs" hidden>
@@ -3965,6 +3984,21 @@ html.locked #lockScreen::before{
   </div>
 </div>
 
+<div class="cfwrap" id="shAskText" hidden role="dialog" aria-modal="true" aria-labelledby="atTitle">
+  <div class="cfbox" role="document">
+    <div class="cf-ic plain" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg>
+    </div>
+    <h3 id="atTitle">&nbsp;</h3>
+    <p id="atMsg"></p>
+    <input class="inp" id="atInput" type="password" autocomplete="off" autocapitalize="none" spellcheck="false">
+    <div class="cf-actions">
+      <button class="btn ghost" id="atNo" type="button">Cancel</button>
+      <button class="btn" id="atYes" type="button">Continue</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 "use strict";
@@ -3974,7 +4008,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.34";
+const APP_VERSION = "2.0.35";
 const APP_BUILT = "2026-09-05";
 
 const KEY = "panappai.v1";
@@ -4719,7 +4753,264 @@ function load(){
   if (stamped || toned) saveLocal();
 }
 /** Write to storage only. Used where there is nothing new to send. */
+/* =========================================================================
+   ENCRYPTION AT REST
+
+   The PIN was a screen lock and said so: it stopped someone picking up the
+   phone and reading the dashboard, and did nothing at all about the data
+   sitting in localStorage, which any browser's developer tools will show you.
+   This encrypts that.
+
+   A random 256-bit data key does the work. The passphrase never encrypts the
+   book directly — it encrypts the data key, and so does the answer to the
+   security question. Two wrappings of one key:
+
+     · it means changing the passphrase rewraps a key rather than re-encrypting
+       every entry, so it is instant and cannot half-finish
+     · and it means a forgotten passphrase is survivable. Deriving the key from
+       the passphrase alone would make forgetting it identical to deleting the
+       book, in every backup, for ever — which is not a reasonable thing to do
+       to somebody's financial records.
+
+   PBKDF2-SHA256 at 310,000 iterations guards each wrapping; AES-GCM does the
+   encrypting, with a fresh 12-byte nonce every write and the version as
+   associated data so a payload cannot be replayed under a different format.
+
+   What this does not do: protect you from someone who has your unlocked
+   device, or from a browser extension reading memory while the app is open.
+   It protects the data at rest, which is the case where the laptop is stolen.
+   ========================================================================= */
+const ENC_KEY      = "panappai.v1.enc";   /* the encrypted book */
+const ENC_WRAP_KEY = "panappai.enc.wrap"; /* the two wrapped copies of the data key */
+const ENC_ITER = 310000;
+const ENC_VER = 1;
+
+let dataKey = null;          /* CryptoKey, in memory only, only while unlocked */
+
+function encAvailable(){
+  return !!(window.crypto && crypto.subtle && crypto.getRandomValues);
+}
+function encOn(){
+  try{ return !!localStorage.getItem(ENC_WRAP_KEY); }catch(e){ return false; }
+}
+function encUnlocked(){ return !!dataKey; }
+
+/* ---------- small helpers: bytes in, text out, and back ---------- */
+function encRandom(n){ return crypto.getRandomValues(new Uint8Array(n)); }
+function encB64(bytes){
+  let s = "";
+  const b = new Uint8Array(bytes);
+  for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+  return btoa(s);
+}
+function encUnB64(s){
+  const bin = atob(s);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+/* The same normalising the security answer already gets, so "St Marys" and
+   "  st   marys  " open the same book. Passphrases are left exactly as typed:
+   trimming one silently is how a password stops matching itself. */
+function encNormAnswer(a){
+  return String(a || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/** A key that can unwrap the data key, from something the person knows. */
+async function encDeriveKey(secret, salt){
+  const base = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(secret), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name:"PBKDF2", salt: salt, iterations: ENC_ITER, hash:"SHA-256" },
+    base, { name:"AES-GCM", length:256 }, false, ["encrypt", "decrypt"]);
+}
+
+/** Wrap the raw data key under one secret, returning what has to be stored. */
+async function encWrap(rawKey, secret){
+  const salt = encRandom(16), iv = encRandom(12);
+  const kek = await encDeriveKey(secret, salt);
+  const ct = await crypto.subtle.encrypt({ name:"AES-GCM", iv: iv }, kek, rawKey);
+  return { salt: encB64(salt), iv: encB64(iv), ct: encB64(ct) };
+}
+
+/** Open one wrapping. Returns null when the secret is wrong, rather than throwing. */
+async function encUnwrap(w, secret){
+  try{
+    const kek = await encDeriveKey(secret, encUnB64(w.salt));
+    const raw = await crypto.subtle.decrypt(
+      { name:"AES-GCM", iv: encUnB64(w.iv) }, kek, encUnB64(w.ct));
+    return crypto.subtle.importKey("raw", raw, "AES-GCM", true, ["encrypt", "decrypt"]);
+  }catch(e){ return null; }
+}
+
+function encWraps(){
+  try{ return JSON.parse(localStorage.getItem(ENC_WRAP_KEY) || "null"); }
+  catch(e){ return null; }
+}
+
+/** Try the passphrase, then the security answer. Either opens the book. */
+async function encUnlock(secret){
+  const w = encWraps();
+  if (!w) return false;
+  let key = await encUnwrap(w.pass, secret);
+  if (!key && w.answer) key = await encUnwrap(w.answer, encNormAnswer(secret));
+  if (!key) return false;
+  dataKey = key;
+  return true;
+}
+
+function encLock(){ dataKey = null; }
+
+/* ---------- the book itself ---------- */
+async function encEncrypt(text){
+  const iv = encRandom(12);
+  const ct = await crypto.subtle.encrypt(
+    { name:"AES-GCM", iv: iv, additionalData: new TextEncoder().encode("panappai:" + ENC_VER) },
+    dataKey, new TextEncoder().encode(text));
+  return JSON.stringify({ v: ENC_VER, iv: encB64(iv), ct: encB64(ct) });
+}
+
+async function encDecrypt(payload){
+  const p = JSON.parse(payload);
+  const plain = await crypto.subtle.decrypt(
+    { name:"AES-GCM", iv: encUnB64(p.iv),
+      additionalData: new TextEncoder().encode("panappai:" + (p.v || 1)) },
+    dataKey, encUnB64(p.ct));
+  return new TextDecoder().decode(plain);
+}
+
+/**
+ * Turn encryption on.
+ *
+ * The plaintext is not removed until the encrypted copy has been read back and
+ * found to say the same thing. A migration that half-works is the one failure
+ * this cannot be allowed to have.
+ */
+async function encEnable(passphrase, answer){
+  if (!encAvailable()) throw new Error("This browser has no WebCrypto.");
+  if (!passphrase || passphrase.length < 8) throw new Error("Use at least 8 characters.");
+
+  const raw = encRandom(32);
+  const key = await crypto.subtle.importKey("raw", raw, "AES-GCM", true, ["encrypt", "decrypt"]);
+  const wraps = { pass: await encWrap(raw, passphrase) };
+  if (answer) wraps.answer = await encWrap(raw, encNormAnswer(answer));
+
+  const before = dataKey;
+  dataKey = key;
+  try{
+    const text = JSON.stringify(state);
+    const payload = await encEncrypt(text);
+    /* read it back through the same door a reload would use */
+    const check = await encDecrypt(payload);
+    if (check !== text) throw new Error("verification failed");
+    localStorage.setItem(ENC_WRAP_KEY, JSON.stringify(wraps));
+    localStorage.setItem(ENC_KEY, payload);
+    localStorage.removeItem(KEY);          /* only now */
+    return true;
+  }catch(e){
+    dataKey = before;
+    try{ localStorage.removeItem(ENC_KEY); localStorage.removeItem(ENC_WRAP_KEY); }catch(e2){}
+    throw e;
+  }
+}
+
+/** Turn it off, writing the plaintext back only once it is readable. */
+async function encDisable(){
+  if (!encUnlocked()) throw new Error("Unlock first.");
+  const text = await encDecrypt(localStorage.getItem(ENC_KEY));
+  JSON.parse(text);                        /* it has to parse before it counts */
+  localStorage.setItem(KEY, text);
+  localStorage.removeItem(ENC_KEY);
+  localStorage.removeItem(ENC_WRAP_KEY);
+  dataKey = null;
+  return true;
+}
+
+/** Change the passphrase: rewraps the key, never re-encrypts the book. */
+async function encChangePassphrase(next, answer){
+  if (!encUnlocked()) throw new Error("Unlock first.");
+  if (!next || next.length < 8) throw new Error("Use at least 8 characters.");
+  const raw = await crypto.subtle.exportKey("raw", dataKey);
+  const wraps = { pass: await encWrap(raw, next) };
+  if (answer) wraps.answer = await encWrap(raw, encNormAnswer(answer));
+  else {
+    const old = encWraps();
+    if (old && old.answer) wraps.answer = old.answer;
+  }
+  localStorage.setItem(ENC_WRAP_KEY, JSON.stringify(wraps));
+  return true;
+}
+
+/* ---------- writing the book, encrypted ----------
+   saveLocal() is called from a dozen places and is synchronous; WebCrypto is
+   not. So the text is taken synchronously — the moment save() was called, not
+   whatever the state has become by the time the cipher is ready — and the
+   encrypting happens after.
+
+   Two things guard the gap. Every write carries a sequence number, so a slow
+   write cannot land on top of a fast one that came later. And the pending text
+   is kept until its write succeeds, so leaving the app flushes it rather than
+   losing it. */
+let encSeq = 0;
+let encWritten = 0;
+let encPending = null;      /* the newest text not yet on disk */
+let encWriting = false;
+
+function encQueueWrite(){
+  encPending = JSON.stringify(state);
+  encSeq++;
+  encFlush();
+}
+
+async function encFlush(){
+  if (encWriting || encPending === null) return;
+  if (!encOn() || !encUnlocked()) return;
+  encWriting = true;
+  try{
+    while (encPending !== null){
+      const text = encPending, seq = encSeq;
+      encPending = null;
+      const payload = await encEncrypt(text);
+      /* A later write may have finished while this one was encrypting. Writing
+         now would put the older book back. */
+      if (seq < encWritten) continue;
+      localStorage.setItem(ENC_KEY, payload);
+      encWritten = seq;
+    }
+  }catch(e){
+    toast("Couldn't save — the encrypted write failed");
+  }finally{
+    encWriting = false;
+  }
+}
+
+/** Everything not yet on disk, before the tab goes away. */
+function encFlushNow(){ if (encPending !== null) encFlush(); }
+document.addEventListener("visibilitychange", () => { if (document.hidden) encFlushNow(); });
+window.addEventListener("pagehide", encFlushNow);
+
+/**
+ * Reads the encrypted book once the key is in hand. Kept separate from load()
+ * so nothing tries to parse a cipher as JSON.
+ */
+async function encLoad(){
+  const raw = localStorage.getItem(ENC_KEY);
+  if (!raw) return false;
+  const text = await encDecrypt(raw);
+  const p = JSON.parse(text);
+  if (p && Array.isArray(p.txns)) state = stateFromPayload(p);
+  return true;
+}
+
 function saveLocal(){
+  if (encOn()){
+    /* Locked means the key is not in memory, so there is nothing that could be
+       written. State only ever changes behind the unlock screen, so this is a
+       guard against a bug rather than a case that happens. */
+    if (!encUnlocked()) return;
+    encQueueWrite();
+    return;
+  }
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
   catch(e){ toast("Couldn't save — storage is full or blocked"); }
 }
@@ -4895,6 +5186,41 @@ let confirmResolve = null;
  * is open rather than replacing it, so a cancel leaves you exactly where you
  * were.
  */
+/**
+ * One line of text, asked the way askConfirm asks a question. Resolves to the
+ * string, or to null when it is cancelled — which is not the same as an empty
+ * answer, and the difference matters when the answer is a passphrase.
+ */
+let askTextResolve = null;
+function askText(opts){
+  const o = opts || {};
+  $("#atTitle").textContent = o.title || "";
+  $("#atMsg").textContent = o.message || "";
+  const inp = $("#atInput");
+  inp.type = o.password === false ? "text" : "password";
+  inp.placeholder = o.placeholder || "";
+  inp.value = "";
+  $("#atYes").textContent = o.confirm || "Continue";
+  $("#shAskText").hidden = false;
+  setTimeout(() => inp.focus(), 60);
+  return new Promise(resolve => { askTextResolve = resolve; });
+}
+function askTextEnd(v){
+  $("#shAskText").hidden = true;
+  $("#atInput").value = "";
+  const r = askTextResolve;
+  askTextResolve = null;
+  if (r) r(v);
+}
+$("#atYes").addEventListener("click", () => askTextEnd($("#atInput").value));
+$("#atNo").addEventListener("click", () => askTextEnd(null));
+$("#atInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") askTextEnd($("#atInput").value);
+});
+$("#shAskText").addEventListener("click", e => {
+  if (e.target === $("#shAskText")) askTextEnd(null);
+});
+
 function askConfirm(opts){
   const o = opts || {};
   $("#cfTitle").textContent = o.title || "Are you sure?";
@@ -8614,6 +8940,7 @@ function openSettings(){
     (periods.size === 1 ? "" : "s") + ", plus <b>" + state.rules.length + "</b> repeating entr" +
     (state.rules.length === 1 ? "y" : "ies") + ".";
   renderLockSettings();
+  renderEncSettings();
   renderBalanceSettings();
   renderGhSettings();
   renderProfileSettings();
@@ -10148,12 +10475,77 @@ function lockConfirmEnd(ok){
   if (r) r(ok);
 }
 
+/* ---------- the unlock screen, when the book is encrypted ----------
+   With encryption on there is nothing to show until the key is in hand: the
+   dashboard cannot be drawn from a cipher. So this screen is not a curtain
+   over a loaded app the way the PIN was — the app genuinely has no data behind
+   it yet, and loads once the passphrase opens the key. */
+let encBooted = false;
+let encBootWithData = function(){};   /* filled in by the boot sequence below */
+
+function encOpenUnlock(){
+  document.documentElement.classList.add("locked");
+  lockSay("");
+  $("#lockSub").textContent = "Enter your passphrase";
+  $("#lockPad").hidden = true;
+  $("#lockDots").hidden = true;
+  $("#lockRecover").hidden = true;
+  $("#lockForgot").hidden = false;
+  $("#lockForgot").textContent = "Forgotten it?";
+  $("#lockPassWrap").hidden = false;
+  $("#lockPass").value = "";
+  setTimeout(() => $("#lockPass").focus(), 80);
+}
+
+async function encTryUnlock(){
+  const secret = $("#lockPass").value;
+  if (!secret) return;
+  const btn = $("#lockPassGo");
+  btn.disabled = true;
+  btn.textContent = "Opening…";
+  /* 310,000 rounds take a moment on a phone, and a frozen button with no
+     explanation reads as a hang. */
+  await new Promise(r => setTimeout(r, 16));
+  let ok = false;
+  try{ ok = await encUnlock(secret); }catch(e){ ok = false; }
+  btn.disabled = false;
+  btn.textContent = "Unlock";
+  if (!ok){
+    lockShake();
+    $("#lockPass").value = "";
+    lockSay("That does not open it. Your security question's answer works too, " +
+            "if the passphrase has gone.");
+    return;
+  }
+  $("#lockPassWrap").hidden = true;
+  try{
+    await encLoad();
+  }catch(e){
+    lockSay("The book could not be read. Nothing has been changed — restore a " +
+            "backup from Settings once you are in.");
+  }
+  if (!encBooted){ encBooted = true; encBootWithData(); }
+  $("#lockForgot").textContent = "Forgot your PIN?";
+  unlockApp();
+}
+
+$("#lockPassGo").addEventListener("click", encTryUnlock);
+$("#lockPass").addEventListener("keydown", e => { if (e.key === "Enter") encTryUnlock(); });
+
 function lockOpenUnlock(){
+  /* Only the passphrase can open the encrypted book, so while the key is not in
+     memory that is the one screen there is. Once it is — the app has been
+     opened and is merely idle — the PIN is enough, because there is nothing
+     left to decrypt. */
+  if (encOn() && !encUnlocked()){ encOpenUnlock(); return; }
+
   document.documentElement.classList.add("locked");
   lockMode = "unlock"; lockBuf = ""; lockFirstPin = "";
   lockSay("");
   $("#lockSub").textContent = "Enter your PIN";
   $("#lockForgot").hidden = false;
+  $("#lockForgot").textContent = "Forgot your PIN?";
+  $("#lockPassWrap").hidden = true;
   $("#lockRecover").hidden = true;
   $("#lockPad").hidden = false;
   $("#lockDots").hidden = false;
@@ -10292,18 +10684,133 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
+/* ---------- turning encryption on and off, from App lock ---------- */
+function renderEncSettings(){
+  const on = encOn();
+  const st = $("#encStatus");
+  if (!st) return;
+  st.textContent = !encAvailable()
+    ? "This browser cannot encrypt — WebCrypto is unavailable."
+    : on
+      ? "On — the book on this device is unreadable without your passphrase."
+      : "Off — anything stored here can be read by anyone with the device.";
+  $("#encEnable").hidden = on || !encAvailable();
+  $("#encChange").hidden = !on;
+  $("#encDisable").hidden = !on;
+}
+
+async function encAskPassphrase(title, msg){
+  const p1 = await askText({ title: title, message: msg, placeholder: "Passphrase",
+                             confirm: "Continue", password: true });
+  if (p1 === null) return null;
+  if (!p1 || p1.length < 8){
+    toast("Use at least 8 characters");
+    return null;
+  }
+  const p2 = await askText({ title: "Type it again", message:
+    "There is no way to look this up later, so it is worth getting right now.",
+    placeholder: "Passphrase again", confirm: "Confirm", password: true });
+  if (p2 === null) return null;
+  if (p1 !== p2){ toast("Those did not match"); return null; }
+  return p1;
+}
+
+$("#encEnable").addEventListener("click", async () => {
+  if (!lockHasQuestion()){
+    await askConfirm({
+      title: "Set a security question first",
+      message: "It is the only way back if the passphrase is forgotten — without " +
+               "one, forgetting it would mean losing every entry, in every backup, " +
+               "permanently.\n\nSet one just below, then turn encryption on.",
+      confirm: "I'll do that", tone: "plain"
+    });
+    return;
+  }
+  const pass = await encAskPassphrase("Choose a passphrase",
+    "It encrypts everything stored on this device. Longer is better than " +
+    "complicated — three or four unrelated words beat one clever one.");
+  if (!pass) return;
+
+  const answer = await askText({ title: "Your security question",
+    message: localStorage.getItem(LOCK_Q_KEY) || "Your security question",
+    placeholder: "Your answer", confirm: "Encrypt", password: false });
+  if (answer === null) return;
+  if (!answer.trim()){ toast("The answer is needed as the way back"); return; }
+  const given = await answerHash(answer);
+  if (given !== localStorage.getItem(LOCK_A_KEY)){
+    toast("That answer doesn't match the one on file");
+    return;
+  }
+
+  try{
+    await encEnable(pass, answer);
+    renderEncSettings();
+    renderLockSettings();
+    toast("Encrypted — the passphrase is needed from now on");
+  }catch(e){
+    toast("Could not encrypt: " + (e && e.message ? e.message : "unknown"));
+  }
+});
+
+$("#encChange").addEventListener("click", async () => {
+  const pass = await encAskPassphrase("New passphrase",
+    "The book is not re-encrypted; only the key's wrapping changes, so this is " +
+    "instant and cannot half-finish.");
+  if (!pass) return;
+  try{
+    await encChangePassphrase(pass);
+    toast("Passphrase changed");
+  }catch(e){ toast("Could not change it: " + (e && e.message ? e.message : "unknown")); }
+});
+
+$("#encDisable").addEventListener("click", async () => {
+  const ok = await askConfirm({
+    title: "Stop encrypting?",
+    message: "The book goes back to being stored as plain text on this device, " +
+             "readable by anyone who has it. Your entries are not touched.",
+    confirm: "Stop encrypting"
+  });
+  if (ok !== true) return;
+  try{
+    await encDisable();
+    renderEncSettings();
+    renderLockSettings();
+    toast("Encryption off");
+  }catch(e){ toast("Could not turn it off: " + (e && e.message ? e.message : "unknown")); }
+});
+
 function renderLockSettings(){
   const on = lockEnabled();
-  $("#lockStatus").textContent = on
-    ? "On — a PIN is required after 5 minutes idle, or when the app is reopened."
-    : "Off — anyone with this device can open the app.";
+  const enc = encOn();
+  /* Two locks, doing different jobs. The passphrase is the only thing that can
+     open the encrypted book, so it is asked for when the app starts. Once it
+     has, the key is in memory and the PIN is enough to come back from an idle
+     screen — which is the frequent case, and the one worth keeping quick. */
+  $("#lockStatus").textContent = enc && on
+    ? "On — your passphrase on opening, then the PIN after 5 minutes idle."
+    : enc
+      ? "On — your passphrase is asked for when the app opens."
+      : on
+        ? "On — a PIN is required after 5 minutes idle, or when the app is reopened."
+        : "Off — anyone with this device can open the app.";
   $("#lockSetPin").textContent = on ? "Change PIN" : "Set a 4-digit PIN";
   $("#lockTurnOff").hidden = !on;
   $("#lockQWrap").hidden = !on;
   $("#lockQ").value = localStorage.getItem(LOCK_Q_KEY) || "";
-  $("#lockQStatus").textContent = lockHasQuestion()
-    ? "A security question is set — it's the only way back in if you forget the PIN."
-    : "No security question yet. Without one, a forgotten PIN can't be reset on this device.";
+  /* While the book is encrypted the answer is not a way to reset a PIN — it is
+     one of the two things that can open the key at all. */
+  $("#lockQStatus").textContent = enc
+    ? "Set — and while the book is encrypted this answer is the way in if the " +
+      "passphrase is forgotten. Changing it here does not change that; re-enter " +
+      "the passphrase from Change passphrase to rewrap it."
+    : lockHasQuestion()
+      ? "A security question is set — it's the only way back in if you forget the PIN."
+      : "No security question yet. Without one, a forgotten PIN can't be reset on this device.";
+  const foot = $("#lockFootNote");
+  if (foot) foot.textContent = enc
+    ? "Both are on: the PIN hides the screen, and what is stored is unreadable " +
+      "without the passphrase. Either can be turned off on its own."
+    : "Locks the screen only — it does not encrypt the data stored on this device.";
 }
 $("#lockSetPin").addEventListener("click", () => { sheetClose(); lockOpenSetup(); });
 $("#lockQSave").addEventListener("click", async () => {
@@ -10982,29 +11489,43 @@ $("#ghDisable").addEventListener("click", async () => {
   if (savedTheme !== "system") document.documentElement.setAttribute("data-theme", savedTheme);
   $$("#themeTog button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === savedTheme)));
 
-  load();
-  let fresh = false;
-  try{ fresh = !localStorage.getItem(KEY); }catch(e){ fresh = true; }
-  if (fresh && !state.txns.length) seed();
+  /* Everything that needs the book to exist. With encryption on there is no
+     book until the passphrase opens the key, so this waits for the unlock
+     screen and runs then; without it, it runs straight away as it always did. */
+  encBootWithData = function(){
+    let fresh = false;
+    try{ fresh = !localStorage.getItem(KEY) && !localStorage.getItem(ENC_KEY); }
+    catch(e){ fresh = true; }
+    if (fresh && !state.txns.length) seed();
 
-  materialise();
-  save();
-  render();
-  renderShop();
-  ["#eDate", "#balDate", "#shopDate", "#rDate", "#repFrom", "#repTo"]
-    .forEach(sel => attachCalendar($(sel)));
-  syncEyeBtn();
-  syncThemeColorMeta();
-  /* so the tile carries the badge without Settings having been opened */
-  refreshUpdateFlag(true);
-  if (lockEnabled()) lockOpenUnlock(); else document.documentElement.classList.remove("locked");
-  lockResetIdle();
-  /* Opening the app is one of only two moments this channel can fire — the
-     other is coming back to the tab. Behind the lock on purpose: a notification
-     naming a bill is not something to raise before the PIN is answered. */
-  if (!lockEnabled()) firePushDue();
-  /* the third trigger: whatever the last session failed to send */
-  ghAutoOnOpen();
+    materialise();
+    save();
+    render();
+    renderShop();
+    ["#eDate", "#balDate", "#shopDate", "#rDate", "#repFrom", "#repTo"]
+      .forEach(sel => attachCalendar($(sel)));
+    syncEyeBtn();
+    syncThemeColorMeta();
+    /* so the tile carries the badge without Settings having been opened */
+    refreshUpdateFlag(true);
+    lockResetIdle();
+    /* Behind the lock on purpose: a notification naming a bill is not something
+       to raise before the passphrase or the PIN has been answered. */
+    if (!lockEnabled() && !encOn()) firePushDue();
+    /* the third trigger: whatever the last session failed to send */
+    ghAutoOnOpen();
+  };
+
+  if (encOn()){
+    /* No load, no seed, no render — there is nothing readable yet. */
+    encOpenUnlock();
+  } else {
+    load();
+    encBooted = true;
+    encBootWithData();
+    if (lockEnabled()) lockOpenUnlock();
+    else document.documentElement.classList.remove("locked");
+  }
 })();
 
 /* =========================================================================
