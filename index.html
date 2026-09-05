@@ -3825,15 +3825,27 @@ html.locked #lockScreen::before{
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
+        <div class="togrow" id="ghAutoRow" hidden style="margin-top:2px">
+          <div class="tr-t">
+            <b>Push on its own</b>
+            <span id="ghAutoSub">After edits settle, when you leave the app, and on opening.</span>
+          </div>
+          <button class="switch" id="ghAutoTog" type="button" role="switch" aria-checked="false">
+            <span class="knob"></span>
+          </button>
+        </div>
         <button class="btn ghost sm" id="ghPull" hidden>Pull onto this device</button>
         <button class="btn ghost sm" id="ghHistory" hidden>Restore an earlier backup…</button>
         <button class="btn danger sm" id="ghDisable" hidden>Disable sync</button>
       </div>
       <div class="note" style="margin-top:6px">
-        Pushes a JSON backup to a file in your own GitHub repo when you press <b>Push now</b>, straight from
-        this browser. The token is stored only in this browser's local storage — use a
-        <b>fine-grained</b> token scoped to just this one repo with "Contents: Read and write",
-        never a broad classic token.
+        Pushes a JSON backup to a file in your own GitHub repo, straight from this browser — when you
+        press <b>Push now</b>, and on its own if that switch is on. An automatic push stands down
+        rather than send a book that is empty, still the example data, or missing a lot compared
+        with the backup; those wait for a push you make on purpose. Every push is a commit, so
+        <b>Restore an earlier backup</b> is always the way back. The token is stored only in this
+        browser's local storage — use a <b>fine-grained</b> token scoped to just this one repo with
+        "Contents: Read and write", never a broad classic token.
       </div>
     </div>
   </div>
@@ -3962,7 +3974,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.33";
+const APP_VERSION = "2.0.34";
 const APP_BUILT = "2026-09-05";
 
 const KEY = "panappai.v1";
@@ -4713,11 +4725,12 @@ function saveLocal(){
 }
 function save(){
   saveLocal();
-  /* Nothing is sent anywhere on its own. Push is a button you press. An
-     automatic push turns any local bug into remote data loss without anyone
-     having asked for anything to be written — which is exactly how a pull that
-     dropped accounts came to erase them from the repo too. */
   ghMarkDirty();
+  /* Pushes were a button because an automatic one turns a local bug into
+     remote data loss with nobody having asked. That still holds, and is why
+     the automatic push stands down rather than answering the loss guard for
+     you — see ghAutoPush. Off unless switched on, and a button either way. */
+  ghAutoSchedule();
 }
 
 /** Create planned entries for every active rule, from 3 months back to 12 ahead. */
@@ -10550,7 +10563,8 @@ async function ghExplain(res){
   return res.status + " — unexpected GitHub error." + tail;
 }
 
-async function ghSyncNow(force){
+async function ghSyncNow(force, opts){
+  const auto = !!(opts && opts.auto);
   if (ghSyncing) return;
   const token = localStorage.getItem(GH_TOKEN_KEY) || "";
   const repo = localStorage.getItem(GH_REPO_KEY) || "";
@@ -10603,6 +10617,18 @@ async function ghSyncNow(force){
          not done quietly either. */
       if (prev){
         const losses = ghLossReport(ghSummarise(prev), ghSummarise(state));
+        if (losses.length && auto){
+          /* The whole reason pushes were a button: an automatic one turns a
+             local bug into remote data loss with nobody having asked. So the
+             automatic push does not answer this question and does not ask it
+             either — it stands down and leaves the change for a push you make
+             on purpose, where the dialog can be read. */
+          if (statusEl) statusEl.textContent =
+            "Automatic push held back — this change removes a lot. Push now to review it.";
+          ghAutoHeld = true;
+          renderGhCount();
+          return;
+        }
         if (losses.length){
           if (statusEl) statusEl.textContent = "Waiting — this push would remove a lot.";
           const ok = await askConfirm({
@@ -10638,8 +10664,11 @@ async function ghSyncNow(force){
     localStorage.setItem(GH_LASTSYNC_KEY, new Date().toISOString());
     ghMarkReconciled();   /* this browser and the backup now agree */
     ghMarkClean();
+    ghAutoHeld = false;
     renderGhSettings();
-    toast("Backup pushed");
+    /* An automatic push says so in the panel, not over the screen. A toast on
+       every editing session is one you stop reading. */
+    if (!auto) toast("Backup pushed");
   }catch(e){
     /* Network/CORS failures arrive as a bare TypeError with no status. */
     const msg = (e && e.message) ? e.message : "unknown error";
@@ -10667,11 +10696,127 @@ function renderGhSettings(){
     : "Off — data stays only in this browser.";
   $("#ghSave").textContent = on ? "Update settings" : "Save & enable backup";
   $("#ghSyncNow").hidden = !on;
+  $("#ghAutoRow").hidden = !on;
+  $("#ghAutoTog").setAttribute("aria-checked", String(ghAutoOn()));
+  $("#ghAutoSub").textContent = ghAutoHeld
+    ? "Held back — the last change removes a lot. Push now to review it."
+    : "After edits settle, when you leave the app, and on opening.";
   $("#ghPull").hidden = !on;
   $("#ghHistory").hidden = !on;
   $("#ghDisable").hidden = !on;
   renderGhCount();
 }
+
+/* =========================================================================
+   AUTOMATIC PUSH
+
+   Pushes were a button on purpose: an automatic one turns a local bug into
+   remote data loss with nobody having asked for anything to be written. That
+   is not a reason never to have one — it is a description of what it has to
+   survive. So this pushes only when the change looks ordinary, and stands
+   down when it does not:
+
+     · nothing to push, or backup off        it does not run
+     · this device has never pulled          it does not run; reconcile first
+     · the push would remove a lot           it stands down and says so, and
+                                             the change waits for a push made
+                                             on purpose, where the dialog can
+                                             be read
+     · offline                               it waits, and retries when the
+                                             connection returns
+
+   Every push is still a commit, so Restore an earlier backup remains the way
+   back from anything this gets wrong.
+
+   The trigger is what you do, not what time it is. A clock cannot work here:
+   the app has no server and cannot wake itself, so "every night at two" would
+   only fire on nights the app happened to be open.
+   ========================================================================= */
+const GH_AUTO_KEY = "panappai.gh.auto";
+const GH_AUTO_IDLE = 30000;    /* after edits settle, so a burst is one push */
+
+let ghAutoTimer = null;
+let ghAutoHeld = false;        /* stood down on a risky change; says so in the panel */
+
+function ghAutoOn(){ return localStorage.getItem(GH_AUTO_KEY) === "1"; }
+function ghAutoSetOn(v){ localStorage.setItem(GH_AUTO_KEY, v ? "1" : "0"); }
+
+/**
+ * Is what this device holds worth sending at all?
+ *
+ * A push you press is a claim that this copy is the one to keep. An automatic
+ * one makes that claim on its own, so it has to refuse the cases where the
+ * claim would be false — and every one of these has actually happened to
+ * somebody:
+ *
+ *   · the book is empty          a wipe, a failed load, a migration that threw
+ *   · the shape is wrong          txns or rules missing entirely
+ *   · it is the example data      a fresh browser seeds demo entries, which
+ *                                  look exactly like a real book to anything
+ *                                  counting rows, and would replace the real
+ *                                  one with invented numbers
+ *
+ * None of these block the button. Pressing Push is you saying you meant it.
+ */
+function ghAutoLooksSane(){
+  if (!state || !Array.isArray(state.txns) || !Array.isArray(state.rules)) return false;
+  if (state.demo) return false;
+  if (!state.txns.length && !state.rules.length) return false;
+  return true;
+}
+
+/** Whether an automatic push is worth attempting at all, right now. */
+function ghAutoReady(){
+  return ghAutoOn() && ghEnabled() && !ghSyncing && navigator.onLine !== false &&
+         !!(localStorage.getItem(GH_TOKEN_KEY) && localStorage.getItem(GH_REPO_KEY)) &&
+         ghReconciled() && ghAutoLooksSane() && ghDirty();
+}
+
+function ghAutoPush(){
+  if (!ghAutoReady()) return;
+  ghSyncNow(false, { auto: true });
+}
+
+/** Edits settle first: a dozen entries in a row should be one push, not twelve. */
+function ghAutoSchedule(){
+  if (ghAutoTimer) clearTimeout(ghAutoTimer);
+  if (!ghAutoOn() || !ghEnabled()) return;
+  ghAutoTimer = setTimeout(() => { ghAutoTimer = null; ghAutoPush(); }, GH_AUTO_IDLE);
+}
+
+/* --- the three moments, plus the one that recovers from being offline --- */
+
+/* Leaving the app. The last chance before it is out of reach, and the reason
+   the idle timer is only thirty seconds — this fires if you leave sooner.
+   A push started here may not finish if the phone suspends the tab, which is
+   why it is a safety net rather than the main trigger. */
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden){
+    if (ghAutoTimer){ clearTimeout(ghAutoTimer); ghAutoTimer = null; }
+    ghAutoPush();
+  }
+});
+
+/* Opening it again, in case the last session's push never went. */
+function ghAutoOnOpen(){
+  if (ghAutoReady()) setTimeout(ghAutoPush, 1500);   /* after the app has settled */
+}
+
+/* And the moment the connection comes back, for everything entered on the train. */
+window.addEventListener("online", () => { if (ghAutoReady()) ghAutoPush(); });
+
+$("#ghAutoTog").addEventListener("click", () => {
+  const on = !ghAutoOn();
+  ghAutoSetOn(on);
+  renderGhSettings();
+  if (on){
+    toast("Backups will push on their own");
+    ghAutoSchedule();
+  } else {
+    if (ghAutoTimer){ clearTimeout(ghAutoTimer); ghAutoTimer = null; }
+    toast("Push is a button again");
+  }
+});
 
 /**
  * Pulls the backup file back down and replaces this browser's data with it.
@@ -10858,6 +11003,8 @@ $("#ghDisable").addEventListener("click", async () => {
      other is coming back to the tab. Behind the lock on purpose: a notification
      naming a bill is not something to raise before the PIN is answered. */
   if (!lockEnabled()) firePushDue();
+  /* the third trigger: whatever the last session failed to send */
+  ghAutoOnOpen();
 })();
 
 /* =========================================================================

@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.34 — 2026-09-05
+- new: Backups can push on their own - after edits settle, when you leave the app, and on opening. Off unless you switch it on, and it stands down rather than send an empty or example book
+- better: The app no longer updates itself. It stays on the build you have until you press Update
+
 ## 2.0.33 — 2026-09-05
 - better: The app icon is blue leather in the artwork itself, so the home screen icon matches the app instead of staying brown
 - better: The euro on the mark is bigger and centred in the space below the building
