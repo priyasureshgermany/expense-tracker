@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.38 — 2026-09-05
+- better: The banknotes on the lock screen are drawn more convincingly - real proportions, twelve stars, guilloche, a foil stripe, and each note shadowing the one beneath. Same size on screen as before
+
 ## 2.0.37 — 2026-09-05
 - better: The lock screen goes back to being just the name and the keypad. The mark added in 2.0.36 is gone
 
