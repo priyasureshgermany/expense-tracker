@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.39 — 2026-09-05
+- better: The 200 note is yellow-brown, the colour that series actually is, instead of a gold that sat too close to the 50's orange
+
 ## 2.0.38 — 2026-09-05
 - better: The banknotes on the lock screen are drawn more convincingly - real proportions, twelve stars, guilloche, a foil stripe, and each note shadowing the one beneath. Same size on screen as before
 
