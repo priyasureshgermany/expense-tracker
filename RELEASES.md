@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.36 — 2026-09-05
+- better: The app mark is on the lock screen, under the name, drawn from the 512px icon so it stays sharp
+
 ## 2.0.35 — 2026-09-05
 - new: The data stored on this device can be encrypted with a passphrase. The PIN hides the screen; this makes what is stored unreadable without it
 - new: The PIN and the passphrase are separate options, both from App lock. The passphrase opens the app, the PIN comes back from an idle screen
