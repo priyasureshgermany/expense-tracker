@@ -1,5 +1,5 @@
-"""Draft icon: the whole tile is the wallet — dark distressed leather edge to
-edge, with Sansad Bhavan tooled into it above a small euro.
+"""Draft icon: the whole tile is the wallet — dark distressed blue leather edge
+to edge, with Sansad Bhavan tooled into it above a euro.
 
 No backdrop: the hide is the icon, so there is no frame around it and nothing
 to go transparent on iOS. Stitching runs inset from all four edges the way it
@@ -19,14 +19,34 @@ import os, random, sys
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "icons")
 
-# the hide, from the near-black creases to the rust-lit high spots
-HIDE_0 = (33, 19, 12)
-HIDE_1 = (74, 44, 28)
-HIDE_2 = (124, 75, 47)
-HIDE_3 = (178, 112, 69)
+# The hide, from the near-black creases to the lit high spots. Blue leather,
+# not tan.
+#
+# The blue used to be a CSS filter over tan artwork, applied on the dashboard
+# mark and only in dark mode — so the app looked blue while the icon on the home
+# screen, which no stylesheet reaches, stayed brown. These are those same tan
+# values carried through the filter that was doing the work (hue +178°,
+# saturation x0.72, lightness x0.94) and written down, so the colour is in the
+# artwork and every place the icon appears agrees.
+HIDE_0 = (14, 24, 28)
+HIDE_1 = (32, 54, 64)
+HIDE_2 = (54, 89, 106)
+HIDE_3 = (79, 126, 153)
 
-EDGE   = (26, 14,  9)
-THREAD = (196, 132, 72)
+EDGE   = (11, 19, 22)
+# Thread, not leather. Carried through the same shift as the hide it went blue
+# on blue and all but disappeared — the stitching is a big part of what makes
+# the tile read as a wallet, so it is lifted well clear of the dye instead.
+THREAD = (168, 205, 232)
+
+# The four passes that tool the emblem into the hide: the groove the die cut,
+# the hide lifted inside it, the rim of light along the top-left and the shadow
+# opposite. Carried through the same shift as the hide, so the emblem is cut
+# from the leather it sits in rather than glued on in another colour.
+GROOVE = (7, 13, 15)
+LIFT   = (14, 24, 29)
+RIM    = (85, 140, 174)
+SHADE  = (16, 28, 32)
 
 
 def noise(S, cells, seed, blur=0):
@@ -164,18 +184,21 @@ def euro(d, cx, cy, size, weight):
 
 
 # How much of the euro's height sits behind the building's bottom step.
-EURO_OVERLAP = 0.20
 STEP_BOT_F = 0.40      # kept in step with parliament()'s own STEP_BOT
 
 
-def emblem_mask(S, cx, cy, w, h, esz, ew):
+def emblem_mask(S, cx, cy, w, h, esz, ew, bottom):
+    """`bottom` is where the usable space under the building ends — the inner
+    stitch line on the tile, the safe zone on the maskable cut. The euro is put
+    in the middle of what is left, rather than a fixed gap below the steps: a
+    gap leaves it hanging off the building with a pool of empty hide beneath,
+    and the size it wants to be then depends on how much room happens to be
+    left over."""
     m = Image.new("L", (S, S), 0)
     d = ImageDraw.Draw(m)
     parliament(d, cx, cy, w, h)
-    # top of the euro = bottom of the steps, less the overlap; so its centre is
-    # half a height lower than that, which is the line solved for here.
-    ecy = cy + h * STEP_BOT_F + esz * (0.5 - EURO_OVERLAP)
-    euro(d, cx, ecy, esz, ew)
+    top = cy + h * STEP_BOT_F          # where the bottom step ends
+    euro(d, cx, (top + bottom) / 2.0, esz, ew)
     return m
 
 
@@ -193,26 +216,28 @@ def draw(px, maskable=False):
     bw = S - inset * 2
     cy = S * (0.48 if maskable else 0.44)
     bh = bw * 0.52
-    # The euro, larger, and tucked under the building rather than floating below
-    # it. The overlap is derived rather than eyeballed: STEP_BOT is where the
-    # building ends, so placing the euro's centre a fixed fraction of its own
-    # height below that line puts exactly EURO_OVERLAP of it behind the steps.
-    esz = bw * 0.22
+    # The euro, big enough to read at a glance, centred in the space under the
+    # building rather than hung a fixed distance below it.
+    esz = bw * 0.30
     ew = max(3, int(esz * 0.19))
     off = max(3, int(S * 0.0075))
 
-    face = emblem_mask(S, S / 2, cy, bw, bh, esz, ew)
+    # where that space ends: the inner row of stitching on the tile, and on the
+    # maskable cut the point past which a launcher may crop
+    ebot = S * (0.86 if maskable else 0.908)
+
+    face = emblem_mask(S, S / 2, cy, bw, bh, esz, ew, ebot)
     groove = face.filter(ImageFilter.GaussianBlur(off * 1.1)).point(
         lambda v: min(255, v * 3))
-    panel = Image.composite(Image.new("RGB", (S, S), (18, 10, 6)), panel, groove)
+    panel = Image.composite(Image.new("RGB", (S, S), GROOVE), panel, groove)
     panel = Image.composite(
-        ImageChops.screen(hide(S, 61), Image.new("RGB", (S, S), (34, 20, 12))),
+        ImageChops.screen(hide(S, 61), Image.new("RGB", (S, S), LIFT)),
         panel, face.filter(ImageFilter.GaussianBlur(off * 0.3)))
     lit = ImageChops.subtract(face, ImageChops.offset(face, off, off))
     dim = ImageChops.subtract(face, ImageChops.offset(face, -off, -off))
-    panel = Image.composite(Image.new("RGB", (S, S), (196, 128, 80)), panel,
+    panel = Image.composite(Image.new("RGB", (S, S), RIM), panel,
                             lit.filter(ImageFilter.GaussianBlur(off * 0.45)))
-    panel = Image.composite(Image.new("RGB", (S, S), (38, 21, 13)), panel,
+    panel = Image.composite(Image.new("RGB", (S, S), SHADE), panel,
                             dim.filter(ImageFilter.GaussianBlur(off * 0.45)))
 
     img.paste(panel, (0, 0), mask)
