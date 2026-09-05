@@ -3562,6 +3562,61 @@
       "status": "done",
       "account": "a_9gbih0jvp6la",
       "fromAccount": null
+    },
+    {
+      "id": "rx9n0ly2suuv",
+      "type": "expense",
+      "amount": 3815,
+      "category": "groceries_de",
+      "note": "Lidl",
+      "date": "2026-09-04",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "8irq52cxg2uq",
+      "type": "expense",
+      "amount": 1892,
+      "category": "groceries_de",
+      "note": "Netto",
+      "date": "2026-09-05",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "h0jo130zgmwt",
+      "type": "expense",
+      "amount": 10000,
+      "category": "cash",
+      "note": "",
+      "date": "2026-09-05",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "2bsus05k8f7r",
+      "type": "expense",
+      "amount": 3870,
+      "category": "dining",
+      "note": "Ruchi Restaurant",
+      "date": "2026-09-04",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
+    },
+    {
+      "id": "9n3bowgeas95",
+      "type": "expense",
+      "amount": 2500,
+      "category": "health",
+      "note": "Swimming course",
+      "date": "2026-09-04",
+      "status": "done",
+      "account": "a_gch8xl46opp7",
+      "fromAccount": null
     }
   ],
   "rules": [
@@ -3679,7 +3734,7 @@
       "anchor": "2026-09-03",
       "active": true,
       "account": "a_gch8xl46opp7",
-      "auto": true,
+      "auto": false,
       "fromAccount": null
     },
     {
@@ -4255,6 +4310,77 @@
         ],
         "txnId": "rp7pcfynnc1j",
         "bookmark": null
+      },
+      {
+        "id": "n2b65k7rsuuv",
+        "store": "de",
+        "date": "2026-09-04",
+        "total": 3815,
+        "account": "a_gch8xl46opp7",
+        "note": "Lidl",
+        "items": [
+          {
+            "name": "Tomaten Strauch",
+            "qty": "",
+            "price": 333
+          },
+          {
+            "name": "Zwiebeln gelb",
+            "qty": "",
+            "price": 199
+          },
+          {
+            "name": "Bio Knoblauch 1,49 x 2",
+            "qty": "",
+            "price": 298
+          },
+          {
+            "name": "Schalotten 500g",
+            "qty": "",
+            "price": 149
+          },
+          {
+            "name": "Apfel pink",
+            "qty": "",
+            "price": 279
+          },
+          {
+            "name": "Trauben dunkel",
+            "qty": "",
+            "price": 159
+          },
+          {
+            "name": "Biol. Fri.Milch 3,8% 1,35 x 4",
+            "qty": "",
+            "price": 540
+          },
+          {
+            "name": "Kräuter-Baguett 1,95 x 2",
+            "qty": "",
+            "price": 390
+          },
+          {
+            "name": "Joghurt mild 3,5%",
+            "qty": "",
+            "price": 89
+          },
+          {
+            "name": "Bio-Eier OKT 10er",
+            "qty": "",
+            "price": 399
+          },
+          {
+            "name": "Pringles Sour Cream",
+            "qty": "",
+            "price": 279
+          },
+          {
+            "name": "Teppichläufe-0515569",
+            "qty": "",
+            "price": 999
+          }
+        ],
+        "txnId": "rx9n0ly2suuv"
       }
     ]
   },
