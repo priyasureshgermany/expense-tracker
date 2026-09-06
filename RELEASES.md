@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.40 — 2026-09-06
+- new: A payday welcome when the app opens: how many days until the wage lands
+- new: Details folds by month once a report covers more than one, each with its own totals
+- fix: The welcome could stall invisible if it was reopened mid-fade
+
 ## 2.0.39 — 2026-09-05
 - better: The 200 note is yellow-brown, the colour that series actually is, instead of a gold that sat too close to the 50's orange
 

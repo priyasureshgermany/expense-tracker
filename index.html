@@ -1190,6 +1190,47 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 }
 .rp-empty{padding:26px 10px;text-align:center;color:var(--ink-3);font-size:12.5px}
 
+/* ---------- months, folded ----------
+   A month of entries is a list you read. A year of them is four hundred rows
+   in one scroll with nothing saying where August ended, and the only way to
+   learn what it came to is to add it up yourself. The line that says so is
+   also the handle that puts it away. */
+.rp-table tbody tr.rp-grp{
+  cursor:pointer;user-select:none;
+  background:var(--surface-2);
+  border-top:1px solid var(--line-strong);
+}
+.rp-table tbody tr.rp-grp:first-child{border-top:0}
+.rp-table tbody tr.rp-grp td{padding:0}
+/* The table is wider than the screen it is read on, so a month's totals put in
+   the Income and Expense columns would line up beautifully with the rows and
+   sit off the right-hand edge where nobody would see them without scrolling
+   for them. They are stuck to the two edges of the scrollport instead: the
+   month against the left of what you can see, its totals against the right of
+   it, wherever the table has been scrolled to. */
+.rp-gin{display:flex;align-items:center;gap:10px;padding:9px 10px}
+.rp-gl{position:sticky;left:10px;display:flex;align-items:center;min-width:0}
+.rp-gt{
+  position:sticky;right:10px;margin-left:auto;
+  display:flex;gap:13px;white-space:nowrap;
+  font-variant-numeric:tabular-nums;font-weight:700;font-size:12px;
+}
+.rp-gt .in{font-style:normal;color:var(--pos)}
+.rp-gt .out{font-style:normal;color:var(--neg)}
+.rp-car{
+  display:grid;place-items:center;width:15px;height:15px;flex:none;
+  color:var(--ink-3);
+  transition:transform .16s ease;
+}
+.rp-car svg{width:14px;height:14px;display:block}
+.rp-grp.shut .rp-car{transform:rotate(-90deg)}
+.rp-gm{margin-left:5px;font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap}
+.rp-gn{margin-left:9px;font-size:10.5px;color:var(--ink-3);font-weight:600;white-space:nowrap}
+.rp-table tbody tr.rp-hid{display:none}
+/* the entries sit in from their month's line, so the shape of the table says
+   which rows belong to which heading without a second colour doing it */
+.rp-table tbody tr.rp-in td:first-child{padding-left:28px}
+
 .rp-exports{
   display:grid;grid-template-columns:1fr 1fr;gap:8px;
   margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
@@ -1215,7 +1256,7 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   }
   html,body{background:#fff !important;height:auto !important;overflow:visible !important}
   body{color:var(--ink) !important}
-  .topbar,.monthbar,.tabbar,.fabwrap,.scrim,.toast,#viewDash,#viewEntries,#viewShop,
+  .topbar,.monthbar,.tabbar,.fabwrap,.scrim,.toast,#payWelcome,#viewDash,#viewEntries,#viewShop,
   .sheet:not(#shReport),.rp-exports,.rp-ranges,.rp-basis,.rp-custom,.tabbar2,
   .rp-filters,.sheet-head .iconbtn{display:none !important}
   #shReport{
@@ -1231,6 +1272,14 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   .rp-table{font-size:10px}
   .rp-table thead th{background:#eee !important;color:#000 !important}
   .rp-table tbody tr{break-inside:avoid}
+  /* A folded month on screen is a tidy summary; a folded month on paper is a
+     missing month. The PDF is this stylesheet printing the page as it stands,
+     so every group is opened here rather than by redrawing the table first. */
+  .rp-table tbody tr.rp-hid{display:table-row !important}
+  .rp-grp .rp-car{display:none !important}
+  .rp-table tbody tr.rp-grp{background:#eee !important;break-after:avoid}
+  /* nothing scrolls on paper, so nothing needs sticking to the edge of it */
+  .rp-gl,.rp-gt{position:static !important}
   /* Two things cut the pie in half on the way to paper.
 
      The shell is still in the flow with a viewport of minimum height, which on
@@ -2537,6 +2586,103 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
+/* ---------- Payday: the welcome the app opens with ----------
+
+   Shown once, when the app is opened, and not again until it is opened again.
+   It was paired with a chip that sat on the dashboard permanently saying the
+   same thing; a number you are never not looking at stops being a number you
+   notice, and the whole point of the count is the moment you see it.
+   -------------------------------------------------------------------------- */
+#payWelcome{display:none}
+#payWelcome.on{
+  display:flex;position:fixed;inset:0;z-index:480;
+  align-items:center;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
+  /* the lock screen's own sky, so opening the app is one continuous surface
+     rather than two unrelated blue screens in a row */
+  background:linear-gradient(155deg,#0A4364 0%,#0F5F80 42%,#177E88 72%,#1E9483 100%);
+  /* A transition and not a keyframe animation, for one reason that matters
+     more than the effect: if a transition never runs, the class still names
+     the end state and the screen is simply there. A keyframe animation that
+     fails to start holds its *first* frame instead — which for a fade in is
+     nothing at all, so the screen would be open, blocking the app, invisible.
+     One of those failures is a missing flourish and the other is a locked-up
+     app, and they are not worth trading. */
+  opacity:0;
+  transition:opacity .26s ease-out;
+}
+#payWelcome.on.vis{opacity:1}
+#payWelcome.on::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(90% 55% at 12% -5%, rgba(255,255,255,.26), transparent 62%),
+    radial-gradient(70% 45% at 100% 104%, rgba(0,0,0,.30), transparent 60%);
+}
+
+.pw-card{
+  position:relative;z-index:1;
+  width:100%;max-width:320px;margin:auto;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  opacity:0;transform:translateY(16px) scale(.97);
+  transition:opacity .40s cubic-bezier(.16,.84,.34,1) .06s,
+             transform .48s cubic-bezier(.16,.84,.34,1) .06s;
+}
+#payWelcome.vis .pw-card{opacity:1;transform:none}
+
+.pw-hi{
+  font-size:15px;font-weight:600;color:rgba(255,255,255,.82);
+  letter-spacing:.01em;margin-bottom:18px;
+}
+
+.pw-ring{position:relative;width:186px;height:186px}
+.pw-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.pw-ring circle{fill:none;stroke-width:7;stroke-linecap:round}
+/* A groove rather than a paler version of the arc: a light track on a light
+   background left the two within a shade of each other, and the sweep — the
+   whole point of the ring — could not be picked out from what it was sweeping
+   over. Dark behind, lit in front. */
+.pw-tr{stroke:rgba(4,32,42,.34)}
+/* Drawn from nothing to its share of the circle. The sweep is the point: it
+   shows the wait as a thing being crossed off, not a number sitting still. */
+.pw-ar{
+  stroke:#7BF3C2;
+  filter:drop-shadow(0 0 5px rgba(123,243,194,.45));
+  transition:stroke-dashoffset 1.15s cubic-bezier(.2,.7,.3,1) .22s;
+}
+.pw-ring.is-today .pw-ar{stroke:#FFE27A;filter:drop-shadow(0 0 5px rgba(255,226,122,.45))}
+.pw-ring.is-late  .pw-ar{stroke:#FFC46B;filter:drop-shadow(0 0 5px rgba(255,196,107,.45))}
+
+.pw-mid{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;line-height:1;
+}
+.pw-big{
+  font-size:60px;font-weight:700;color:#fff;letter-spacing:-.035em;
+  font-variant-numeric:tabular-nums;text-shadow:0 3px 18px rgba(0,0,0,.28);
+}
+.pw-big.word{font-size:31px;letter-spacing:-.01em}
+.pw-unit{
+  margin-top:8px;font-size:10.5px;font-weight:700;letter-spacing:.19em;
+  text-transform:uppercase;color:rgba(255,255,255,.72);
+}
+.pw-line{
+  margin-top:22px;font-size:16px;font-weight:700;color:#fff;
+  text-shadow:0 2px 12px rgba(0,0,0,.26);
+}
+.pw-sub{margin-top:6px;font-size:12.5px;color:rgba(255,255,255,.72);line-height:1.45}
+.pw-go{
+  margin-top:26px;padding:11px 30px;border-radius:99px;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.32);
+  color:#fff;font-size:13.5px;font-weight:700;letter-spacing:.01em;
+  backdrop-filter:blur(3px);
+}
+.pw-go:active{background:rgba(255,255,255,.24)}
+/* the count-up and the sweep are the whole idea, so with motion turned down
+   the screen still says the number — it just says it straight away */
+@media (prefers-reduced-motion:reduce){
+  .pw-ar{transition:none}
+}
+
 /* ---------- App lock ---------- */
 html.locked .shell{display:none}
 #lockScreen{display:none}
@@ -3030,6 +3176,26 @@ html.locked #lockScreen::before{
       More
       <span class="tabdot" id="moreDot" hidden></span>
     </button>
+  </div>
+</div>
+
+<!-- PAYDAY WELCOME — shown once, when the app is opened -->
+<div id="payWelcome" role="dialog" aria-modal="true" aria-label="Payday countdown">
+  <div class="pw-card">
+    <div class="pw-hi" id="pwHi"></div>
+    <div class="pw-ring" id="pwRing">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="pw-tr" cx="60" cy="60" r="52"/>
+        <circle class="pw-ar" id="pwArc" cx="60" cy="60" r="52"/>
+      </svg>
+      <div class="pw-mid">
+        <div class="pw-big" id="pwBig">0</div>
+        <div class="pw-unit" id="pwUnit">days to go</div>
+      </div>
+    </div>
+    <div class="pw-line" id="pwLine"></div>
+    <div class="pw-sub" id="pwSub"></div>
+    <button class="pw-go" type="button">Let's go</button>
   </div>
 </div>
 
@@ -4085,8 +4251,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.39";
-const APP_BUILT = "2026-09-05";
+const APP_VERSION = "2.0.40";
+const APP_BUILT = "2026-09-06";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -10525,6 +10691,7 @@ function unlockApp(){
   lockResetIdle();
   /* held back at boot while the PIN was outstanding, so it fires here instead */
   if (typeof firePushDue === "function") firePushDue();
+  if (typeof payWelcomeOpen === "function") payWelcomeOpen(true);
 }
 
 /* Confirming a destructive action reuses the lock screen: same keypad, same
@@ -11560,6 +11727,198 @@ $("#ghDisable").addEventListener("click", async () => {
   toast("GitHub sync disabled");
 });
 
+/* =========================================================================
+   PAYDAY
+
+   How long until the wage lands. It is not a setting: asking someone to type
+   in a date the app already holds, and then to remember to change it when
+   their pay date moves, is asking them to keep two copies of one fact in step.
+   The recurring entry is the fact.
+   ========================================================================= */
+
+/* Anything rarer than a quarter is a payment, not a wage. A yearly bonus is
+   real income and would be the largest one there is — a countdown of 240 days
+   to it is not what "how long until payday" means. */
+const PAY_FREQS = { weekly:1, days28:1, monthly:1, bimonthly:1, quarterly:1 };
+
+/** The recurring income the countdown is about: the biggest one that repeats
+    often enough to be a wage. */
+function paydayRule(){
+  let best = null;
+  state.rules.forEach(r => {
+    if (r.type !== "income" || r.active === false) return;
+    if (!PAY_FREQS[r.freq]) return;
+    /* a category kept off the screen is kept off it here too — a countdown
+       naming an income you have hidden would put it back on the dashboard */
+    if (!catShown(r.category)) return;
+    if (!best || r.amount > best.amount) best = r;
+  });
+  return best;
+}
+
+/**
+ * When the wage next lands, and how much of the wait is already behind you.
+ *
+ * The rule's own schedule is not enough on its own, because it describes when
+ * money is *meant* to arrive and the question is when it will. An instance
+ * ticked off has arrived and the schedule would still be pointing at it; one
+ * left unticked a week past its date is late, and the schedule would already
+ * have moved on and reported four weeks of waiting. So the ledger answers
+ * first — the earliest instance of that rule still marked planned — and the
+ * schedule only answers when the ledger has nothing to say.
+ */
+function paydayInfo(){
+  const rule = paydayRule();
+  if (!rule) return null;
+
+  let date = null;
+  state.txns.forEach(t => {
+    if (t.ruleId !== rule.id || t.status !== "planned") return;
+    if (!date || t.date < date) date = t.date;
+  });
+  if (!date) date = nextDue(rule);
+  if (!date || !validISO(date)) return null;
+
+  /* the payday before this one, so the ring can show the wait being crossed
+     off rather than only how much of it is left */
+  let prev = null;
+  for (let n = 0; n < 600; n++){
+    const d = occurrence(rule.anchor, rule.freq, n);
+    if (d >= date) break;
+    prev = d;
+  }
+  const days = daysUntil(date);
+  const span = prev ? daysUntil(date) - daysUntil(prev) : 0;
+  const pct = span > 0
+    ? Math.max(0, Math.min(1, (span - Math.max(0, days)) / span))
+    : (days <= 0 ? 1 : 0);
+
+  return {
+    rule: rule, date: date, days: days, pct: pct,
+    amount: rule.amount, category: rule.category,
+    /* what to call it: whatever you wrote on the entry, else its category */
+    name: (rule.note || "").trim() || catOf(rule.category).n
+  };
+}
+
+/** "12 days", "Tomorrow", "Today", "3 days late". */
+function payWords(days){
+  if (days === 0) return { big:"Today", word:true,  unit:"payday",   state:"today" };
+  if (days === 1) return { big:"1",     word:false, unit:"day to go", state:"soon" };
+  if (days > 1)   return { big:String(days), word:false, unit:"days to go", state:"soon" };
+  const late = -days;
+  return { big:String(late), word:false,
+           unit:"day" + (late === 1 ? "" : "s") + " late", state:"late" };
+}
+
+/* ---------- the welcome ---------- */
+/* Once per opening of the app. Coming back to the dashboard from the ledger
+   does not count as opening it, and neither does the idle lock letting you
+   back in — both of those are the same session carrying on. */
+let payWelcomeShown = false;
+let payWelcomeTimer = null;
+/* The fade out is a class and a tidy-up a quarter of a second later. Reopening
+   inside that quarter second has to cancel the tidy-up, or it arrives after the
+   screen is back up and takes it away again — leaving a timer that thinks the
+   screen is open and a screen that is not. */
+let payWelcomeWipe = null;
+
+function payWelcomeClose(){
+  const box = $("#payWelcome");
+  if (!box || !box.classList.contains("on")) return;
+  if (payWelcomeTimer){ clearTimeout(payWelcomeTimer); payWelcomeTimer = null; }
+  if (payWelcomeWipe) clearTimeout(payWelcomeWipe);
+  box.classList.remove("vis");
+  payWelcomeWipe = setTimeout(() => {
+    payWelcomeWipe = null;
+    box.classList.remove("on");
+  }, 280);
+}
+
+/**
+ * Always called with auto true today: the once-a-session showing, which stays
+ * out of the way when there is nothing to count down to. The parameter is what
+ * lets it be opened again on purpose without the once-a-session guard turning
+ * that into nothing happening.
+ *
+ * @param auto true to show it at most once per opening of the app.
+ */
+function payWelcomeOpen(auto){
+  const box = $("#payWelcome");
+  if (!box) return;
+  const p = paydayInfo();
+  if (!p) return;
+  if (auto){
+    if (payWelcomeShown) return;
+    payWelcomeShown = true;
+  }
+  if (payWelcomeTimer){ clearTimeout(payWelcomeTimer); payWelcomeTimer = null; }
+
+  const w = payWords(p.days);
+  const first = state.profile && state.profile.first;
+  $("#pwHi").textContent = first ? "வணக்கம் " + first : "வணக்கம்";
+
+  const big = $("#pwBig");
+  big.classList.toggle("word", !!w.word);
+  $("#pwUnit").textContent = w.unit;
+
+  const ring = $("#pwRing");
+  ring.classList.toggle("is-today", w.state === "today");
+  ring.classList.toggle("is-late",  w.state === "late");
+
+  $("#pwLine").textContent =
+    w.state === "today" ? fmt(p.amount, p.category) + " lands today"
+    : w.state === "late" ? fmt(p.amount, p.category) + " has not come in yet"
+    : fmt(p.amount, p.category) + " on " + prettyDate(p.date);
+  $("#pwSub").textContent =
+    w.state === "late"
+      ? p.name + " was due " + prettyDate(p.date) + ". Tick it off once it arrives."
+      : p.name + (w.state === "today" ? "" : " · " + Math.round(p.pct * 100) + "% of the wait done");
+
+  /* Put up, then made visible a reflow later. Both in the same tick and the
+     browser has only the end state to draw, so there is nothing to move
+     between and the fade never happens. */
+  if (payWelcomeWipe){ clearTimeout(payWelcomeWipe); payWelcomeWipe = null; }
+  box.classList.add("on");
+  box.classList.remove("vis");
+  void box.offsetWidth;
+  box.classList.add("vis");
+
+  /* The arc is set after a frame on purpose: given its final length in the
+     same tick as its starting length, the browser has nothing to animate
+     between and the sweep never happens. */
+  const arc = $("#pwArc");
+  const C = 2 * Math.PI * 52;
+  arc.style.strokeDasharray = C.toFixed(1);
+  arc.style.strokeDashoffset = C.toFixed(1);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      arc.style.strokeDashoffset = (C * (1 - p.pct)).toFixed(1);
+    });
+  });
+
+  /* the number climbs to itself; a word has nothing to climb through */
+  if (w.word){ big.textContent = w.big; }
+  else {
+    const to = +w.big;
+    const dur = 900, t0 = performance.now();
+    big.textContent = "0";
+    (function step(now){
+      const k = Math.min(1, (now - t0) / dur);
+      const eased = 1 - Math.pow(1 - k, 3);
+      big.textContent = String(Math.round(to * eased));
+      if (k < 1) requestAnimationFrame(step); else big.textContent = w.big;
+    })(t0);
+  }
+
+  payWelcomeTimer = setTimeout(payWelcomeClose, 4200);
+}
+
+$("#payWelcome").addEventListener("click", payWelcomeClose);
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && $("#payWelcome").classList.contains("on")) payWelcomeClose();
+});
+
 (function boot(){
   let savedTheme = "system";
   try{ savedTheme = localStorage.getItem(THEME_KEY) || "system"; }catch(e){}
@@ -11589,6 +11948,9 @@ $("#ghDisable").addEventListener("click", async () => {
     /* Behind the lock on purpose: a notification naming a bill is not something
        to raise before the passphrase or the PIN has been answered. */
     if (!lockEnabled() && !encOn()) firePushDue();
+    /* Behind the lock for the same reason, and once per opening of the app:
+       coming back to the dashboard from the ledger is not opening it. */
+    if (!lockEnabled() && !encOn()) payWelcomeOpen(true);
     /* the third trigger: whatever the last session failed to send */
     ghAutoOnOpen();
   };
@@ -12540,6 +12902,43 @@ const REP_COLS = [
   { key:"amount", label:"Expense", num:true, second:true }
 ];
 
+/* Which months are folded shut, by "YYYY-MM".
+ *
+ * Kept outside the render so it survives one — changing a filter or a sort
+ * should not throw away which months you had opened. A month not in here has
+ * never been decided about and takes the default: the newest one open, every
+ * earlier one shut, which is the state that answers "what is this month doing"
+ * without hiding the rest. */
+let repFold = {};
+
+/** The month a run of rows is newest in — the one that opens by default. */
+function repNewestUnit(months){
+  let m = "";
+  months.forEach(x => { if (x > m) m = x; });
+  return m;
+}
+function repFolded(m, newest){
+  return Object.prototype.hasOwnProperty.call(repFold, m) ? repFold[m] : (m !== newest);
+}
+
+/* A month is whichever month the report is being counted in.
+ *
+ * Split by the calendar while counting by periods, a single 15th–14th report —
+ * the one the app opens on — came apart into two half months, because 15 Aug
+ * to 14 Sep touches two of them. That is not more than one month of anything;
+ * it is one period cut in half. So the grouping uses the same unit the totals
+ * do, and a report of one of them has nothing to group. */
+function repUnitOf(iso){
+  return repBasis === "calendar" ? iso.slice(0, 7) : periodOf(iso);
+}
+/** "September 2026", or "15 Aug – 14 Sep 2026" when counting by periods. */
+function repUnitName(m){
+  if (repBasis !== "calendar") return periodTitle(m);
+  const [y, mo] = m.split("-").map(Number);
+  return new Date(y, mo - 1, 1)
+    .toLocaleDateString("en-GB", { month:"long", year:"numeric" });
+}
+
 function repDrawTable(rows){
   const host = $("#repTable");
   host.innerHTML = "";
@@ -12575,8 +12974,27 @@ function repDrawTable(rows){
     return;
   }
 
-  const tb = el("tbody");
+  /* One row per entry is the right shape for a month. For a year it is four
+     hundred of them in one scroll with nothing marking where one month ends
+     and the next begins, and the only way to learn what August came to is to
+     add it up yourself. So once the rows cross a month boundary they are
+     gathered under a line that says the month and what it came to, and that
+     line folds.
+
+     Grouping is decided by where the rows actually fall, not by how long the
+     report is: three months of range with entries in only one of them gains
+     nothing from a header, and would just be a heading over the whole table. */
+  const months = [];
   rows.forEach(t => {
+    const m = repUnitOf(t.date);
+    if (months.indexOf(m) === -1) months.push(m);
+  });
+  const grouped = months.length > 1;
+
+  const tb = el("tbody");
+
+  /** One entry, as a row. */
+  const rowFor = t => {
     const c = repCatOf(t);
     const side = repSideOf(t);
     const r = el("tr");
@@ -12610,14 +13028,87 @@ function repDrawTable(rows){
     r.appendChild(inc);
     r.appendChild(out);
     if (t.status === "planned") r.style.opacity = ".72";
-    tb.appendChild(r);
-  });
+    return r;
+  };
+
+  if (!grouped){
+    rows.forEach(t => tb.appendChild(rowFor(t)));
+  } else {
+    /* Sorted by date, the groups follow the arrow you set. Sorted by anything
+       else the arrow is about rows within a month and says nothing about the
+       months themselves, so those stay newest first. */
+    const dir = repSort.col === "date" ? repSort.dir : -1;
+    months.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0) * dir);
+    const newest = repNewestUnit(months);
+
+    months.forEach(m => {
+      const mine = rows.filter(t => repUnitOf(t.date) === m);
+      const mt = repTotals(mine);
+      const shut = repFolded(m, newest);
+
+      const hr = el("tr", "rp-grp" + (shut ? " shut" : ""));
+      hr.setAttribute("role", "button");
+      hr.tabIndex = 0;
+      hr.setAttribute("aria-expanded", String(!shut));
+
+      /* One cell across the whole width, with its two halves stuck to the two
+         edges of what is on screen. Split across real columns the totals
+         would land past the right edge of a phone. */
+      const lab = el("td");
+      lab.colSpan = REP_COLS.length;
+      const gin = el("div", "rp-gin");
+
+      const left = el("span", "rp-gl");
+      /* the same chevron the cards on the dashboard fold with, rather than a
+         ▾ character, which the app's own typeface does not carry and which
+         fell back to something that read as a hyphen */
+      const car = el("span", "rp-car");
+      car.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M6 9l6 6 6-6"/></svg>';
+      left.appendChild(car);
+      left.appendChild(el("b", "rp-gm", repUnitName(m)));
+      left.appendChild(el("span", "rp-gn",
+        mine.length + " entr" + (mine.length === 1 ? "y" : "ies")));
+      gin.appendChild(left);
+
+      const tot2 = el("span", "rp-gt");
+      if (mt.inc) tot2.appendChild(el("i", "in", fmt(mt.inc)));
+      if (mt.out) tot2.appendChild(el("i", "out", fmt(mt.out)));
+      gin.appendChild(tot2);
+
+      lab.appendChild(gin);
+      hr.appendChild(lab);
+
+      const toggle = () => {
+        repFold[m] = !repFolded(m, newest);
+        repDrawTable(repRows());
+      };
+      hr.addEventListener("click", toggle);
+      hr.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(); }
+      });
+      tb.appendChild(hr);
+
+      /* Folded rows are built and then hidden rather than left out, so that
+         printing — which is how the PDF is made — can show them all without
+         needing the table redrawn first. */
+      mine.forEach(t => {
+        const r = rowFor(t);
+        r.classList.add("rp-in");
+        if (shut) r.classList.add("rp-hid");
+        tb.appendChild(r);
+      });
+    });
+  }
   host.appendChild(tb);
 
   const tot = repTotals(rows);
   const tf = el("tfoot");
   const fr = el("tr");
-  const lab = el("td", null, rows.length + " row" + (rows.length === 1 ? "" : "s"));
+  const lab = el("td", null, rows.length + " row" + (rows.length === 1 ? "" : "s") +
+    (grouped ? " · " + months.length +
+                 (repBasis === "calendar" ? " months" : " periods") : ""));
   lab.colSpan = 5;
   fr.appendChild(lab);
   const fi = el("td", "num in", fmt(tot.inc));
