@@ -4251,7 +4251,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.40";
+const APP_VERSION = "2.0.41";
 const APP_BUILT = "2026-09-06";
 
 const KEY = "panappai.v1";
@@ -12928,15 +12928,44 @@ function repFolded(m, newest){
  * to 14 Sep touches two of them. That is not more than one month of anything;
  * it is one period cut in half. So the grouping uses the same unit the totals
  * do, and a report of one of them has nothing to group. */
+/* A month of entries is short enough to read straight through; the fold is for
+   what is not, so a report of a month or less does not have one.
+
+   Measured in days rather than by counting the groups, because a week that
+   straddles the end of a month falls in two of them without being any longer
+   than a week — and it was showing a fold for that. Thirty-one is the longest a
+   calendar month or a 15th–14th period ever gets, so no report of a single one
+   of them folds, and anything longer than one does. */
+const REP_FOLD_DAYS = 31;
+function repFoldable(){
+  const r = repDates();
+  return daysUntil(r.to) - daysUntil(r.from) > REP_FOLD_DAYS;
+}
+
 function repUnitOf(iso){
   return repBasis === "calendar" ? iso.slice(0, 7) : periodOf(iso);
 }
-/** "September 2026", or "15 Aug – 14 Sep 2026" when counting by periods. */
-function repUnitName(m){
-  if (repBasis !== "calendar") return periodTitle(m);
-  const [y, mo] = m.split("-").map(Number);
-  return new Date(y, mo - 1, 1)
-    .toLocaleDateString("en-GB", { month:"long", year:"numeric" });
+/**
+ * "September 2026", or "15 Aug" when counting by periods.
+ *
+ * A period names itself by the day it opens, the same way the month strip on
+ * the dashboard does — "15 Aug – 14 Sept 2026" said the whole thing twice over
+ * on every heading, when the report has already said which stretch it covers.
+ *
+ * The year is left off, and can be, because no two periods inside twelve of
+ * them open in the same month. Past that they can, so it is added — but only
+ * to the headings that would otherwise read alike, since a year on every line
+ * is the verbosity this was meant to lose.
+ */
+function repUnitName(m, all){
+  if (repBasis === "calendar"){
+    const [y, mo] = m.split("-").map(Number);
+    return new Date(y, mo - 1, 1)
+      .toLocaleDateString("en-GB", { month:"long", year:"numeric" });
+  }
+  const label = periodChipLabel(m);
+  const clash = all && all.filter(x => periodChipLabel(x) === label).length > 1;
+  return clash ? label + " " + m.slice(0, 4) : label;
 }
 
 function repDrawTable(rows){
@@ -12977,19 +13006,22 @@ function repDrawTable(rows){
   /* One row per entry is the right shape for a month. For a year it is four
      hundred of them in one scroll with nothing marking where one month ends
      and the next begins, and the only way to learn what August came to is to
-     add it up yourself. So once the rows cross a month boundary they are
-     gathered under a line that says the month and what it came to, and that
-     line folds.
+     add it up yourself. So the rows are gathered under a line that says the
+     month and what it came to, and that line folds.
 
-     Grouping is decided by where the rows actually fall, not by how long the
-     report is: three months of range with entries in only one of them gains
-     nothing from a header, and would just be a heading over the whole table. */
+     Whether there are lines at all is decided by how long the report is, not
+     by how many months its rows happen to land in. Counting by 15th–14th
+     periods, a whole year of entries can still fall in one period — so
+     counting groups meant the fold went missing on that basis entirely. And a
+     week that crosses the end of a month lands in two of them while still
+     being a week, which is not a list that needs folding. The length of the
+     report is the thing that decides whether it is long. */
   const months = [];
   rows.forEach(t => {
     const m = repUnitOf(t.date);
     if (months.indexOf(m) === -1) months.push(m);
   });
-  const grouped = months.length > 1;
+  const grouped = repFoldable();
 
   const tb = el("tbody");
 
@@ -13067,7 +13099,7 @@ function repDrawTable(rows){
         'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M6 9l6 6 6-6"/></svg>';
       left.appendChild(car);
-      left.appendChild(el("b", "rp-gm", repUnitName(m)));
+      left.appendChild(el("b", "rp-gm", repUnitName(m, months)));
       left.appendChild(el("span", "rp-gn",
         mine.length + " entr" + (mine.length === 1 ? "y" : "ies")));
       gin.appendChild(left);
@@ -13107,7 +13139,7 @@ function repDrawTable(rows){
   const tf = el("tfoot");
   const fr = el("tr");
   const lab = el("td", null, rows.length + " row" + (rows.length === 1 ? "" : "s") +
-    (grouped ? " · " + months.length +
+    (months.length > 1 ? " · " + months.length +
                  (repBasis === "calendar" ? " months" : " periods") : ""));
   lab.colSpan = 5;
   fr.appendChild(lab);

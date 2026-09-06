@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.41 — 2026-09-06
+- better: A period fold is headed by the day it opens — 15 Aug — not the whole stretch
+- fix: Details folds on the 15th–14th basis too, where it never appeared before
+- better: Only reports longer than a month fold; a week crossing a month end no longer does
+
 ## 2.0.40 — 2026-09-06
 - new: A payday welcome when the app opens: how many days until the wage lands
 - new: Details folds by month once a report covers more than one, each with its own totals
