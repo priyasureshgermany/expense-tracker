@@ -8,6 +8,12 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.42 — 2026-09-06
+- new: A month-long report folds by week, headed by its ISO week number — Week 33
+- better: The welcome stays up for five seconds
+- fix: The grand total no longer sits off the right edge of the table
+- fix: A week's report no longer foots itself "2 months"
+
 ## 2.0.41 — 2026-09-06
 - better: A period fold is headed by the day it opens — 15 Aug — not the whole stretch
 - fix: Details folds on the 15th–14th basis too, where it never appeared before

@@ -1185,9 +1185,14 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .rp-st.k-expense{color:var(--neg)}
 .rp-st.k-transfer{color:var(--accent)}
 .rp-table tfoot td{
-  padding:9px 10px;font-weight:700;font-variant-numeric:tabular-nums;
+  padding:0;font-weight:700;font-variant-numeric:tabular-nums;
   background:var(--surface-2);border-top:1px solid var(--line-strong);
 }
+/* The grand total is built like a group line and sticks the same way. It used
+   to sit in the Income and Expense columns, which on a table wider than the
+   screen put it off the right-hand edge — so every week showed what it came to
+   and the total of them all was the one figure you had to go looking for. */
+.rp-table tfoot .rp-gt{font-size:12.5px}
 .rp-empty{padding:26px 10px;text-align:center;color:var(--ink-3);font-size:12.5px}
 
 /* ---------- months, folded ----------
@@ -4251,7 +4256,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.41";
+const APP_VERSION = "2.0.42";
 const APP_BUILT = "2026-09-06";
 
 const KEY = "panappai.v1";
@@ -11911,7 +11916,10 @@ function payWelcomeOpen(auto){
     })(t0);
   }
 
-  payWelcomeTimer = setTimeout(payWelcomeClose, 4200);
+  /* Long enough to read the number, the date and the amount without hurrying,
+     and short enough that it is never in the way — a tap anywhere, Escape or
+     the button all cut it short. */
+  payWelcomeTimer = setTimeout(payWelcomeClose, 5000);
 }
 
 $("#payWelcome").addEventListener("click", payWelcomeClose);
@@ -12928,46 +12936,123 @@ function repFolded(m, newest){
  * to 14 Sep touches two of them. That is not more than one month of anything;
  * it is one period cut in half. So the grouping uses the same unit the totals
  * do, and a report of one of them has nothing to group. */
-/* A month of entries is short enough to read straight through; the fold is for
-   what is not, so a report of a month or less does not have one.
-
-   Measured in days rather than by counting the groups, because a week that
-   straddles the end of a month falls in two of them without being any longer
-   than a week — and it was showing a fold for that. Thirty-one is the longest a
-   calendar month or a 15th–14th period ever gets, so no report of a single one
-   of them folds, and anything longer than one does. */
-const REP_FOLD_DAYS = 31;
-function repFoldable(){
-  const r = repDates();
-  return daysUntil(r.to) - daysUntil(r.from) > REP_FOLD_DAYS;
-}
-
-function repUnitOf(iso){
-  return repBasis === "calendar" ? iso.slice(0, 7) : periodOf(iso);
-}
-/**
- * "September 2026", or "15 Aug" when counting by periods.
+/* How a report folds, decided once per draw.
  *
- * A period names itself by the day it opens, the same way the month strip on
- * the dashboard does — "15 Aug – 14 Sept 2026" said the whole thing twice over
- * on every heading, when the report has already said which stretch it covers.
+ *   a week          not at all — a week is a list you read
+ *   up to a month   by week, counted from the day the report opens
+ *   longer          by month, or by period when counting 15th–14th
  *
- * The year is left off, and can be, because no two periods inside twelve of
- * them open in the same month. Past that they can, so it is added — but only
- * to the headings that would otherwise read alike, since a year on every line
- * is the verbosity this was meant to lose.
+ * Thirty-one is the longest a calendar month or a period ever gets, so nothing
+ * that *is* one of them folds into months — it folds into the weeks inside it,
+ * which is the level below the one the report is already about.
+ *
+ * A week is an ISO week of the year — the number a calendar prints in its
+ * margin and the one anybody means by "week 34". 15 Aug 2026 is in week 33,
+ * and a 15 Aug – 14 Sep report runs 33 to 38.
+ *
+ * Two earlier attempts were both self-consistent and both useless. Counting
+ * from the report's own first day made week 1 whichever seven days it opened
+ * on, so the same days were week 1 in one report and week 3 in another.
+ * Counting within the calendar month fixed that but numbered only 1 to 5, and
+ * agreed with the real thing in January alone — which is exactly where it was
+ * checked.
  */
-function repUnitName(m, all){
-  if (repBasis === "calendar"){
-    const [y, mo] = m.split("-").map(Number);
-    return new Date(y, mo - 1, 1)
-      .toLocaleDateString("en-GB", { month:"long", year:"numeric" });
-  }
-  const label = periodChipLabel(m);
-  const clash = all && all.filter(x => periodChipLabel(x) === label).length > 1;
-  return clash ? label + " " + m.slice(0, 4) : label;
+/* ISO 8601 week numbering, which is what a week number means when anyone
+   quotes one: weeks run Monday to Sunday, and week 1 is the week holding the
+   year's first Thursday. That Thursday rule is why the number cannot be worked
+   out from the date alone — the first days of January can belong to week 52 or
+   53 of the year before, and the last days of December to week 1 of the next.
+   The Thursday of a week decides both its number and which year it counts in. */
+function isoWeekStart(iso){
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() - ((dt.getUTCDay() + 6) % 7));   /* back to Monday */
+  return isoOf(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate());
+}
+function isoWeekNo(iso){
+  const [y, m, d] = iso.split("-").map(Number);
+  const thu = new Date(Date.UTC(y, m - 1, d));
+  thu.setUTCDate(thu.getUTCDate() - ((thu.getUTCDay() + 6) % 7) + 3);
+  const wy = thu.getUTCFullYear();
+  /* the 4th of January is always in week 1, whatever weekday it lands on */
+  const jan4 = new Date(Date.UTC(wy, 0, 4));
+  const firstMon = new Date(Date.UTC(wy, 0, 4 - ((jan4.getUTCDay() + 6) % 7)));
+  return Math.round((thu - firstMon) / 604800000) + 1;
 }
 
+const REP_FOLD_DAYS = 31;
+
+function repFoldMode(){
+  if (repRange === "week") return "";
+  const r = repDates();
+  return (daysUntil(r.to) - daysUntil(r.from)) > REP_FOLD_DAYS ? "unit" : "week";
+}
+
+/**
+ * One draw's worth of folding: what each row's group is, what to call it, and
+ * what to say underneath. Built once because the week arithmetic needs the
+ * report's first day, and asking for it per row would be asking hundreds of
+ * times for an answer that cannot change.
+ */
+function repFolder(){
+  const mode = repFoldMode();
+  const r = repDates();
+  const from = r.from;
+
+  /* Keyed by the week's Monday, which sorts chronologically, is unique across
+     years, and cannot be confused with a month's seven-character key. The
+     number is worked out from it rather than stored, because a week's number
+     and a week's Monday are the same fact twice. */
+  const keyOf = iso => mode === "week"
+    ? isoWeekStart(iso)
+    : (repBasis === "calendar" ? iso.slice(0, 7) : periodOf(iso));
+
+  const weekNo = k => isoWeekNo(k);
+
+  const nameOf = (k, all) => {
+    if (mode === "week") return "Week " + weekNo(k);
+    if (repBasis === "calendar"){
+      const [y, mo] = k.split("-").map(Number);
+      return new Date(y, mo - 1, 1)
+        .toLocaleDateString("en-GB", { month:"long", year:"numeric" });
+    }
+    /* A period names itself by the day it opens, the same way the month strip
+       on the dashboard does. The year is left off, and can be, because no two
+       periods inside twelve of them open in the same month; past that they can,
+       so it is added — but only to the headings that would otherwise read
+       alike, since a year on every line is the verbosity this was meant to
+       lose. */
+    const label = periodChipLabel(k);
+    const clash = all && all.filter(x => periodChipLabel(x) === label).length > 1;
+    return clash ? label + " " + k.slice(0, 4) : label;
+  };
+
+  /* "Week 3" on its own is a number you have to count on your fingers to
+     place, so the week says which days it covers. A month has already said.
+     Clipped to the report, because its first and last weeks are usually part
+     ones — a period opening on the 15th starts halfway through nothing, but it
+     does end on the 14th, in the middle of week 2. */
+  const spanOf = k => {
+    if (mode !== "week") return "";
+    let a = k, b = addDays(k, 6);
+    if (a < r.from) a = r.from;
+    if (b > r.to) b = r.to;
+    const da = new Date(a + "T00:00:00"), db = new Date(b + "T00:00:00");
+    const both = { day:"numeric", month:"short" };
+    if (a === b) return da.toLocaleDateString("en-GB", both);
+    /* an ISO week runs Monday to Sunday and crosses the end of a month as
+       happily as anything else, so both ends name their own */
+    return a.slice(0, 7) === b.slice(0, 7)
+      ? da.getDate() + "–" + db.toLocaleDateString("en-GB", both)
+      : da.toLocaleDateString("en-GB", both) + " – " + db.toLocaleDateString("en-GB", both);
+  };
+
+  const plural = mode === "week" ? " weeks"
+               : repBasis === "calendar" ? " months" : " periods";
+
+  return { on: !!mode, mode:mode, keyOf:keyOf, nameOf:nameOf,
+           spanOf:spanOf, plural:plural };
+}
 function repDrawTable(rows){
   const host = $("#repTable");
   host.innerHTML = "";
@@ -13009,19 +13094,23 @@ function repDrawTable(rows){
      add it up yourself. So the rows are gathered under a line that says the
      month and what it came to, and that line folds.
 
-     Whether there are lines at all is decided by how long the report is, not
-     by how many months its rows happen to land in. Counting by 15th–14th
-     periods, a whole year of entries can still fall in one period — so
-     counting groups meant the fold went missing on that basis entirely. And a
-     week that crosses the end of a month lands in two of them while still
-     being a week, which is not a list that needs folding. The length of the
-     report is the thing that decides whether it is long. */
+     What the lines divide is decided by how long the report is, not by how
+     many months its rows happen to land in. Counting by 15th–14th periods, a
+     whole year of entries can still fall in one period — so counting groups
+     meant the fold went missing on that basis entirely. And a week that
+     crosses the end of a month lands in two of them while still being a week,
+     which is not a list that needs folding.
+
+     A report of a month divides into its weeks, which is the level below the
+     one the report is already about; a longer one divides into months, or into
+     periods when that is what it counts by. See repFolder. */
+  const fold = repFolder();
+  const grouped = fold.on;
   const months = [];
   rows.forEach(t => {
-    const m = repUnitOf(t.date);
+    const m = fold.keyOf(t.date);
     if (months.indexOf(m) === -1) months.push(m);
   });
-  const grouped = repFoldable();
 
   const tb = el("tbody");
 
@@ -13074,7 +13163,7 @@ function repDrawTable(rows){
     const newest = repNewestUnit(months);
 
     months.forEach(m => {
-      const mine = rows.filter(t => repUnitOf(t.date) === m);
+      const mine = rows.filter(t => fold.keyOf(t.date) === m);
       const mt = repTotals(mine);
       const shut = repFolded(m, newest);
 
@@ -13099,8 +13188,11 @@ function repDrawTable(rows){
         'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M6 9l6 6 6-6"/></svg>';
       left.appendChild(car);
-      left.appendChild(el("b", "rp-gm", repUnitName(m, months)));
+      left.appendChild(el("b", "rp-gm", fold.nameOf(m, months)));
+      /* which days a week covers, since its number does not say */
+      const span = fold.spanOf(m);
       left.appendChild(el("span", "rp-gn",
+        (span ? span + " · " : "") +
         mine.length + " entr" + (mine.length === 1 ? "y" : "ies")));
       gin.appendChild(left);
 
@@ -13138,17 +13230,20 @@ function repDrawTable(rows){
   const tot = repTotals(rows);
   const tf = el("tfoot");
   const fr = el("tr");
-  const lab = el("td", null, rows.length + " row" + (rows.length === 1 ? "" : "s") +
-    (months.length > 1 ? " · " + months.length +
-                 (repBasis === "calendar" ? " months" : " periods") : ""));
-  lab.colSpan = 5;
+  const lab = el("td");
+  lab.colSpan = REP_COLS.length;
+  const fin = el("div", "rp-gin");
+  fin.appendChild(el("span", "rp-gl", rows.length + " row" +
+    (rows.length === 1 ? "" : "s") +
+    /* only when the table is actually divided — an undivided one counted its
+       groups all the same, so a week's report footed itself "2 months" */
+    (grouped && months.length > 1 ? " · " + months.length + fold.plural : "")));
+  const ftot = el("span", "rp-gt");
+  ftot.appendChild(el("i", "in", fmt(tot.inc)));
+  ftot.appendChild(el("i", "out", fmt(tot.out)));
+  fin.appendChild(ftot);
+  lab.appendChild(fin);
   fr.appendChild(lab);
-  const fi = el("td", "num in", fmt(tot.inc));
-  const fo = el("td", "num out", fmt(tot.out));
-  fi.style.textAlign = "right";
-  fo.style.textAlign = "right";
-  fr.appendChild(fi);
-  fr.appendChild(fo);
   tf.appendChild(fr);
   host.appendChild(tf);
 }
