@@ -4263,7 +4263,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.43";
+const APP_VERSION = "2.0.44";
 const APP_BUILT = "2026-09-10";
 
 const KEY = "panappai.v1";
@@ -4760,9 +4760,18 @@ function accountName(id){ const a = accountById(id); return a ? a.n : ""; }
  * DUE and 1M, and a third pill of the same shape reads as more of the same
  * where this is a different kind of fact.
  */
+/**
+ * The repeating entry an entry came from, if it still exists.
+ *
+ * This is what decides whether a row wears an M or an A, and — asked by the
+ * report — whether it counts as planned. One test for both, so the Planned
+ * chip can never list a row without a badge or leave out a row that has one.
+ * An entry whose repeating entry has since been deleted gets neither.
+ */
+function ruleFor(id){ return id ? state.rules.find(x => x.id === id) || null : null; }
+
 function autoBadge(ruleId){
-  if (!ruleId) return null;
-  const r = state.rules.find(x => x.id === ruleId);
+  const r = ruleFor(ruleId);
   if (!r) return null;
   const auto = r.auto === true;
   const b = el("span", "ampill " + (auto ? "a" : "m"), auto ? "A" : "M");
@@ -12044,8 +12053,8 @@ function repDates(){
   const r = repDatesRaw();
   const today = todayISO();
   /* A report of what happened stops at today. A plan does not — most of it is
-     dated ahead, and cut off at today it would show less planned for this very
-     month than the dashboard does. */
+     dated ahead, and cut off at today it would leave out this month's bills still to
+     come. */
   if (repRange !== "custom" && repKind !== "planned" && r.to > today)
     return { from:r.from, to:today };
   /* ...and it is made of whole months. "Last 12 months" on the calendar runs
@@ -12121,21 +12130,24 @@ function repSpanText(){
  * alike, so none of them can drift from the others.
  */
 /* Planned turns the question round. Everything else asks what has happened,
-   so it counts what has been paid; Planned asks what was meant to happen, which
-   is every expense in the month whether it has gone out yet or not — the
-   figure the dashboard calls Planned expense. Still one predicate, so the ring,
-   the tiles, the table and the bars all switch together. */
+   so it counts what has been paid; Planned asks what was meant to happen —
+   the expenses that come from a repeating entry, the ones marked M or A,
+   whether they have gone out yet or not. Still one predicate, so the ring, the
+   tiles, the table and the bars all switch together. */
 function repCounts(t){ return repKind === "planned" || t.status === "done"; }
 
 /**
  * The kind chip, asked once. The table's filter and the bars' filter each had
  * this test written out, which was fine while a kind was only ever a type — and
  * would have let one of them learn what Planned means while the other did not.
- * Planned is expenses: a plan of spending, not of income or of transfers.
+ * Planned is the expenses that were scheduled: those that came from a
+ * repeating entry (M or A), not a one-off at the supermarket. It was every
+ * expense at first, which answered "what did I spend, paid or not" — a
+ * different question from "what had I planned to spend".
  */
 function repKindKeeps(t){
   if (repKind === "all") return true;
-  if (repKind === "planned") return t.type === "expense";
+  if (repKind === "planned") return t.type === "expense" && !!ruleFor(t.ruleId);
   return t.type === repKind;
 }
 

@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.44 — 2026-09-10
+- fix: Planned in reports counts only the recurring expenses — the M and A entries — not every expense
+
 ## 2.0.43 — 2026-09-10
 - new: Reports have a Planned chip beside Income, Expenses and Transfers: every expense in the month, paid or not
 - fix: A plan covers whole months — September no longer comes up short on 12M calendar
