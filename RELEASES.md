@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.43 — 2026-09-10
+- new: Reports have a Planned chip beside Income, Expenses and Transfers: every expense in the month, paid or not
+- fix: A plan covers whole months — September no longer comes up short on 12M calendar
+
 ## 2.0.42 — 2026-09-06
 - new: A month-long report folds by week, headed by its ISO week number — Week 33
 - better: The welcome stays up for five seconds
