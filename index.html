@@ -1076,6 +1076,10 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 #repKind button[data-kind="transfer"][aria-pressed="true"]{
   background:var(--accent-soft);border-color:var(--accent);color:var(--accent);
 }
+#repKind button[data-kind="planned"]  .kic{color:var(--warn)}
+#repKind button[data-kind="planned"][aria-pressed="true"]{
+  background:var(--warn-soft);border-color:var(--warn);color:var(--warn);
+}
 #repKind button[aria-pressed="true"] .kic{color:inherit}
 /* the per-month reading, beside the total it is derived from */
 .rp-avgtot{
@@ -1147,6 +1151,7 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   font-size:11.5px;color:var(--ink-3);
 }
 .bv-when{font-weight:600;color:var(--ink-2)}
+
 .bv-p{display:flex;align-items:center;gap:5px}
 .bv-p i{width:8px;height:8px;border-radius:2.5px;flex:none}
 .bv-p i.k-in{background:var(--bar-in)}
@@ -3769,6 +3774,7 @@ html.locked #lockScreen::before{
         <button type="button" data-kind="income"   aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg>Income</button>
         <button type="button" data-kind="expense"  aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg>Expenses</button>
         <button type="button" data-kind="transfer" aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg>Transfers</button>
+        <button type="button" data-kind="planned"  aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/></svg>Planned</button>
       </div>
       <div class="rp-chips slide" id="repCatChips"></div>
       <div class="rp-chips slide" id="repAcctChips"></div>
@@ -3804,6 +3810,7 @@ html.locked #lockScreen::before{
       <div id="repBarsChart"></div>
       <div class="rp-barsval" id="repBarsVal"></div>
     </div>
+
 
     <div class="rp-exports">
       <button class="btn ghost sm" id="repPdf">
@@ -4256,8 +4263,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.42";
-const APP_BUILT = "2026-09-06";
+const APP_VERSION = "2.0.43";
+const APP_BUILT = "2026-09-10";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -12036,7 +12043,21 @@ function addDays(iso, n){
 function repDates(){
   const r = repDatesRaw();
   const today = todayISO();
-  if (repRange !== "custom" && r.to > today) return { from:r.from, to:today };
+  /* A report of what happened stops at today. A plan does not — most of it is
+     dated ahead, and cut off at today it would show less planned for this very
+     month than the dashboard does. */
+  if (repRange !== "custom" && repKind !== "planned" && r.to > today)
+    return { from:r.from, to:today };
+  /* ...and it is made of whole months. "Last 12 months" on the calendar runs
+     from a date a year ago to today, which cut this month's plan off at today
+     and left it 300,00 short of what the dashboard says for the same month. */
+  if (repKind === "planned" && repRange !== "custom" && repRange !== "week"){
+    const cal = repBasis === "calendar";
+    return {
+      from: cal ? r.from.slice(0, 7) + "-01" : periodStart(periodOf(r.from)),
+      to:   cal ? lastDayOfMonth(r.to.slice(0, 7)) : periodEnd(periodOf(r.to))
+    };
+  }
   return r;
 }
 
@@ -12099,7 +12120,24 @@ function repSpanText(){
  * it. One predicate, used by the totals, the ring, the table and the bars
  * alike, so none of them can drift from the others.
  */
-function repCounts(t){ return t.status === "done"; }
+/* Planned turns the question round. Everything else asks what has happened,
+   so it counts what has been paid; Planned asks what was meant to happen, which
+   is every expense in the month whether it has gone out yet or not — the
+   figure the dashboard calls Planned expense. Still one predicate, so the ring,
+   the tiles, the table and the bars all switch together. */
+function repCounts(t){ return repKind === "planned" || t.status === "done"; }
+
+/**
+ * The kind chip, asked once. The table's filter and the bars' filter each had
+ * this test written out, which was fine while a kind was only ever a type — and
+ * would have let one of them learn what Planned means while the other did not.
+ * Planned is expenses: a plan of spending, not of income or of transfers.
+ */
+function repKindKeeps(t){
+  if (repKind === "all") return true;
+  if (repKind === "planned") return t.type === "expense";
+  return t.type === repKind;
+}
 
 /** Everything inside the stretch, before the table's own filters. */
 function repInRange(){
@@ -12109,21 +12147,30 @@ function repInRange(){
 }
 
 /** What the table shows: the stretch, narrowed by every filter that is on. */
-function repRows(){
+/**
+ * Whether an entry survives the filters that are switched on — kind, category,
+ * account, search — and nothing else. Not the date range and not the paid/
+ * planned split: those belong to whoever is asking. The table asks for settled
+ * entries inside the range; the planned block asks for every entry in whole
+ * months. Both narrow the same way, because both ask this.
+ */
+function repKeeps(t){
   const q = repQuery.trim().toLowerCase();
-  let rows = repInRange().filter(t => {
-    if (repKind !== "all" && t.type !== repKind) return false;
-    if (repCats.length && repCats.indexOf(repCatOf(t).id) === -1) return false;
-    if (repAccts.length &&
-        repAccts.indexOf(t.account) === -1 &&
-        repAccts.indexOf(t.fromAccount) === -1) return false;
-    if (q){
-      const hay = [t.note, repCatOf(t).n, acctName(t.account), acctName(t.fromAccount)]
-        .join(" ").toLowerCase();
-      if (hay.indexOf(q) === -1) return false;
-    }
-    return true;
-  });
+  if (!repKindKeeps(t)) return false;
+  if (repCats.length && repCats.indexOf(repCatOf(t).id) === -1) return false;
+  if (repAccts.length &&
+      repAccts.indexOf(t.account) === -1 &&
+      repAccts.indexOf(t.fromAccount) === -1) return false;
+  if (q){
+    const hay = [t.note, repCatOf(t).n, acctName(t.account), acctName(t.fromAccount)]
+      .join(" ").toLowerCase();
+    if (hay.indexOf(q) === -1) return false;
+  }
+  return true;
+}
+
+function repRows(){
+  let rows = repInRange().filter(repKeeps);
 
   const dir = repSort.dir;
   const key = repSort.col;
@@ -12639,7 +12686,7 @@ function repBucketUnit(){
  * rather than about a run of months.
  */
 function repBarKeeps(t){
-  if (repKind !== "all" && t.type !== repKind) return false;
+  if (!repKindKeeps(t)) return false;
   /* A slice lit on the ring is the same question asked by tapping rather than by
      chip — "this category, then" — so the bars answer it the same way. It was
      only ever a highlight, which left the ring showing one category and the bars
@@ -12659,7 +12706,11 @@ function repBuckets(){
   /* Ending at today rather than at the range's end: "this year" runs to
      December, and three empty bars for months that have not happened say
      nothing about how the year is going. */
-  const end = r.to > today ? today : r.to;
+  /* Where the report stops, the bars stop: at today for what has happened, at
+     the end of the range for a plan. Left uncapped for a plan, a week running
+     to Sunday pulled the next period's bills into this one. */
+  const stop = repKind === "planned" ? r.to : today;
+  const end = r.to > stop ? stop : r.to;
 
   /* Five labels across a phone leaves about 60px each, so the year goes: every
      bar is in the same one, and it is written above the chart anyway. */
@@ -12707,7 +12758,7 @@ function repBuckets(){
        ending on the 31st — and counting to its far edge pulled next week's
        planned entries into this bar. A week's bar read 3.986,60 against a month
        whose whole spend was 2.157,92. Bars stop where the report stops. */
-    const to = sp.to > today ? today : sp.to;
+    const to = sp.to > stop ? stop : sp.to;
     let inc = 0, out = 0;
     state.txns.forEach(t => {
       if (!repCounts(t)) return;              /* the bars count what the report counts */
@@ -12778,7 +12829,7 @@ function repDrawBars(){
                     repKind !== "all");
   /* Worked out before the empty check, so a chart with nothing in it still says
      what it found nothing of. */
-  const KIND_WORD = { income:"Income", expense:"Expenses", transfer:"Transfers" };
+  const KIND_WORD = { income:"Income", expense:"Expenses", transfer:"Transfers", planned:"Planned" };
   const narrowed = [].concat(
     repKind !== "all" ? [KIND_WORD[repKind]] : [],
     repSelCat ? [catOf(repSelCat).n] : repCats.map(id => catOf(id).n),
@@ -12982,6 +13033,29 @@ function isoWeekNo(iso){
 
 const REP_FOLD_DAYS = 31;
 
+/**
+ * What to call a month: "September 2026", or "15 Aug" when counting 15th–14th.
+ *
+ * A period names itself by the day it opens, the same way the month strip on
+ * the dashboard does. The year is left off, and can be, because no two periods
+ * inside twelve of them open in the same month; past that they can, so it is
+ * added — but only to the names that would otherwise read alike, since a year
+ * on every line is the verbosity this was meant to lose.
+ *
+ * @param k    "YYYY-MM": a calendar month, or the period opening in it
+ * @param all  every key being named alongside it, for the clash test
+ */
+function repUnitLabel(k, all){
+  if (repBasis === "calendar"){
+    const [y, mo] = k.split("-").map(Number);
+    return new Date(y, mo - 1, 1)
+      .toLocaleDateString("en-GB", { month:"long", year:"numeric" });
+  }
+  const label = periodChipLabel(k);
+  const clash = all && all.filter(x => periodChipLabel(x) === label).length > 1;
+  return clash ? label + " " + k.slice(0, 4) : label;
+}
+
 function repFoldMode(){
   if (repRange === "week") return "";
   const r = repDates();
@@ -13009,23 +13083,7 @@ function repFolder(){
 
   const weekNo = k => isoWeekNo(k);
 
-  const nameOf = (k, all) => {
-    if (mode === "week") return "Week " + weekNo(k);
-    if (repBasis === "calendar"){
-      const [y, mo] = k.split("-").map(Number);
-      return new Date(y, mo - 1, 1)
-        .toLocaleDateString("en-GB", { month:"long", year:"numeric" });
-    }
-    /* A period names itself by the day it opens, the same way the month strip
-       on the dashboard does. The year is left off, and can be, because no two
-       periods inside twelve of them open in the same month; past that they can,
-       so it is added — but only to the headings that would otherwise read
-       alike, since a year on every line is the verbosity this was meant to
-       lose. */
-    const label = periodChipLabel(k);
-    const clash = all && all.filter(x => periodChipLabel(x) === label).length > 1;
-    return clash ? label + " " + k.slice(0, 4) : label;
-  };
+  const nameOf = (k, all) => mode === "week" ? "Week " + weekNo(k) : repUnitLabel(k, all);
 
   /* "Week 3" on its own is a number you have to count on your fingers to
      place, so the week says which days it covers. A month has already said.
