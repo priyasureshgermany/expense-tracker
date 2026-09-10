@@ -527,6 +527,22 @@ button.tile:hover .tile-go{color:var(--accent)}
 .budrow:last-child{border-bottom:none}
 .budrow .br-ic{width:26px;height:26px;flex:none;border-radius:7px;display:grid;place-items:center}
 .budrow .br-n{flex:1;min-width:0;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* € or %: a two-way switch beside the amount, and what a % comes to under the name */
+.budrow .br-mode{display:inline-flex;flex:none;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.budrow .br-mode button{padding:6px 9px;font-size:12.5px;font-weight:700;color:var(--ink-3);background:var(--surface-2)}
+.budrow .br-mode button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.budrow .br-eq{display:block;font-style:normal;font-size:11px;color:var(--ink-3);margin-top:1px}
+/* the whole budget as a share of income, beside the card's title */
+.bc-n{font-size:11px;font-weight:600;color:var(--ink-3);letter-spacing:.02em}
+/* centred across the card, whatever the fold control beside the title adds */
+.bc-head{position:relative}
+.bc-head .bc-n{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap}
+/* A budget's share of income, in the middle of its top line: the name and the
+   amount take equal halves either side of it, so it sits centred. */
+.env-pct{flex:none;font-size:11px;font-weight:600;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* 32px is the icon and its gap, which sit on the name side; the same on this
+   side keeps the two halves equal and the share in the true middle */
+.env-top .env-left{flex:1;min-width:0;text-align:right;padding-left:32px}
 .inp.br-a{
   flex:none;width:92px;padding:7px 9px;text-align:right;
   font-family:var(--mono);font-size:13px;font-weight:600;
@@ -1049,6 +1065,15 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
 .rp-lg:hover{background:var(--surface-2)}
 .rp-sw{width:12px;height:12px;border-radius:4px;flex:none;box-shadow:0 1px 2px rgba(15,25,34,.18)}
 .rp-ln{font-size:12.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* the unplanned part of the income: set apart from the categories above it,
+   and not a thing to tap */
+.rp-rem{border-top:1px dashed var(--line);border-radius:0;margin-top:4px;padding-top:10px}
+/* "Over income" has no slice to light, so it is not a thing to tap */
+div.rp-rem{cursor:default}
+div.rp-rem:hover{background:none}
+/* Beside a category's name under Planned: a size down from the rows' badge and
+   centred on the text, so a badged line stands no taller than a plain one. */
+.rp-ln > .ampill{width:14px;height:14px;font-size:8.5px;margin-left:5px;vertical-align:middle;position:relative;top:-1px}
 .rp-lp{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .rp-la{font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
 
@@ -1081,6 +1106,18 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   background:var(--warn-soft);border-color:var(--warn);color:var(--warn);
 }
 #repKind button[aria-pressed="true"] .kic{color:inherit}
+/* Under Planned, a split of it: amber M and green A, the same as the badges
+   on the rows it filters, so the choice and the rows read as one thing. */
+.rp-kindrows{display:flex;flex-direction:column;gap:6px}
+.rp-planmode{display:inline-flex;flex-wrap:wrap;gap:5px;margin-left:4px}
+.rp-planmode button:disabled{opacity:.38;cursor:default}
+.rp-planmode .ampill{margin:0 5px 0 0}
+#repPlanMode button[data-pm="manual"][aria-pressed="true"]{
+  background:var(--warn-soft);border-color:var(--warn);color:var(--warn);
+}
+#repPlanMode button[data-pm="auto"][aria-pressed="true"]{
+  background:var(--pos-soft);border-color:var(--pos);color:var(--pos);
+}
 /* the per-month reading, beside the total it is derived from */
 .rp-avgtot{
   display:flex;align-items:baseline;justify-content:space-between;gap:10px;
@@ -3043,6 +3080,7 @@ html.locked #lockScreen::before{
     <section class="budgetcard" id="budgetCard" hidden>
       <div class="bc-head">
         <div class="bc-t">Budget</div>
+        <div class="bc-n" id="budgetPctNote"></div>
       </div>
       <div id="budgetRows"></div>
       <div class="bc-foot" id="budgetFoot"></div>
@@ -3551,6 +3589,11 @@ html.locked #lockScreen::before{
       Every expense you log against it draws it down. Leave a category blank if you
       don't want to budget it — one-off bills like rent are better as recurring entries.
     </div>
+    <div class="field" style="margin-top:12px">
+      <label>A % budget is a % of</label>
+      <div class="rp-chips" id="budBase"></div>
+      <div class="note" id="budBaseNote" style="margin-top:6px"></div>
+    </div>
     <div id="budRows" style="margin-top:12px"></div>
 
     <div class="budadd" id="budAddWrap">
@@ -3769,12 +3812,23 @@ html.locked #lockScreen::before{
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </div>
-      <div class="rp-chips" id="repKind">
-        <button type="button" data-kind="all"      aria-pressed="true">All</button>
-        <button type="button" data-kind="income"   aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg>Income</button>
-        <button type="button" data-kind="expense"  aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg>Expenses</button>
-        <button type="button" data-kind="transfer" aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg>Transfers</button>
-        <button type="button" data-kind="planned"  aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/></svg>Planned</button>
+      <!-- what kind of entry; Planned leads a row of its own, with the split of it
+           beside it — usable only while Planned is on -->
+      <div class="rp-kindrows" id="repKind">
+        <div class="rp-chips">
+          <button type="button" data-kind="all"      aria-pressed="true">All</button>
+          <button type="button" data-kind="income"   aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 17V7h10"/></svg>Income</button>
+          <button type="button" data-kind="expense"  aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10"/><path d="M17 7v10H7"/></svg>Expenses</button>
+          <button type="button" data-kind="transfer" aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg>Transfers</button>
+        </div>
+        <div class="rp-chips">
+          <button type="button" data-kind="planned"  aria-pressed="false"><svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/></svg>Planned</button>
+          <span class="rp-planmode" id="repPlanMode">
+            <button type="button" data-pm="both"   aria-pressed="true">Both</button>
+            <button type="button" data-pm="manual" aria-pressed="false"><span class="ampill m">M</span>Manual</button>
+            <button type="button" data-pm="auto"   aria-pressed="false"><span class="ampill a">A</span>Automatic</button>
+          </span>
+        </div>
       </div>
       <div class="rp-chips slide" id="repCatChips"></div>
       <div class="rp-chips slide" id="repAcctChips"></div>
@@ -4263,7 +4317,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.45";
+const APP_VERSION = "2.0.46";
 const APP_BUILT = "2026-09-10";
 
 const KEY = "panappai.v1";
@@ -4653,7 +4707,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null };
+let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -4770,10 +4824,13 @@ function accountName(id){ const a = accountById(id); return a ? a.n : ""; }
  */
 function ruleFor(id){ return id ? state.rules.find(x => x.id === id) || null : null; }
 
+/** A (the bank takes it) or, when false, M (you pay it yourself). */
+function ruleAuto(r){ return !!r && r.auto === true; }
+
 function autoBadge(ruleId){
   const r = ruleFor(ruleId);
   if (!r) return null;
-  const auto = r.auto === true;
+  const auto = ruleAuto(r);
   const b = el("span", "ampill " + (auto ? "a" : "m"), auto ? "A" : "M");
   b.title = auto ? "Automatic — the bank takes this one"
                  : "Manual — you pay this one yourself";
@@ -4946,6 +5003,12 @@ function stateFromPayload(p){
     skips: Array.isArray(p.skips) ? p.skips : [],
     shop: normaliseShop(p.shop),
     budgets: (p.budgets && typeof p.budgets === "object") ? p.budgets : {},
+    /* a budget set as a share of income: category -> percent. A category is in
+       this or in budgets, never both. */
+    budgetPct: (p.budgetPct && typeof p.budgetPct === "object") ? p.budgetPct : {},
+    /* the income categories a % is taken from */
+    budgetBase: Array.isArray(p.budgetBase) && p.budgetBase.length
+      ? p.budgetBase.filter(x => typeof x === "string") : ["salary"],
     catchAll: typeof p.catchAll === "string" ? p.catchAll : null,
     balance: normaliseBalance(p.balance),
     cats: normaliseCats(p.cats),
@@ -4964,6 +5027,8 @@ function stateCleared(){
     v:1, txns:[], rules:[], skips:[], balanceLog:[],
     shop: state.shop || normaliseShop(null),
     budgets: state.budgets || {},
+    budgetPct: state.budgetPct || {},
+    budgetBase: state.budgetBase || ["salary"],
     catchAll: state.catchAll || null,
     balance: state.balance || null,
     cats: state.cats || normaliseCats(null),
@@ -4988,6 +5053,8 @@ function load(){
   }catch(e){ /* corrupt or unavailable storage — start clean */ }
   if (!state.shop) state.shop = normaliseShop(null);
   if (!state.budgets) state.budgets = {};
+  if (!state.budgetPct || typeof state.budgetPct !== "object") state.budgetPct = {};
+  if (!Array.isArray(state.budgetBase) || !state.budgetBase.length) state.budgetBase = ["salary"];
   if (!state.cats) state.cats = normaliseCats(null);
   /* Backups written before the catch-all existed have none set, which left the
      Misc envelope counting only entries tagged Misc rather than absorbing the
@@ -5826,17 +5893,65 @@ function render(){
 /** Categories that can hold an envelope at all — see the noBudget note above. */
 function budgetableCats(){ return pickableCats("expense").filter(c => !c.noBudget); }
 
-/** Only categories carrying an amount are envelopes; the rest are untouched. */
-function budgetList(){
+/* ---------- budgets as a share of income ----------
+
+   A budget is either an amount or a percentage of income. The percentage is of
+   this period's income as entered — planned or received, the Income the
+   dashboard shows — in the categories chosen as the base: Salary, and whatever
+   else repeats, such as Benefits. So a % budget grows in a month with extra
+   pay, which is what a share of income means.
+
+   Everything that needs a budget's amount asks budgetFor, so the card, the
+   envelope and the catch-all cannot come to different figures for one budget. */
+
+/** Income categories offered as the base: Salary, and any income that repeats. */
+function budgetBaseChoices(){
+  const regular = new Set(state.rules
+    .filter(r => r.type === "income" && r.active !== false).map(r => r.category));
+  regular.add("salary");
+  return allCats("income").filter(c => regular.has(c.id));
+}
+function budgetBaseIds(){
+  return Array.isArray(state.budgetBase) && state.budgetBase.length ? state.budgetBase : ["salary"];
+}
+/** What a % budget is a % of, for period p: its income in the base categories. */
+function budgetBaseIncome(p, ids){
+  const base = ids || budgetBaseIds();
+  return state.txns.reduce((sum, t) =>
+    t.type === "income" && periodOf(t.date) === p && base.indexOf(t.category) > -1
+      ? sum + t.amount : sum, 0);
+}
+function budgetPctOf(id){
+  const v = state.budgetPct && state.budgetPct[id];
+  return v > 0 ? v : 0;
+}
+/** A category's budget for period p, in cents: its amount, or its share. */
+function budgetFor(id, p){
+  const pct = budgetPctOf(id);
+  if (pct) return Math.round(budgetBaseIncome(p) * pct / 100);
+  return state.budgets[id] || 0;
+}
+function budgetSet(id){ return budgetPctOf(id) > 0 || (state.budgets[id] || 0) > 0; }
+/** "4" or "2,5" as a percentage, capped at 100; 0 for anything else. */
+function parsePct(str){
+  const v = parseFloat(String(str || "").replace(",", "."));
+  return isFinite(v) && v > 0 ? Math.min(Math.round(v * 10) / 10, 100) : 0;
+}
+function pctText(v){ return String(v).replace(".", ","); }
+
+/** Only categories carrying a budget are envelopes; the rest are untouched. */
+function budgetList(p){
+  const per = p || view;
   return budgetableCats()
-    .filter(c => (state.budgets[c.id] || 0) > 0 && catShown(c.id))
-    .map(c => ({ cat:c, planned: state.budgets[c.id] }));
+    .filter(c => budgetSet(c.id) && catShown(c.id))
+    .map(c => ({ cat:c, planned: budgetFor(c.id, per), pct: budgetPctOf(c.id) }));
 }
 
 /* Categories that already have an envelope of their own, so the catch-all
-   shouldn't also absorb them. */
+   shouldn't also absorb them — a % budget is an envelope as much as an amount. */
 function coveredCats(){
-  return Object.keys(state.budgets).filter(id => id !== state.catchAll && state.budgets[id] > 0);
+  const ids = new Set(Object.keys(state.budgets).concat(Object.keys(state.budgetPct || {})));
+  return [...ids].filter(id => id !== state.catchAll && budgetSet(id));
 }
 
 /**
@@ -5897,10 +6012,17 @@ function renderBudgets(){
   const pace = periodProgress(view);
   const host = $("#budgetRows");
   host.innerHTML = "";
+  /* The income a share is measured against, worked out once for every row and
+     the heading. Not shown when there is none in the period, or when it is kept
+     off the screen — a share of a hidden salary would give the salary away. */
+  const baseIds = budgetBaseIds();
+  const base = budgetBaseIncome(view, baseIds);
+  const shareShown = base > 0 && !baseIds.some(id => !catShown(id));
+  const shareOf = cents => pctText(Math.round(cents / base * 1000) / 10) + "% of Income";
 
   let totPlanned = 0, totSpent = 0;
 
-  rows.forEach(({ cat, planned }) => {
+  rows.forEach(({ cat, planned, pct: setPct }) => {
     const spent = envSpent(cat.id, view);
     const left = planned - spent;
     totPlanned += planned; totSpent += spent;
@@ -5915,6 +6037,10 @@ function renderBudgets(){
     ic.style.color = tintInk(cat, dark);
     top.appendChild(ic);
     top.appendChild(el("div", "env-n", cat.n));
+    /* its share of income: what it was set to, if set as one, else what its
+       amount comes to */
+    if (shareShown && planned > 0)
+      top.appendChild(el("div", "env-pct", setPct ? pctText(setPct) + "% of Income" : shareOf(planned)));
 
     const leftEl = el("div", "env-left",
       left >= 0 ? fmt(left, cat.id) + " left" : fmt(-left, cat.id) + " over");
@@ -5945,6 +6071,8 @@ function renderBudgets(){
   const leftAll = totPlanned - totSpent;
   const usedPct = totPlanned > 0 ? Math.round(totSpent / totPlanned * 100) : 0;
   const pacePct = Math.round(pace * 100);
+  /* the whole budget as a share of income — what the budgets add up to */
+  $("#budgetPctNote").textContent = shareShown && totPlanned > 0 ? shareOf(totPlanned) : "";
   $("#budgetFoot").textContent =
     fmt(totSpent) + " of " + fmt(totPlanned) + " used (" + usedPct + "%) · " +
     (leftAll >= 0 ? fmt(leftAll) + " left" : fmt(-leftAll) + " over") +
@@ -5957,7 +6085,7 @@ let envCat = null;
 function openEnvelope(catId){
   envCat = catId;
   const cat = catOf(catId);
-  const planned = state.budgets[catId] || 0;
+  const planned = budgetFor(catId, view);
   const spent = envSpent(catId, view);
   const left = planned - spent;
 
@@ -6025,6 +6153,7 @@ function renderBudRows(){
   const dark = isDark();
   const host = $("#budRows");
   host.innerHTML = "";
+  renderBudBase();
 
   const chosen = budgetableCats().filter(c => Object.prototype.hasOwnProperty.call(budDraft, c.id));
 
@@ -6041,14 +6170,54 @@ function renderBudRows(){
     row.appendChild(ic);
     row.appendChild(el("div", "br-n", c.n));
 
+    const mode = budMode[c.id] || "eur";
     const inp = el("input", "inp br-a");
     inp.type = "text";
     inp.inputMode = "decimal";
-    inp.placeholder = "€ 0,00";
+    inp.placeholder = mode === "pct" ? "0 %" : "€ 0,00";
     inp.dataset.cat = c.id;
     inp.value = budDraft[c.id] || "";
-    inp.setAttribute("aria-label", "Budget for " + c.n);
+    inp.setAttribute("aria-label", "Budget for " + c.n + (mode === "pct" ? ", percent of income" : ""));
     row.appendChild(inp);
+
+    /* Switching keeps the money, converting rather than clearing: 221,60 € is
+       4 % of this period's 5.540,00, and 4 % is 221,60 € back again. */
+    const base = budgetBaseIncome(view, budBaseDraft);
+    const tog = el("div", "br-mode");
+    [["eur", "€"], ["pct", "%"]].forEach(([m, lab]) => {
+      const b = el("button", null, lab);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(mode === m));
+      b.setAttribute("aria-label", m === "pct" ? "Set as percent of income" : "Set as an amount");
+      b.addEventListener("click", () => {
+        budCapture();
+        if ((budMode[c.id] || "eur") === m) return;
+        const v = budDraft[c.id] || "";
+        if (m === "pct"){
+          const cents = Math.abs(parseAmount(v) || 0);
+          budDraft[c.id] = cents && base ? pctText(Math.round(cents / base * 1000) / 10) : "";
+        } else {
+          const pct = parsePct(v);
+          budDraft[c.id] = pct && base ? (Math.round(base * pct / 100) / 100).toFixed(2).replace(".", ",") : "";
+        }
+        budMode[c.id] = m;
+        renderBudRows();
+      });
+      tog.appendChild(b);
+    });
+    row.appendChild(tog);
+
+    /* what a % comes to, under the name, updated as it is typed */
+    if (mode === "pct"){
+      const eq = el("i", "br-eq");
+      const show = () => {
+        const pct = parsePct(inp.value);
+        eq.textContent = pct ? pctText(pct) + "% of Income = " + fmt(Math.round(base * pct / 100)) + " this period" : "% of Income";
+      };
+      inp.addEventListener("input", show);
+      show();
+      row.querySelector(".br-n").appendChild(eq);
+    }
 
     const x = el("button", "si-x");
     x.type = "button";
@@ -6057,6 +6226,7 @@ function renderBudRows(){
     x.addEventListener("click", () => {
       budCapture();
       delete budDraft[c.id];
+      delete budMode[c.id];
       renderBudRows();
     });
     row.appendChild(x);
@@ -6081,15 +6251,45 @@ function renderBudRows(){
 }
 
 let budPickId = "", budCatchId = "";
+/* Per row: "eur" or "pct". And the base being edited, saved only with the rest. */
+let budMode = {};
+let budBaseDraft = ["salary"];
+
 function openBudgetEditor(){
   budDraft = {};
+  budMode = {};
+  budBaseDraft = budgetBaseIds().slice();
   budCatchId = state.catchAll || "";
   budgetableCats().forEach(c => {
+    const pct = budgetPctOf(c.id);
     const cur = state.budgets[c.id] || 0;
-    if (cur > 0) budDraft[c.id] = (cur / 100).toFixed(2).replace(".", ",");
+    if (pct){ budDraft[c.id] = pctText(pct); budMode[c.id] = "pct"; }
+    else if (cur > 0){ budDraft[c.id] = (cur / 100).toFixed(2).replace(".", ","); budMode[c.id] = "eur"; }
   });
   renderBudRows();
   sheetOpen("#shBudget");
+}
+
+/** The base chips at the top of the editor, and what that base comes to now. */
+function renderBudBase(){
+  const host = $("#budBase");
+  host.innerHTML = "";
+  budgetBaseChoices().forEach(c => {
+    const b = el("button", null, c.n);
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(budBaseDraft.indexOf(c.id) > -1));
+    b.addEventListener("click", () => {
+      budCapture();
+      const on = budBaseDraft.indexOf(c.id) > -1;
+      /* a percentage of nothing is nothing, so the last one stays */
+      if (on && budBaseDraft.length === 1){ toast("A % needs at least one income"); return; }
+      budBaseDraft = on ? budBaseDraft.filter(x => x !== c.id) : budBaseDraft.concat(c.id);
+      renderBudRows();
+    });
+    host.appendChild(b);
+  });
+  const base = budgetBaseIncome(view, budBaseDraft);
+  $("#budBaseNote").textContent = "Income this period: " + fmt(base) + " — as entered, planned or received.";
 }
 $("#budgetEdit").addEventListener("click", openBudgetEditor);
 $("#budgetStart").addEventListener("click", openBudgetEditor);
@@ -6106,16 +6306,23 @@ $("#budAdd").addEventListener("click", () => {
 
 $("#budSave").addEventListener("click", () => {
   budCapture();
-  const next = {};
+  const next = {}, nextPct = {};
   Object.keys(budDraft).forEach(id => {
-    const cents = Math.abs(parseAmount(budDraft[id]) || 0);
-    if (cents > 0) next[id] = cents;
+    if ((budMode[id] || "eur") === "pct"){
+      const pct = parsePct(budDraft[id]);
+      if (pct > 0) nextPct[id] = pct;
+    } else {
+      const cents = Math.abs(parseAmount(budDraft[id]) || 0);
+      if (cents > 0) next[id] = cents;
+    }
   });
   state.budgets = next;
+  state.budgetPct = nextPct;
+  state.budgetBase = budBaseDraft.slice();
   const catch_ = budCatchId;
-  state.catchAll = (catch_ && next[catch_]) ? catch_ : null;
+  state.catchAll = (catch_ && (next[catch_] || nextPct[catch_])) ? catch_ : null;
   save(); render(); sheetClose();
-  const n = Object.keys(next).length;
+  const n = Object.keys(next).length + Object.keys(nextPct).length;
   toast(n ? n + " budget" + (n === 1 ? "" : "s") + " saved" : "Budgets cleared");
 });
 
@@ -6557,7 +6764,7 @@ function renderAccountSettings(){
       sheetClose();
       repAccts = [a.id];
       repKind = "all"; repCats = []; repQuery = ""; repSelCat = null;
-      syncChips("#repKind", "kind", repKind);
+      repSyncKind();
       $("#repSearch").value = "";
       /* the stretch the dashboard is on, not today's — you may have navigated */
       repRange = "custom";
@@ -7523,6 +7730,7 @@ function renderCatManage(){
       if (used){ toast("In use — retag those entries first"); return; }
       state.cats[catAddType] = customCats(catAddType).filter(o => o.id !== c.id);
       delete state.budgets[c.id];
+      if (state.budgetPct) delete state.budgetPct[c.id];
       refreshCats(); save(); render(); renderCatManage();
       toast("Category deleted");
     });
@@ -11192,7 +11400,7 @@ function ghFingerprint(){
   state.rules.forEach(x => { r[x.id] = ruleSig(x); });
   return {
     t: t, r: r,
-    misc: JSON.stringify([state.budgets, state.catchAll, state.balance,
+    misc: JSON.stringify([state.budgets, state.budgetPct, state.budgetBase, state.catchAll, state.balance,
                           state.accounts, state.profile, state.cats, (state.skips || []).length])
   };
 }
@@ -11257,7 +11465,7 @@ function ghChanges(){
     }
   });
 
-  const misc = JSON.stringify([state.budgets, state.catchAll, state.balance,
+  const misc = JSON.stringify([state.budgets, state.budgetPct, state.budgetBase, state.catchAll, state.balance,
                                state.accounts, state.profile, state.cats, (state.skips || []).length]);
   if (misc !== snap.misc){
     out.push({ kind:"edited", what:"Settings — budgets, accounts, categories or balance",
@@ -12033,6 +12241,9 @@ let repRange = "month";        /* week | month | year | last12 | custom */
 let repBasis = "period";       /* period | calendar */
 let repTab = "chart";
 let repKind = "all";
+/* Which half of the plan, while Planned is on: both | manual | auto. Read
+   nowhere else, so it can be left as it is when Planned is switched off. */
+let repPlanMode = "both";
 /* Empty means every one of them, which is why these are not seeded with the
    full list: "nothing ticked" and "all ticked" mean the same thing to a reader
    and should not mean different things to the filter. */
@@ -12170,7 +12381,14 @@ function repCounts(t){ return repKind === "planned" || t.status === "done"; }
  */
 function repKindKeeps(t){
   if (repKind === "all") return true;
-  if (repKind === "planned") return t.type === "expense" && !!ruleFor(t.ruleId);
+  if (repKind === "planned"){
+    const r = t.type === "expense" ? ruleFor(t.ruleId) : null;
+    if (!r) return false;
+    /* the badge's own test, so Manual lists exactly the rows marked M */
+    if (repPlanMode === "manual") return !ruleAuto(r);
+    if (repPlanMode === "auto") return ruleAuto(r);
+    return true;
+  }
   return t.type === repKind;
 }
 
@@ -12281,9 +12499,13 @@ function repByCategory(rows, side){
     if (repSideOf(t) !== want) return;
     const c = repCatOf(t);
     const cur = by.get(c.id) ||
-      { id:c.id, n:c.n, h:c.h, l:c.l, total:0, count:0, mset:new Set() };
+      { id:c.id, n:c.n, h:c.h, l:c.l, total:0, count:0, m:0, a:0, mset:new Set() };
     cur.total += t.amount;
     cur.count++;
+    /* who pays it, by the badge's own test — counted from the rows the ring
+       itself is drawn from, so a category's M and A always add to its slice */
+    const rule = ruleFor(t.ruleId);
+    if (rule){ if (ruleAuto(rule)) cur.a += t.amount; else cur.m += t.amount; }
     /* which months this category actually ran in, for an average over those
        rather than over the whole stretch */
     cur.mset.add(t.date.slice(0, 7));
@@ -12361,21 +12583,27 @@ function pieShades(c, dark, on){
      only reads as wet if there is depth beneath it for it to sit on, so the top
      of the range comes up and the bottom goes down. */
   const up = on ? 6 : 0, down = on ? 5 : 0;
-  const h = c.h;
+  /* Remaining is not a category: the same build in a deep green — money still
+     in hand — so it reads as the part of the income nothing is planned
+     against rather than as one more category. Its neighbours in the ring are
+     the last category and the first, never the teal of Education. */
+  const h = c.remaining ? 145 : (c.h || 0);
+  const sat = c.remaining ? 58 : CAT_SAT;
   /* The stack is built from the category's own depth rather than one lightness
      shared by every slice — that shared lightness was what left neighbouring
      hues with nothing but hue to tell them apart. */
-  const bl = catL(c);
+  /* deep enough that the pie's shared sheen still leaves it reading dark */
+  const bl = c.remaining ? (dark ? 20 : 24) : catL(c);
   const L = v => Math.max(7, Math.min(88, v)).toFixed(1);
   /* The gloss reaches 20 points above the base rather than 26. The highlight
      still has depth beneath it to sit on, but the lit face no longer climbs so
      far that every colour arrives pale whatever depth it started from. */
   return {
-    lit:  "hsl(" + h + " " + CAT_SAT + "% " + L(bl + 14 + up) + "%)",
-    top:  "hsl(" + h + " " + CAT_SAT + "% " + L(bl + 6 + up * 0.4) + "%)",
-    base: "hsl(" + h + " " + CAT_SAT + "% " + L(bl - down * 0.6) + "%)",
-    wall: "hsl(" + h + " " + (CAT_SAT - 8) + "% " + L(bl - 11 - down * 0.8) + "%)",
-    foot: "hsl(" + h + " " + (CAT_SAT - 12) + "% " + L(bl - 19 - down * 0.6) + "%)"
+    lit:  "hsl(" + h + " " + sat + "% " + L(bl + 14 + up) + "%)",
+    top:  "hsl(" + h + " " + sat + "% " + L(bl + 6 + up * 0.4) + "%)",
+    base: "hsl(" + h + " " + sat + "% " + L(bl - down * 0.6) + "%)",
+    wall: "hsl(" + h + " " + Math.max(0, sat - 8) + "% " + L(bl - 11 - down * 0.8) + "%)",
+    foot: "hsl(" + h + " " + Math.max(0, sat - 12) + "% " + L(bl - 19 - down * 0.6) + "%)"
   };
 }
 /** The one flat colour that stands for a slice away from the pie. */
@@ -12579,6 +12807,24 @@ function repDrawInfo(cat, total){
   }
   host.hidden = false;
   const dark = isDark();
+  /* Remaining, lit: what is left of the income, and nothing more — it is not
+     a category, so there are no entries behind it to count or to open. */
+  if (cat.remaining){
+    host.style.background = "var(--pos-soft)";
+    host.style.borderColor = "var(--pos)";
+    const head = el("div", "rp-i-h");
+    const sw = el("span", "rp-sw");
+    sw.style.background = pieSwatch(cat, dark);
+    head.appendChild(sw);
+    const nm = el("b", null, "Remaining");
+    nm.style.color = "var(--pos)";
+    head.appendChild(nm);
+    host.appendChild(head);
+    const amt = el("div", "rp-i-a", fmt(cat.total));
+    amt.style.color = "var(--pos)";
+    host.appendChild(amt);
+    return;
+  }
   host.style.background = tint(cat, dark);
   host.style.borderColor = tintInk(cat, dark);
 
@@ -12616,7 +12862,7 @@ function repDrawInfo(cat, total){
        The category alone is the right filter: a category id belongs to one kind
        already, so this narrows to the slice without contradicting it. */
     repKind = "all";
-    syncChips("#repKind", "kind", repKind);
+    repSyncKind();
     repSetTab("table");
     repRender();
   });
@@ -12639,6 +12885,30 @@ function repMonthsSpanned(){
  */
 function repShowsAverage(){ return repMonthsSpanned() >= 1.5; }
 
+/**
+ * The income a Planned report's shares are taken against: Salary and the other
+ * income that repeats — Benefits — across the report's stretch, as entered.
+ * The same pair the budgets offer as their base.
+ */
+/* The ring's last slice under Planned: the income no plan claims. */
+const REP_REMAINING = "__remaining";
+/**
+ * The lit slice when it is a category, else null. Remaining lights up like any
+ * slice, but a lit slice also narrows the bars to its category — and Remaining
+ * has no entries, so asked that way it emptied them. Anything that narrows
+ * asks this rather than repSelCat.
+ */
+function repSelIsCat(){ return repSelCat && repSelCat !== REP_REMAINING ? repSelCat : null; }
+
+function repPlanIncome(){
+  const r = repDates();
+  const ids = budgetBaseChoices().map(c => c.id);
+  const cents = state.txns.reduce((sum, t) =>
+    t.type === "income" && t.date >= r.from && t.date <= r.to && ids.indexOf(t.category) > -1
+      ? sum + t.amount : sum, 0);
+  return { ids, cents, shown: cents > 0 && !ids.some(id => !catShown(id)) };
+}
+
 function repDrawLegend(cats, total, ringMonths){
   const host = $("#repLegend");
   host.innerHTML = "";
@@ -12656,6 +12926,18 @@ function repDrawLegend(cats, total, ringMonths){
       ringMonths + (ringMonths === 1 ? " month" : " months") + " of spending"));
     host.appendChild(cap);
   }
+  /* Under Planned the question is what the plan costs out of what comes in,
+     so each line's % is of income rather than of the plan — and a line above
+     the list says which income, so the two readings are never confused. */
+  const planInc = repKind === "planned" ? repPlanIncome() : null;
+  if (planInc){
+    const cap = el("div", "rp-avgtot");
+    cap.appendChild(el("b", null, "% of income"));
+    cap.appendChild(el("span", null, planInc.shown
+      ? fmt(planInc.cents) + " · " + planInc.ids.map(id => catOf(id).n).join(" + ")
+      : "no income in this stretch"));
+    host.appendChild(cap);
+  }
   cats.forEach(c => {
     const row = el("button", "rp-lg" + (repSelCat === c.id ? " on" : ""));
     row.type = "button";
@@ -12667,7 +12949,18 @@ function repDrawLegend(cats, total, ringMonths){
        asked — and divided by the months this category ran in, which is the
        honest answer. A category seen in one month reads at its full amount,
        because that is what a month of it costs. */
-    if (avg){
+    /* Under Planned, who pays it: the rows' own M or A, beside the name — the
+       Chart has no rows to carry it. The letter alone; the word beside it was
+       one more thing to read on every line. */
+    if (repKind === "planned"){
+      if (c.m) nm.appendChild(el("span", "ampill m", "M"));
+      if (c.a) nm.appendChild(el("span", "ampill a", "A"));
+    }
+    /* The monthly average, on the line under the name: on longer ranges as
+       always, and under Planned on every range, so each category reads as two
+       lines there — a plan is a monthly thing, and over one month the average
+       is simply what that month costs. */
+    if (avg || repKind === "planned"){
       const m = c.months || 1;
       /* The months it was divided by, named the same way whatever the number.
          A category seen in one month has an average equal to its total, and
@@ -12677,7 +12970,9 @@ function repDrawLegend(cats, total, ringMonths){
     }
     row.appendChild(nm);
     row.appendChild(el("span", "rp-lp",
-      catHidden(c.id) ? AMOUNT_MASK : ((c.total / total) * 100).toFixed(1) + "%"));
+      catHidden(c.id) ? AMOUNT_MASK
+      : planInc ? (planInc.shown ? (c.total / planInc.cents * 100).toFixed(1) + "%" : "—")
+      : ((c.total / total) * 100).toFixed(1) + "%"));
     const amt = el("span", "rp-la", fmt(c.total, c.id));
     amt.style.color = tintInk(c, dark);
     row.appendChild(amt);
@@ -12685,6 +12980,29 @@ function repDrawLegend(cats, total, ringMonths){
     row.addEventListener("click", () => repPick(c.id));
     host.appendChild(row);
   });
+  /* The ring's last slice under Planned, as the list's last line: what is left
+     of the income once the plan is taken out — or, when the plan is the larger,
+     how far over the income it runs. */
+  if (planInc && planInc.shown){
+    const left = planInc.cents - cats.reduce((sum, c) => sum + c.total, 0);
+    const row = el(left >= 0 ? "button" : "div",
+                   "rp-lg rp-rem" + (repSelCat === REP_REMAINING ? " on" : ""));
+    if (left >= 0){
+      row.type = "button";
+      row.addEventListener("click", () => repPick(REP_REMAINING));
+    }
+    const sw = el("span", "rp-sw");
+    sw.style.background = left >= 0 ? pieSwatch({ remaining:true }, dark) : "var(--neg)";
+    row.appendChild(sw);
+    const nm = el("span", "rp-ln", left >= 0 ? "Remaining" : "Over income");
+    nm.appendChild(el("i", "rp-avg", left >= 0 ? "not planned for" : "the plan is more than the income"));
+    row.appendChild(nm);
+    row.appendChild(el("span", "rp-lp", (Math.abs(left) / planInc.cents * 100).toFixed(1) + "%"));
+    const amt = el("span", "rp-la", fmt(Math.abs(left)));
+    amt.style.color = left >= 0 ? "var(--pos)" : "var(--neg)";
+    row.appendChild(amt);
+    host.appendChild(row);
+  }
 }
 
 
@@ -12726,7 +13044,7 @@ function repBarKeeps(t){
      chip — "this category, then" — so the bars answer it the same way. It was
      only ever a highlight, which left the ring showing one category and the bars
      underneath still showing all of them. */
-  if (repSelCat && repCatOf(t).id !== repSelCat) return false;
+  if (repSelIsCat() && repCatOf(t).id !== repSelIsCat()) return false;
   if (repCats.length && repCats.indexOf(repCatOf(t).id) === -1) return false;
   if (repAccts.length &&
       repAccts.indexOf(t.account) === -1 &&
@@ -12860,14 +13178,16 @@ function repAxisNum(cents){
 function repDrawBars(){
   const wrap = $("#repBars");
   const b = repBuckets();
-  const narrow = !!(repSelCat || repCats.length || repAccts.length ||
+  const narrow = !!(repSelIsCat() || repCats.length || repAccts.length ||
                     repKind !== "all");
   /* Worked out before the empty check, so a chart with nothing in it still says
      what it found nothing of. */
   const KIND_WORD = { income:"Income", expense:"Expenses", transfer:"Transfers", planned:"Planned" };
   const narrowed = [].concat(
-    repKind !== "all" ? [KIND_WORD[repKind]] : [],
-    repSelCat ? [catOf(repSelCat).n] : repCats.map(id => catOf(id).n),
+    repKind !== "all" ? [KIND_WORD[repKind] +
+      (repKind === "planned" && repPlanMode !== "both"
+        ? " · " + (repPlanMode === "auto" ? "Automatic" : "Manual") : "")] : [],
+    repSelIsCat() ? [catOf(repSelIsCat()).n] : repCats.map(id => catOf(id).n),
     repAccts.map(acctName)
   ).filter(Boolean);
   const unitWord = () => {
@@ -13384,6 +13704,13 @@ function repFillPickers(){
 
 function repRender(){
   repFillPickers();
+  /* Always on screen, so it is plain where the split lives; usable, and lit,
+     only while Planned is on — it is a split of Planned and of nothing else. */
+  const planOn = repKind === "planned";
+  $$("#repPlanMode button").forEach(b => {
+    b.disabled = !planOn;
+    b.setAttribute("aria-pressed", String(planOn && b.dataset.pm === repPlanMode));
+  });
   $$("#repRanges button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.range === repRange)));
   $$("#repBasis button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === repBasis)));
   /* a week is a week and a custom stretch is whatever you picked: neither has
@@ -13416,9 +13743,24 @@ function repRender(){
   const side = repChartSide(rows);
   const cats = repByCategory(rows, side);
   const ringTotal = side === "income" ? tot.inc : tot.out;
-  $("#repChartCap").textContent = side === "income" ? "Where it came from" : "Where it went";
+  /* Under Planned the ring is drawn against the whole income — Salary and
+     Benefits — so each slice is what that commitment takes out of it, and the
+     part nothing is planned against is a slice of its own. When the plan is
+     more than the income there is nothing left to draw; the legend says by
+     how much it runs over instead. */
+  let ringCats = cats, ringDrawn = ringTotal;
+  if (repKind === "planned"){
+    const inc = repPlanIncome();
+    if (inc.shown && inc.cents > ringTotal){
+      ringCats = cats.concat([{ id:REP_REMAINING, n:"Remaining", remaining:true, total:inc.cents - ringTotal }]);
+      ringDrawn = inc.cents;
+    }
+  }
+  $("#repChartCap").textContent = repKind === "planned" ? "Where your income goes"
+    : side === "income" ? "Where it came from" : "Where it went";
   $("#repChartCap").hidden = !cats.length;
-  repDrawChart(cats, ringTotal, side, rows.length);
+  if (repSelCat === REP_REMAINING && ringCats === cats) repSelCat = null;
+  repDrawChart(ringCats, ringDrawn, side, rows.length);
   /* the months the ring's own rows fall in, which is what its total is spread
      over — not the length of the report */
   const ringMonths = new Set(
@@ -13455,9 +13797,21 @@ $$("#repBasis button").forEach(b => b.addEventListener("click", () => {
 }));
 ["#repFrom", "#repTo"].forEach(sel => $(sel).addEventListener("change", repRender));
 $$("#repTabs button").forEach(b => b.addEventListener("click", () => repSetTab(b.dataset.rtab)));
-$$("#repKind button").forEach(b => b.addEventListener("click", () => {
+/* The kind chips, lit to match repKind. Only buttons that carry a kind: the
+   Both / Manual / Automatic split sits inside the same group now, and a sync
+   over every button there would switch its lit button off. */
+function repSyncKind(){
+  $$("#repKind [data-kind]").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.kind === repKind)));
+}
+$$("#repKind [data-kind]").forEach(b => b.addEventListener("click", () => {
+  if (b.dataset.kind === "planned" && repKind !== "planned") repPlanMode = "both";
   repKind = b.dataset.kind;
-  syncChips("#repKind", "kind", repKind);
+  repSyncKind();
+  repRender();
+}));
+$$("#repPlanMode button").forEach(b => b.addEventListener("click", () => {
+  repPlanMode = b.dataset.pm;
   repRender();
 }));
 /* ---------- category and account, as chips you slide ---------- */
@@ -13501,7 +13855,7 @@ function repChipRow(host, allLabel, opts, chosen, set, swatch){
 $("#repClear").addEventListener("click", () => {
   repKind = "all";
   repCats = []; repAccts = []; repQuery = ""; repSelCat = null;
-  syncChips("#repKind", "kind", repKind);
+  repSyncKind();
   $("#repSearch").value = "";
   repRender();
   toast("Filters cleared");
