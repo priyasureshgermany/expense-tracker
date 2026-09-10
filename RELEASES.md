@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.47 — 2026-09-10
+- new: The Chart shows the totals for what is picked above the pie — income, expense and transfer, or Planned against income with what remains
+
 ## 2.0.46 — 2026-09-10
 - new: Planned in Reports: kind chips on two rows, with Both, Manual and Automatic beside Planned
 - new: The Planned chart is drawn against Salary and Benefits, with the rest as a green Remaining slice you can tap
