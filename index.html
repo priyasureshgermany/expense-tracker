@@ -1040,6 +1040,17 @@ input[type=checkbox]:focus-visible{outline:2px solid var(--accent-mid);outline-o
   font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
   font-weight:700;color:var(--ink-3);text-align:center;margin-top:4px;
 }
+/* The totals for what is picked, in the band above the pie. The app has no
+   blanket rule for [hidden], so this one is spelled out. */
+.rp-charttot{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 20px;margin-top:6px;position:relative;z-index:1}
+.rp-charttot[hidden]{display:none}
+/* The pie's drawing has about 49px of nothing above its top face. With totals
+   above it the pie is drawn up into that band rather than pushed down by them;
+   ~17px is left so a lit slice's lift and shadow still clear the figures. */
+.rp-charttot:not([hidden]) + .rp-chart{margin-top:-38px}
+.rp-ct{display:flex;flex-direction:column;align-items:center;gap:1px}
+.rp-ct-k{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.rp-ct-v{font-size:14.5px;font-weight:700;font-variant-numeric:tabular-nums}
 .rp-chart{display:grid;place-items:center;padding:6px 0}
 .rp-chart svg{width:min(300px,84vw);height:auto;overflow:visible}
 .pie-top{cursor:pointer}
@@ -3842,6 +3853,8 @@ html.locked #lockScreen::before{
     <!-- 1 : the shape of it -->
     <div class="rp-pane" id="repPane_chart">
       <div class="rp-chartcap" id="repChartCap" hidden>Where it went</div>
+      <!-- the totals for what the kind chips have picked, in the space above the pie -->
+      <div class="rp-charttot" id="repChartTot" hidden></div>
       <div class="rp-chart" id="repChart"></div>
       <div class="rp-info" id="repInfo" hidden></div>
       <div class="rp-hint" id="repHint">Tap a slice to light it up</div>
@@ -4317,7 +4330,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.46";
+const APP_VERSION = "2.0.47";
 const APP_BUILT = "2026-09-10";
 
 const KEY = "panappai.v1";
@@ -12909,6 +12922,48 @@ function repPlanIncome(){
   return { ids, cents, shown: cents > 0 && !ids.some(id => !catShown(id)) };
 }
 
+/**
+ * The totals under the chart's caption, for whatever the kind chips say.
+ *
+ * All shows each kind side by side; a single kind shows its own. Planned shows
+ * the plan against the income its ring is drawn against, and what is left of
+ * it — the same three figures the ring divides. Counted by type from the rows
+ * the report shows, so they cannot disagree with the table beside them.
+ */
+function repDrawChartTotals(rows){
+  const host = $("#repChartTot");
+  host.innerHTML = "";
+  host.hidden = !rows.length;
+  if (!rows.length) return;
+  const sum = type => rows.reduce((acc, t) => t.type === type ? acc + t.amount : acc, 0);
+  const item = (label, cents, colour) => {
+    const d = el("div", "rp-ct");
+    d.appendChild(el("span", "rp-ct-k", label));
+    const v = el("b", "rp-ct-v", fmt(cents));
+    v.style.color = colour;
+    d.appendChild(v);
+    host.appendChild(d);
+  };
+  if (repKind === "planned"){
+    const planned = sum("expense");
+    item("Planned", planned, "var(--warn)");
+    const inc = repPlanIncome();
+    if (inc.shown){
+      item("Income", inc.cents, "var(--pos)");
+      const left = inc.cents - planned;
+      item(left >= 0 ? "Remaining" : "Over income", Math.abs(left),
+           left >= 0 ? "var(--pos)" : "var(--neg)");
+    }
+    return;
+  }
+  /* the colours the kind chips wear: income green, expense red, a transfer the accent */
+  [["income",   "Total income",   "var(--pos)"],
+   ["expense",  "Total expense",  "var(--neg)"],
+   ["transfer", "Total transfer", "var(--accent)"]]
+    .filter(k => repKind === "all" || repKind === k[0])
+    .forEach(k => item(k[1], sum(k[0]), k[2]));
+}
+
 function repDrawLegend(cats, total, ringMonths){
   const host = $("#repLegend");
   host.innerHTML = "";
@@ -13761,6 +13816,7 @@ function repRender(){
   $("#repChartCap").hidden = !cats.length;
   if (repSelCat === REP_REMAINING && ringCats === cats) repSelCat = null;
   repDrawChart(ringCats, ringDrawn, side, rows.length);
+  repDrawChartTotals(rows);
   /* the months the ring's own rows fall in, which is what its total is spread
      over — not the length of the report */
   const ringMonths = new Set(
