@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.45 — 2026-09-10
+- better: The dashboard's Planned expense counts your recurring entries, matching the report; Actual says how much went on one-offs
+
 ## 2.0.44 — 2026-09-10
 - fix: Planned in reports counts only the recurring expenses — the M and A entries — not every expense
 

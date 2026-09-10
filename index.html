@@ -4263,7 +4263,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.44";
+const APP_VERSION = "2.0.45";
 const APP_BUILT = "2026-09-10";
 
 const KEY = "panappai.v1";
@@ -6738,14 +6738,33 @@ function renderBalanceLog(){
  * breakdown that used to live here fed the Groceries and Misc buffer charts;
  * budget envelopes replaced both, so it's gone rather than left unused.
  */
+/**
+ * The period's money, four ways.
+ *
+ *   expTotal   every expense entered, paid or not — what the health band judges
+ *   planned    the recurring expenses only, the rows marked M or A
+ *   planLeft   the part of that plan not yet ticked off
+ *   actualExp  everything that has gone out, one-offs included
+ *
+ * Planned used to be every expense, under a name that promised something
+ * narrower. It is the recurring entries now — the same test the M/A badge and
+ * the report's Planned chip ask, through ruleFor — so the dashboard and the
+ * report cannot give two different answers to "what had I planned". The health
+ * band still reads the full total: a month is not healthier for leaving its
+ * one-offs out of the reckoning.
+ */
 function periodStats(txns){
-  let income = 0, plannedExp = 0, actualExp = 0;
+  let income = 0, expTotal = 0, planned = 0, planLeft = 0, actualExp = 0;
   txns.forEach(t => {
     if (t.type === "income"){ income += t.amount; return; }
-    plannedExp += t.amount;
+    expTotal += t.amount;
     if (t.status === "done") actualExp += t.amount;
+    if (ruleFor(t.ruleId)){
+      planned += t.amount;
+      if (t.status !== "done") planLeft += t.amount;
+    }
   });
-  return { income, plannedExp, actualExp };
+  return { income, expTotal, planned, planLeft, actualExp };
 }
 
 /* ---------- foldable dashboard panels ---------- */
@@ -6868,8 +6887,8 @@ function chartBlock(title, note, rows){
 function renderCharts(all, budgetLeft){
   const s = periodStats(all);
   /* keep this in step with the Expenses tile, which also counts unspent budget */
-  s.plannedExp += (budgetLeft || 0);
-  const band = healthBand(s.income, s.plannedExp);
+  s.expTotal += (budgetLeft || 0);
+  const band = healthBand(s.income, s.expTotal);
   document.documentElement.style.setProperty("--health-color", "var(" + HEALTH_VAR[band] + ")");
 
   const host = $("#charts");
@@ -6880,10 +6899,14 @@ function renderCharts(all, budgetLeft){
   host.appendChild(chartBlock("Money in, money out", HEALTH_LABEL[band], [
     { label:"Income",          value:s.income,     color:"var(--pos)",
       sub:"Everything expected in, planned and received." },
-    { label:"Planned expense", value:s.plannedExp, color:"var(--warn)",
-      sub:"Every expense entered for this period — " + pct(s.plannedExp, s.income) + " of income." },
+    { label:"Planned expense", value:s.planned,    color:"var(--warn)",
+      sub:"Your recurring expenses, M and A — " + pct(s.planned, s.income) + " of income." },
+    /* Actual counts one-offs and the plan does not, so actual can run past
+       planned; the line says how much of it went on one-offs, which is the
+       whole of that gap. */
     { label:"Actual expense",  value:s.actualExp,  color:"var(--neg)",
-      sub:fmt(s.plannedExp - s.actualExp) + " of the plan still unpaid." }
+      sub:fmt(s.planLeft) + " of the plan still unpaid" +
+          (s.expTotal - s.planned > 0 ? " · " + fmt(s.expTotal - s.planned) + " on one-offs." : ".") }
   ]));
   /* Groceries and Misc buffer used to sit here. Budgets this period covers
      both, per category and with real drawdown, so they were duplicate views. */
