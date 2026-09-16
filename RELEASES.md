@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.6 — 2026-09-16
+- better: A new icon in colour: rainbow pillars on a dark Sansad Bhavan, a gold euro, and a gold edge on a purple-to-teal tile
+
 ## 2.2.5 — 2026-09-16
 - better: Helper: row names slide away with their chips, so the questions get the full width; a coloured dot on each chip still shows its row
 

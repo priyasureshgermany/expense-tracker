@@ -1,118 +1,98 @@
-"""Draft icon: the whole tile is the wallet — dark distressed blue leather edge
-to edge, with Sansad Bhavan tooled into it above a euro.
+"""The icon: Sansad Bhavan over a gold euro, in colour.
 
-No backdrop: the hide is the icon, so there is no frame around it and nothing
-to go transparent on iOS. Stitching runs inset from all four edges the way it
-does on the real thing.
+A jewel-toned tile, indigo into teal with a glow behind the building, so the
+emblem stands clear of it at a glance — the leather it replaced was blue on
+blue and all but vanished on a home screen. The pillars take the hues the
+asset-management app draws its bar chart in, around the wheel in order, so
+the two apps read as a pair; the pillars are narrow with clear gaps between
+them, and the building's stone is dark with a cool rim of light, so each
+pillar's colour is the brightest thing on it; the euro is metallic gold with a
+dark keyline, which is what keeps it legible at 48px; and the tile is edged
+and stitched in gold to match it.
 
-The emblem is drawn as a single mask and then tooled in three passes — a dark
-groove where the die bit, the hide itself slightly lifted inside it, and a rim
-of light along the top-left with shadow opposite. Doing it by mask rather than
-by stroking three times keeps every pass in exact register.
+Everything is drawn as masks and filled with gradients at four times the
+size, then scaled down, so every edge is antialiased and every layer stays in
+register. The maskable cut drops the rim and stitching and keeps the emblem
+inside the safe zone.
 
 Run with `python tools/make-icons.py` from the repo root to regenerate
 icons/ after changing anything here.
 """
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
-import os, random, sys
+import colorsys, os, random, sys
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "icons")
 
-# The hide, from the near-black creases to the lit high spots. Blue leather,
-# not tan.
-#
-# The blue used to be a CSS filter over tan artwork, applied on the dashboard
-# mark and only in dark mode — so the app looked blue while the icon on the home
-# screen, which no stylesheet reaches, stayed brown. These are those same tan
-# values carried through the filter that was doing the work (hue +178°,
-# saturation x0.72, lightness x0.94) and written down, so the colour is in the
-# artwork and every place the icon appears agrees.
-HIDE_0 = (14, 24, 28)
-HIDE_1 = (32, 54, 64)
-HIDE_2 = (54, 89, 106)
-HIDE_3 = (79, 126, 153)
+# the tile: royal purple at the top left, through indigo, into teal
+BG_A = (58, 24, 118)
+BG_B = (0, 112, 128)
+GLOW = (120, 190, 255)
 
-EDGE   = (11, 19, 22)
-# Thread, not leather. Carried through the same shift as the hide it went blue
-# on blue and all but disappeared — the stitching is a big part of what makes
-# the tile read as a wallet, so it is lifted well clear of the dye instead.
-THREAD = (168, 205, 232)
+# Pillar hues from asset-management's chart palette (Home loan, Property,
+# Gold, PPF / EPF, Fixed deposit, Bank account, Other, Vehicle, Debt), in
+# order round the wheel. Same saturation as there; lighter, because there
+# they sit on a card and here they have to glow on a dark tile.
+PILLAR_HUES = [4, 18, 46, 124, 180, 214, 261, 299, 330]
+PILLAR_SAT = 0.82
 
-# The four passes that tool the emblem into the hide: the groove the die cut,
-# the hide lifted inside it, the rim of light along the top-left and the shadow
-# opposite. Carried through the same shift as the hide, so the emblem is cut
-# from the leather it sits in rather than glued on in another colour.
-GROOVE = (7, 13, 15)
-LIFT   = (14, 24, 29)
-RIM    = (85, 140, 174)
-SHADE  = (16, 28, 32)
+# The stone is dark, so the pillars are the brightest thing on the building;
+# a cool rim along its top edges keeps it from sinking into the tile.
+STONE_TOP = (52, 56, 92)
+STONE_BOT = (20, 22, 42)
+STONE_RIM = (150, 160, 230)
+KEYLINE = (10, 16, 40)
+
+GOLD_TOP = (255, 236, 150)
+GOLD_MID = (245, 186, 48)
+GOLD_BOT = (176, 110, 16)
+
+SAFFRON = (255, 153, 51)
+INDIA_GREEN = (19, 136, 8)
+WHITE = (255, 255, 255)
 
 
-def noise(S, cells, seed, blur=0):
-    rnd = random.Random(seed)
-    small = Image.new("L", (cells, cells))
-    small.putdata([rnd.randrange(256) for _ in range(cells * cells)])
-    big = small.resize((S, S), Image.BICUBIC)
-    return big.filter(ImageFilter.GaussianBlur(blur)) if blur else big
+def hsl(h, s, l):
+    r, g, b = colorsys.hls_to_rgb(h / 360.0, l, s)
+    return (int(r * 255), int(g * 255), int(b * 255))
 
 
-def blotches(S, n, seed, rmin, rmax, dark=True):
-    rnd = random.Random(seed)
-    im = Image.new("L", (S, S), 128)
-    d = ImageDraw.Draw(im)
-    for _ in range(n):
-        cx, cy = rnd.uniform(0, S), rnd.uniform(0, S)
-        r = rnd.uniform(rmin, rmax) * S
-        v = rnd.randrange(20, 70) if dark else rnd.randrange(190, 240)
-        d.ellipse((cx - r, cy - r * rnd.uniform(0.5, 1.0),
-                   cx + r * rnd.uniform(0.6, 1.4), cy + r), fill=v)
-    return im.filter(ImageFilter.GaussianBlur(S * 0.020))
+def vgrad(S, y0, y1, stops):
+    """A vertical gradient across the tile, `stops` as (position 0-1, colour)."""
+    im = Image.new("RGB", (1, S))
+    px = im.load()
+    for y in range(S):
+        t = 0.0 if y1 == y0 else max(0.0, min(1.0, (y - y0) / float(y1 - y0)))
+        for i in range(len(stops) - 1):
+            (p0, c0), (p1, c1) = stops[i], stops[i + 1]
+            if t <= p1 or i == len(stops) - 2:
+                u = 0.0 if p1 == p0 else max(0.0, min(1.0, (t - p0) / (p1 - p0)))
+                px[0, y] = tuple(int(c0[k] + (c1[k] - c0[k]) * u) for k in range(3))
+                break
+    return im.resize((S, S))
 
 
-def scuffs(S, seed, n=26):
-    """Scratches and crease lines, the marks a wallet picks up in a pocket."""
-    rnd = random.Random(seed)
-    im = Image.new("L", (S, S), 128)
-    d = ImageDraw.Draw(im)
-    for _ in range(n):
-        x0, y0 = rnd.uniform(0, S), rnd.uniform(0, S)
-        ln = rnd.uniform(0.08, 0.42) * S
-        ang = rnd.uniform(-0.5, 0.5) + (0 if rnd.random() < 0.7 else 1.4)
-        wgt = max(1, int(S * rnd.uniform(0.0012, 0.004)))
-        dark = rnd.random() < 0.72
-        d.line((x0, y0, x0 + ln, y0 + ln * ang * 0.4),
-               fill=rnd.randrange(56, 104) if dark else rnd.randrange(158, 196),
-               width=wgt)
-    return im.filter(ImageFilter.GaussianBlur(S * 0.0022))
-
-
-def ramp4(S, light):
-    c0 = Image.new("RGB", (S, S), HIDE_0)
-    c1 = Image.new("RGB", (S, S), HIDE_1)
-    c2 = Image.new("RGB", (S, S), HIDE_2)
-    c3 = Image.new("RGB", (S, S), HIDE_3)
-    a = Image.composite(c1, c0, light.point(lambda v: max(0, min(255, (v - 20) * 3))))
-    b = Image.composite(c2, a,  light.point(lambda v: max(0, min(255, (v - 110) * 3))))
-    return Image.composite(c3, b,  light.point(lambda v: max(0, min(255, (v - 185) * 4))))
-
-
-def hide(S, seed):
-    g1 = noise(S, 5,  seed,     blur=S * 0.013)
-    g2 = noise(S, 13, seed + 1, blur=S * 0.006)
-    g3 = noise(S, 37, seed + 2, blur=S * 0.002)
-    g4 = noise(S, 97, seed + 3, blur=S * 0.0008)
-    light = Image.blend(g1, g2, 0.42)
-    light = Image.blend(light, g3, 0.26)
-    light = Image.blend(light, g4, 0.14)
-    light = ImageChops.multiply(light, blotches(S, 16, seed + 11, 0.08, 0.34).point(
-        lambda v: 104 + v // 2))
-    light = ImageChops.screen(light, blotches(S, 4, seed + 21, 0.05, 0.13, dark=False).point(
-        lambda v: max(0, v - 168)))
-    light = ImageChops.multiply(light, scuffs(S, seed + 31).point(
-        lambda v: min(255, 138 + v // 2)))
-    light = light.point(lambda v: int(255 * (v / 255.0) ** 1.06))
-    return ramp4(S, light)
+def diag_bg(S):
+    """Indigo into teal along the diagonal, with a soft glow behind the emblem
+    and the faintest grain so the flat colour does not band."""
+    small = 64
+    im = Image.new("RGB", (small, small))
+    px = im.load()
+    for y in range(small):
+        for x in range(small):
+            t = (x + y) / (2.0 * (small - 1))
+            px[x, y] = tuple(int(BG_A[k] + (BG_B[k] - BG_A[k]) * t) for k in range(3))
+    bg = im.resize((S, S), Image.BICUBIC)
+    glow = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(glow).ellipse((S * 0.14, S * 0.10, S * 0.86, S * 0.70), fill=150)
+    glow = glow.filter(ImageFilter.GaussianBlur(S * 0.12))
+    bg = Image.composite(ImageChops.screen(bg, Image.new("RGB", (S, S), GLOW)), bg,
+                         glow.point(lambda v: v * 0.55))
+    rnd = random.Random(7)
+    g = Image.new("L", (96, 96))
+    g.putdata([rnd.randrange(256) for _ in range(96 * 96)])
+    g = g.resize((S, S), Image.BICUBIC).filter(ImageFilter.GaussianBlur(S * 0.004))
+    return Image.composite(Image.new("RGB", (S, S), (255, 255, 255)), bg, g.point(lambda v: v * 0.035))
 
 
 def rr_mask(S, box, r):
@@ -121,146 +101,166 @@ def rr_mask(S, box, r):
     return m
 
 
-def parliament(d, cx, cy, w, h):
-    """Sansad Bhavan in elevation: a shallow dome over a ring of columns on a
-    stepped plinth. Simplified hard, because at 192px anything finer silts up.
-    Laid out as one top-to-bottom stack so the bands can never invert."""
-    # every level as a fraction of h, measured down from the centre
-    MAST_TOP   = -0.66
-    DOME_TOP   = -0.50
-    DOME_BOT   = -0.30
-    DRUM_BOT   = -0.24
-    ARCH_BOT   = -0.15
-    COL_BOT    =  0.20
-    PLINTH_BOT =  0.30
-    STEP_BOT   =  0.40
+def fill(canvas, mask, colour_img):
+    canvas.paste(colour_img, (0, 0), mask)
 
-    def yy(f):
-        return cy + h * f
 
-    # flag mast and finial
-    d.rectangle((cx - w * 0.013, yy(MAST_TOP), cx + w * 0.013, yy(DOME_TOP)), fill=255)
-    d.ellipse((cx - w * 0.032, yy(MAST_TOP) - w * 0.032,
-               cx + w * 0.032, yy(MAST_TOP) + w * 0.032), fill=255)
+def outline_of(mask, px):
+    """The mask grown by px, less itself: a keyline round the shape."""
+    k = max(3, int(px) * 2 + 1)
+    return ImageChops.subtract(mask.filter(ImageFilter.MaxFilter(k)), mask)
 
-    # the dome: the upper half of an ellipse, wider than it is tall
-    dw = w * 0.38
-    dh = (yy(DOME_BOT) - yy(DOME_TOP))
-    d.chord((cx - dw / 2, yy(DOME_TOP), cx + dw / 2, yy(DOME_TOP) + dh * 2),
-            start=180, end=360, fill=255)
-    # the drum it stands on
+
+def building(S, cx, cy, w, h):
+    """Masks for the parts of Sansad Bhavan: stone (dome, drum, architrave,
+    plinth, steps), each pillar on its own, and the mast. Levels are fractions
+    of h measured down from the centre, stacked top to bottom so no band can
+    cross another."""
+    MAST_TOP, DOME_TOP, DOME_BOT, DRUM_BOT = -0.70, -0.50, -0.30, -0.23
+    ARCH_BOT, COL_BOT, PLINTH_BOT, STEP_BOT = -0.13, 0.20, 0.30, 0.40
+    yy = lambda f: cy + h * f
+
+    stone = Image.new("L", (S, S), 0)
+    d = ImageDraw.Draw(stone)
+    dw = w * 0.40
+    dh = yy(DOME_BOT) - yy(DOME_TOP)
+    d.chord((cx - dw / 2, yy(DOME_TOP), cx + dw / 2, yy(DOME_TOP) + dh * 2), start=180, end=360, fill=255)
     d.rectangle((cx - dw * 0.60, yy(DOME_BOT), cx + dw * 0.60, yy(DRUM_BOT)), fill=255)
+    aw = w * 0.96
+    d.rounded_rectangle((cx - aw / 2, yy(DRUM_BOT), cx + aw / 2, yy(ARCH_BOT)), radius=h * 0.02, fill=255)
+    d.rounded_rectangle((cx - aw * 0.52, yy(COL_BOT), cx + aw * 0.52, yy(PLINTH_BOT)), radius=h * 0.015, fill=255)
+    d.rounded_rectangle((cx - aw * 0.60, yy(PLINTH_BOT), cx + aw * 0.60, yy(STEP_BOT)), radius=h * 0.015, fill=255)
 
-    # architrave over the colonnade
-    aw = w * 0.94
-    d.rectangle((cx - aw / 2, yy(DRUM_BOT), cx + aw / 2, yy(ARCH_BOT)), fill=255)
-
-    # the colonnade — the ring of pillars, read straight on
-    n = 9
-    span = aw * 0.88
+    pillars = []
+    n = len(PILLAR_HUES)
+    span = aw * 0.90
     pitch = span / n
-    pw = pitch * 0.44
+    pw = pitch * 0.40
     for i in range(n):
+        m = Image.new("L", (S, S), 0)
         px = cx - span / 2 + pitch * (i + 0.5)
-        d.rectangle((px - pw / 2, yy(ARCH_BOT), px + pw / 2, yy(COL_BOT)), fill=255)
+        ImageDraw.Draw(m).rounded_rectangle((px - pw / 2, yy(ARCH_BOT) - h * 0.01, px + pw / 2, yy(COL_BOT) + h * 0.01),
+                                            radius=pw * 0.28, fill=255)
+        pillars.append((m, yy(ARCH_BOT), yy(COL_BOT)))
 
-    # plinth, and the step below it
-    d.rectangle((cx - aw * 0.52, yy(COL_BOT), cx + aw * 0.52, yy(PLINTH_BOT)), fill=255)
-    d.rectangle((cx - aw * 0.60, yy(PLINTH_BOT), cx + aw * 0.60, yy(STEP_BOT)), fill=255)
-
-
-def euro(d, cx, cy, size, weight):
-    """A euro from an arc and two bars rather than a font, so it renders the
-    same everywhere and every tooling pass lines up exactly."""
-    r = size / 2.0
-    d.arc((cx - r, cy - r, cx + r, cy + r), start=40, end=320, fill=255, width=weight)
-    for dy, ext in ((-size * 0.17, 0.60), (size * 0.15, 0.50)):
-        yy = cy + dy
-        x0, x1 = cx - r - size * 0.17, cx - r + size * ext
-        d.line((x0, yy, x1, yy), fill=255, width=weight)
-        for xx in (x0, x1):
-            d.ellipse((xx - weight / 2, yy - weight / 2,
-                       xx + weight / 2, yy + weight / 2), fill=255)
+    mast = Image.new("L", (S, S), 0)
+    md = ImageDraw.Draw(mast)
+    md.rectangle((cx - w * 0.011, yy(MAST_TOP), cx + w * 0.011, yy(DOME_TOP) + h * 0.02), fill=255)
+    flag = (cx + w * 0.011, yy(MAST_TOP), cx + w * 0.011 + w * 0.15, yy(MAST_TOP) + w * 0.10)
+    return stone, pillars, mast, flag, yy(STEP_BOT)
 
 
-# How much of the euro's height sits behind the building's bottom step.
-STEP_BOT_F = 0.40      # kept in step with parliament()'s own STEP_BOT
-
-
-def emblem_mask(S, cx, cy, w, h, esz, ew, bottom):
-    """`bottom` is where the usable space under the building ends — the inner
-    stitch line on the tile, the safe zone on the maskable cut. The euro is put
-    in the middle of what is left, rather than a fixed gap below the steps: a
-    gap leaves it hanging off the building with a pool of empty hide beneath,
-    and the size it wants to be then depends on how much room happens to be
-    left over."""
+def euro_mask(S, cx, cy, size, weight):
+    """A euro from an arc and two bars rather than a font, so it draws the
+    same everywhere."""
     m = Image.new("L", (S, S), 0)
     d = ImageDraw.Draw(m)
-    parliament(d, cx, cy, w, h)
-    top = cy + h * STEP_BOT_F          # where the bottom step ends
-    euro(d, cx, (top + bottom) / 2.0, esz, ew)
+    r = size / 2.0
+    d.arc((cx - r, cy - r, cx + r, cy + r), start=42, end=318, fill=255, width=weight)
+    for dy, ext in ((-size * 0.15, 0.62), (size * 0.15, 0.52)):
+        y = cy + dy
+        x0, x1 = cx - r - size * 0.18, cx - r + size * ext
+        d.line((x0, y, x1, y), fill=255, width=int(weight * 0.9))
+        for xx in (x0, x1):
+            d.ellipse((xx - weight * 0.45, y - weight * 0.45, xx + weight * 0.45, y + weight * 0.45), fill=255)
+    # round the arc's two ends
+    import math
+    for ang in (42, 318):
+        a = math.radians(ang)
+        ex, ey = cx + (r - weight / 2) * math.cos(a), cy + (r - weight / 2) * math.sin(a)
+        d.ellipse((ex - weight / 2, ey - weight / 2, ex + weight / 2, ey + weight / 2), fill=255)
     return m
+
+
+def shadow(canvas, mask, S, dx, dy, blur, strength):
+    sh = ImageChops.offset(mask, int(dx), int(dy)).filter(ImageFilter.GaussianBlur(blur))
+    canvas.paste(Image.new("RGB", (S, S), (0, 0, 0)), (0, 0), sh.point(lambda v: int(v * strength)))
 
 
 def draw(px, maskable=False):
     S = px * 4
-    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-
-    # the hide fills the tile; only the corners are cut
     rad = 0 if maskable else int(S * 0.225)
-    mask = rr_mask(S, (0, 0, S, S), rad)
-    panel = hide(S, 5)
+    canvas = diag_bg(S)
 
-    # ---- the emblem, tooled in ----
-    inset = S * 0.22 if maskable else S * 0.155
+    inset = S * 0.22 if maskable else S * 0.15
     bw = S - inset * 2
-    cy = S * (0.48 if maskable else 0.44)
-    bh = bw * 0.52
-    # The euro, big enough to read at a glance, centred in the space under the
-    # building rather than hung a fixed distance below it.
-    esz = bw * 0.30
-    ew = max(3, int(esz * 0.19))
-    off = max(3, int(S * 0.0075))
+    bh = bw * 0.54
+    cy = S * (0.47 if maskable else 0.43)
+    cx = S / 2
 
-    # where that space ends: the inner row of stitching on the tile, and on the
-    # maskable cut the point past which a launcher may crop
-    ebot = S * (0.86 if maskable else 0.908)
+    stone, pillars, mast, flag, step_bot = building(S, cx, cy, bw, bh)
+    ebot = S * (0.84 if maskable else 0.89)
+    esz = bw * 0.33
+    ew = max(4, int(esz * 0.20))
+    ecy = (step_bot + ebot) / 2.0 + esz * 0.02
+    euro = euro_mask(S, cx, ecy, esz, ew)
 
-    face = emblem_mask(S, S / 2, cy, bw, bh, esz, ew, ebot)
-    groove = face.filter(ImageFilter.GaussianBlur(off * 1.1)).point(
-        lambda v: min(255, v * 3))
-    panel = Image.composite(Image.new("RGB", (S, S), GROOVE), panel, groove)
-    panel = Image.composite(
-        ImageChops.screen(hide(S, 61), Image.new("RGB", (S, S), LIFT)),
-        panel, face.filter(ImageFilter.GaussianBlur(off * 0.3)))
-    lit = ImageChops.subtract(face, ImageChops.offset(face, off, off))
-    dim = ImageChops.subtract(face, ImageChops.offset(face, -off, -off))
-    panel = Image.composite(Image.new("RGB", (S, S), RIM), panel,
-                            lit.filter(ImageFilter.GaussianBlur(off * 0.45)))
-    panel = Image.composite(Image.new("RGB", (S, S), SHADE), panel,
-                            dim.filter(ImageFilter.GaussianBlur(off * 0.45)))
+    whole = ImageChops.lighter(ImageChops.lighter(stone, mast), euro)
+    for m, _, _ in pillars:
+        whole = ImageChops.lighter(whole, m)
 
-    img.paste(panel, (0, 0), mask)
-    d = ImageDraw.Draw(img)
+    # a soft drop shadow lifts the emblem off the tile
+    shadow(canvas, whole, S, S * 0.006, S * 0.014, S * 0.012, 0.55)
+    # a dark keyline round everything, so the colours never bleed into the tile
+    key = outline_of(whole, S * 0.006)
+    canvas.paste(Image.new("RGB", (S, S), KEYLINE), (0, 0), key)
 
-    # ---- stitching, inset from all four edges ----
+    # stone, lit from above
+    fill(canvas, stone, vgrad(S, cy - bh * 0.5, step_bot, [(0, STONE_TOP), (1, STONE_BOT)]))
+    rim = ImageChops.subtract(stone, ImageChops.offset(stone, 0, int(S * 0.005)))
+    canvas.paste(Image.new("RGB", (S, S), STONE_RIM), (0, 0), rim.point(lambda v: int(v * 0.75)))
+    fill(canvas, mast, Image.new("RGB", (S, S), GOLD_MID))
+
+    # the pillars, each its own colour, glossy: light at the top, deep at the foot
+    for (m, top, bot), hue in zip(pillars, PILLAR_HUES):
+        g = vgrad(S, top, bot, [(0, hsl(hue, PILLAR_SAT, 0.70)), (0.45, hsl(hue, PILLAR_SAT, 0.56)),
+                                (1, hsl(hue, PILLAR_SAT, 0.40))])
+        fill(canvas, m, g)
+        # a narrow highlight down the left of each pillar
+        hl = ImageChops.subtract(m, ImageChops.offset(m, int(S * 0.006), 0))
+        canvas.paste(Image.new("RGB", (S, S), (255, 255, 255)), (0, 0), hl.point(lambda v: int(v * 0.45)))
+    # a thin shadow under the architrave, so the pillars read as standing beneath it
+    d = ImageDraw.Draw(canvas)
+
+    # the flag on the mast
+    fx0, fy0, fx1, fy1 = flag
+    band = (fy1 - fy0) / 3.0
+    for i, col in enumerate((SAFFRON, WHITE, INDIA_GREEN)):
+        d.rectangle((fx0, fy0 + band * i, fx1, fy0 + band * (i + 1)), fill=col)
+    d.rectangle((fx0, fy0, fx1, fy1), outline=KEYLINE, width=max(2, int(S * 0.003)))
+
+    # the euro in gold, with a bright edge along its top
+    fill(canvas, euro, vgrad(S, ecy - esz * 0.55, ecy + esz * 0.55,
+                             [(0, GOLD_TOP), (0.45, GOLD_MID), (1, GOLD_BOT)]))
+    shine = ImageChops.subtract(euro, ImageChops.offset(euro, 0, int(S * 0.006)))
+    canvas.paste(Image.new("RGB", (S, S), (255, 250, 220)), (0, 0), shine.point(lambda v: int(v * 0.7)))
+
+    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    img.paste(canvas, (0, 0), rr_mask(S, (0, 0, S, S), rad))
+
     if not maskable:
+        # stitching in gold, two rows inset from the edge, drawn on a layer of
+        # its own and cut to the tile so no stitch lands outside a corner
+        layer = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+        d = ImageDraw.Draw(layer)
         st = max(2, int(S * 0.0055))
         gap = S * 0.021
-        m1, m2 = S * 0.055, S * 0.092
-        for inset_px in (m1, m2):
+        for inset_px, col in ((S * 0.058, (246, 196, 82)), (S * 0.092, (214, 160, 58))):
             a, b = inset_px, S - inset_px
             n = max(2, int((b - a) / gap))
             for i in range(n + 1):
                 t = a + (b - a) * i / n
-                d.line((t - st * 1.1, a, t + st * 1.1, a), fill=THREAD, width=st)
-                d.line((t - st * 1.1, b, t + st * 1.1, b), fill=THREAD, width=st)
-                d.line((a, t - st * 1.1, a, t + st * 1.1), fill=THREAD, width=st)
-                d.line((b, t - st * 1.1, b, t + st * 1.1), fill=THREAD, width=st)
-
-        # burnished cut edge round the tile
-        d.rounded_rectangle((0, 0, S - 1, S - 1), radius=rad, outline=EDGE,
-                            width=max(3, int(S * 0.007)))
+                d.line((t - st * 1.1, a, t + st * 1.1, a), fill=col, width=st)
+                d.line((t - st * 1.1, b, t + st * 1.1, b), fill=col, width=st)
+                d.line((a, t - st * 1.1, a, t + st * 1.1), fill=col, width=st)
+                d.line((b, t - st * 1.1, b, t + st * 1.1), fill=col, width=st)
+        tile = rr_mask(S, (0, 0, S, S), rad)
+        img.paste(layer, (0, 0), ImageChops.multiply(layer.split()[3], tile))
+        # a gold rim round the tile, bright at the top and deeper at the foot
+        rim_w = max(4, int(S * 0.016))
+        ring = ImageChops.subtract(rr_mask(S, (0, 0, S, S), rad),
+                                   rr_mask(S, (rim_w, rim_w, S - rim_w, S - rim_w), max(0, rad - rim_w)))
+        img.paste(vgrad(S, 0, S, [(0, GOLD_TOP), (0.5, GOLD_MID), (1, GOLD_BOT)]), (0, 0), ring)
 
     return img.resize((px, px), Image.LANCZOS)
 
