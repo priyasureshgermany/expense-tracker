@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.48 — 2026-09-16
+- fix: In the account now counts each account forward from its own snapshot, so snapshotting one no longer double-counts the others
+- new: Saved balance snapshots can be deleted
+
 ## 2.0.47 — 2026-09-10
 - new: The Chart shows the totals for what is picked above the pie — income, expense and transfer, or Planned against income with what remains
 
