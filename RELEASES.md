@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.4 — 2026-09-16
+- new: Helper: questions in three sliding rows — Explain, Reports and How to — with 49 step-by-step guides that take you to the right screen
+- new: Helper: suggestions as you type, so what is answered is always a question it knows
+- new: Helper: ask about a month by name with a category, account or kind — "salary for Aug", "expenses in Jan 2025", "spent from Commerzbank in Mar 2025"
+
 ## 2.2.3 — 2026-09-16
 - fix: Version numbers start a new middle number every week, not only on a week that has a Monday release — September renumbered 2.1.0 to 2.2.2 accordingly
 
