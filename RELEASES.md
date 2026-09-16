@@ -8,33 +8,36 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
-## 2.0.50 — 2026-09-16
+## 2.2.3 — 2026-09-16
+- fix: Version numbers start a new middle number every week, not only on a week that has a Monday release — September renumbered 2.1.0 to 2.2.2 accordingly
+
+## 2.2.2 — 2026-09-16
 - fix: The edge arrow no longer overlaps the bubble: it appears only while its control is tucked away
 - better: Swipe the helper bubble left, or the + right, to tuck it off its edge
 
-## 2.0.49 — 2026-09-16
+## 2.2.1 — 2026-09-16
 - new: A helper bubble on the dashboard: ask about a figure and it explains it with your own numbers, or opens the report that answers it — all on this phone
 - new: The helper bubble and the + can be tucked away by a small arrow at each edge
 
-## 2.0.48 — 2026-09-16
+## 2.2.0 — 2026-09-16
 - fix: In the account now counts each account forward from its own snapshot, so snapshotting one no longer double-counts the others
 - new: Saved balance snapshots can be deleted
 
-## 2.0.47 — 2026-09-10
+## 2.1.4 — 2026-09-10
 - new: The Chart shows the totals for what is picked above the pie — income, expense and transfer, or Planned against income with what remains
 
-## 2.0.46 — 2026-09-10
+## 2.1.3 — 2026-09-10
 - new: Planned in Reports: kind chips on two rows, with Both, Manual and Automatic beside Planned
 - new: The Planned chart is drawn against Salary and Benefits, with the rest as a green Remaining slice you can tap
 - new: Budgets can be a % of income as well as an amount, and show their % of Income
 
-## 2.0.45 — 2026-09-10
+## 2.1.2 — 2026-09-10
 - better: The dashboard's Planned expense counts your recurring entries, matching the report; Actual says how much went on one-offs
 
-## 2.0.44 — 2026-09-10
+## 2.1.1 — 2026-09-10
 - fix: Planned in reports counts only the recurring expenses — the M and A entries — not every expense
 
-## 2.0.43 — 2026-09-10
+## 2.1.0 — 2026-09-10
 - new: Reports have a Planned chip beside Income, Expenses and Transfers: every expense in the month, paid or not
 - fix: A plan covers whole months — September no longer comes up short on 12M calendar
 

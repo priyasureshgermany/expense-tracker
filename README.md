@@ -529,13 +529,14 @@ Versions start at `1.0.0` and move on every release:
 | Part | Bumped when |
 |---|---|
 | **major** | first release in a new calendar month |
-| **middle** | first release made on a Monday |
+| **middle** | first release of a new week (Monday to Sunday) |
 | **minor** | every other release |
 
-The higher rule wins and resets the parts below it, so a Monday that also opens
-a new month bumps major only. `version.json` records the date of the last
-release, which is what makes "first of the month" and "first on a Monday"
-decidable.
+The week counts, not the day: a week with nothing released on its Monday still
+bumps middle on whichever day it first ships. The higher rule wins and resets
+the parts below it, so a week that also opens a new month bumps major only.
+`version.json` records the date of the last release, which is what makes "first
+of the month" and "first of the week" decidable.
 
 `tools/bump-version.mjs` applies this and rewrites `APP_VERSION` / `APP_BUILT`
 in `index.html` plus the service worker's cache name, so every release also
