@@ -6,9 +6,9 @@ blue and all but vanished on a home screen. The pillars take the hues the
 asset-management app draws its bar chart in, around the wheel in order, so
 the two apps read as a pair; the pillars are narrow with clear gaps between
 them, and the building's stone is dark with a cool rim of light, so each
-pillar's colour is the brightest thing on it; the euro is metallic gold with a
-dark keyline, which is what keeps it legible at 48px; and the tile is edged
-and stitched in gold to match it.
+pillar's colour is the brightest thing on it; the euro is asset-management's
+own lean glyph in gold, embossed as a rounded raised stroke and kept clear of
+the steps; and the tile is edged and stitched in gold to match it.
 
 Everything is drawn as masks and filled with gradients at four times the
 size, then scaled down, so every edge is antialiased and every layer stays in
@@ -135,7 +135,7 @@ def building(S, cx, cy, w, h):
     n = len(PILLAR_HUES)
     span = aw * 0.90
     pitch = span / n
-    pw = pitch * 0.40
+    pw = pitch * 0.30
     for i in range(n):
         m = Image.new("L", (S, S), 0)
         px = cx - span / 2 + pitch * (i + 0.5)
@@ -150,26 +150,82 @@ def building(S, cx, cy, w, h):
     return stone, pillars, mast, flag, yy(STEP_BOT)
 
 
-def euro_mask(S, cx, cy, size, weight):
-    """A euro from an arc and two bars rather than a font, so it draws the
-    same everywhere."""
+# The euro is asset-management's: the same lean glyph from the same font, the
+# same gold run top-left to bottom-right and the same cast shadow, so the two
+# icons carry one currency sign rather than two drawings of it. It is shaped
+# further here, as a rounded raised stroke (see curved_emboss), where
+# asset-management bevels only its edges. Segoe UI Semibold is a Windows font,
+# as it is there.
+EURO_FONTS = ("C:/Windows/Fonts/seguisb.ttf", "C:/Windows/Fonts/segoeui.ttf",
+              "C:/Windows/Fonts/arialbd.ttf", "C:/Windows/Fonts/arial.ttf")
+EMBOSS_HI, EMBOSS_LO = (247, 220, 138), (150, 110, 20)
+
+
+def euro_mask(S, cx, cy, height):
+    """The € from the font, scaled so the glyph itself is `height` tall and
+    centred on its own ink rather than on the font's line box."""
+    from PIL import ImageFont
+    font = None
+    for path in EURO_FONTS:
+        try:
+            probe = ImageFont.truetype(path, 400)
+            b = probe.getbbox("€")
+            if b[2] > b[0]:
+                font = ImageFont.truetype(path, max(8, int(400 * height / float(b[3] - b[1]))))
+                break
+        except OSError:
+            continue
+    if font is None:
+        raise SystemExit("no font with a euro sign found")
+    x0, y0, x1, y1 = font.getbbox("€")
     m = Image.new("L", (S, S), 0)
-    d = ImageDraw.Draw(m)
-    r = size / 2.0
-    d.arc((cx - r, cy - r, cx + r, cy + r), start=42, end=318, fill=255, width=weight)
-    for dy, ext in ((-size * 0.15, 0.62), (size * 0.15, 0.52)):
-        y = cy + dy
-        x0, x1 = cx - r - size * 0.18, cx - r + size * ext
-        d.line((x0, y, x1, y), fill=255, width=int(weight * 0.9))
-        for xx in (x0, x1):
-            d.ellipse((xx - weight * 0.45, y - weight * 0.45, xx + weight * 0.45, y + weight * 0.45), fill=255)
-    # round the arc's two ends
-    import math
-    for ang in (42, 318):
-        a = math.radians(ang)
-        ex, ey = cx + (r - weight / 2) * math.cos(a), cy + (r - weight / 2) * math.sin(a)
-        d.ellipse((ex - weight / 2, ey - weight / 2, ex + weight / 2, ey + weight / 2), fill=255)
+    ImageDraw.Draw(m).text((cx - (x0 + x1) / 2.0, cy - (y0 + y1) / 2.0), "€", font=font, fill=255)
     return m
+
+
+def lit(S, a, b, box):
+    """A gradient from `a` at the top-left of the box to `b` at its bottom-right,
+    weighted toward the vertical, the way asset-management lights its gold."""
+    x0, y0, x1, y1 = [int(v) for v in box]
+    n = 64
+    small = Image.new("RGB", (n, n))
+    px = small.load()
+    for y in range(n):
+        for x in range(n):
+            t = min(1.0, (x / (n - 1.0)) * 0.4 + (y / (n - 1.0)) * 0.6)
+            px[x, y] = tuple(int(round(a[i] + (b[i] - a[i]) * t)) for i in range(3))
+    g = Image.new("RGB", (S, S), b)
+    g.paste(small.resize((max(1, x1 - x0), max(1, y1 - y0)), Image.BICUBIC), (x0, y0))
+    return g
+
+
+def curved_emboss(canvas, mask, S, glyph_h):
+    """Shades a shape as though it were pressed up from behind: rounded, not
+    bevelled.
+
+    A height map is made by blurring the shape into itself — highest along
+    the middle of each stroke, falling away to its edges — and the slope of
+    that surface is read against a light from the top-left. Slopes that face
+    it take a pale gold, slopes that face away a deep brown, and the steepest
+    lit ones a near-white glint, which is what makes the surface read as
+    curved rather than cut."""
+    r = glyph_h * 0.075          # how far the curve reaches in from each edge
+    d = max(1, round(glyph_h * 0.018))
+    height = ImageChops.multiply(mask.filter(ImageFilter.GaussianBlur(r)), mask)
+    ahead = ImageChops.offset(height, -d, -d)          # the surface one step toward the light
+    facing = ImageChops.multiply(ImageChops.subtract(ahead, height), mask)
+    away = ImageChops.multiply(ImageChops.subtract(height, ahead), mask)
+    gain = 8.0
+    canvas.paste(Image.new("RGB", (S, S), (255, 240, 185)), (0, 0),
+                 facing.point(lambda v: min(235, int(v * gain))))
+    canvas.paste(Image.new("RGB", (S, S), (58, 34, 4)), (0, 0),
+                 away.point(lambda v: min(225, int(v * gain))))
+    glint = facing.point(lambda v: 0 if v * gain < 150 else min(255, int((v * gain - 150) * 2.2)))
+    canvas.paste(Image.new("RGB", (S, S), (255, 252, 236)), (0, 0),
+                 glint.filter(ImageFilter.GaussianBlur(d * 0.6)))
+    # a fine dark lip round the foot, where the raised shape meets the tile
+    lip = ImageChops.multiply(ImageChops.subtract(mask, mask.filter(ImageFilter.MinFilter(3))), mask)
+    canvas.paste(Image.new("RGB", (S, S), (70, 44, 8)), (0, 0), lip.point(lambda v: int(v * 0.6)))
 
 
 def shadow(canvas, mask, S, dx, dy, blur, strength):
@@ -190,19 +246,19 @@ def draw(px, maskable=False):
 
     stone, pillars, mast, flag, step_bot = building(S, cx, cy, bw, bh)
     ebot = S * (0.84 if maskable else 0.89)
-    esz = bw * 0.33
-    ew = max(4, int(esz * 0.20))
-    ecy = (step_bot + ebot) / 2.0 + esz * 0.02
-    euro = euro_mask(S, cx, ecy, esz, ew)
+    ecy = (step_bot + ebot) / 2.0
+    euro_h = (ebot - step_bot) * 0.62
+    euro = euro_mask(S, cx, ecy, euro_h)
 
-    whole = ImageChops.lighter(ImageChops.lighter(stone, mast), euro)
+    building_mask = ImageChops.lighter(stone, mast)
     for m, _, _ in pillars:
-        whole = ImageChops.lighter(whole, m)
+        building_mask = ImageChops.lighter(building_mask, m)
 
-    # a soft drop shadow lifts the emblem off the tile
-    shadow(canvas, whole, S, S * 0.006, S * 0.014, S * 0.012, 0.55)
-    # a dark keyline round everything, so the colours never bleed into the tile
-    key = outline_of(whole, S * 0.006)
+    # a soft drop shadow lifts the building off the tile
+    shadow(canvas, building_mask, S, S * 0.006, S * 0.014, S * 0.012, 0.55)
+    # a dark keyline round it, so the colours never bleed into the tile; the
+    # euro has none, being embossed — its bevel and shadow are its edge
+    key = outline_of(building_mask, S * 0.006)
     canvas.paste(Image.new("RGB", (S, S), KEYLINE), (0, 0), key)
 
     # stone, lit from above
@@ -219,7 +275,6 @@ def draw(px, maskable=False):
         # a narrow highlight down the left of each pillar
         hl = ImageChops.subtract(m, ImageChops.offset(m, int(S * 0.006), 0))
         canvas.paste(Image.new("RGB", (S, S), (255, 255, 255)), (0, 0), hl.point(lambda v: int(v * 0.45)))
-    # a thin shadow under the architrave, so the pillars read as standing beneath it
     d = ImageDraw.Draw(canvas)
 
     # the flag on the mast
@@ -229,11 +284,11 @@ def draw(px, maskable=False):
         d.rectangle((fx0, fy0 + band * i, fx1, fy0 + band * (i + 1)), fill=col)
     d.rectangle((fx0, fy0, fx1, fy1), outline=KEYLINE, width=max(2, int(S * 0.003)))
 
-    # the euro in gold, with a bright edge along its top
-    fill(canvas, euro, vgrad(S, ecy - esz * 0.55, ecy + esz * 0.55,
-                             [(0, GOLD_TOP), (0.45, GOLD_MID), (1, GOLD_BOT)]))
-    shine = ImageChops.subtract(euro, ImageChops.offset(euro, 0, int(S * 0.006)))
-    canvas.paste(Image.new("RGB", (S, S), (255, 250, 220)), (0, 0), shine.point(lambda v: int(v * 0.7)))
+    # the euro, embossed in gold: cast shadow, gold lit from the top-left,
+    # then shaped as a rounded, raised stroke rather than a flat one
+    shadow(canvas, euro, S, S * 0.0039, S * 0.0098, S * 0.0098, 0.65)
+    fill(canvas, euro, lit(S, EMBOSS_HI, EMBOSS_LO, euro.getbbox() or (0, 0, S, S)))
+    curved_emboss(canvas, euro, S, euro_h)
 
     img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
     img.paste(canvas, (0, 0), rr_mask(S, (0, 0, S, S), rad))

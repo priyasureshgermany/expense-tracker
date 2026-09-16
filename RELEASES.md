@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.7 — 2026-09-16
+- better: Icon: the euro is asset-management's lean sign, embossed as a rounded raised gold stroke and clear of the building; the pillars are slimmer
+
 ## 2.2.6 — 2026-09-16
 - better: A new icon in colour: rainbow pillars on a dark Sansad Bhavan, a gold euro, and a gold edge on a purple-to-teal tile
 
