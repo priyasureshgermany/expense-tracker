@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.5 — 2026-09-16
+- better: Helper: row names slide away with their chips, so the questions get the full width; a coloured dot on each chip still shows its row
+
 ## 2.2.4 — 2026-09-16
 - new: Helper: questions in three sliding rows — Explain, Reports and How to — with 49 step-by-step guides that take you to the right screen
 - new: Helper: suggestions as you type, so what is answered is always a question it knows

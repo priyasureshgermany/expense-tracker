@@ -1978,23 +1978,36 @@ html.fab-tucked .fabmenu{display:none}
 /* side by side, since the app's buttons are full width by default */
 .askacts .btn{flex:1 1 auto;width:auto;min-width:130px}
 /* The helper's questions sit in three rows, the way Reports lays out its
-   filters: a label, then chips that slide sideways when there are more than
-   fit, with a fade at the end that says so. */
+   filters, each sliding sideways when there are more than fit, with a fade at
+   the end that says so.
+   The row's name is its first item rather than a column beside it: a column
+   held a fixed slice of every row whether it was being read or not, which on
+   a phone was most of what the chips could have had. Slid along, the name
+   goes with the chips, and a dot of the row's colour on each chip keeps
+   saying which row it is. */
 .askrows{display:flex;flex-direction:column;gap:7px;margin-top:12px}
-.askline{display:flex;align-items:center;gap:8px;min-width:0}
+.askline{min-width:0}
+.askline .rp-chips{
+  align-items:center;
+  -webkit-mask-image:linear-gradient(to right,#000 85%,transparent);
+          mask-image:linear-gradient(to right,#000 85%,transparent);
+}
+.askline.atend .rp-chips{-webkit-mask-image:none;mask-image:none}
 .asktag{
-  flex:none;width:54px;font-size:10px;font-weight:700;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--ink-3);
+  flex:none;font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:0 8px 0 1px;margin-right:1px;color:var(--ink-3);
+  border-right:1px solid var(--line);line-height:18px;
+}
+.askline .rp-chips button::before{
+  content:"";display:inline-block;width:5px;height:5px;border-radius:50%;
+  margin-right:6px;vertical-align:1px;background:var(--ink-3);
 }
 .askline.explain .asktag{color:var(--accent)}
 .askline.report  .asktag{color:var(--pos)}
 .askline.howto   .asktag{color:var(--warn)}
-.askline .rp-chips{
-  flex:1;min-width:0;
-  -webkit-mask-image:linear-gradient(to right,#000 80%,transparent);
-          mask-image:linear-gradient(to right,#000 80%,transparent);
-}
-.askline.atend .rp-chips{-webkit-mask-image:none;mask-image:none}
+.askline.explain .rp-chips button::before{background:var(--accent)}
+.askline.report  .rp-chips button::before{background:var(--pos)}
+.askline.howto   .rp-chips button::before{background:var(--warn)}
 /* Suggestions as you type. In the flow rather than floating: the sheet body
    scrolls, and a floating list would be cut off at its foot. */
 .askac{
@@ -4517,7 +4530,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.4";
+const APP_VERSION = "2.2.5";
 const APP_BUILT = "2026-09-16";
 
 const KEY = "panappai.v1";
@@ -13781,8 +13794,8 @@ function askRenderRows(){
   host.innerHTML = "";
   ASK_GROUPS.forEach(g => {
     const line = el("div", "askline " + g.id);
-    line.appendChild(el("span", "asktag", g.label));
     const row = el("div", "rp-chips slide");
+    row.appendChild(el("span", "asktag", g.label));
     ASK_TOPICS.filter(t => t.g === g.id).forEach(t => {
       const b = el("button", null, t.q);
       b.type = "button";
