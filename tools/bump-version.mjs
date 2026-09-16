@@ -3,13 +3,18 @@
  * Version bump for பணப்பை, run once per release.
  *
  *   MAJOR  first release in a new calendar month
- *   MIDDLE first release made on a Monday
+ *   MIDDLE first release of a new week (weeks start on Monday)
  *   MINOR  every other release
  *
- * The higher rule wins and resets everything below it, so a Monday that also
+ * The week is what counts, not the day: a week with nothing shipped on its
+ * Monday still gets its bump on whichever day comes first. Checking for a
+ * Monday itself skipped every week that had no Monday release — September
+ * 2026 ran 2.0.0 to 2.0.50 across three weeks that way.
+ *
+ * The higher rule wins and resets everything below it, so a week that also
  * opens a new month bumps MAJOR only. version.json carries the date of the
- * last release, which is what makes "first of the month" and "first on a
- * Monday" decidable without inspecting git history.
+ * last release, which is what makes "first of the month" and "first of the
+ * week" decidable without inspecting git history.
  *
  * Every release also gets a line in RELEASES.md, which the app shows under
  * Settings → About. Notes are required: a release nobody can describe in one
@@ -24,6 +29,7 @@
  *   node tools/bump-version.mjs --note "What changed" [--note "And this"]
  *   node tools/bump-version.mjs --amend --note "Found in review"
  *   node tools/bump-version.mjs --dry                 print what would happen
+ *   node tools/bump-version.mjs --dry --date 2026-09-10   ...as if released that day
  *
  * A note is tagged with the kind of change it was, which the app reads to put
  * an icon beside it in What's new:
@@ -58,9 +64,20 @@ const notes = argv.reduce((acc, a, i) => {
 const iso = (d) =>
   d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 
-const today = new Date();
+/* --date pretends to be another day, for checking the rules; a real release
+   is always dated today, so it is refused without --dry. */
+const dateArg = argv.includes("--date") ? argv[argv.indexOf("--date") + 1] || "" : "";
+if (dateArg && (!dry || !/^\d{4}-\d{2}-\d{2}$/.test(dateArg))) {
+  console.error("--date YYYY-MM-DD only goes with --dry");
+  process.exit(1);
+}
+const today = dateArg
+  ? new Date(+dateArg.slice(0, 4), +dateArg.slice(5, 7) - 1, +dateArg.slice(8, 10))
+  : new Date();
 const todayISO = iso(today);
-const isMonday = today.getDay() === 1;
+/* the Monday that starts this week — Sunday belongs to the week before */
+const weekStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (today.getDay() + 6) % 7);
+const weekStartISO = iso(weekStart);
 
 const state = JSON.parse(readFileSync(VERSION_FILE, "utf8"));
 
@@ -122,7 +139,7 @@ const [major, middle, minor] = String(state.version).split(".").map(Number);
 const last = state.lastRelease || "";
 
 const newMonth = last && last.slice(0, 7) !== todayISO.slice(0, 7);
-const firstToday = last !== todayISO;
+const newWeek = last < weekStartISO;
 
 let next, reason;
 if (!last) {
@@ -132,9 +149,9 @@ if (!last) {
 } else if (newMonth) {
   next = [major + 1, 0, 0];
   reason = "first release of " + todayISO.slice(0, 7);
-} else if (isMonday && firstToday) {
+} else if (newWeek) {
   next = [major, middle + 1, 0];
-  reason = "first release this Monday";
+  reason = "first release of the week of " + weekStartISO;
 } else {
   next = [major, middle, minor + 1];
   reason = "routine release";
