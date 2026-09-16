@@ -1893,6 +1893,90 @@ div.rp-rem:hover{background:none}
 .tabbar button[aria-selected="true"] svg{stroke-width:2.1}
 
 /* Add entry: a circle above the tab bar, opening a two-way chooser. */
+/* Opposite the + button, and the same size as the tab bar's own marks so it
+   reads as part of the furniture rather than a floating advert. */
+.askbub{
+  position:fixed;z-index:29;
+  left:max(18px, calc(50vw - var(--shell)/2 + 18px));
+  bottom:calc(80px + env(safe-area-inset-bottom));
+  width:46px;height:46px;border-radius:50%;
+  display:grid;place-items:center;
+  color:var(--accent);
+  background:var(--surface);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow-md);
+  transition:transform .12s;
+}
+.askbub[hidden]{display:none}
+.askbub:active{transform:scale(.94)}
+.askbub svg{width:22px;height:22px}
+
+/* A sliver at the very edge: enough to find with a thumb, faint enough to
+   forget. The chevron turns rather than being swapped, so the arrow always
+   points the way the thing will go. */
+.edgetab{
+  position:fixed;z-index:29;
+  bottom:calc(84px + env(safe-area-inset-bottom));
+  width:22px;height:52px;display:grid;place-items:center;
+  color:var(--ink-2);opacity:.72;
+  background:var(--surface-2);border:1px solid var(--line-strong);
+  box-shadow:var(--shadow-sm);
+  transition:opacity .15s;
+}
+@supports (backdrop-filter:blur(8px)){
+  .edgetab{background:color-mix(in srgb, var(--surface) 62%, transparent);backdrop-filter:blur(8px)}
+}
+.edgetab:active{opacity:1}
+.edgetab[hidden]{display:none}
+.edgetab svg{width:15px;height:15px;transition:transform .28s cubic-bezier(.2,.7,.3,1)}
+.edgetab.left{left:0;border-left:0;border-radius:0 11px 11px 0}
+.edgetab.right{right:0;border-right:0;border-radius:11px 0 0 11px}
+/* Tucked away by sliding off its own edge rather than by vanishing: the eye
+   follows where it went, so finding it again is obvious. It keeps its place in
+   the layout and stops taking taps, which is what display:none was for. */
+#btnAsk, .fabwrap{
+  transition:transform .3s cubic-bezier(.2,.7,.3,1), opacity .22s ease;
+}
+html.ask-tucked #askTab svg{transform:scaleX(-1)}
+html.fab-tucked #fabTab svg{transform:scaleX(-1)}
+html.ask-tucked #btnAsk{transform:translateX(-96px) scale(.85);opacity:0;pointer-events:none}
+html.fab-tucked .fabwrap{transform:translateX(110px) scale(.9);opacity:0;pointer-events:none}
+/* the menu goes with it, and cannot be left hanging open behind it */
+html.fab-tucked .fabmenu{display:none}
+@media (prefers-reduced-motion:reduce){
+  #btnAsk, .fabwrap, .edgetab svg{transition:none}
+}
+
+.askrow{display:flex;gap:8px;align-items:center}
+.askrow .inp{flex:1;min-width:0}
+.askgo{
+  flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  background:var(--accent);color:var(--accent-ink);
+}
+.askgo svg{width:18px;height:18px}
+/* An answer: the heading it is about, the working under it, then whatever it
+   can take you to. */
+.askans{
+  margin-top:14px;padding:13px 14px;border-radius:14px;
+  background:var(--surface-2);border:1px solid var(--line);
+}
+.askans h4{margin:0 0 7px;font-size:13.5px;font-weight:700;color:var(--ink)}
+.askans p{margin:0 0 6px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.askans p:last-of-type{margin-bottom:0}
+.askans .askfig{
+  display:flex;justify-content:space-between;gap:12px;
+  font-size:12.5px;padding:3px 0;color:var(--ink-2);
+  font-variant-numeric:tabular-nums;
+}
+.askans .askfig b{color:var(--ink);font-weight:600}
+.askans .asksum{
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:12px;font-size:13px;font-weight:700;
+}
+.askacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+/* side by side, since the app's buttons are full width by default */
+.askacts .btn{flex:1 1 auto;width:auto;min-width:130px}
+
 .fabwrap{
   position:fixed;z-index:29;
   right:max(18px, calc(50vw - var(--shell)/2 + 18px));
@@ -3200,6 +3284,22 @@ html.locked #lockScreen::before{
 
   <div class="spacer"></div>
 
+  <!-- Asks and answers inside the app: no service, no key, no data leaving the
+       phone. It reads the same figures the screens do and says how they are
+       made, or opens the report that answers the question. -->
+  <button class="askbub" id="btnAsk" type="button" aria-label="Ask about your money">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-8 8H7l-4 3v-5.5A8 8 0 0111 4h2a8 8 0 018 8z"/><path d="M9.5 11h.01M13 11h.01M16.5 11h.01"/></svg>
+  </button>
+
+  <!-- One arrow per side, always there: tap to tuck that control away, tap
+       again to bring it back. It points the way it will move the thing. -->
+  <button class="edgetab left" id="askTab" type="button" aria-label="Hide or show the helper">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button class="edgetab right" id="fabTab" type="button" aria-label="Hide or show the add button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+
   <div class="fabwrap" id="fabWrap">
     <div class="fabmenu" id="fabMenu">
       <button class="fabopt in" type="button" data-t="income">
@@ -3895,6 +3995,31 @@ html.locked #lockScreen::before{
   </div>
 </section>
 
+<!-- ASK — the in-app helper -->
+<section class="sheet" id="shAsk" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+  <div class="sheet-head">
+    <h2 id="askTitle">Ask about your money</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="askrow">
+      <input class="inp" id="askQ" type="text" autocomplete="off"
+             placeholder="e.g. explain in the account now">
+      <button class="askgo" id="askGo" type="button" aria-label="Ask">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+    <div class="rp-chips" id="askChips" style="margin-top:10px"></div>
+    <div id="askOut"></div>
+    <div class="note" id="askFoot" style="margin-top:14px">
+      Worked out on this phone from your own entries. Nothing is sent anywhere,
+      and it answers about this app only.
+    </div>
+  </div>
+</section>
+
 <!-- MORE -->
 <section class="sheet" id="shMore" role="dialog" aria-modal="true" aria-labelledby="moreTitle">
   <div class="sheet-head" style="position:relative">
@@ -4333,7 +4458,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.48";
+const APP_VERSION = "2.0.49";
 const APP_BUILT = "2026-09-16";
 
 const KEY = "panappai.v1";
@@ -10942,6 +11067,9 @@ function setPanel(p){
   $("#viewShop").hidden = p !== "shop";
   /* the month bar and add button drive the ledger only; shopping lists aren't period-scoped */
   $(".monthbar").style.display = p === "shop" ? "none" : "";
+  /* The helper explains the dashboard's figures, so it waits on the dashboard */
+  $("#btnAsk").hidden = p !== "dash";
+  applyTucks();
   $("#fabWrap").style.display = p === "shop" ? "none" : "";
   fabClose();
   $$("#viewTog button[data-view]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.view === p)));
@@ -12338,6 +12466,463 @@ document.addEventListener("keydown", e => {
     else document.documentElement.classList.remove("locked");
   }
 })();
+
+/* =========================================================================
+   ASK — the helper on the dashboard
+
+   Everything here happens on the phone. There is no model and no service: a
+   question is matched against a table of topics by the phrases it contains,
+   and the topic answers it by reading the very figures the screens read. That
+   is the whole trick, and it is the right one for this app — the book holds a
+   salary, two loans and the children's names, and none of that is going over a
+   wire to be explained back. It also means the helper works on a train.
+
+   A topic says what it answers, the phrases that mean it, and a function that
+   builds the answer: a heading, the working, and where to go next. To teach it
+   something new, add a topic.
+   ========================================================================= */
+let askLast = "";
+
+/** A line of working: what it is on the left, the figure on the right. */
+function askFig(label, value){
+  return { fig:true, label:label, value:value };
+}
+
+/* ---------- what the dashboard's figures are made of ---------- */
+function askBalance(){
+  const t = balanceNow();
+  const rows = balanceableAccounts().map(a =>
+    askFig(a.n + (a.start ? " · from " + fmt(a.start.amount) + " as of " + dayTitle(a.start.date) : " · no snapshot"),
+           fmt(accountBalance(a.id))));
+  return {
+    title: "In the account now — " + fmt(t.now),
+    body: ["Every account is counted forward from its own snapshot, and those are added up:"],
+    figs: rows,
+    sum: ["All accounts", fmt(t.now)],
+    after: ["Snapshots come to " + fmt(t.base) + ". Since each one's date, " +
+            fmt(t.inc) + " has come in and " + fmt(t.exp) + " has gone out." +
+            (t.dates.length > 1 ? " Your accounts were snapshotted on different days, so each is counted from its own." : ""),
+            "Only entries you have ticked off count, and nothing dated after today — a bill settled early has not moved the money yet."],
+    acts: [["See the entries", () => { sheetClose(); setPanel("entries"); render(); }]]
+  };
+}
+
+function askNet(){
+  const s = periodStats(periodTxns(view));
+  const net = s.income - s.expTotal;
+  return {
+    title: "Net this period — " + fmt(net),
+    body: ["For " + periodTitle(view) + ", everything in less everything out, planned entries included:"],
+    figs: [askFig("Income", fmt(s.income)), askFig("Expenses", fmt(s.expTotal))],
+    sum: ["Net", fmt(net)],
+    after: [s.expTotal - s.actualExp
+      ? fmt(s.expTotal - s.actualExp) + " of those expenses has not gone out yet, so the figure includes what is still to come."
+      : "Everything in it has settled."],
+    acts: [["See the entries", () => { sheetClose(); setPanel("entries"); render(); }]]
+  };
+}
+
+function askMoneyInOut(){
+  const s = periodStats(periodTxns(view));
+  return {
+    title: "Money in, money out — " + periodTitle(view),
+    body: ["Three figures, and they answer different questions:"],
+    figs: [askFig("Income", fmt(s.income)),
+           askFig("Planned expense — your repeating entries, M and A", fmt(s.planned)),
+           askFig("Actual expense — everything paid, one-offs included", fmt(s.actualExp))],
+    after: [s.planLeft ? fmt(s.planLeft) + " of the plan has not been paid yet." : "The whole plan has been paid.",
+            s.expTotal - s.planned > 0
+              ? fmt(s.expTotal - s.planned) + " went on one-offs, which is why what you actually spent can be more than you planned."
+              : "Nothing went on one-offs this period.",
+            "The health mark reads every expense, one-offs and all — a month is not healthier for leaving them out."],
+    acts: [["Planned, in Reports", () => askGoReport({ kind:"planned", range:"month", tab:"chart" })]]
+  };
+}
+
+function askPaidSoFar(){
+  const all = periodTxns(view);
+  let done = 0, total = 0;
+  all.forEach(t => {
+    if (t.type !== "expense") return;
+    total += t.amount;
+    if (t.status === "done") done += t.amount;
+  });
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  return {
+    title: "Expenses paid so far — " + pct + "%",
+    body: ["Of everything entered as an expense for " + periodTitle(view) + ":"],
+    figs: [askFig("Paid", fmt(done)), askFig("Entered altogether", fmt(total))],
+    sum: ["Still to pay", fmt(total - done)],
+    after: ["The bar fills with what has gone out; the rest of it is what you have entered but not yet ticked off."],
+    acts: []
+  };
+}
+
+/* ---------- the reports, opened already filtered ---------- */
+function askGoReport(o){
+  repKind = o.kind || "all";
+  repPlanMode = o.pm || "both";
+  repCats = o.cats || [];
+  repAccts = [];
+  repQuery = "";
+  repSelCat = null;
+  repRange = o.range || "month";
+  repBasis = o.basis || repBasis;
+  sheetClose();
+  repSyncKind();
+  openReport();
+  repSetTab(o.tab || "table");
+  repRender();
+}
+
+function askReport(kind, label, range, rangeWord){
+  const word = rangeWord || "this period";
+  return () => ({
+    title: label + ", " + word,
+    body: ["Opening Reports with " + label.toLowerCase() + " for " + word +
+           ", so the answer is the screen rather than a number here."],
+    figs: [],
+    acts: [["Show me", () => askGoReport({ kind:kind, range:range, tab:"table" })],
+           ["As a chart", () => askGoReport({ kind:kind, range:range, tab:"chart" })]]
+  });
+}
+
+/**
+ * What was spent on the categories a question names, this period.
+ *
+ * Categories, plural, because "groceries" is the name of two of them here —
+ * Groceries — German and Groceries — Indian — and answering for whichever
+ * sorted first would answer a different question. Each gets a line, and the
+ * report opens on all of them together.
+ */
+function askCategory(cats, word){
+  return () => {
+    const from = periodStart(view), to = periodEnd(view);
+    const ids = cats.map(c => c.id);
+    const per = new Map(ids.map(id => [id, { spent:0, n:0 }]));
+    state.txns.forEach(t => {
+      if (t.type !== "expense" || t.status !== "done") return;
+      if (!per.has(t.category)) return;
+      if (t.date < from || t.date > to) return;
+      const r = per.get(t.category);
+      r.spent += t.amount; r.n++;
+    });
+    let spent = 0, n = 0, budget = 0;
+    cats.forEach(c => {
+      spent += per.get(c.id).spent;
+      n += per.get(c.id).n;
+      budget += budgetFor(c.id, view);
+    });
+    const figs = cats.length > 1
+      ? cats.map(c => askFig(c.n + " · " + per.get(c.id).n +
+          (per.get(c.id).n === 1 ? " entry" : " entries"), fmt(per.get(c.id).spent, c.id)))
+      : [];
+    if (budget){
+      figs.push(askFig("Budget", fmt(budget)));
+      figs.push(askFig(spent <= budget ? "Left" : "Over", fmt(Math.abs(budget - spent))));
+    }
+    return {
+      /* Asked by a shared word, the answer is about that word: "Groceries",
+         not "Groceries — German and Groceries — Indian". */
+      title: (cats.length > 1 && word
+        ? word.charAt(0).toUpperCase() + word.slice(1)
+        : cats[0].n) + " — " + fmt(spent) + " this period",
+      body: [n + (n === 1 ? " entry" : " entries") + " paid in " + periodTitle(view) + "."],
+      figs: figs,
+      sum: cats.length > 1 ? ["Together", fmt(spent)] : null,
+      after: budget ? [] : ["No budget on " + (cats.length > 1 ? "these" : "this one") +
+                            ", so there is nothing to be over."],
+      /* A report drops a category with nothing in the stretch, on purpose — so
+         offering "this period" when there is nothing in it would open a report
+         of everything instead, which answers a question nobody asked. */
+      acts: (n ? [["This period", () => askGoReport({ cats:ids, range:"month", tab:"table" })]] : [])
+        .concat([["The last twelve months", () => askGoReport({ cats:ids, range:"last12", tab:"table" })]])
+    };
+  };
+}
+
+/* ---------- budgets and payday ---------- */
+function askBudgets(){
+  const rows = budgetList(view);
+  if (!rows.length){
+    return { title:"No budgets set", body:["Budgets are per category and per period. Set them on the dashboard under Budget."],
+             figs:[], acts:[] };
+  }
+  const base = budgetBaseIncome(view);
+  let planned = 0, spent = 0;
+  const figs = rows.map(r => {
+    const used = envSpent(r.cat.id, view);
+    planned += r.planned; spent += used;
+    return askFig(r.cat.n + (used > r.planned ? " · over by " + fmt(used - r.planned, r.cat.id)
+                                              : " · " + fmt(r.planned - used, r.cat.id) + " left"),
+                  fmt(used, r.cat.id) + " of " + fmt(r.planned, r.cat.id));
+  });
+  const over = rows.filter(r => envSpent(r.cat.id, view) > r.planned);
+  return {
+    title: "Budgets — " + fmt(spent) + " of " + fmt(planned) + " used",
+    body: [over.length
+      ? over.map(r => r.cat.n).join(", ") + (over.length === 1 ? " is over." : " are over.")
+      : "Nothing is over."],
+    figs: figs,
+    sum: ["You are", Math.round(periodProgress(view) * 100) + "% through " + periodTitle(view)],
+    after: base > 0 ? ["Altogether that is " + pctText(Math.round(planned / base * 1000) / 10) +
+                       "% of the income the budgets are measured against."] : [],
+    acts: [["Open Budget", () => { sheetClose(); setPanel("dash"); render();
+             const c = $("#budgetCard"); if (c) c.scrollIntoView({ behavior:"smooth", block:"center" }); }]]
+  };
+}
+
+function askPayday(){
+  const p = paydayInfo();
+  if (!p){
+    return { title:"No payday to count to", body:["Payday comes from a repeating income entry. Add one under Settings › Recurring entries and it will be counted from there."], figs:[], acts:[] };
+  }
+  const w = payWords(p.days);
+  return {
+    title: w.state === "today" ? "Payday is today" :
+           w.state === "late" ? p.name + " is " + w.big + " " + w.unit
+                              : p.days + (p.days === 1 ? " day to payday" : " days to payday"),
+    body: [p.name + " · " + fmt(p.amount, p.category) + " on " + prettyDate(p.date) + "."],
+    figs: [],
+    after: [w.state === "late"
+      ? "It is dated in the past and still not ticked off, so it is counted as late rather than as next month's."
+      : Math.round(p.pct * 100) + "% of the wait is behind you.",
+      "It is read from your repeating income rather than from a date you have to keep up to date."],
+    acts: []
+  };
+}
+
+/* ---------- how the app works ---------- */
+function askPeriods(){
+  return {
+    title: "Your months run the " + PERIOD_START_DAY + "th to the " + (PERIOD_START_DAY - 1) + "th",
+    body: ["The dashboard is showing " + periodTitle(view) + ". A budget period starts on the " +
+           PERIOD_START_DAY + "th because that is when your salary lands, so a period holds one wage and the bills it pays."],
+    figs: [],
+    after: ["Reports can be read either way: Counted by 15th–14th, or Calendar for ordinary months.",
+            "Where a report folds by month, it folds by whichever of the two you are counting in."],
+    acts: [["A report by calendar months", () => askGoReport({ range:"last12", basis:"calendar", tab:"table" })]]
+  };
+}
+
+function askMA(){
+  return {
+    title: "M and A on an entry",
+    body: ["Both mean the entry came from a repeating entry. A is one the bank takes by itself; M is one you pay yourself."],
+    figs: [],
+    after: ["Planned in Reports counts exactly these, and its Manual and Automatic switch splits them.",
+            "An entry with neither badge is a one-off, and no plan expected it."],
+    acts: [["Planned · Manual", () => askGoReport({ kind:"planned", pm:"manual", range:"month", tab:"table" })],
+           ["Planned · Automatic", () => askGoReport({ kind:"planned", pm:"auto", range:"month", tab:"table" })]]
+  };
+}
+
+function askPlannedMeans(){
+  return {
+    title: "What Planned counts",
+    body: ["Every expense that comes from a repeating entry — the M and A rows — whether it has been paid yet or not."],
+    figs: [],
+    after: ["Expenses, by contrast, counts what has actually gone out, one-offs included. So the two read as plan against actual.",
+            "Its chart is drawn against Salary and Benefits, and the part no plan claims is the Remaining slice."],
+    acts: [["Show Planned", () => askGoReport({ kind:"planned", range:"month", tab:"chart" })]]
+  };
+}
+
+function askSnapshots(){
+  const t = balanceNow();
+  return {
+    title: "Snapshots and the balance",
+    body: ["A snapshot says what an account held on a day. From there the app counts that account forward: what it holds, plus what came in, less what went out."],
+    figs: balanceableAccounts().filter(a => a.start).map(a =>
+      askFig(a.n, fmt(a.start.amount) + " as of " + dayTitle(a.start.date))),
+    after: ["Taking a new snapshot is a clean start for that account: its date moves forward and everything before it stops counting, which is how the figure stays honest.",
+            t.dates.length > 1 ? "Your accounts are on different dates at the moment, which is fine — each is counted from its own." : "",
+            "Saved snapshots under Accounts are a record only. Deleting one changes no balance."],
+    acts: []
+  };
+}
+
+/* ---------- the table of topics ----------
+   Matched by the phrases a question contains; the longest match wins, so
+   "planned expense" beats "expense" without either needing to know about the
+   other. */
+const ASK_TOPICS = [
+  { q:"Explain \u201cIn the account now\u201d", chip:true,
+    words:["in the account", "account now", "how much do i have", "how much money", "my balance", "total balance"],
+    build:askBalance },
+  { q:"Explain Net this period", chip:true,
+    words:["net this period", "net", "left over this period"], build:askNet },
+  { q:"Planned against actual", chip:true,
+    words:["money in money out", "money in, money out", "planned against actual", "planned vs actual", "planned expense"],
+    build:askMoneyInOut },
+  { q:"Expenses paid so far", words:["paid so far", "how much have i paid", "still to pay"], build:askPaidSoFar },
+  { q:"This month's expenses", chip:true,
+    words:["this month expenses", "this month's expenses", "expenses this month", "spending this month", "what did i spend"],
+    build:askReport("expense", "Expenses", "month", "this period") },
+  { q:"This year's expenses",
+    words:["this year", "expenses this year", "spending this year", "last 12 months", "twelve months"],
+    build:askReport("expense", "Expenses", "last12", "the last twelve months") },
+  { q:"Income this period", words:["income this month", "income this period", "what came in", "my income"],
+    build:askReport("income", "Income", "month", "this period") },
+  { q:"Transfers", words:["transfer"], build:askReport("transfer", "Transfers", "month", "this period") },
+  { q:"Why is my budget over?", chip:true,
+    words:["budget over", "why is my budget", "budget", "envelope", "how much is left"], build:askBudgets },
+  { q:"When is payday?", chip:true, words:["payday", "pay day", "salary", "when do i get paid"], build:askPayday },
+  { q:"Why the 15th to the 14th?", chip:true,
+    words:["15th", "14th", "period", "why does my month", "budget period"], build:askPeriods },
+  { q:"What do M and A mean?", chip:true, words:["m and a", "what does a mean", "what does m mean", "badge", "automatic", "manual"],
+    build:askMA },
+  { q:"What does Planned count?", words:["what is planned", "what does planned", "planned mean", "recurring"],
+    build:askPlannedMeans },
+  { q:"How do snapshots work?", chip:true, words:["snapshot", "starting balance", "baseline"], build:askSnapshots }
+];
+
+/**
+ * The topic a question is about, or null.
+ *
+ * Scored by the length of the phrases it contains rather than by how many, so a
+ * question naming "planned expense" lands on the plan rather than on expenses
+ * for having said a shorter word more often. A category named in the question
+ * beats the lot, since "how much on groceries" is about groceries.
+ */
+function askMatch(q){
+  const s = " " + q.toLowerCase().replace(/[^a-z0-9€\s']/g, " ").replace(/\s+/g, " ") + " ";
+  let best = null, score = 0;
+  ASK_TOPICS.forEach(t => {
+    let sc = 0;
+    t.words.forEach(w => { if (s.indexOf(w) > -1) sc = Math.max(sc, w.length); });
+    if (sc > score){ score = sc; best = t; }
+  });
+  /* A category is named by any telling word of its name — "groceries" for
+     Groceries — German — so the question is searched for the category's words,
+     rather than the category's whole name searched for in the question, which
+     no multi-word name would ever survive. Separators are not words, and nor
+     is anything short enough to turn up by accident. */
+  /* Whole words on both sides: the question is already reduced to words, so
+     three letters is safe — "veg" can match the word veg and nothing that
+     merely contains it, which is what lets Non-Veg be asked about at all. */
+  const qWords = s.trim().split(" ").filter(Boolean);
+  let catHit = 0, cats = [];
+  allCats("expense").concat(allCats("income")).forEach(c => {
+    if (!catShown(c.id)) return;
+    let hit = 0;
+    c.n.toLowerCase().split(/[^a-z0-9]+/).forEach(w => {
+      if (w.length >= 3 && qWords.indexOf(w) > -1) hit = Math.max(hit, w.length);
+    });
+    if (!hit) return;
+    if (hit > catHit){ catHit = hit; cats = [c]; }
+    else if (hit === catHit) cats.push(c);
+  });
+  /* Naming one of your own categories is a stronger signal than a general
+     word: "non-veg this period" is about Non-Veg, though "period" is the
+     longer match. The bonus is small enough that a whole phrase still wins —
+     "how much do i have" stays the balance rather than the Cash category. */
+  if (cats.length && catHit + 4 >= score) return { build:askCategory(cats, cats[0].n
+    .toLowerCase().split(/[^a-z0-9]+/).find(w => w.length === catHit) || "") };
+  return best;
+}
+
+/* ---------- putting an answer on screen ---------- */
+function askShow(a){
+  const host = $("#askOut");
+  host.innerHTML = "";
+  const box = el("div", "askans");
+  box.appendChild(el("h4", null, a.title));
+  (a.body || []).forEach(p => box.appendChild(el("p", null, p)));
+  (a.figs || []).forEach(f => {
+    const row = el("div", "askfig");
+    row.appendChild(el("span", null, f.label));
+    row.appendChild(el("b", null, f.value));
+    box.appendChild(row);
+  });
+  if (a.sum){
+    const row = el("div", "asksum");
+    row.appendChild(el("span", null, a.sum[0]));
+    row.appendChild(el("span", null, a.sum[1]));
+    box.appendChild(row);
+  }
+  (a.after || []).filter(Boolean).forEach(p => box.appendChild(el("p", null, p)));
+  if ((a.acts || []).length){
+    const acts = el("div", "askacts");
+    (a.acts || []).forEach(([label, go]) => {
+      const b = el("button", "btn ghost sm", label);
+      b.type = "button";
+      b.addEventListener("click", go);
+      acts.appendChild(b);
+    });
+    box.appendChild(acts);
+  }
+  host.appendChild(box);
+}
+
+function askAnswer(q){
+  askLast = q;
+  $("#askQ").value = q;
+  const t = askMatch(q);
+  if (!t){
+    askShow({
+      title: "I don't know that one",
+      body: ["I answer about this app and the figures in it. Try one of the questions above, or:"]
+        .concat(ASK_TOPICS.filter(x => x.chip).map(x => "· " + x.q)),
+      figs: [],
+      after: ["Naming a category works too — \u201chow much on groceries\u201d."],
+      acts: []
+    });
+    return;
+  }
+  askShow(t.build());
+}
+
+function askOpen(){
+  $("#askQ").value = "";
+  $("#askOut").innerHTML = "";
+  const chips = $("#askChips");
+  chips.innerHTML = "";
+  ASK_TOPICS.filter(t => t.chip).forEach(t => {
+    const b = el("button", null, t.q);
+    b.type = "button";
+    b.addEventListener("click", () => askAnswer(t.q));
+    chips.appendChild(b);
+  });
+  sheetOpen("#shAsk");
+}
+
+/* Tucked or not is a preference about this device rather than about the book,
+   so it lives beside the other per-device settings and not in the ledger. */
+const ASK_TUCK_KEY = "panappai.tuck.ask";
+const FAB_TUCK_KEY = "panappai.tuck.fab";
+function tuckGet(k){ try{ return localStorage.getItem(k) === "1"; }catch(e){ return false; } }
+function tuckSet(k, v){ try{ localStorage.setItem(k, v ? "1" : "0"); }catch(e){} }
+function applyTucks(){
+  document.documentElement.classList.toggle("ask-tucked", tuckGet(ASK_TUCK_KEY));
+  document.documentElement.classList.toggle("fab-tucked", tuckGet(FAB_TUCK_KEY));
+  /* An arrow with nothing behind it is a puzzle, so each shows only where its
+     own control belongs: the helper on the dashboard, the + everywhere it
+     already was. */
+  $("#askTab").hidden = panel !== "dash";
+  $("#fabTab").hidden = panel === "shop";
+}
+$("#askTab").addEventListener("click", () => {
+  tuckSet(ASK_TUCK_KEY, !tuckGet(ASK_TUCK_KEY));
+  applyTucks();
+});
+$("#fabTab").addEventListener("click", () => {
+  tuckSet(FAB_TUCK_KEY, !tuckGet(FAB_TUCK_KEY));
+  if (tuckGet(FAB_TUCK_KEY)) fabClose();   /* a menu left open would hang there */
+  applyTucks();
+});
+/* setPanel applies these as you move about, but nothing calls it on the way
+   in — so a control tucked away last night would be back this morning. */
+applyTucks();
+
+$("#btnAsk").addEventListener("click", askOpen);
+$("#askGo").addEventListener("click", () => {
+  const q = $("#askQ").value.trim();
+  if (q) askAnswer(q);
+});
+$("#askQ").addEventListener("keydown", e => {
+  if (e.key === "Enter"){ const q = $("#askQ").value.trim(); if (q) askAnswer(q); }
+});
 
 /* =========================================================================
    REPORTS

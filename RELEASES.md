@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.49 — 2026-09-16
+- new: A helper bubble on the dashboard: ask about a figure and it explains it with your own numbers, or opens the report that answers it — all on this phone
+- new: The helper bubble and the + can be tucked away by a small arrow at each edge
+
 ## 2.0.48 — 2026-09-16
 - fix: In the account now counts each account forward from its own snapshot, so snapshotting one no longer double-counts the others
 - new: Saved balance snapshots can be deleted
