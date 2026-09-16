@@ -1977,6 +1977,63 @@ html.fab-tucked .fabmenu{display:none}
 .askacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
 /* side by side, since the app's buttons are full width by default */
 .askacts .btn{flex:1 1 auto;width:auto;min-width:130px}
+/* The helper's questions sit in three rows, the way Reports lays out its
+   filters: a label, then chips that slide sideways when there are more than
+   fit, with a fade at the end that says so. */
+.askrows{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.askline{display:flex;align-items:center;gap:8px;min-width:0}
+.asktag{
+  flex:none;width:54px;font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3);
+}
+.askline.explain .asktag{color:var(--accent)}
+.askline.report  .asktag{color:var(--pos)}
+.askline.howto   .asktag{color:var(--warn)}
+.askline .rp-chips{
+  flex:1;min-width:0;
+  -webkit-mask-image:linear-gradient(to right,#000 80%,transparent);
+          mask-image:linear-gradient(to right,#000 80%,transparent);
+}
+.askline.atend .rp-chips{-webkit-mask-image:none;mask-image:none}
+/* Suggestions as you type. In the flow rather than floating: the sheet body
+   scrolls, and a floating list would be cut off at its foot. */
+.askac{
+  margin-top:6px;border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  background:var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.12);
+}
+.askac-i{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+  padding:10px 12px;text-align:left;font-size:13px;color:var(--ink);
+  background:none;border:0;border-top:1px solid var(--line);
+}
+.askac-i:first-child{border-top:0}
+.askac-i[aria-selected="true"]{background:var(--accent-soft)}
+.askac-q{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.askac-t{
+  flex:none;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:2px 7px;border-radius:99px;background:var(--surface-2);color:var(--ink-3);
+}
+.askac-t.explain{color:var(--accent)}
+.askac-t.report{color:var(--pos)}
+.askac-t.howto{color:var(--warn)}
+.askac-t.search{background:var(--accent);color:var(--accent-ink)}
+.askac-none{padding:10px 12px;font-size:12.5px;color:var(--ink-3)}
+/* a how-to: where it happens, then numbered steps */
+.askwhere{
+  display:inline-block;margin:0 0 8px;padding:3px 9px;border-radius:99px;
+  font-size:11px;font-weight:600;background:var(--accent-soft);color:var(--accent);
+}
+.asksteps{margin:2px 0 8px;padding:0;list-style:none;counter-reset:askstep}
+.asksteps li{
+  position:relative;padding:3px 0 3px 27px;font-size:12.5px;line-height:1.5;
+  color:var(--ink-2);counter-increment:askstep;
+}
+.asksteps li::before{
+  content:counter(askstep);position:absolute;left:0;top:4px;width:19px;height:19px;
+  border-radius:50%;display:grid;place-items:center;font-size:10.5px;font-weight:700;
+  background:var(--accent-soft);color:var(--accent);
+}
+.askans p.askafter{margin-top:6px}
 
 .fabwrap{
   position:fixed;z-index:29;
@@ -4007,12 +4064,13 @@ html.locked #lockScreen::before{
   <div class="sheet-body">
     <div class="askrow">
       <input class="inp" id="askQ" type="text" autocomplete="off"
-             placeholder="e.g. explain in the account now">
+             placeholder="Type a question, e.g. salary for Aug">
       <button class="askgo" id="askGo" type="button" aria-label="Ask">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="M12 5l7 7-7 7"/></svg>
       </button>
     </div>
-    <div class="rp-chips" id="askChips" style="margin-top:10px"></div>
+    <div class="askac" id="askAc" role="listbox" aria-label="Suggestions" hidden></div>
+    <div class="askrows" id="askChips"></div>
     <div id="askOut"></div>
     <div class="note" id="askFoot" style="margin-top:14px">
       Worked out on this phone from your own entries. Nothing is sent anywhere,
@@ -4459,7 +4517,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.3";
+const APP_VERSION = "2.2.4";
 const APP_BUILT = "2026-09-16";
 
 const KEY = "panappai.v1";
@@ -12564,28 +12622,23 @@ function askGoReport(o){
   repKind = o.kind || "all";
   repPlanMode = o.pm || "both";
   repCats = o.cats || [];
-  repAccts = [];
+  repAccts = o.accts || [];
   repQuery = "";
   repSelCat = null;
-  repRange = o.range || "month";
+  /* a month asked about by name is its own stretch, not this one */
+  if (o.from){
+    repRange = "custom";
+    setDateVal("#repFrom", o.from);
+    setDateVal("#repTo", o.to);
+  } else {
+    repRange = o.range || "month";
+  }
   repBasis = o.basis || repBasis;
   sheetClose();
   repSyncKind();
   openReport();
   repSetTab(o.tab || "table");
   repRender();
-}
-
-function askReport(kind, label, range, rangeWord){
-  const word = rangeWord || "this period";
-  return () => ({
-    title: label + ", " + word,
-    body: ["Opening Reports with " + label.toLowerCase() + " for " + word +
-           ", so the answer is the screen rather than a number here."],
-    figs: [],
-    acts: [["Show me", () => askGoReport({ kind:kind, range:range, tab:"table" })],
-           ["As a chart", () => askGoReport({ kind:kind, range:range, tab:"chart" })]]
-  });
 }
 
 /**
@@ -12743,40 +12796,871 @@ function askSnapshots(){
   };
 }
 
+/* ---------- more of the dashboard, explained ---------- */
+
+/** " · A" or " · M" for an entry a repeating entry made, nothing for a one-off. */
+function askBadge(t){
+  const r = ruleFor(t.ruleId);
+  return r ? (ruleAuto(r) ? " · A" : " · M") : "";
+}
+
+function askIncomeTile(){
+  let done = 0, plan = 0;
+  periodTxns(view).forEach(t => {
+    if (t.type !== "income") return;
+    if (t.status === "done") done += t.amount; else plan += t.amount;
+  });
+  return {
+    title: "Income — " + fmt(done + plan),
+    body: ["Everything entered as income for " + periodTitle(view) + ", arrived or not:"],
+    figs: [askFig("Received", fmt(done)), askFig("Still expected", fmt(plan))],
+    sum: ["Income", fmt(done + plan)],
+    after: ["An entry counts as received once it is ticked off. Money moved between your own accounts is a transfer, not income, so it is left out."],
+    acts: [["See the income", () => { sheetClose(); showEntriesOfType("income"); }]]
+  };
+}
+
+function askExpenseTile(){
+  let done = 0, plan = 0;
+  periodTxns(view).forEach(t => {
+    if (t.type !== "expense") return;
+    if (t.status === "done") done += t.amount; else plan += t.amount;
+  });
+  return {
+    title: "Expenses — " + fmt(done + plan),
+    body: ["Everything entered as an expense for " + periodTitle(view) + ", paid or still to come:"],
+    figs: [askFig("Paid", fmt(done)), askFig("Still to pay", fmt(plan))],
+    sum: ["Expenses", fmt(done + plan)],
+    after: ["It is the ledger and nothing else: a budget's unspent part is not added on top, and transfers between your own accounts are left out."],
+    acts: [["See the expenses", () => { sheetClose(); showEntriesOfType("expense"); }]]
+  };
+}
+
+function askTopSpend(){
+  const per = new Map();
+  let total = 0;
+  periodTxns(view).forEach(t => {
+    if (t.type !== "expense") return;
+    per.set(t.category, (per.get(t.category) || 0) + t.amount);
+    total += t.amount;
+  });
+  if (!total){
+    return { title:"Nothing spent yet", body:["No expenses are entered for " + periodTitle(view) + "."], figs:[], acts:[] };
+  }
+  const top = [...per.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+  return {
+    title: "Where the money goes — " + periodTitle(view),
+    body: ["The biggest categories, planned entries included:"],
+    figs: top.map(([id, amt]) => askFig(catOf(id).n + " · " + Math.round(amt / total * 100) + "%", fmt(amt, id))),
+    sum: ["All expenses", fmt(total)],
+    after: [per.size > top.length ? (per.size - top.length) + " smaller categories make up the rest." : ""],
+    acts: [["As a chart", () => askGoReport({ kind:"expense", range:"month", basis:"period", tab:"chart" })]]
+  };
+}
+
+function askStillToPay(){
+  const rows = periodTxns(view).filter(t => t.type === "expense" && t.status !== "done")
+    .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  if (!rows.length){
+    return { title:"Nothing left to pay", body:["Every expense entered for " + periodTitle(view) + " has been ticked off."], figs:[], acts:[] };
+  }
+  let total = 0;
+  rows.forEach(t => { total += t.amount; });
+  return {
+    title: "Still to pay — " + fmt(total),
+    body: [rows.length + (rows.length === 1 ? " expense" : " expenses") + " in " + periodTitle(view) + " not ticked off yet, soonest first:"],
+    figs: rows.slice(0, 8).map(t => askFig(dayTitle(t.date) + " · " + (t.note || catOf(t.category).n) + askBadge(t), fmt(t.amount, t.category))),
+    sum: ["Still to pay", fmt(total)],
+    after: [rows.length > 8 ? "And " + (rows.length - 8) + " more." : "",
+            "Tick the circle on a row in வரவு செலவு once it has gone out."],
+    acts: [["See them", () => { sheetClose(); typeFilter = null; filter = "planned"; setPanel("entries"); render(); }]]
+  };
+}
+
+function askComing(){
+  const today = todayISO(), to = addDays(today, 7), since = addDays(today, -45);
+  const open = state.txns.filter(t => t.status !== "done" && !isTransfer(t) && txnShown(t));
+  const soon = open.filter(t => t.date >= today && t.date <= to)
+    .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  const late = open.filter(t => t.date < today && t.date >= since);
+  let inn = 0, out = 0;
+  soon.forEach(t => { if (t.type === "income") inn += t.amount; else out += t.amount; });
+  return {
+    title: soon.length ? "The next 7 days — " + soon.length + (soon.length === 1 ? " entry" : " entries") : "Nothing due in the next 7 days",
+    body: [soon.length ? "Planned entries dated today to " + prettyDate(to) + ":" : "No planned entry is dated between today and " + prettyDate(to) + "."],
+    figs: soon.slice(0, 10).map(t => askFig(dayTitle(t.date) + " · " + (t.note || catOf(t.category).n) + askBadge(t),
+                                            (t.type === "income" ? "+" : "−") + fmt(t.amount, t.category))),
+    sum: soon.length ? ["Coming in / going out", fmt(inn) + " / " + fmt(out)] : null,
+    after: [late.length ? late.length + (late.length === 1 ? " planned entry is" : " planned entries are") +
+                          " dated in the past and still not ticked off — worth a look in வரவு செலவு under Planned." : ""],
+    acts: [["Planned entries", () => { sheetClose(); typeFilter = null; filter = "planned"; setPanel("entries"); render(); }]]
+  };
+}
+
+function askVsLast(){
+  const prev = shiftPeriod(view, -1);
+  const a = monthTotals(view), b = monthTotals(prev);
+  const d = a.exp - b.exp;
+  /* the category that moved most, which is usually the answer to "why" */
+  const per = new Map();
+  const add = (p, sign) => periodTxns(p).forEach(t => {
+    if (t.type === "expense") per.set(t.category, (per.get(t.category) || 0) + sign * t.amount);
+  });
+  add(view, 1); add(prev, -1);
+  const moved = [...per.entries()].filter(e => e[1]).sort((x, y) => Math.abs(y[1]) - Math.abs(x[1]))[0];
+  return {
+    title: "Expenses " + (d > 0 ? "up " + fmt(d) : d < 0 ? "down " + fmt(-d) : "level") + " on last period",
+    body: [periodTitle(view) + " against " + periodTitle(prev) + ", planned entries included:"],
+    figs: [askFig("Income · this period", fmt(a.inc)), askFig("Income · last period", fmt(b.inc)),
+           askFig("Expenses · this period", fmt(a.exp)), askFig("Expenses · last period", fmt(b.exp))],
+    after: [moved ? "The biggest change is " + catOf(moved[0]).n + ", " + (moved[1] > 0 ? "up " : "down ") +
+                    fmt(Math.abs(moved[1]), moved[0]) + "." : ""],
+    acts: [["Months side by side", () => askGoReport({ kind:"expense", range:"last12", basis:"period", tab:"table" })]]
+  };
+}
+
+function askHealth(){
+  const { inc, exp } = monthTotals(view);
+  const band = healthBand(inc, exp);
+  const pct = inc > 0 ? Math.round((inc - exp) / inc * 100) : null;
+  return {
+    title: "Period health — " + HEALTH_LABEL[band],
+    body: [pct === null
+      ? "No income is entered for " + periodTitle(view) + " yet, so there is nothing to measure it against."
+      : periodTitle(view) + " keeps " + pct + "% of its income: " + fmt(inc) + " in, " + fmt(exp) + " out."],
+    figs: [askFig("Red · Overspent", "more out than in"), askFig("Orange · Thin buffer", "under 5% kept"),
+           askFig("Yellow · Comfortable", "5–15% kept"), askFig("Green · Healthy", "15% or more kept")],
+    after: ["The strip shows this period in the middle with two either side, planned entries included. Tap one to open that period."],
+    acts: []
+  };
+}
+
+/* ---------- how to do things ----------
+   Steps, where they happen, and a button that goes there. Written from the
+   screens as they are, so a label named in a step is one you can find. */
+function howTo(title, where, steps, after, acts){
+  return () => ({ title:title, where:where, steps:steps, after:after || [], figs:[], acts:acts || [] });
+}
+const ASK_GO = {
+  entry: type => () => { sheetClose(); openEntry(null, type); },
+  settings: pane => () => {
+    sheetClose(); openSettings();
+    if (pane === "feedback") fbReset();
+    if (pane) showSetPane(pane);
+  },
+  rules: () => { sheetClose(); renderRules(); sheetOpen("#shRules"); },
+  budgets: () => { sheetClose(); openBudgetEditor(); },
+  panel: p => () => { sheetClose(); typeFilter = null; setPanel(p); render(); window.scrollTo({ top:0 }); },
+  more: () => { sheetClose(); openMore(); },
+  notes: () => { sheetClose(); openNotes(); },
+  imp: () => { sheetClose(); $("#btnImport").click(); },
+  scan: () => { sheetClose(); setPanel("shop"); $("#shopScan").click(); },
+  pick: () => { sheetClose(); setPanel("shop"); $("#shopPick").click(); },
+  report: () => askGoReport({ tab:"chart" })
+};
+
+/* ---------- the reports, one tap away ---------- */
+function askRep(o, label, word){
+  return () => ({
+    title: label + (word ? ", " + word : ""),
+    body: ["Opening Reports on " + label.charAt(0).toLowerCase() + label.slice(1) + (word ? " for " + word : "") +
+           ", so the answer is the screen rather than a number here."],
+    figs: [],
+    acts: [["Show me", () => askGoReport(Object.assign({ tab:"table" }, o))],
+           ["As a chart", () => askGoReport(Object.assign({}, o, { tab:"chart" }))]]
+  });
+}
+
 /* ---------- the table of topics ----------
    Matched by the phrases a question contains; the longest match wins, so
    "planned expense" beats "expense" without either needing to know about the
-   other. */
-const ASK_TOPICS = [
-  { q:"Explain \u201cIn the account now\u201d", chip:true,
-    words:["in the account", "account now", "how much do i have", "how much money", "my balance", "total balance"],
-    build:askBalance },
-  { q:"Explain Net this period", chip:true,
-    words:["net this period", "net", "left over this period"], build:askNet },
-  { q:"Planned against actual", chip:true,
-    words:["money in money out", "money in, money out", "planned against actual", "planned vs actual", "planned expense"],
-    build:askMoneyInOut },
-  { q:"Expenses paid so far", words:["paid so far", "how much have i paid", "still to pay"], build:askPaidSoFar },
-  { q:"This month's expenses", chip:true,
-    words:["this month expenses", "this month's expenses", "expenses this month", "spending this month", "what did i spend"],
-    build:askReport("expense", "Expenses", "month", "this period") },
-  { q:"This year's expenses",
-    words:["this year", "expenses this year", "spending this year", "last 12 months", "twelve months"],
-    build:askReport("expense", "Expenses", "last12", "the last twelve months") },
-  { q:"Income this period", words:["income this month", "income this period", "what came in", "my income"],
-    build:askReport("income", "Income", "month", "this period") },
-  { q:"Transfers", words:["transfer"], build:askReport("transfer", "Transfers", "month", "this period") },
-  { q:"Why is my budget over?", chip:true,
-    words:["budget over", "why is my budget", "budget", "envelope", "how much is left"], build:askBudgets },
-  { q:"When is payday?", chip:true, words:["payday", "pay day", "salary", "when do i get paid"], build:askPayday },
-  { q:"Why the 15th to the 14th?", chip:true,
-    words:["15th", "14th", "period", "why does my month", "budget period"], build:askPeriods },
-  { q:"What do M and A mean?", chip:true, words:["m and a", "what does a mean", "what does m mean", "badge", "automatic", "manual"],
-    build:askMA },
-  { q:"What does Planned count?", words:["what is planned", "what does planned", "planned mean", "recurring"],
-    build:askPlannedMeans },
-  { q:"How do snapshots work?", chip:true, words:["snapshot", "starting balance", "baseline"], build:askSnapshots }
+   other. Every topic is also a chip in the row of its group, and a line in
+   the suggestions as you type — so what can be asked is always on show. */
+const ASK_GROUPS = [
+  { id:"explain", label:"Explain" },
+  { id:"report",  label:"Reports" },
+  { id:"howto",   label:"How to" }
 ];
+const ASK_TOPICS = [
+  /* --- explain: the figures on the dashboard, and the ideas behind them --- */
+  { g:"explain", q:"Explain “In the account now”",
+    words:["in the account", "account now", "how much do i have", "how much money", "my balance", "total balance", "bank balance"],
+    build:askBalance },
+  { g:"explain", q:"Explain Net this period", words:["net this period", "net", "left over this period", "saved this period"], build:askNet },
+  { g:"explain", q:"What's still to pay?", words:["still to pay", "left to pay", "unpaid", "not paid yet", "bills left", "what do i owe"],
+    build:askStillToPay },
+  { g:"explain", q:"What's due in the next 7 days?", words:["next 7 days", "next week", "coming up", "upcoming", "due soon", "what is due"],
+    build:askComing },
+  { g:"explain", q:"Where does the money go?", words:["where does the money go", "where did the money go", "biggest expenses", "top spending", "spend most", "top categories"],
+    build:askTopSpend },
+  { g:"explain", q:"Compare with last period", words:["last period", "compare", "compared", "previous month", "last month", "more than last"],
+    build:askVsLast },
+  { g:"explain", q:"Planned against actual", words:["money in money out", "money in, money out", "planned against actual", "planned vs actual", "planned expense"],
+    build:askMoneyInOut },
+  { g:"explain", q:"Explain the Income tile", words:["income tile", "still expected", "income this period explained"], build:askIncomeTile },
+  { g:"explain", q:"Explain the Expenses tile", words:["expenses tile", "expense tile", "expenses explained"], build:askExpenseTile },
+  { g:"explain", q:"Expenses paid so far", words:["paid so far", "how much have i paid", "paid bar"], build:askPaidSoFar },
+  { g:"explain", q:"Why is my budget over?", words:["budget over", "why is my budget", "over budget", "budget", "envelope", "how much is left"],
+    build:askBudgets },
+  { g:"explain", q:"What do the health colours mean?", words:["period health", "health", "colours", "colors", "red orange", "green dot"],
+    build:askHealth },
+  { g:"explain", q:"When is payday?", words:["payday", "pay day", "salary day", "when do i get paid", "days to payday"], build:askPayday },
+  { g:"explain", q:"Why the 15th to the 14th?", words:["15th", "14th", "why does my month", "budget period", "period start"], build:askPeriods },
+  { g:"explain", q:"What do M and A mean?", words:["m and a", "what does a mean", "what does m mean", "badge", "automatic or manual"], build:askMA },
+  { g:"explain", q:"What does Planned count?", words:["what is planned", "what does planned", "planned mean", "recurring expenses"], build:askPlannedMeans },
+  { g:"explain", q:"How do snapshots work?", words:["how do snapshots", "snapshots work", "starting balance", "baseline"], build:askSnapshots },
+
+  /* --- reports: opened already filtered --- */
+  { g:"report", q:"This period's expenses", words:["this month expenses", "this month's expenses", "expenses this month", "spending this month", "what did i spend", "this period's expenses", "expenses this period"],
+    build:askRep({ kind:"expense", range:"month", basis:"period" }, "Expenses", "this period") },
+  { g:"report", q:"This period's income", words:["income this month", "income this period", "what came in", "my income"],
+    build:askRep({ kind:"income", range:"month", basis:"period" }, "Income", "this period") },
+  { g:"report", q:"Everything this period", words:["everything this period", "all entries this period", "all this month"],
+    build:askRep({ kind:"all", range:"month", basis:"period" }, "Everything", "this period") },
+  { g:"report", q:"Planned this period", words:["planned this period", "planned this month", "recurring this month"],
+    build:askRep({ kind:"planned", range:"month", basis:"period" }, "Planned expenses", "this period") },
+  { g:"report", q:"Manual bills (M)", words:["manual bills", "bills i pay myself", "manual only"],
+    build:askRep({ kind:"planned", pm:"manual", range:"month", basis:"period" }, "Manual bills (M)", "this period") },
+  { g:"report", q:"Automatic bills (A)", words:["automatic bills", "direct debits", "standing orders", "automatic only"],
+    build:askRep({ kind:"planned", pm:"auto", range:"month", basis:"period" }, "Automatic bills (A)", "this period") },
+  { g:"report", q:"Transfers this period", words:["transfer"],
+    build:askRep({ kind:"transfer", range:"month", basis:"period" }, "Transfers", "this period") },
+  { g:"report", q:"This week's expenses", words:["this week", "expenses this week", "spent this week"],
+    build:askRep({ kind:"expense", range:"week" }, "Expenses", "this week") },
+  { g:"report", q:"This year's expenses", words:["this year", "expenses this year", "spending this year", "year so far"],
+    build:askRep({ kind:"expense", range:"year" }, "Expenses", "this year so far") },
+  { g:"report", q:"Last 12 months of expenses", words:["last 12 months", "twelve months", "past year", "expenses last year"],
+    build:askRep({ kind:"expense", range:"last12" }, "Expenses", "the last twelve months") },
+  { g:"report", q:"Last 12 months of income", words:["income last 12 months", "income last year", "income this year"],
+    build:askRep({ kind:"income", range:"last12" }, "Income", "the last twelve months") },
+  { g:"report", q:"Calendar months report", words:["calendar months", "calendar month", "1st to 31st", "normal months"],
+    build:askRep({ kind:"all", range:"last12", basis:"calendar" }, "Everything by calendar month", "the last twelve months") },
+
+  /* --- how to: every feature, step by step --- */
+  { g:"howto", q:"Add an expense", words:["add an expense", "add expense", "new expense", "log an expense", "enter an expense", "record spending"],
+    build:howTo("Add an expense", "+ › Expense", [
+      "Tap the + at the bottom right, then Expense.",
+      "Type the amount and a description.",
+      "Pick a category, and the account it was paid from.",
+      "Set the date. Leave Status on Paid if the money has gone, or pick Planned if it is still to come.",
+      "Tap Save entry."],
+      ["A Planned entry counts in the period's totals but not in the account balance until you tick it off."],
+      [["New expense", ASK_GO.entry("expense")]]) },
+  { g:"howto", q:"Add income", words:["add income", "new income", "log income", "record salary", "enter income"],
+    build:howTo("Add income", "+ › Income", [
+      "Tap the + at the bottom right, then Income.",
+      "Type the amount and a description.",
+      "Pick a category, and the account it was paid into.",
+      "Set the date and Status, then tap Save entry."],
+      ["Salary that arrives every month is better as a recurring entry — then payday is counted for you."],
+      [["New income", ASK_GO.entry("income")]]) },
+  { g:"howto", q:"Record a transfer", words:["record a transfer", "add a transfer", "move money", "between accounts", "new transfer"],
+    build:howTo("Record a transfer", "+ › Transfer", [
+      "Tap the + at the bottom right, then Transfer.",
+      "Type the amount, and pick the account it came from and the account it went to.",
+      "Set the date and tap Save entry."],
+      ["A transfer is your own money moving, so it counts as neither income nor expense on the dashboard — but each account's balance moves with it."],
+      [["New transfer", ASK_GO.entry("transfer")]]) },
+  { g:"howto", q:"Edit or delete an entry", words:["edit an entry", "change an entry", "delete an entry", "remove an entry", "wrong amount", "fix an entry"],
+    build:howTo("Edit or delete an entry", "வரவு செலவு › tap the entry", [
+      "Open the வரவு செலவு tab and find the entry (◀ ▶ at the top moves between periods).",
+      "Tap the entry to open it.",
+      "Change what needs changing and tap Save entry — or tap Delete this entry at the bottom."],
+      ["Deleting asks first and names the entry, its amount and date."],
+      [["Open வரவு செலவு", ASK_GO.panel("entries")]]) },
+  { g:"howto", q:"Mark an entry as paid", words:["mark as paid", "tick off", "mark paid", "paid it", "tick an entry", "mark as planned"],
+    build:howTo("Mark an entry as paid", "வரவு செலவு › the circle on a row", [
+      "Open the வரவு செலவு tab.",
+      "Tap the circle at the right-hand end of the entry's row — it fills green.",
+      "Tapped by mistake? Tap it again and it goes back to Planned."],
+      ["Only ticked-off entries move “In the account now”. The Planned tab at the top lists everything not ticked yet."],
+      [["Open வரவு செலவு", ASK_GO.panel("entries")]]) },
+  { g:"howto", q:"See only planned or paid entries", words:["only planned", "only paid", "filled entries", "filter entries", "planned tab"],
+    build:howTo("See only planned or paid entries", "வரவு செலவு › All · Planned · Filled · Transfers", [
+      "Open the வரவு செலவு tab.",
+      "Use the tabs across the top: All, Planned (still to come), Filled (settled) or Transfers.",
+      "On the dashboard, the Income and Expenses tiles open the entries of just that kind — clear the pill to see everything again."],
+      [], [["Open வரவு செலவு", ASK_GO.panel("entries")]]) },
+  { g:"howto", q:"Add a recurring entry", words:["recurring entry", "repeating entry", "add rent", "add salary", "monthly bill", "subscription", "standing order"],
+    build:howTo("Add a recurring entry", "More › Settings › Recurring entries › +", [
+      "Open More › Settings › Recurring entries and tap +.",
+      "Pick Expense, Income or Transfer, then the amount, description and category.",
+      "Choose the account under Paid from, and how often it Repeats.",
+      "Under Taken how, pick Automatic if the bank takes it by itself, or Manual if you pay it yourself.",
+      "Set Starting from and tap Save recurring entry."],
+      ["Its occurrences appear as planned entries twelve months ahead, marked A or M. A repeating income is also where the payday countdown comes from."],
+      [["Recurring entries", ASK_GO.rules]]) },
+  { g:"howto", q:"Pause or delete a recurring entry", words:["pause a recurring", "stop a recurring", "delete a recurring", "cancel subscription", "end a bill"],
+    build:howTo("Pause or delete a recurring entry", "More › Settings › Recurring entries", [
+      "Open More › Settings › Recurring entries.",
+      "Tap the one you want.",
+      "Tap Pause this entry to stop it for now, or Delete this recurring entry to remove it."],
+      ["Deleting asks first and says how many planned occurrences go with it. Entries already ticked off stay."],
+      [["Recurring entries", ASK_GO.rules]]) },
+  { g:"howto", q:"Make a bill Automatic or Manual", words:["make it automatic", "make it manual", "change to automatic", "taken how", "direct debit"],
+    build:howTo("Make a bill Automatic or Manual", "Recurring entries › the entry › Taken how", [
+      "Open More › Settings › Recurring entries and tap the bill.",
+      "Under Taken how, choose Automatic (the bank takes it) or Manual (you pay it).",
+      "Tap Save recurring entry."],
+      ["Its entries then carry a green A or an amber M, and Reports › Planned can show either on its own."],
+      [["Recurring entries", ASK_GO.rules]]) },
+  { g:"howto", q:"Change the payday countdown", words:["payday countdown", "change payday", "welcome screen", "salary date"],
+    build:howTo("Change the payday countdown", "More › Settings › Recurring entries", [
+      "The countdown reads your repeating income — usually Salary.",
+      "Open More › Settings › Recurring entries and tap it.",
+      "Correct the amount, Repeats or Starting from, and tap Save recurring entry."],
+      ["No repeating income means no countdown. It shows once each time the app is opened."],
+      [["Recurring entries", ASK_GO.rules]]) },
+  { g:"howto", q:"Add a category", words:["add a category", "new category", "create category", "custom category", "delete a category"],
+    build:howTo("Add a category", "+ › Expense or Income › New category", [
+      "Tap + and choose Expense or Income.",
+      "At the end of the category list, tap the dashed New category chip.",
+      "Type a name and tap +. Your categories are listed underneath."],
+      ["It works everywhere the built-in ones do. A category that entries still use cannot be deleted until they are moved to another."],
+      [["New expense", ASK_GO.entry("expense")]]) },
+  { g:"howto", q:"Hide a category", words:["hide a category", "hide category", "keep a category off", "private category", "show a hidden category"],
+    build:howTo("Hide a category", "More › Settings › Notifications › Keep a category off the screen", [
+      "Open More › Settings › Notifications.",
+      "Under Keep a category off the screen, tap the category.",
+      "Tap it again to bring it back."],
+      ["A hidden category leaves the dashboard, reports and totals. Bringing a hidden income category back asks your security question."],
+      [["Open Notifications", ASK_GO.settings("prefs")]]) },
+  { g:"howto", q:"Set a budget", words:["set a budget", "add a budget", "create a budget", "edit budgets", "change a budget"],
+    build:howTo("Set a budget", "Dashboard › Budget › Edit budgets", [
+      "On the dashboard, open the Budget panel and tap Edit budgets (Set budgets if you have none yet).",
+      "Pick a category and tap +.",
+      "Type what you allow per period, and tap Save budgets."],
+      ["A budget suits spending bit by bit, like groceries. A fixed bill on a known date is better as a recurring entry."],
+      [["Edit budgets", ASK_GO.budgets]]) },
+  { g:"howto", q:"Set a budget as a % of income", words:["percent of income", "% of income", "percentage budget", "budget percent"],
+    build:howTo("Set a budget as a % of income", "Edit budgets › € / %", [
+      "Open Edit budgets on the dashboard's Budget panel.",
+      "Under A % budget is a % of, pick the income it is measured against — Salary, say.",
+      "On a budget's row, switch € to % and type the percentage. The amount already there is converted, not cleared.",
+      "Tap Save budgets."],
+      ["The budget then follows your income each period, and the card shows each one as % of Income."],
+      [["Edit budgets", ASK_GO.budgets]]) },
+  { g:"howto", q:"Make a catch-all budget", words:["catch-all", "catch all", "everything else counts against", "buffer budget"],
+    build:howTo("Make a catch-all budget", "Edit budgets › Everything else counts against", [
+      "Open Edit budgets on the dashboard's Budget panel.",
+      "Under Everything else counts against, pick the budget to act as the cushion — a Buffer, say.",
+      "Tap Save budgets."],
+      ["Any expense that is not a recurring bill and has no budget of its own is drawn from it, while keeping its own category on the entry."],
+      [["Edit budgets", ASK_GO.budgets]]) },
+  { g:"howto", q:"Log a spend against a budget", words:["spend against a budget", "quick spend", "add to budget", "log a spend"],
+    build:howTo("Log a spend against a budget", "Dashboard › Budget › tap a category", [
+      "On the dashboard's Budget panel, tap the category.",
+      "Type the amount and an optional note, and tap the arrow."],
+      ["It adds a paid expense dated today in that category. Every spend against the budget is listed underneath."],
+      [["Open the dashboard", ASK_GO.panel("dash")]]) },
+  { g:"howto", q:"Add an account", words:["add an account", "new account", "add a bank", "add a card", "add cash"],
+    build:howTo("Add an account", "More › Settings › Accounts", [
+      "Open More › Settings › Accounts.",
+      "Type the account's name, e.g. Commerzbank.",
+      "Pick its type and tap Add account."],
+      ["An account still attached to entries cannot be removed until those entries are moved."],
+      [["Open Accounts", ASK_GO.settings("accounts")]]) },
+  { g:"howto", q:"Take a balance snapshot", words:["take a snapshot", "balance snapshot", "set starting balance", "update balance", "correct the balance"],
+    build:howTo("Take a balance snapshot", "More › Settings › Accounts › Starting balance", [
+      "Open More › Settings › Accounts and scroll to Starting balance.",
+      "Type what each account holds. Leave a row blank to pass over it — a credit card, usually.",
+      "Set Balances are as of, and tap Save balances."],
+      ["Each account is then counted forward from its own snapshot, so a new one is a clean start for that account."],
+      [["Open Accounts", ASK_GO.settings("accounts")]]) },
+  { g:"howto", q:"Delete a snapshot", words:["delete a snapshot", "remove a snapshot", "old snapshot"],
+    build:howTo("Delete a snapshot", "More › Settings › Accounts › saved snapshots", [
+      "Open More › Settings › Accounts and scroll below Save balances.",
+      "Tap the ✕ on the snapshot you want gone, and confirm."],
+      ["A saved snapshot is a record of a baseline already replaced, so deleting one changes no balance."],
+      [["Open Accounts", ASK_GO.settings("accounts")]]) },
+  { g:"howto", q:"Import a bank statement", words:["import", "bank statement", "csv", "commerzbank", "deutsche bank", "upload statement"],
+    build:howTo("Import a bank statement", "More › Settings › Data & backup › Import CSV", [
+      "Export a CSV from your bank — Commerzbank: Umsätze › Exportieren als CSV; Deutsche Bank: Umsätze › Export › CSV.",
+      "Open More › Settings › Data & backup and tap Import CSV….",
+      "Choose the file, or paste its text and tap Read pasted text.",
+      "Untick anything you don't want, and tap Import selected."],
+      ["Rows you have imported before are recognised, so importing the same statement twice does not double it."],
+      [["Import CSV", ASK_GO.imp]]) },
+  { g:"howto", q:"Make a shopping list", words:["shopping list", "add items", "grocery list", "shopping cart", "add to list"],
+    build:howTo("Make a shopping list", "Shopping cart › Add items", [
+      "Open the Shopping cart tab and pick German stores or Indian stores.",
+      "Tap Add items, then tap the staples you need — or type one that isn't there and tap +.",
+      "Back on the list, type a quantity beside an item if you like — 2, 1kg, 500g."],
+      ["Taking an item off the list does not ask first; it is a scratch pad."],
+      [["Add items", ASK_GO.pick]]) },
+  { g:"howto", q:"Save a purchase", words:["save a purchase", "finish shopping", "total bill", "log groceries"],
+    build:howTo("Save a purchase", "Shopping cart › Save purchase", [
+      "Tick the items you bought as you go.",
+      "Fill in the Total bill, Purchased on and Paid from.",
+      "Keep Also log it as a groceries expense ticked to post it to the ledger.",
+      "Tap Save purchase."],
+      ["Anything not ticked stays on the list for next time. The purchase appears under Recent purchases."],
+      [["Open Shopping cart", ASK_GO.panel("shop")]]) },
+  { g:"howto", q:"Scan a receipt", words:["scan a receipt", "receipt", "photo of receipt", "read receipt"],
+    build:howTo("Scan a receipt", "Shopping cart › Scan receipt", [
+      "Open the Shopping cart tab and tap Scan receipt.",
+      "Tap Capture or select photo, drag the box over the item lines and tap Read this area — or paste the receipt's text.",
+      "Check the text, then tap Read receipt.",
+      "Look over what was matched and tap Apply prices."],
+      ["It is read on the phone itself; nothing is uploaded. The Total bill is filled in from the lines."],
+      [["Scan receipt", ASK_GO.scan]]) },
+  { g:"howto", q:"Reuse a saved shop", words:["reuse a shop", "saved list", "same shopping again", "bookmark a shop"],
+    build:howTo("Reuse a saved shop", "Shopping cart › Recent purchases", [
+      "Under Recent purchases, open the shop.",
+      "Tick Save this shop as a list I can reuse, and name it if you like.",
+      "Next time, tap Add items — the saved list is at the top, and one tap puts everything back."],
+      ["Correcting a saved shop's total or account there updates its groceries entry too."],
+      [["Open Shopping cart", ASK_GO.panel("shop")]]) },
+  { g:"howto", q:"Show or hide amounts", words:["hide amounts", "show amounts", "eye", "dots instead", "why are amounts hidden", "privacy"],
+    build:howTo("Show or hide amounts", "The eye in the top bar", [
+      "Tap the eye at the top right. Amounts show; tap again and they become ••••.",
+      "Reports has its own eye in its header, which flips the same setting."],
+      ["The choice is remembered. Exports refuse while amounts are hidden, rather than print dots."],
+      []) },
+  { g:"howto", q:"Move to another period", words:["previous period", "next period", "go back a month", "another month", "back to today", "change period"],
+    build:howTo("Move to another period", "◀ ▶ beside the period's name", [
+      "Tap ◀ or ▶ either side of the period at the top.",
+      "Tap the period's name, or Today, to come back to now.",
+      "Tapping பணப்பை at the top left also brings you back to this period's dashboard."],
+      ["Period health's chips go straight to a period too."],
+      []) },
+  { g:"howto", q:"Fold a dashboard panel", words:["fold", "collapse", "hide a panel", "expand a panel", "fold panel"],
+    build:howTo("Fold a dashboard panel", "Tap a panel's title", [
+      "Tap the title of Money in, money out; Budget; Period health; or Where the money goes.",
+      "Tap it again to open it."],
+      ["Folded panels stay folded the next time you open the app."],
+      []) },
+  { g:"howto", q:"Hide the helper or the +", words:["hide the bubble", "hide the helper", "hide the plus", "tuck", "arrow at the edge", "bring back the plus"],
+    build:howTo("Hide the helper or the +", "Swipe it off its edge", [
+      "Swipe the helper bubble to the left, or the + to the right.",
+      "A small arrow is left at that edge — tap it to bring the button back."],
+      ["Remembered on this phone."],
+      []) },
+  { g:"howto", q:"Open a report", words:["open a report", "open reports", "where are reports", "use reports"],
+    build:howTo("Open a report", "More › Reports", [
+      "Tap More, then Reports.",
+      "Pick the stretch: This week, This month, Last 12 months, This year, or Flex for your own dates.",
+      "Narrow it with the kind chips, the category and account rows, or the search box.",
+      "Switch between Chart and Details."],
+      ["The ✕ beside the kind chips clears every filter at once."],
+      [["Open Reports", ASK_GO.report]]) },
+  { g:"howto", q:"Filter a report by category or account", words:["filter by category", "filter by account", "one category report", "report for an account"],
+    build:howTo("Filter a report by category or account", "Reports › category and account rows", [
+      "Open More › Reports.",
+      "Slide the category row and tap one or more; do the same on the account row.",
+      "Tap a chip again to drop it, or ✕ to clear everything."],
+      ["Seen from one account, a transfer counts as money in or out of that account."],
+      [["Open Reports", ASK_GO.report]]) },
+  { g:"howto", q:"Count reports by calendar month", words:["calendar or 15th", "counted by", "switch to calendar", "1st to 31st report"],
+    build:howTo("Count reports by calendar month", "Reports › Counted by", [
+      "Open More › Reports and pick This month or This year.",
+      "Under Counted by, tap Calendar for 1st–31st, or 15th–14th to match the dashboard."],
+      ["A week or Flex dates have only one reading, so the switch hides for those."],
+      [["Open Reports", ASK_GO.report]]) },
+  { g:"howto", q:"Use the pie chart", words:["pie chart", "tap a slice", "chart slice", "see these entries"],
+    build:howTo("Use the pie chart", "Reports › Chart", [
+      "Open More › Reports and tap Chart.",
+      "Tap a slice, or its name in the legend, to light it up and see its amount, share and entries.",
+      "Tap See these entries to jump to the table filtered to it; tap the slice again to clear."],
+      ["With Planned on, the chart is drawn against your income, and the green Remaining slice is what no plan claims."],
+      [["Open Reports", ASK_GO.report]]) },
+  { g:"howto", q:"Export a report as PDF", words:["pdf", "print", "export pdf", "save report"],
+    build:howTo("Export a report as PDF", "Reports › Export PDF", [
+      "Open More › Reports and set it up as you want it.",
+      "Make sure amounts are showing (the eye in the report's header).",
+      "Tap Export PDF, then choose Save as PDF in the print dialog."],
+      ["The chart and the full table are both printed, whichever tab is on screen."],
+      [["Open Reports", ASK_GO.report]]) },
+  { g:"howto", q:"Export to Excel", words:["excel", "xlsx", "spreadsheet", "export excel"],
+    build:howTo("Export to Excel", "Reports › Export Excel", [
+      "Open More › Reports and filter it as you want.",
+      "Make sure amounts are showing.",
+      "Tap Export Excel."],
+      ["Dates arrive as dates and amounts as numbers, so SUM and pivot tables work."],
+      [["Open Reports", ASK_GO.report]]) },
+  { g:"howto", q:"Set an app lock PIN", words:["app lock", "set a pin", "pin", "lock the app", "passcode"],
+    build:howTo("Set an app lock PIN", "More › Settings › App lock", [
+      "Open More › Settings › App lock.",
+      "Tap Set a 4-digit PIN and enter it twice.",
+      "Fill in a Security question and answer, and tap Save security question."],
+      ["It asks again after five minutes idle and whenever the app is reopened."],
+      [["Open App lock", ASK_GO.settings("lock")]]) },
+  { g:"howto", q:"I forgot my PIN", words:["forgot my pin", "forgot pin", "reset pin", "locked out"],
+    build:howTo("I forgot my PIN", "Lock screen › Forgot PIN?", [
+      "On the lock screen, tap Forgot PIN?.",
+      "Answer your security question.",
+      "Set a new PIN."],
+      ["The PIN is never stored as itself, so it can't be shown back — the question is the way in."],
+      []) },
+  { g:"howto", q:"Encrypt the data on this phone", words:["encrypt", "encryption", "passphrase", "secure my data"],
+    build:howTo("Encrypt the data on this phone", "More › Settings › App lock › Encrypt this device", [
+      "Open More › Settings › App lock.",
+      "Tap Encrypt this device and choose a passphrase."],
+      ["The PIN hides the screen; this makes the stored data unreadable. Your passphrase or your security answer opens it — forgetting both is the end of the book, so keep a backup."],
+      [["Open App lock", ASK_GO.settings("lock")]]) },
+  { g:"howto", q:"Back up to GitHub", words:["github", "back up", "backup", "sync", "push now"],
+    build:howTo("Back up to GitHub", "More › Settings › GitHub sync", [
+      "Make a fine-grained GitHub token for one private repo, with Contents: Read and write.",
+      "Open More › Settings › GitHub sync and fill in the token, owner/repo and data path.",
+      "Tap Save & enable backup, then Push now.",
+      "Turn on Push on its own to back up after edits without thinking about it."],
+      ["Every push is a commit, so an earlier backup can always be restored."],
+      [["Open GitHub sync", ASK_GO.settings("github")]]) },
+  { g:"howto", q:"Restore an earlier backup", words:["restore", "earlier backup", "undo", "go back to a backup", "lost data"],
+    build:howTo("Restore an earlier backup", "More › Settings › GitHub sync › Restore an earlier backup", [
+      "Open More › Settings › GitHub sync.",
+      "Tap Restore an earlier backup… and pick the one you want."],
+      ["Without GitHub sync, a backup copied earlier can be pasted into Data & backup › Restore from pasted backup."],
+      [["Open GitHub sync", ASK_GO.settings("github")]]) },
+  { g:"howto", q:"Move to a new phone", words:["new phone", "another device", "move my data", "transfer data", "pull onto this device", "laptop"],
+    build:howTo("Move to a new phone", "Settings › GitHub sync › Pull onto this device", [
+      "On the new phone, open More › Settings › GitHub sync.",
+      "Enter the same token, repo and data path, and tap Save & enable backup.",
+      "Tap Pull onto this device."],
+      ["No GitHub? Data & backup › Copy backup to clipboard on the old phone, then paste it under Restore from pasted backup on the new one."],
+      [["Open GitHub sync", ASK_GO.settings("github")]]) },
+  { g:"howto", q:"Delete all entries", words:["delete all", "start over", "wipe", "erase everything", "reset the app"],
+    build:howTo("Delete all entries", "More › Settings › Data & backup › Delete all entries", [
+      "Back up first: Push now, or Copy backup to clipboard.",
+      "Open More › Settings › Data & backup.",
+      "Tap Delete all entries and confirm."],
+      ["It asks first and says what is about to go."],
+      [["Open Data & backup", ASK_GO.settings("data")]]) },
+  { g:"howto", q:"Clear the example data", words:["example data", "demo data", "clear examples", "start fresh"],
+    build:howTo("Clear the example data", "Dashboard › Clear examples & start fresh", [
+      "While the example book is showing, a banner on the dashboard says so.",
+      "Tap Clear examples & start fresh."],
+      ["The banner only appears while the examples are there."],
+      [["Open the dashboard", ASK_GO.panel("dash")]]) },
+  { g:"howto", q:"Turn on reminders", words:["reminders", "notifications", "notify", "remind me", "bell"],
+    build:howTo("Turn on reminders", "More › Settings › Notifications", [
+      "Open More › Settings › Notifications.",
+      "Turn on Recurring payment reminders for anything due in the next three days.",
+      "Turn on Notify this device for a phone notification the day before, and on the day."],
+      ["The bell at the top shows what is due, and its dot counts it."],
+      [["Open Notifications", ASK_GO.settings("prefs")]]) },
+  { g:"howto", q:"Switch to dark or light", words:["dark mode", "light mode", "theme", "night mode"],
+    build:howTo("Switch to dark or light", "More › System · Light · Dark", [
+      "Tap More.",
+      "Pick System, Light or Dark at the bottom."],
+      ["System follows the phone's own setting."],
+      [["Open More", ASK_GO.more]]) },
+  { g:"howto", q:"Update the app", words:["update the app", "new version", "update now", "latest version", "version"],
+    build:howTo("Update the app", "More › Settings › About › Update now", [
+      "When a new version is ready, More › What's new shows Update.",
+      "Open More › Settings › About and tap Update now."],
+      ["Running shows whether this phone has the latest copy or a cached older one."],
+      [["Open About", ASK_GO.settings("about")]]) },
+  { g:"howto", q:"See what's new", words:["what's new", "whats new", "release notes", "changes"],
+    build:howTo("See what's new", "More › What's new", [
+      "Tap More, then What's new.",
+      "Each version lists its changes — fixes, new things and improvements."],
+      [], [["What's new", ASK_GO.notes]]) },
+  { g:"howto", q:"Install on the home screen", words:["install", "home screen", "add to home screen", "app icon"],
+    build:howTo("Install on the home screen", "Dashboard › Install app", [
+      "On Android or a laptop, tap Install app on the dashboard's banner.",
+      "On an iPhone, open it in Safari, tap Share, then Add to Home Screen."],
+      ["Installed, it opens full screen and works offline."],
+      []) },
+  { g:"howto", q:"Send feedback or report a bug", words:["feedback", "report a bug", "bug", "idea", "suggestion"],
+    build:howTo("Send feedback or report a bug", "More › Settings › Feedback", [
+      "Open More › Settings › Feedback.",
+      "Tap Feedback for an idea, or Report a bug for something that went wrong.",
+      "Answer one question at a time and save."],
+      ["Kept on this phone and carried in your backup. Nothing is sent anywhere."],
+      [["Open Feedback", ASK_GO.settings("feedback")]]) },
+  { g:"howto", q:"Change my name", words:["change my name", "profile", "my email", "greeting"],
+    build:howTo("Change my name", "More › Settings › Your profile", [
+      "Open More › Settings › Your profile.",
+      "Fill in your first name, last name and email, and tap Save profile."],
+      ["Your first name greets you under the title."],
+      [["Open profile", ASK_GO.settings("profile")]]) }
+];
+
+/* ---------- suggestions as you type ----------
+   Every topic, plus one line per category you can ask about, each carrying
+   what it answers — so a suggestion picked is answered exactly, never
+   re-guessed from its own wording. */
+function askNorm(s){
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9%€\s]/g, " ").replace(/\s+/g, " ").trim();
+}
+function askIndex(){
+  const rows = ASK_TOPICS.map(t => ({ q:t.q, g:t.g, build:t.build, hay:askNorm(t.q + " " + t.words.join(" ")) }));
+  allCats("expense").forEach(c => {
+    if (!catShown(c.id)) return;
+    rows.push({ q:"Spent on " + c.n, g:"cat", build:askCategory([c], ""),
+                hay:askNorm("spent on spending how much " + c.n + " category this period") });
+  });
+  const period = { from:periodStart(view), to:periodEnd(view), label:periodTitle(view),
+                   range:periodTitle(view), month:false, rel:false };
+  allCats("income").forEach(c => {
+    if (!catShown(c.id)) return;
+    rows.push({ q:"Received as " + c.n, g:"cat", build:askQueryAnswer({ when:period, kind:"income", cats:[c], accts:[] }),
+                hay:askNorm("received income earned how much " + c.n + " category this period") });
+  });
+  accountsOf().forEach(a => {
+    rows.push({ q:"Spent from " + a.n, g:"acct", build:askQueryAnswer({ when:period, kind:"expense", cats:[], accts:[a] }),
+                hay:askNorm("spent from paid account how much " + a.n + " this period") });
+  });
+  return rows;
+}
+const ASK_TAG = { explain:"Explain", report:"Report", howto:"How to", cat:"Category", acct:"Account", search:"Search" };
+
+/**
+ * The suggestions for what is typed so far, best first.
+ *
+ * Every word typed has to start a word of the suggestion — the last one may
+ * be half-typed — so a suggestion is always something that answers. Words in
+ * the question itself count for more than its synonyms, and a question that
+ * begins with what was typed comes first.
+ *
+ * The words a question is phrased with — "how do I", "show me" — are not
+ * held against it. And when nothing takes every word, the closest are
+ * offered instead, by how many of the telling words they share, so a typo
+ * in one word still leaves somewhere to go.
+ */
+const ASK_FILLER = ["how", "do", "does", "i", "to", "a", "an", "the", "my", "can", "what", "whats", "is",
+  "are", "show", "me", "please", "want", "should", "where", "find", "for", "of", "in", "on", "it", "you"];
+function askSuggest(text, loosely){
+  const all = askNorm(text).split(" ").filter(Boolean);
+  if (!all.length) return [];
+  const telling = all.filter(w => ASK_FILLER.indexOf(w) === -1);
+  const words = telling.length ? telling : all;
+  const strict = [], loose = [];
+  askIndex().forEach(r => {
+    const qWords = askNorm(r.q).split(" ");
+    const hWords = r.hay.split(" ");
+    let score = 0, missed = 0;
+    for (const w of words){
+      if (qWords.some(x => x.startsWith(w))) score += 3;
+      else if (hWords.some(x => x.startsWith(w))) score += 1;
+      else missed++;
+    }
+    if (!missed){
+      if (askNorm(r.q).startsWith(all.join(" "))) score += 5;
+      strict.push({ r:r, score:score });
+    } else if (missed * 2 <= words.length && score >= 3){
+      /* close enough: most of the telling words, and one of them in the question itself */
+      loose.push({ r:r, score:score });
+    }
+  });
+  const best = list => list.sort((a, b) => b.score - a.score || a.r.q.length - b.r.q.length).slice(0, 7).map(x => x.r);
+  return strict.length ? best(strict) : loosely !== false ? best(loose) : [];
+}
+
+let askSugs = [], askPick = 0;
+function askRenderSugs(){
+  const host = $("#askAc");
+  const text = $("#askQ").value;
+  /* a question naming a month and something to count reads back as itself,
+     first — it is the most exact answer there is, and near misses beside it
+     would only be noise */
+  const parsed = askParse(text);
+  askSugs = askSuggest(text, !parsed);
+  if (parsed) askSugs = [{ q:askParseLabel(parsed), g:"search", build:askQueryAnswer(parsed) }].concat(askSugs).slice(0, 7);
+  host.innerHTML = "";
+  if (!text.trim()){ host.hidden = true; return; }
+  if (!askSugs.length){
+    host.appendChild(el("div", "askac-none", "Nothing matches — try fewer words, or pick from the rows below."));
+    host.hidden = false;
+    return;
+  }
+  askPick = Math.min(askPick, askSugs.length - 1);
+  askSugs.forEach((s, i) => {
+    const b = el("button", "askac-i");
+    b.type = "button";
+    b.setAttribute("role", "option");
+    b.setAttribute("aria-selected", String(i === askPick));
+    b.appendChild(el("span", "askac-q", s.q));
+    b.appendChild(el("span", "askac-t " + s.g, ASK_TAG[s.g]));
+    /* pointerdown, not click: the input would lose focus first and close the list */
+    b.addEventListener("pointerdown", e => { e.preventDefault(); askChoose(s); });
+    host.appendChild(b);
+  });
+  host.hidden = false;
+}
+function askChoose(s){
+  $("#askAc").hidden = true;
+  $("#askQ").blur();
+  askAnswer(s.q, s.build);
+}
+
+/* ---------- a question about a month, a category, an account ----------
+   "salary for Aug", "expense on Jan, 2025", "how much did I spend from
+   Commerzbank in Mar 2025". Read as three independent parts — when, what
+   kind or category, which account — so any combination works, and answered
+   from the ledger directly rather than from a topic. */
+const ASK_MONTHS = [
+  ["jan", "january", "januar"], ["feb", "february", "februar"], ["mar", "march", "marz", "maerz"],
+  ["apr", "april"], ["may", "mai"], ["jun", "june", "juni"], ["jul", "july", "juli"],
+  ["aug", "august"], ["sep", "sept", "september"], ["oct", "october", "okt", "oktober"],
+  ["nov", "november"], ["dec", "december", "dez", "dezember"]
+];
+const ASK_KIND_WORDS = {
+  income:   ["income", "incomes", "earned", "earn", "earning", "earnings", "received", "receive", "credited", "came"],
+  expense:  ["expense", "expenses", "spend", "spent", "spending", "paid", "pay", "cost", "costs", "bills", "outgoing"],
+  transfer: ["transfer", "transfers", "transferred", "moved"]
+};
+/* words too common to name a category or an account by */
+const ASK_STOP = ["show", "much", "how", "for", "the", "and", "from", "into", "with", "this", "last", "month",
+  "year", "total", "all", "what", "did", "was", "were", "bank", "account", "accounts", "category", "entries",
+  "money", "on", "in", "of", "my", "me", "get", "got", "give", "tell"];
+
+/** Calendar month or year a question names, or null. */
+function askWhen(words){
+  const today = todayISO();
+  const ty = +today.slice(0, 4), tm = +today.slice(5, 7);
+  let month = 0, year = 0, rel = false;
+  words.forEach(w => {
+    const m = ASK_MONTHS.findIndex(names => names.indexOf(w) > -1);
+    if (m > -1) month = m + 1;
+    if (/^(19|20)\d\d$/.test(w)) year = +w;
+  });
+  const said = words.join(" ");
+  if (!month && !year){
+    if (/\blast month\b/.test(said)){ month = tm === 1 ? 12 : tm - 1; year = tm === 1 ? ty - 1 : ty; }
+    else if (/\bthis month\b/.test(said)){ month = tm; year = ty; }
+    else if (/\blast year\b/.test(said)) year = ty - 1;
+    else if (/\bthis year\b/.test(said)) year = ty;
+    else return null;
+    rel = true;
+  }
+  /* a month on its own is the latest one that has begun */
+  if (month && !year) year = month > tm ? ty - 1 : ty;
+  if (month){
+    const ym = year + "-" + String(month).padStart(2, "0");
+    return { from:ym + "-01", to:lastDayOfMonth(ym), label:CAL_MONTHS[month - 1].slice(0, 3) + " " + year,
+             range:prettyDate(ym + "-01") + " – " + prettyDate(lastDayOfMonth(ym)), month:true, rel:rel };
+  }
+  return { from:year + "-01-01", to:year + "-12-31", label:String(year), range:"1 Jan – 31 Dec " + year, month:false, rel:rel };
+}
+
+/**
+ * The categories or accounts a question names. A whole name said as a phrase
+ * wins outright — "tf bank" is too short to find by its words — and otherwise
+ * the longest telling word, the way askMatch does it.
+ */
+function askNamed(list, said, words){
+  const whole = list.filter(x => (" " + said + " ").indexOf(" " + askNorm(x.n) + " ") > -1);
+  if (whole.length) return whole;
+  let best = 0, hits = [];
+  list.forEach(x => {
+    let hit = 0;
+    askNorm(x.n).split(" ").forEach(w => {
+      if (w.length >= 3 && ASK_STOP.indexOf(w) === -1 && words.indexOf(w) > -1) hit = Math.max(hit, w.length);
+    });
+    if (!hit) return;
+    if (hit > best){ best = hit; hits = [x]; }
+    else if (hit === best) hits.push(x);
+  });
+  return hits;
+}
+
+/** What a question asks for, or null when it names no stretch of time or nothing to count. */
+function askParse(text){
+  const said = askNorm(text);
+  const words = said.split(" ").filter(Boolean);
+  const when = askWhen(words);
+  if (!when) return null;
+  let kind = "";
+  Object.keys(ASK_KIND_WORDS).forEach(k => {
+    if (!kind && words.some(w => ASK_KIND_WORDS[k].indexOf(w) > -1)) kind = k;
+  });
+  /* a kind word is not also a category: "transfers in Aug" is not Bank Transfer */
+  const kindWords = [].concat(ASK_KIND_WORDS.income, ASK_KIND_WORDS.expense, ASK_KIND_WORDS.transfer);
+  const plain = words.filter(w => kindWords.indexOf(w) === -1);
+  const accts = askNamed(accountsOf(), said, plain);
+  const acctWords = accts.length ? askNorm(accts.map(a => a.n).join(" ")).split(" ") : [];
+  const catPool = (kind === "income" ? allCats("income") : kind === "expense" ? allCats("expense")
+                  : allCats("expense").concat(allCats("income"))).filter(c => catShown(c.id));
+  const cats = kind === "transfer" ? [] : askNamed(catPool, said, plain.filter(w => acctWords.indexOf(w) === -1));
+  if (!kind && !cats.length && !accts.length) return null;
+  /* "this month's expenses" already has a topic, counted 15th to 14th like the
+     dashboard; a relative month only comes here to name something narrower */
+  if (when.rel && !cats.length && !accts.length) return null;
+  return { when:when, kind:kind, cats:cats, accts:accts };
+}
+
+/** How a parsed question reads back, for the suggestion and the heading. */
+function askParseLabel(p){
+  const what = p.cats.length ? p.cats.map(c => c.n).join(" + ")
+    : p.kind === "income" ? "Income" : p.kind === "transfer" ? "Transfers"
+    : p.kind === "expense" || p.accts.length ? "Expenses" : "Everything";
+  const inOut = p.kind === "income" || (p.cats.length && p.cats.every(c => allCats("income").indexOf(c) > -1)) ? " into " : " from ";
+  return what + (p.accts.length ? inOut + p.accts.map(a => a.n).join(" + ") : "") + " · " + p.when.label;
+}
+
+function askQueryAnswer(p){
+  return () => {
+    const { from, to } = p.when;
+    const catIds = p.cats.map(c => c.id), acctIds = p.accts.map(a => a.id);
+    const kind = catIds.length ? "" : (p.kind || (acctIds.length ? "expense" : ""));
+    const rows = state.txns.filter(t => {
+      if (t.date < from || t.date > to || !txnShown(t)) return false;
+      if (catIds.length && catIds.indexOf(t.category) === -1) return false;
+      if (kind === "transfer" && !isTransfer(t)) return false;
+      if (kind && kind !== "transfer" && (isTransfer(t) || t.type !== kind)) return false;
+      if (!kind && !catIds.length && isTransfer(t)) return false;
+      if (acctIds.length){
+        /* a transfer leaves from one account and arrives in another; anything
+           else moved through the account it names */
+        if (isTransfer(t)) return acctIds.indexOf(t.account) > -1 || acctIds.indexOf(t.fromAccount) > -1;
+        return acctIds.indexOf(t.account) > -1;
+      }
+      return true;
+    }).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+
+    /* nothing narrower named than an account or a time: money in less money out */
+    const net = !kind && !catIds.length;
+    let total = 0, planned = 0;
+    rows.forEach(t => {
+      const sign = net ? (t.type === "income" ? 1 : -1) : 1;
+      total += sign * t.amount;
+      if (t.status !== "done") planned += t.amount;
+    });
+    const label = askParseLabel(p);
+    const range = p.when.range;
+    if (!rows.length){
+      return {
+        title: label + " — nothing",
+        body: ["No entries match for " + range + "."],
+        figs: [],
+        after: [state.txns.length ? "Your entries run from " + prettyDate(state.txns.reduce((m, t) => t.date < m ? t.date : m, state.txns[0].date)) + "." : ""],
+        acts: []
+      };
+    }
+    /* a handful of entries is best read as itself; many, by category */
+    let figs;
+    if (rows.length <= 8){
+      figs = rows.map(t => askFig(prettyDate(t.date) + " · " + (t.note || catOf(t.category).n) + askBadge(t) +
+                                  (t.status !== "done" ? " · planned" : ""),
+                                  (net ? (t.type === "income" ? "+" : "−") : "") + fmt(t.amount, t.category)));
+    } else if (net){
+      let inn = 0, out = 0;
+      rows.forEach(t => { if (t.type === "income") inn += t.amount; else out += t.amount; });
+      figs = [askFig("Money in", fmt(inn)), askFig("Money out", fmt(out))];
+    } else {
+      const per = new Map();
+      rows.forEach(t => per.set(t.category, (per.get(t.category) || 0) + t.amount));
+      figs = [...per.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6)
+        .map(([id, amt]) => askFig(kind === "transfer" ? "Transfers" : catOf(id).n, fmt(amt, id)));
+    }
+    return {
+      title: label + " — " + fmt(total),
+      body: [rows.length + (rows.length === 1 ? " entry" : " entries") + " from " + range +
+             (net ? ", money in less money out" : "") + "."],
+      figs: figs,
+      sum: [net ? "Net" : "Total", fmt(total)],
+      after: [planned ? fmt(planned) + " of it is still planned rather than settled." : "",
+              p.when.month ? "Counted by calendar month. Reports can count the same stretch 15th to 14th." : ""],
+      acts: [["Open in Reports", () => askGoReport({ kind: catIds.length ? "all" : (kind || "all"), cats:catIds, accts:acctIds,
+                                                      from:from, to:to, tab:"table" })],
+             ["As a chart", () => askGoReport({ kind: catIds.length ? "all" : (kind || "all"), cats:catIds, accts:acctIds,
+                                                 from:from, to:to, tab:"chart" })]]
+    };
+  };
+}
 
 /**
  * The topic a question is about, or null.
@@ -12829,7 +13713,13 @@ function askShow(a){
   host.innerHTML = "";
   const box = el("div", "askans");
   box.appendChild(el("h4", null, a.title));
+  if (a.where) box.appendChild(el("div", "askwhere", a.where));
   (a.body || []).forEach(p => box.appendChild(el("p", null, p)));
+  if ((a.steps || []).length){
+    const ol = el("ol", "asksteps");
+    a.steps.forEach(s => ol.appendChild(el("li", null, s)));
+    box.appendChild(ol);
+  }
   (a.figs || []).forEach(f => {
     const row = el("div", "askfig");
     row.appendChild(el("span", null, f.label));
@@ -12842,7 +13732,7 @@ function askShow(a){
     row.appendChild(el("span", null, a.sum[1]));
     box.appendChild(row);
   }
-  (a.after || []).filter(Boolean).forEach(p => box.appendChild(el("p", null, p)));
+  (a.after || []).filter(Boolean).forEach(p => box.appendChild(el("p", "askafter", p)));
   if ((a.acts || []).length){
     const acts = el("div", "askacts");
     (a.acts || []).forEach(([label, go]) => {
@@ -12854,19 +13744,30 @@ function askShow(a){
     box.appendChild(acts);
   }
   host.appendChild(box);
+  /* the answer is below the rows; bring it into view rather than leave it
+     under the fold of a long sheet */
+  requestAnimationFrame(() => box.scrollIntoView({ behavior:"smooth", block:"nearest" }));
 }
 
-function askAnswer(q){
+/**
+ * Answers a question. A chip or a suggestion arrives with the answer it
+ * stands for; free text is read first as a question about a month, then
+ * matched against the topics.
+ */
+function askAnswer(q, build){
   askLast = q;
   $("#askQ").value = q;
+  $("#askAc").hidden = true;
+  if (build){ askShow(build()); return; }
+  const parsed = askParse(q);
+  if (parsed){ askShow(askQueryAnswer(parsed)()); return; }
   const t = askMatch(q);
   if (!t){
     askShow({
       title: "I don't know that one",
-      body: ["I answer about this app and the figures in it. Try one of the questions above, or:"]
-        .concat(ASK_TOPICS.filter(x => x.chip).map(x => "· " + x.q)),
+      body: ["I answer about this app and the figures in it. Start typing and pick one of the suggestions, or slide the rows above."],
       figs: [],
-      after: ["Naming a category works too — \u201chow much on groceries\u201d."],
+      after: ["A month works with a category, an account or a kind: “salary for Aug”, “expenses in Jan 2025”, “spent from Commerzbank in Mar 2025”."],
       acts: []
     });
     return;
@@ -12874,17 +13775,35 @@ function askAnswer(q){
   askShow(t.build());
 }
 
+/** One row of chips per group, each sliding sideways when it has more than fits. */
+function askRenderRows(){
+  const host = $("#askChips");
+  host.innerHTML = "";
+  ASK_GROUPS.forEach(g => {
+    const line = el("div", "askline " + g.id);
+    line.appendChild(el("span", "asktag", g.label));
+    const row = el("div", "rp-chips slide");
+    ASK_TOPICS.filter(t => t.g === g.id).forEach(t => {
+      const b = el("button", null, t.q);
+      b.type = "button";
+      b.addEventListener("click", () => askAnswer(t.q, t.build));
+      row.appendChild(b);
+    });
+    /* the fade at the end says there is more; once at the end, it goes */
+    const edge = () => line.classList.toggle("atend", row.scrollLeft + row.clientWidth >= row.scrollWidth - 4);
+    row.addEventListener("scroll", edge, { passive:true });
+    line.appendChild(row);
+    host.appendChild(line);
+    requestAnimationFrame(edge);
+  });
+}
+
 function askOpen(){
   $("#askQ").value = "";
   $("#askOut").innerHTML = "";
-  const chips = $("#askChips");
-  chips.innerHTML = "";
-  ASK_TOPICS.filter(t => t.chip).forEach(t => {
-    const b = el("button", null, t.q);
-    b.type = "button";
-    b.addEventListener("click", () => askAnswer(t.q));
-    chips.appendChild(b);
-  });
+  $("#askAc").hidden = true;
+  askPick = 0;
+  askRenderRows();
   sheetOpen("#shAsk");
 }
 
@@ -12966,12 +13885,31 @@ tuckSwipe($("#btnAsk"), $("#btnAsk"), ASK_TUCK_KEY, -1);
 tuckSwipe($("#btnAdd"), $("#fabWrap"), FAB_TUCK_KEY, 1);
 
 $("#btnAsk").addEventListener("click", askOpen);
-$("#askGo").addEventListener("click", () => {
+/* Go and Enter take the highlighted suggestion when there is one, so what is
+   answered is what the list said would be; otherwise the words as typed. */
+function askSubmit(){
   const q = $("#askQ").value.trim();
-  if (q) askAnswer(q);
-});
+  if (!q) return;
+  const ac = $("#askAc");
+  if (!ac.hidden && askSugs.length) askChoose(askSugs[askPick] || askSugs[0]);
+  else { $("#askQ").blur(); askAnswer(q); }
+}
+$("#askGo").addEventListener("click", askSubmit);
+$("#askQ").addEventListener("input", () => { askPick = 0; askRenderSugs(); });
+$("#askQ").addEventListener("focus", () => { if ($("#askQ").value.trim()) askRenderSugs(); });
+$("#askQ").addEventListener("blur", () => { setTimeout(() => { $("#askAc").hidden = true; }, 120); });
 $("#askQ").addEventListener("keydown", e => {
-  if (e.key === "Enter"){ const q = $("#askQ").value.trim(); if (q) askAnswer(q); }
+  const open = !$("#askAc").hidden && askSugs.length;
+  if (e.key === "ArrowDown" && open){
+    e.preventDefault(); askPick = (askPick + 1) % askSugs.length; askRenderSugs();
+  } else if (e.key === "ArrowUp" && open){
+    e.preventDefault(); askPick = (askPick - 1 + askSugs.length) % askSugs.length; askRenderSugs();
+  } else if (e.key === "Enter"){
+    e.preventDefault(); askSubmit();
+  } else if (e.key === "Escape" && !$("#askAc").hidden){
+    /* closes the list, not the whole sheet */
+    e.stopPropagation(); $("#askAc").hidden = true;
+  }
 });
 
 /* =========================================================================
