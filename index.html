@@ -2517,6 +2517,9 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   display:flex;align-items:baseline;justify-content:space-between;gap:10px;
   margin-bottom:6px;
 }
+/* the date takes the room, the saved-on note and the delete sit at the end */
+.bl-sh b{flex:1;min-width:0}
+.bl-sh .si-x{flex:none;align-self:center}
 .bl-sh b{font-size:12.5px;font-weight:600}
 .bl-sh span{font-size:10.5px;color:var(--ink-3)}
 .bl-sr{
@@ -4330,8 +4333,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.47";
-const APP_BUILT = "2026-09-10";
+const APP_VERSION = "2.0.48";
+const APP_BUILT = "2026-09-16";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -6578,35 +6581,108 @@ function migrateBalance(){
 /** Always visible: a starting balance is optional, and without one this is
     simply everything settled to date. Planned entries never count — they
     haven't left the bank yet. */
-function renderBalance(){
-  const b = balanceSetting();
-  const from = b ? b.date : null;
+/**
+ * What is in the accounts now: every account counted forward from its own
+ * snapshot, and those added up.
+ *
+ * It used to take the baselines added together with the *earliest* of their
+ * dates, and count every settled entry from that one date. That is right only
+ * while every account was last snapshotted on the same day — and snapshotting
+ * one account is exactly what breaks it: everything that had touched the other
+ * accounts since the older date was counted a second time, on top of baselines
+ * that already included it. With all four of this book's baselines on one date
+ * the two agreed to the cent; a single fresh snapshot of one of them put them 1.307,95 apart.
+ *
+ * Each figure is therefore counted against the account it belongs to, from that
+ * account's own date, which is also what makes a new snapshot a clean start: it
+ * moves that account's date forward, and everything before it stops counting.
+ *
+ * Stops at today: an entry ticked off ahead of its date — a bill dated next
+ * January, settled early — has not moved any money yet.
+ */
+function balanceNow(){
   const to = todayISO();
-  $("#balCard").hidden = false;
+  const accts = balanceableAccounts();
+  let base = 0, inc = 0, exp = 0;
 
-  let inc = 0, exp = 0;
-  state.txns.forEach(t => {
-    if (t.status !== "done" || isTransfer(t)) return;
-    if (!txnShown(t)) return;
-    if (from && t.date < from) return;
-    /* This card says what is in the account now, so it stops at today. There
-       was a lower bound and no upper one, which let an entry ticked off ahead
-       of its date — a bill dated next January, settled early — come out of a
-       balance the money is still sitting in. Ticked or not, it has not moved
-       until its date arrives. */
-    if (t.date > to) return;
-    if (t.type === "income") inc += t.amount; else exp += t.amount;
+  accts.forEach(a => {
+    const from = a.start ? a.start.date : null;
+    base += a.start ? a.start.amount : 0;
+    state.txns.forEach(t => {
+      if (t.status !== "done" || !txnShown(t)) return;
+      if (from && t.date < from) return;
+      if (t.date > to) return;
+      if (isTransfer(t)){
+        /* between two of your own accounts: it nets to nothing over the total,
+           but each side still has to land on the right account and after the
+           right date, or one leg of it is counted and the other is not */
+        if (t.account === a.id) inc += t.amount;
+        if (t.fromAccount === a.id) exp += t.amount;
+        return;
+      }
+      if (t.account === a.id){
+        if (t.type === "income") inc += t.amount; else exp += t.amount;
+      } else if (t.fromAccount === a.id && t.type === "income"){
+        exp += t.amount;   /* the sending side of a Bank Transfer income entry */
+      }
+    });
   });
-  const base = b ? b.amount : 0;
-  const now = base + inc - exp;
 
+  /* An entry naming no account at all cannot be tracked forward from one. The
+     entry sheet asks for an account, so this is for imported rows; they are
+     counted from the earliest baseline there is, and said separately. */
+  let loose = 0;
+  const first = earliestStart();
+  state.txns.forEach(t => {
+    if (t.status !== "done" || !txnShown(t) || isTransfer(t)) return;
+    if (t.account || t.fromAccount) return;
+    if (first && t.date < first) return;
+    if (t.date > to) return;
+    loose += t.type === "income" ? t.amount : -t.amount;
+  });
+
+  const dates = [...new Set(accts.filter(a => a.start).map(a => a.start.date))].sort();
+  return { base, inc, exp, loose, now: base + inc - exp + loose,
+           counted: accts.filter(a => a.start).length, dates };
+}
+
+function renderBalance(){
+  $("#balCard").hidden = false;
   const el2 = $("#balNow");
-  animateValue(el2, now, v => { el2.textContent = fmt(v); });
-  const n = accountsOf().filter(a => a.start).length;
-  $("#balSub").textContent = b
-    ? "From " + fmt(base) + (n > 1 ? " across " + n + " accounts" : "") + " on " + dayTitle(b.date) +
-      " · " + fmt(inc) + " in, " + fmt(exp) + " out since"
-    : fmt(inc) + " received, " + fmt(exp) + " paid so far · set starting balances in Settings";
+
+  /* No per-account baseline anywhere: the one figure the app used to keep, if
+     it is still there, on its own date. */
+  if (!accountsOf().some(a => a.start)){
+    const b = balanceSetting();
+    const to = todayISO();
+    let inc = 0, exp = 0;
+    state.txns.forEach(t => {
+      if (t.status !== "done" || isTransfer(t) || !txnShown(t)) return;
+      if (b && t.date < b.date) return;
+      if (t.date > to) return;
+      if (t.type === "income") inc += t.amount; else exp += t.amount;
+    });
+    const now = (b ? b.amount : 0) + inc - exp;
+    animateValue(el2, now, v => { el2.textContent = fmt(v); });
+    $("#balSub").textContent = b
+      ? "From " + fmt(b.amount) + " on " + dayTitle(b.date) +
+        " · " + fmt(inc) + " in, " + fmt(exp) + " out since"
+      : fmt(inc) + " received, " + fmt(exp) + " paid so far · set starting balances in Settings";
+    return;
+  }
+
+  const t = balanceNow();
+  animateValue(el2, t.now, v => { el2.textContent = fmt(v); });
+  /* One date for every account reads as one baseline; several read as what they
+     are — each account counted from its own — rather than naming one of them
+     and being wrong about the rest. */
+  const when = t.dates.length === 1
+    ? " on " + dayTitle(t.dates[0])
+    : ", each from its own snapshot";
+  $("#balSub").textContent =
+    "From " + fmt(t.base) + (t.counted > 1 ? " across " + t.counted + " accounts" : "") + when +
+    " · " + fmt(t.inc) + " in, " + fmt(t.exp) + " out since" +
+    (t.loose ? " · " + fmt(t.loose) + " with no account" : "");
 }
 
 /**
@@ -6683,6 +6759,7 @@ $("#balSave").addEventListener("click", () => {
      accounted for. The figures themselves live on the accounts; this is the
      record of the moment they were put there. */
   state.balanceLog = (state.balanceLog || []).concat([{
+    id: uid(),
     at: new Date().toISOString(),
     asOf: date,
     rows: balanceableAccounts().filter(a => a.start).map(a => ({
@@ -6939,6 +7016,33 @@ function renderBalanceLog(){
     const head = el("div", "bl-sh");
     head.appendChild(el("b", null, "As of " + dayTitle(snap.asOf)));
     head.appendChild(el("span", null, "saved " + dayTitle(snap.at.slice(0, 10))));
+    /* A record can be thrown away: it is a note of a baseline that has since
+       been replaced, so nothing on the dashboard is counted from it. Removing
+       one changes no figure — which is exactly why it is safe to offer, and why
+       the confirmation says so. */
+    const x = el("button", "si-x");
+    x.type = "button";
+    x.setAttribute("aria-label", "Delete the snapshot as of " + dayTitle(snap.asOf));
+    x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+    x.addEventListener("click", async () => {
+      const ok = await askConfirm({
+        title: "Delete this snapshot?",
+        message: "The record of what your accounts held as of " + dayTitle(snap.asOf) +
+                 " goes. It is a note of a baseline already replaced, so no " +
+                 "balance on the dashboard changes — there is simply no longer " +
+                 "anything to compare against.",
+        confirm: "Delete it"
+      });
+      if (ok !== true) return;
+      /* by identity: two snapshots saved in the same second would share a date,
+         and an index into a list drawn in reverse is the kind of thing that
+         quietly deletes the wrong one */
+      state.balanceLog = (state.balanceLog || []).filter(x2 => x2 !== snap);
+      save();
+      renderBalanceLog();
+      toast("Snapshot deleted");
+    });
+    head.appendChild(x);
     box.appendChild(head);
     (snap.rows || []).forEach(r => {
       const line = el("div", "bl-sr");
