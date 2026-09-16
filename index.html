@@ -1916,19 +1916,22 @@ div.rp-rem:hover{background:none}
    points the way the thing will go. */
 .edgetab{
   position:fixed;z-index:29;
-  bottom:calc(84px + env(safe-area-inset-bottom));
-  width:22px;height:52px;display:grid;place-items:center;
-  color:var(--ink-2);opacity:.72;
+  width:17px;height:42px;display:grid;place-items:center;
+  color:var(--ink-2);opacity:.8;
   background:var(--surface-2);border:1px solid var(--line-strong);
   box-shadow:var(--shadow-sm);
   transition:opacity .15s;
 }
+/* each sits where its own control sat, so bringing it back lands it under the
+   thumb: the bubble is 46px tall on an 80px offset, the + is 56px */
+.edgetab.left{bottom:calc(82px + env(safe-area-inset-bottom))}
+.edgetab.right{bottom:calc(87px + env(safe-area-inset-bottom))}
 @supports (backdrop-filter:blur(8px)){
   .edgetab{background:color-mix(in srgb, var(--surface) 62%, transparent);backdrop-filter:blur(8px)}
 }
 .edgetab:active{opacity:1}
 .edgetab[hidden]{display:none}
-.edgetab svg{width:15px;height:15px;transition:transform .28s cubic-bezier(.2,.7,.3,1)}
+.edgetab svg{width:13px;height:13px}
 .edgetab.left{left:0;border-left:0;border-radius:0 11px 11px 0}
 .edgetab.right{right:0;border-right:0;border-radius:11px 0 0 11px}
 /* Tucked away by sliding off its own edge rather than by vanishing: the eye
@@ -1937,8 +1940,6 @@ div.rp-rem:hover{background:none}
 #btnAsk, .fabwrap{
   transition:transform .3s cubic-bezier(.2,.7,.3,1), opacity .22s ease;
 }
-html.ask-tucked #askTab svg{transform:scaleX(-1)}
-html.fab-tucked #fabTab svg{transform:scaleX(-1)}
 html.ask-tucked #btnAsk{transform:translateX(-96px) scale(.85);opacity:0;pointer-events:none}
 html.fab-tucked .fabwrap{transform:translateX(110px) scale(.9);opacity:0;pointer-events:none}
 /* the menu goes with it, and cannot be left hanging open behind it */
@@ -4458,7 +4459,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.0.49";
+const APP_VERSION = "2.0.50";
 const APP_BUILT = "2026-09-16";
 
 const KEY = "panappai.v1";
@@ -12899,8 +12900,10 @@ function applyTucks(){
   /* An arrow with nothing behind it is a puzzle, so each shows only where its
      own control belongs: the helper on the dashboard, the + everywhere it
      already was. */
-  $("#askTab").hidden = panel !== "dash";
-  $("#fabTab").hidden = panel === "shop";
+  /* An arrow stands in for a control that is away; with the control showing
+     there is nothing for it to do and it would only crowd it. */
+  $("#askTab").hidden = panel !== "dash" || !tuckGet(ASK_TUCK_KEY);
+  $("#fabTab").hidden = panel === "shop" || !tuckGet(FAB_TUCK_KEY);
 }
 $("#askTab").addEventListener("click", () => {
   tuckSet(ASK_TUCK_KEY, !tuckGet(ASK_TUCK_KEY));
@@ -12914,6 +12917,53 @@ $("#fabTab").addEventListener("click", () => {
 /* setPanel applies these as you move about, but nothing calls it on the way
    in — so a control tucked away last night would be back this morning. */
 applyTucks();
+
+/**
+ * Swiping a control off its own edge tucks it away.
+ *
+ * The arrow is then the only thing on that side, which is the point: with the
+ * control showing there is no arrow beside it to crowd it. A tap still opens
+ * what it always opened -- only a deliberate drag past the threshold counts,
+ * and the drag follows the finger, so what is about to happen is plain.
+ *
+ * handle is what is touched, mover is what slides, dir -1 left and +1 right.
+ */
+function tuckSwipe(handle, mover, key, dir){
+  let from = null, dx = 0, dragged = false;
+  handle.addEventListener("pointerdown", e => {
+    from = e.clientX; dx = 0; dragged = false;
+    try{ handle.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  handle.addEventListener("pointermove", e => {
+    if (from === null) return;
+    dx = e.clientX - from;
+    if (Math.abs(dx) > 6) dragged = true;
+    /* outwards only: dragging the other way does nothing */
+    const off = dir < 0 ? Math.min(0, dx) : Math.max(0, dx);
+    mover.style.transition = "none";
+    mover.style.transform = "translateX(" + off + "px)";
+  });
+  const settle = () => {
+    if (from === null) return;
+    mover.style.transition = "";
+    mover.style.transform = "";
+    if (dragged && dx * dir > 40){
+      tuckSet(key, true);
+      if (key === FAB_TUCK_KEY) fabClose();
+      applyTucks();
+    }
+    from = null;
+  };
+  handle.addEventListener("pointerup", settle);
+  handle.addEventListener("pointercancel", settle);
+  /* a drag must not also count as a tap on the way up */
+  handle.addEventListener("click", e => {
+    if (dragged){ e.preventDefault(); e.stopPropagation(); }
+  }, true);
+}
+tuckSwipe($("#btnAsk"), $("#btnAsk"), ASK_TUCK_KEY, -1);
+/* the + is dragged by its button and the whole wrap moves, menu and all */
+tuckSwipe($("#btnAdd"), $("#fabWrap"), FAB_TUCK_KEY, 1);
 
 $("#btnAsk").addEventListener("click", askOpen);
 $("#askGo").addEventListener("click", () => {

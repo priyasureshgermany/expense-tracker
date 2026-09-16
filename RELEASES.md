@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.0.50 — 2026-09-16
+- fix: The edge arrow no longer overlaps the bubble: it appears only while its control is tucked away
+- better: Swipe the helper bubble left, or the + right, to tuck it off its edge
+
 ## 2.0.49 — 2026-09-16
 - new: A helper bubble on the dashboard: ask about a figure and it explains it with your own numbers, or opens the report that answers it — all on this phone
 - new: The helper bubble and the + can be tucked away by a small arrow at each edge
