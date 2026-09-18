@@ -1970,6 +1970,56 @@ html.fab-tucked .fabmenu{display:none}
   font-variant-numeric:tabular-nums;
 }
 .askans .askfig b{color:var(--ink);font-weight:600}
+/* a line that opens its own breakdown: a small bubble before it, and the
+   whole line takes the tap */
+.askans .askfig.can-open{cursor:pointer;border-radius:8px;margin:0 -6px;padding:4px 6px}
+.askans .askfig.can-open:active{background:var(--accent-soft)}
+.askdot{
+  display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;
+  margin-right:7px;vertical-align:-3px;flex:none;
+  background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-mid);
+}
+.askdot svg{width:10px;height:10px}
+/* One account taken apart, over the helper rather than instead of it, so
+   closing it puts you back where you were. */
+.askpop{
+  position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;
+  padding:18px;background:rgba(9,16,22,.55);opacity:0;transition:opacity .18s ease;
+}
+.askpop.open{opacity:1}
+.askpop-card{
+  width:100%;max-width:420px;max-height:84vh;display:flex;flex-direction:column;
+  background:var(--surface);border:1px solid var(--line);border-radius:18px;
+  padding:16px 16px 14px;box-shadow:0 18px 50px rgba(0,0,0,.35);
+  transform:translateY(8px) scale(.98);transition:transform .2s cubic-bezier(.2,.7,.3,1);
+}
+.askpop.open .askpop-card{transform:none}
+.askpop-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.askpop-h h4{margin:0;font-size:15px;font-weight:700;color:var(--ink)}
+.askpop-x{width:30px;height:30px;border-radius:50%;color:var(--ink-3);font-size:14px}
+.askpop-sub{margin:4px 0 10px;font-size:12px;line-height:1.45;color:var(--ink-3)}
+.askpop-base,.askpop-sum{
+  display:flex;justify-content:space-between;gap:12px;align-items:baseline;
+  font-size:13px;font-variant-numeric:tabular-nums;
+}
+.askpop-base{padding:9px 11px;border-radius:11px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2)}
+.askpop-base b,.askpop-sum b{color:var(--ink);font-weight:700}
+.askpop-list{overflow-y:auto;margin:8px 0;min-height:0;flex:1 1 auto}
+.askpop-r{
+  display:flex;justify-content:space-between;gap:12px;padding:8px 2px;
+  border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;
+}
+.askpop-l{display:flex;flex-direction:column;min-width:0}
+.askpop-d{font-size:10.5px;color:var(--ink-3)}
+.askpop-w{font-size:12.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.askpop-v{display:flex;flex-direction:column;align-items:flex-end;flex:none}
+.askpop-v b{font-size:12.5px;font-weight:600}
+.askpop-v b.in{color:var(--pos)}
+.askpop-v b.out{color:var(--neg)}
+.askpop-v span{font-size:10.5px;color:var(--ink-3)}
+.askpop-none{padding:12px 2px;font-size:12.5px;color:var(--ink-3)}
+.askpop-sum{padding:10px 2px 12px;border-top:2px solid var(--line);font-weight:700}
+@media (prefers-reduced-motion:reduce){ .askpop,.askpop-card{transition:none} }
 .askans .asksum{
   margin-top:8px;padding-top:8px;border-top:1px solid var(--line);
   display:flex;justify-content:space-between;gap:12px;font-size:13px;font-weight:700;
@@ -4530,7 +4580,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.8";
+const APP_VERSION = "2.2.9";
 const APP_BUILT = "2026-09-18";
 
 const KEY = "panappai.v1";
@@ -4970,25 +5020,51 @@ function normaliseAccounts(a){
  * has touched it since. Only settled entries count — a planned one hasn't moved
  * any money yet. Transfers land on `account` and leave `fromAccount`.
  */
-function accountBalance(id){
+/**
+ * One account's money, entry by entry: the snapshot it starts from, then each
+ * settled entry since that moved it, in date order, with the balance after
+ * each. `total` is what it holds now.
+ *
+ * The one place this is worked out. The Accounts pane, the dashboard's
+ * "In the account now" and the helper's breakdown all read it, so they cannot
+ * disagree — the pane used to keep its own copy that also counted an entry
+ * ticked off but dated after today, which the dashboard left out.
+ *
+ * Counted: ticked off, in a category that is showing, on or after the
+ * snapshot's date and not after today. An entry on the snapshot's own day
+ * counts, the snapshot being what the account held as the day began.
+ */
+function accountLedger(id){
   const a = accountById(id);
   if (!a) return null;
+  const to = todayISO();
   const from = a.start ? a.start.date : null;
-  let bal = a.start ? a.start.amount : 0;
+  const start = a.start ? a.start.amount : 0;
+  const rows = [];
   state.txns.forEach(t => {
-    if (t.status !== "done") return;
+    if (t.status !== "done" || !txnShown(t)) return;
     if (from && t.date < from) return;
+    if (t.date > to) return;
+    let delta = 0;
     if (isTransfer(t)){
       /* leaves one account and lands in the other, netting to nothing overall */
-      if (t.account === id) bal += t.amount;
-      if (t.fromAccount === id) bal -= t.amount;
-      return;
+      if (t.account === id) delta += t.amount;
+      if (t.fromAccount === id) delta -= t.amount;
+    } else {
+      if (t.account === id) delta += (t.type === "income" ? t.amount : -t.amount);
+      /* the sending side of a Bank Transfer income entry */
+      if (t.fromAccount === id && t.type === "income") delta -= t.amount;
     }
-    if (t.account === id) bal += (t.type === "income" ? t.amount : -t.amount);
-    /* the sending side of a Bank Transfer income entry */
-    if (t.fromAccount === id && t.type === "income") bal -= t.amount;
+    if (delta) rows.push({ t:t, delta:delta });
   });
-  return bal;
+  rows.sort((x, y) => x.t.date < y.t.date ? -1 : x.t.date > y.t.date ? 1 : 0);
+  let run = start;
+  rows.forEach(r => { run += r.delta; r.after = run; });
+  return { account:a, from:from, start:start, rows:rows, total:run };
+}
+function accountBalance(id){
+  const l = accountLedger(id);
+  return l ? l.total : null;
 }
 /** Every opening balance added up, which is what the dashboard starts from. */
 function startingTotal(){
@@ -6802,27 +6878,14 @@ function balanceNow(){
   const accts = balanceableAccounts();
   let base = 0, inc = 0, exp = 0;
 
+  /* Each account from its own snapshot, read off the one ledger the Accounts
+     pane and the helper read too. A transfer between two of your own accounts
+     nets to nothing over the total, but each leg lands on its own account
+     after its own date. */
   accts.forEach(a => {
-    const from = a.start ? a.start.date : null;
-    base += a.start ? a.start.amount : 0;
-    state.txns.forEach(t => {
-      if (t.status !== "done" || !txnShown(t)) return;
-      if (from && t.date < from) return;
-      if (t.date > to) return;
-      if (isTransfer(t)){
-        /* between two of your own accounts: it nets to nothing over the total,
-           but each side still has to land on the right account and after the
-           right date, or one leg of it is counted and the other is not */
-        if (t.account === a.id) inc += t.amount;
-        if (t.fromAccount === a.id) exp += t.amount;
-        return;
-      }
-      if (t.account === a.id){
-        if (t.type === "income") inc += t.amount; else exp += t.amount;
-      } else if (t.fromAccount === a.id && t.type === "income"){
-        exp += t.amount;   /* the sending side of a Bank Transfer income entry */
-      }
-    });
+    const l = accountLedger(a.id);
+    base += l.start;
+    l.rows.forEach(r => { if (r.delta > 0) inc += r.delta; else exp -= r.delta; });
   });
 
   /* An entry naming no account at all cannot be tracked forward from one. The
@@ -6929,8 +6992,27 @@ function renderBalanceRows(){
   });
 }
 
-$("#balSave").addEventListener("click", () => {
-  const date = $("#balDate").value || todayISO();
+$("#balSave").addEventListener("click", async () => {
+  let date = $("#balDate").value || todayISO();
+  const filled = $$("#balRows .bl-a").filter(inp => inp.value.trim());
+  /* A balance dated in the past means "this is what it held then", and every
+     entry since is added to it. Almost always the figure typed is what the
+     account holds now, so a past date is asked about rather than taken on
+     trust — it is the one mistake here that silently doubles money. */
+  if (filled.length && date < todayISO()){
+    const answer = await askConfirm({
+      title: "Save as of " + prettyDate(date) + "?",
+      message: "Everything paid or received since " + prettyDate(date) +
+               " will be added on top of " + (filled.length === 1 ? "this balance" : "these balances") +
+               ". If " + (filled.length === 1 ? "it is" : "they are") + " what the account" +
+               (filled.length === 1 ? " holds" : "s hold") + " today, save as of today instead.",
+      confirm: "Keep " + prettyDate(date),
+      alt: "Use today",
+      tone: "plain"
+    });
+    if (!answer) return;
+    if (answer === "alt"){ date = todayISO(); setDateVal("#balDate", date); }
+  }
   let set = 0;
   $$("#balRows .bl-a").forEach(inp => {
     const a = accountById(inp.dataset.acct);
@@ -7170,7 +7252,12 @@ function renderBalanceSettings(){
   renderBalanceRows();
   renderBalanceLog();
   const any = accountsOf().some(a => a.start);
-  setDateVal("#balDate", earliestStart() || todayISO());
+  /* Today, always. It used to start at the earliest balance already saved, so
+     typing what an account holds now and pressing Save dated it back to that
+     day — and every entry since was then counted a second time on top of a
+     figure that already included it. Revolet's balance of 16 September was
+     saved as of 15 August that way and read some forty euros too much. */
+  setDateVal("#balDate", todayISO());
   $("#balClear").hidden = !any;
 }
 
@@ -12556,8 +12643,90 @@ document.addEventListener("keydown", e => {
 let askLast = "";
 
 /** A line of working: what it is on the left, the figure on the right. */
-function askFig(label, value){
-  return { fig:true, label:label, value:value };
+/** A line of working; `open`, when given, makes the line open its own breakdown. */
+function askFig(label, value, open){
+  return { fig:true, label:label, value:value, open:open || null };
+}
+
+/**
+ * One account's figure taken apart: the snapshot it is counted from, every
+ * entry since that moved it with the balance after each, and what that comes
+ * to. Read off accountLedger, the same ledger the figure itself came from, so
+ * the last line is always the number that was tapped.
+ */
+function askAcctBreakdown(id){
+  const l = accountLedger(id);
+  if (!l) return;
+  const pop = el("div", "askpop");
+  pop.setAttribute("role", "dialog");
+  pop.setAttribute("aria-modal", "true");
+  const card = el("div", "askpop-card");
+
+  const head = el("div", "askpop-h");
+  head.appendChild(el("h4", null, l.account.n));
+  const x = el("button", "askpop-x", "✕");
+  x.type = "button";
+  x.setAttribute("aria-label", "Close");
+  head.appendChild(x);
+  card.appendChild(head);
+
+  card.appendChild(el("p", "askpop-sub", l.from
+    ? "Counted forward from its snapshot of " + prettyDate(l.from) + ". Only entries ticked off, up to today."
+    : "No snapshot yet, so it is counted from zero."));
+
+  const base = el("div", "askpop-base");
+  base.appendChild(el("span", null, l.from ? "Snapshot · " + dayTitle(l.from) : "Start"));
+  base.appendChild(el("b", null, fmt(l.start)));
+  card.appendChild(base);
+
+  const list = el("div", "askpop-list");
+  if (!l.rows.length) list.appendChild(el("div", "askpop-none", "Nothing has moved it since."));
+  l.rows.forEach(r => {
+    const t = r.t;
+    let what = t.note || catOf(t.category).n;
+    if (isTransfer(t)){
+      what = r.delta > 0 ? "Transfer from " + (accountName(t.fromAccount) || "another account")
+                         : "Transfer to " + (accountName(t.account) || "another account");
+      if (t.note) what += " · " + t.note;
+    } else if (t.fromAccount === id && t.type === "income"){
+      what = "Sent to " + (accountName(t.account) || "another account") + (t.note ? " · " + t.note : "");
+    }
+    const row = el("div", "askpop-r");
+    const left = el("div", "askpop-l");
+    left.appendChild(el("span", "askpop-d", dayTitle(t.date)));
+    left.appendChild(el("span", "askpop-w", what + askBadge(t)));
+    row.appendChild(left);
+    const right = el("div", "askpop-v");
+    right.appendChild(el("b", r.delta > 0 ? "in" : "out", (r.delta > 0 ? "+" : "−") + fmt(Math.abs(r.delta), t.category)));
+    right.appendChild(el("span", null, fmt(r.after)));
+    row.appendChild(right);
+    list.appendChild(row);
+  });
+  card.appendChild(list);
+
+  const sum = el("div", "askpop-sum");
+  sum.appendChild(el("span", null, "In the account now"));
+  sum.appendChild(el("b", null, fmt(l.total)));
+  card.appendChild(sum);
+
+  const fix = el("button", "btn ghost sm", "Snapshot wrong? Update it");
+  fix.type = "button";
+  card.appendChild(fix);
+
+  pop.appendChild(card);
+  document.body.appendChild(pop);
+  requestAnimationFrame(() => pop.classList.add("open"));
+
+  const close = () => {
+    document.removeEventListener("keydown", onKey, true);
+    pop.remove();
+  };
+  /* Escape closes this and not the helper under it */
+  const onKey = e => { if (e.key === "Escape"){ e.stopPropagation(); close(); } };
+  document.addEventListener("keydown", onKey, true);
+  x.addEventListener("click", close);
+  pop.addEventListener("click", e => { if (e.target === pop) close(); });
+  fix.addEventListener("click", () => { close(); ASK_GO.settings("accounts")(); });
 }
 
 /* ---------- what the dashboard's figures are made of ---------- */
@@ -12565,7 +12734,7 @@ function askBalance(){
   const t = balanceNow();
   const rows = balanceableAccounts().map(a =>
     askFig(a.n + (a.start ? " · from " + fmt(a.start.amount) + " as of " + dayTitle(a.start.date) : " · no snapshot"),
-           fmt(accountBalance(a.id))));
+           fmt(accountBalance(a.id)), () => askAcctBreakdown(a.id)));
   return {
     title: "In the account now — " + fmt(t.now),
     body: ["Every account is counted forward from its own snapshot, and those are added up:"],
@@ -12574,7 +12743,8 @@ function askBalance(){
     after: ["Snapshots come to " + fmt(t.base) + ". Since each one's date, " +
             fmt(t.inc) + " has come in and " + fmt(t.exp) + " has gone out." +
             (t.dates.length > 1 ? " Your accounts were snapshotted on different days, so each is counted from its own." : ""),
-            "Only entries you have ticked off count, and nothing dated after today — a bill settled early has not moved the money yet."],
+            "Only entries you have ticked off count, and nothing dated after today — a bill settled early has not moved the money yet.",
+            "Tap an account to see its snapshot and every entry since that made its figure."],
     acts: [["See the entries", () => { sheetClose(); setPanel("entries"); render(); }]]
   };
 }
@@ -13750,8 +13920,20 @@ function askShow(a){
     box.appendChild(ol);
   }
   (a.figs || []).forEach(f => {
-    const row = el("div", "askfig");
-    row.appendChild(el("span", null, f.label));
+    const row = el("div", "askfig" + (f.open ? " can-open" : ""));
+    const lab = el("span", null);
+    /* a small bubble beside a line that can be taken apart; the whole line
+       answers the tap, the bubble only says that it will */
+    if (f.open){
+      const dot = el("button", "askdot");
+      dot.type = "button";
+      dot.setAttribute("aria-label", "Show how this is made");
+      dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+      lab.appendChild(dot);
+      row.addEventListener("click", f.open);
+    }
+    lab.appendChild(document.createTextNode(f.label));
+    row.appendChild(lab);
     row.appendChild(el("b", null, f.value));
     box.appendChild(row);
   });
