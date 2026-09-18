@@ -4530,8 +4530,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.7";
-const APP_BUILT = "2026-09-16";
+const APP_VERSION = "2.2.8";
+const APP_BUILT = "2026-09-18";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -13609,7 +13609,7 @@ function askQueryAnswer(p){
     const { from, to } = p.when;
     const catIds = p.cats.map(c => c.id), acctIds = p.accts.map(a => a.id);
     const kind = catIds.length ? "" : (p.kind || (acctIds.length ? "expense" : ""));
-    const rows = state.txns.filter(t => {
+    const matched = state.txns.filter(t => {
       if (t.date < from || t.date > to || !txnShown(t)) return false;
       if (catIds.length && catIds.indexOf(t.category) === -1) return false;
       if (kind === "transfer" && !isTransfer(t)) return false;
@@ -13624,30 +13624,46 @@ function askQueryAnswer(p){
       return true;
     }).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
 
+    /* What actually moved, and nothing that is only expected. A year asked
+       about part-way through is otherwise mostly the rest of it — every
+       repeating bill and salary still to come — and a total of that is a
+       forecast, not what was spent or earned. Reports counts the same way, so
+       the report an answer opens agrees with it. Planned entries are named
+       once, below, so leaving them out is never silent. */
+    const rows = matched.filter(t => t.status === "done");
+    const skipped = matched.filter(t => t.status !== "done");
+    let skippedSum = 0;
+    skipped.forEach(t => { skippedSum += t.amount; });
+
     /* nothing narrower named than an account or a time: money in less money out */
     const net = !kind && !catIds.length;
-    let total = 0, planned = 0;
+    let total = 0;
     rows.forEach(t => {
       const sign = net ? (t.type === "income" ? 1 : -1) : 1;
       total += sign * t.amount;
-      if (t.status !== "done") planned += t.amount;
     });
     const label = askParseLabel(p);
     const range = p.when.range;
+    const leftOut = skipped.length
+      ? "Leaves out " + skipped.length + " planned " + (skipped.length === 1 ? "entry" : "entries") +
+        " (" + fmt(skippedSum) + ") not yet ticked off."
+      : "";
     if (!rows.length){
       return {
-        title: label + " — nothing",
-        body: ["No entries match for " + range + "."],
+        title: label + " — nothing yet",
+        body: [skipped.length ? "Nothing has been paid or received for " + range + " yet."
+                              : "No entries match for " + range + "."],
         figs: [],
-        after: [state.txns.length ? "Your entries run from " + prettyDate(state.txns.reduce((m, t) => t.date < m ? t.date : m, state.txns[0].date)) + "." : ""],
+        after: [leftOut,
+                !skipped.length && state.txns.length ? "Your entries run from " +
+                  prettyDate(state.txns.reduce((m, t) => t.date < m ? t.date : m, state.txns[0].date)) + "." : ""],
         acts: []
       };
     }
     /* a handful of entries is best read as itself; many, by category */
     let figs;
     if (rows.length <= 8){
-      figs = rows.map(t => askFig(prettyDate(t.date) + " · " + (t.note || catOf(t.category).n) + askBadge(t) +
-                                  (t.status !== "done" ? " · planned" : ""),
+      figs = rows.map(t => askFig(prettyDate(t.date) + " · " + (t.note || catOf(t.category).n) + askBadge(t),
                                   (net ? (t.type === "income" ? "+" : "−") : "") + fmt(t.amount, t.category)));
     } else if (net){
       let inn = 0, out = 0;
@@ -13661,11 +13677,11 @@ function askQueryAnswer(p){
     }
     return {
       title: label + " — " + fmt(total),
-      body: [rows.length + (rows.length === 1 ? " entry" : " entries") + " from " + range +
+      body: [rows.length + (rows.length === 1 ? " entry" : " entries") + " paid or received from " + range +
              (net ? ", money in less money out" : "") + "."],
       figs: figs,
       sum: [net ? "Net" : "Total", fmt(total)],
-      after: [planned ? fmt(planned) + " of it is still planned rather than settled." : "",
+      after: [leftOut,
               p.when.month ? "Counted by calendar month. Reports can count the same stretch 15th to 14th." : ""],
       acts: [["Open in Reports", () => askGoReport({ kind: catIds.length ? "all" : (kind || "all"), cats:catIds, accts:acctIds,
                                                       from:from, to:to, tab:"table" })],
