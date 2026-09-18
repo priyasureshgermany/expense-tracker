@@ -534,9 +534,11 @@ button.tile:hover .tile-go{color:var(--accent)}
 .budrow .br-eq{display:block;font-style:normal;font-size:11px;color:var(--ink-3);margin-top:1px}
 /* the whole budget as a share of income, beside the card's title */
 .bc-n{font-size:11px;font-weight:600;color:var(--ink-3);letter-spacing:.02em}
-/* centred across the card, whatever the fold control beside the title adds */
+/* At the right of the title row. It was centred across the card, which held
+   while it was only a percentage; with the amount beside it, the middle of a
+   phone-width card reaches back over the title. */
 .bc-head{position:relative}
-.bc-head .bc-n{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap}
+.bc-head .bc-n{margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
 /* A budget's share of income, in the middle of its top line: the name and the
    amount take equal halves either side of it, so it sits centred. */
 .env-pct{flex:none;font-size:11px;font-weight:600;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -2018,6 +2020,15 @@ html.fab-tucked .fabmenu{display:none}
 .askpop-v b.out{color:var(--neg)}
 .askpop-v span{font-size:10.5px;color:var(--ink-3)}
 .askpop-none{padding:12px 2px;font-size:12.5px;color:var(--ink-3)}
+/* a row that has not happened yet: there, but quieter */
+.askpop-r.plan .askpop-w,.askpop-r.plan .askpop-v b{opacity:.62}
+.askpop-r.plan .askpop-v span{font-style:italic}
+.askpop-line{
+  display:flex;justify-content:space-between;gap:12px;padding:3px 2px;
+  font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;
+}
+.askans .asksum.can-open{cursor:pointer;border-radius:8px}
+.askans .asksum.can-open:active{background:var(--accent-soft)}
 .askpop-sum{padding:10px 2px 12px;border-top:2px solid var(--line);font-weight:700}
 @media (prefers-reduced-motion:reduce){ .askpop,.askpop-card{transition:none} }
 .askans .asksum{
@@ -4580,7 +4591,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.9";
+const APP_VERSION = "2.2.10";
 const APP_BUILT = "2026-09-18";
 
 const KEY = "panappai.v1";
@@ -6360,8 +6371,11 @@ function renderBudgets(){
   const leftAll = totPlanned - totSpent;
   const usedPct = totPlanned > 0 ? Math.round(totSpent / totPlanned * 100) : 0;
   const pacePct = Math.round(pace * 100);
-  /* the whole budget as a share of income — what the budgets add up to */
-  $("#budgetPctNote").textContent = shareShown && totPlanned > 0 ? shareOf(totPlanned) : "";
+  /* the whole budget as a share of income, and what that comes to in euros —
+     a percentage alone left the amount to be worked out */
+  $("#budgetPctNote").textContent = totPlanned > 0
+    ? (shareShown ? shareOf(totPlanned) + " · " : "") + fmt(totPlanned)
+    : "";
   $("#budgetFoot").textContent =
     fmt(totSpent) + " of " + fmt(totPlanned) + " used (" + usedPct + "%) · " +
     (leftAll >= 0 ? fmt(leftAll) + " left" : fmt(-leftAll) + " over") +
@@ -12649,69 +12663,74 @@ function askFig(label, value, open){
 }
 
 /**
- * One account's figure taken apart: the snapshot it is counted from, every
- * entry since that moved it with the balance after each, and what that comes
- * to. Read off accountLedger, the same ledger the figure itself came from, so
- * the last line is always the number that was tapped.
+ * A figure taken apart, over the helper rather than instead of it, so
+ * closing it puts you back where you were.
+ *
+ *   title, sub        what it is and how it is counted
+ *   base              [label, value] it starts from, if it starts from one
+ *   rows              { date, what, amount, cls: "in" | "out", after, plan }
+ *                     — `after` is the small line under the amount (a running
+ *                     balance, or whether it has happened yet); `plan` dims a
+ *                     row that has not
+ *   lines             [label, value] pairs summed up before the total
+ *   sum               [label, value], which is always the figure that was tapped
+ *   action            [label, fn], a way on from here
  */
-function askAcctBreakdown(id){
-  const l = accountLedger(id);
-  if (!l) return;
+function askPopup(o){
   const pop = el("div", "askpop");
   pop.setAttribute("role", "dialog");
   pop.setAttribute("aria-modal", "true");
   const card = el("div", "askpop-card");
 
   const head = el("div", "askpop-h");
-  head.appendChild(el("h4", null, l.account.n));
+  head.appendChild(el("h4", null, o.title));
   const x = el("button", "askpop-x", "✕");
   x.type = "button";
   x.setAttribute("aria-label", "Close");
   head.appendChild(x);
   card.appendChild(head);
+  if (o.sub) card.appendChild(el("p", "askpop-sub", o.sub));
 
-  card.appendChild(el("p", "askpop-sub", l.from
-    ? "Counted forward from its snapshot of " + prettyDate(l.from) + ". Only entries ticked off, up to today."
-    : "No snapshot yet, so it is counted from zero."));
-
-  const base = el("div", "askpop-base");
-  base.appendChild(el("span", null, l.from ? "Snapshot · " + dayTitle(l.from) : "Start"));
-  base.appendChild(el("b", null, fmt(l.start)));
-  card.appendChild(base);
+  if (o.base){
+    const base = el("div", "askpop-base");
+    base.appendChild(el("span", null, o.base[0]));
+    base.appendChild(el("b", null, o.base[1]));
+    card.appendChild(base);
+  }
 
   const list = el("div", "askpop-list");
-  if (!l.rows.length) list.appendChild(el("div", "askpop-none", "Nothing has moved it since."));
-  l.rows.forEach(r => {
-    const t = r.t;
-    let what = t.note || catOf(t.category).n;
-    if (isTransfer(t)){
-      what = r.delta > 0 ? "Transfer from " + (accountName(t.fromAccount) || "another account")
-                         : "Transfer to " + (accountName(t.account) || "another account");
-      if (t.note) what += " · " + t.note;
-    } else if (t.fromAccount === id && t.type === "income"){
-      what = "Sent to " + (accountName(t.account) || "another account") + (t.note ? " · " + t.note : "");
-    }
-    const row = el("div", "askpop-r");
+  if (!o.rows.length) list.appendChild(el("div", "askpop-none", o.empty || "Nothing here."));
+  o.rows.forEach(r => {
+    const row = el("div", "askpop-r" + (r.plan ? " plan" : ""));
     const left = el("div", "askpop-l");
-    left.appendChild(el("span", "askpop-d", dayTitle(t.date)));
-    left.appendChild(el("span", "askpop-w", what + askBadge(t)));
+    left.appendChild(el("span", "askpop-d", r.date));
+    left.appendChild(el("span", "askpop-w", r.what));
     row.appendChild(left);
     const right = el("div", "askpop-v");
-    right.appendChild(el("b", r.delta > 0 ? "in" : "out", (r.delta > 0 ? "+" : "−") + fmt(Math.abs(r.delta), t.category)));
-    right.appendChild(el("span", null, fmt(r.after)));
+    right.appendChild(el("b", r.cls, r.amount));
+    if (r.after) right.appendChild(el("span", null, r.after));
     row.appendChild(right);
     list.appendChild(row);
   });
   card.appendChild(list);
 
+  (o.lines || []).forEach(([k, v]) => {
+    const line = el("div", "askpop-line");
+    line.appendChild(el("span", null, k));
+    line.appendChild(el("span", null, v));
+    card.appendChild(line);
+  });
   const sum = el("div", "askpop-sum");
-  sum.appendChild(el("span", null, "In the account now"));
-  sum.appendChild(el("b", null, fmt(l.total)));
+  sum.appendChild(el("span", null, o.sum[0]));
+  sum.appendChild(el("b", null, o.sum[1]));
   card.appendChild(sum);
 
-  const fix = el("button", "btn ghost sm", "Snapshot wrong? Update it");
-  fix.type = "button";
-  card.appendChild(fix);
+  let go = null;
+  if (o.action){
+    go = el("button", "btn ghost sm", o.action[0]);
+    go.type = "button";
+    card.appendChild(go);
+  }
 
   pop.appendChild(card);
   document.body.appendChild(pop);
@@ -12726,7 +12745,93 @@ function askAcctBreakdown(id){
   document.addEventListener("keydown", onKey, true);
   x.addEventListener("click", close);
   pop.addEventListener("click", e => { if (e.target === pop) close(); });
-  fix.addEventListener("click", () => { close(); ASK_GO.settings("accounts")(); });
+  if (go) go.addEventListener("click", () => { close(); o.action[1](); });
+}
+
+/** What an entry was, in a line: its note, or its category, and M or A. */
+function askWhat(t){ return (t.note || catOf(t.category).n) + askBadge(t); }
+
+/**
+ * One account's figure taken apart: the snapshot it is counted from, every
+ * entry since that moved it with the balance after each, and what that comes
+ * to. Read off accountLedger, the same ledger the figure itself came from, so
+ * the last line is always the number that was tapped.
+ */
+function askAcctBreakdown(id){
+  const l = accountLedger(id);
+  if (!l) return;
+  askPopup({
+    title: l.account.n,
+    sub: l.from ? "Counted forward from its snapshot of " + prettyDate(l.from) + ". Only entries ticked off, up to today."
+                : "No snapshot yet, so it is counted from zero.",
+    base: [l.from ? "Snapshot · " + dayTitle(l.from) : "Start", fmt(l.start)],
+    empty: "Nothing has moved it since.",
+    rows: l.rows.map(r => {
+      const t = r.t;
+      let what = askWhat(t);
+      if (isTransfer(t)){
+        what = (r.delta > 0 ? "Transfer from " + (accountName(t.fromAccount) || "another account")
+                            : "Transfer to " + (accountName(t.account) || "another account")) +
+               (t.note ? " · " + t.note : "");
+      } else if (t.fromAccount === id && t.type === "income"){
+        what = "Sent to " + (accountName(t.account) || "another account") + (t.note ? " · " + t.note : "");
+      }
+      return { date: dayTitle(t.date), what: what, cls: r.delta > 0 ? "in" : "out",
+               amount: (r.delta > 0 ? "+" : "−") + fmt(Math.abs(r.delta), t.category), after: fmt(r.after) };
+    }),
+    sum: ["In the account now", fmt(l.total)],
+    action: ["Snapshot wrong? Update it", ASK_GO.settings("accounts")]
+  });
+}
+
+/**
+ * One side of the period — its income, or its expenses — entry by entry.
+ * The same entries the dashboard's tile adds up (periodTxns), so the total is
+ * the tile's figure; each says whether it has happened yet, since the tile
+ * counts what is still to come as well.
+ */
+function askSideBreakdown(type){
+  const rows = periodTxns(view).filter(t => t.type === type)
+    .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  let done = 0, plan = 0;
+  rows.forEach(t => { if (t.status === "done") done += t.amount; else plan += t.amount; });
+  const inc = type === "income";
+  askPopup({
+    title: (inc ? "Income" : "Expenses") + " · " + periodTitle(view),
+    sub: inc ? "Everything entered as income this period, received or still expected, by date."
+             : "Everything entered as an expense this period, paid or still to pay, by date.",
+    empty: inc ? "No income entered for this period." : "No expenses entered for this period.",
+    rows: rows.map(t => ({
+      date: dayTitle(t.date), what: askWhat(t), cls: inc ? "in" : "out", plan: t.status !== "done",
+      amount: (inc ? "+" : "−") + fmt(t.amount, t.category),
+      after: t.status === "done" ? (inc ? "received" : "paid") : (inc ? "expected" : "to pay")
+    })),
+    lines: inc ? [["Received", fmt(done)], ["Still expected", fmt(plan)]]
+               : [["Paid", fmt(done)], ["Still to pay", fmt(plan)]],
+    sum: [inc ? "Income" : "Expenses", fmt(done + plan)],
+    action: ["See them in the ledger", () => { sheetClose(); showEntriesOfType(type); }]
+  });
+}
+
+/** The whole period in date order, with the net after each entry. */
+function askNetBreakdown(){
+  const rows = periodTxns(view).slice()
+    .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.type === "income" ? -1 : 1));
+  let run = 0, inn = 0, out = 0;
+  askPopup({
+    title: "Net · " + periodTitle(view),
+    sub: "Every entry this period in date order, income less expenses, with the net after each. Planned entries are included and dimmed.",
+    empty: "Nothing entered for this period.",
+    rows: rows.map(t => {
+      const inc = t.type === "income";
+      run += inc ? t.amount : -t.amount;
+      if (inc) inn += t.amount; else out += t.amount;
+      return { date: dayTitle(t.date), what: askWhat(t), cls: inc ? "in" : "out", plan: t.status !== "done",
+               amount: (inc ? "+" : "−") + fmt(t.amount, t.category), after: fmt(run) };
+    }),
+    lines: [["Income", fmt(inn)], ["Expenses", fmt(out)]],
+    sum: ["Net", fmt(inn - out)]
+  });
 }
 
 /* ---------- what the dashboard's figures are made of ---------- */
@@ -12755,11 +12860,14 @@ function askNet(){
   return {
     title: "Net this period — " + fmt(net),
     body: ["For " + periodTitle(view) + ", everything in less everything out, planned entries included:"],
-    figs: [askFig("Income", fmt(s.income)), askFig("Expenses", fmt(s.expTotal))],
+    figs: [askFig("Income", fmt(s.income), () => askSideBreakdown("income")),
+           askFig("Expenses", fmt(s.expTotal), () => askSideBreakdown("expense"))],
     sum: ["Net", fmt(net)],
+    sumOpen: askNetBreakdown,
     after: [s.expTotal - s.actualExp
       ? fmt(s.expTotal - s.actualExp) + " of those expenses has not gone out yet, so the figure includes what is still to come."
-      : "Everything in it has settled."],
+      : "Everything in it has settled.",
+      "Tap Income or Expenses for every entry behind it, or Net for the whole period in date order."],
     acts: [["See the entries", () => { sheetClose(); setPanel("entries"); render(); }]]
   };
 }
@@ -13907,6 +14015,14 @@ function askMatch(q){
 }
 
 /* ---------- putting an answer on screen ---------- */
+/** The small bubble that says a line opens into its own breakdown. */
+function askDot(){
+  const dot = el("button", "askdot");
+  dot.type = "button";
+  dot.setAttribute("aria-label", "Show how this is made");
+  dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+  return dot;
+}
 function askShow(a){
   const host = $("#askOut");
   host.innerHTML = "";
@@ -13925,11 +14041,7 @@ function askShow(a){
     /* a small bubble beside a line that can be taken apart; the whole line
        answers the tap, the bubble only says that it will */
     if (f.open){
-      const dot = el("button", "askdot");
-      dot.type = "button";
-      dot.setAttribute("aria-label", "Show how this is made");
-      dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
-      lab.appendChild(dot);
+      lab.appendChild(askDot());
       row.addEventListener("click", f.open);
     }
     lab.appendChild(document.createTextNode(f.label));
@@ -13938,8 +14050,14 @@ function askShow(a){
     box.appendChild(row);
   });
   if (a.sum){
-    const row = el("div", "asksum");
-    row.appendChild(el("span", null, a.sum[0]));
+    const row = el("div", "asksum" + (a.sumOpen ? " can-open" : ""));
+    const lab = el("span", null);
+    if (a.sumOpen){
+      lab.appendChild(askDot());
+      row.addEventListener("click", a.sumOpen);
+    }
+    lab.appendChild(document.createTextNode(a.sum[0]));
+    row.appendChild(lab);
     row.appendChild(el("span", null, a.sum[1]));
     box.appendChild(row);
   }

@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.10 — 2026-09-18
+- new: Helper: in Explain Net this period, tap Income, Expenses or Net to see every entry behind it
+- better: Budget: the heading shows what the budgets come to in euros beside their share of income
+
 ## 2.2.9 — 2026-09-18
 - fix: A new balance is dated today: the date box used to open on the oldest balance saved, so a figure entered now was counted from August and every entry since added again
 - new: Helper: tap an account under "In the account now" to see its snapshot and every entry since, with the balance after each
