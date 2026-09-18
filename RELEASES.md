@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.8 — 2026-09-18
+- fix: Helper: a month or year answer counts only what was paid or received, and names the planned entries it leaves out — it now agrees with Reports
+
 ## 2.2.7 — 2026-09-16
 - better: Icon: the euro is asset-management's lean sign, embossed as a rounded raised gold stroke and clear of the building; the pillars are slimmer
 
