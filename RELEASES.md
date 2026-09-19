@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.15 — 2026-09-19
+- new: Helper in Deutsch: every question and answer in German, and it can be asked in German — "gehalt august", "ausgaben 2026"
+
 ## 2.2.14 — 2026-09-19
 - new: Config: English or Deutsch — every screen, sheet, message and built-in category in German, dates included; the helper follows next
 
