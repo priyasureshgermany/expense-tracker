@@ -2527,6 +2527,72 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   background:var(--neg);color:#fff;
   font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
 }
+/* ---------- Trips ---------- */
+#viewTrips{padding:4px 14px 0}
+.tr-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 12px}
+.tr-h{margin:0;font-size:17px;font-weight:700;color:var(--ink)}
+.tr-new,.tr-add{width:auto;padding:10px 16px}
+.tr-add{width:100%;margin:12px 0 0}
+.tr-empty{padding:18px 16px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-3);font-size:12.5px;line-height:1.5;margin-top:12px}
+.tr-empty b{display:block;color:var(--ink);font-size:14px;margin-bottom:4px}
+.tr-empty p{margin:0}
+.tripcard{
+  display:block;width:100%;text-align:left;margin-bottom:10px;padding:14px;
+  border-radius:16px;background:var(--surface);border:1px solid var(--line);
+  border-left:3px solid hsl(88 82% 42%);
+}
+.tc-top{display:flex;align-items:center;gap:11px}
+.tc-ic{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.tc-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.tc-n b{font-size:14px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-n span{font-size:11px;color:var(--ink-3)}
+.tc-v{flex:none;font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.tc-track{height:6px;border-radius:99px;background:var(--surface-sunk);overflow:hidden;margin-top:11px}
+.tc-track i{display:block;height:100%;border-radius:99px}
+.tc-sub{font-size:11.5px;color:var(--ink-3);margin-top:6px;font-variant-numeric:tabular-nums}
+.tr-nav{display:flex;align-items:center;justify-content:space-between;margin:8px 0 2px}
+.tr-back,.tr-edit{font-size:13px;font-weight:600;color:var(--accent);padding:8px 2px}
+.tr-sum{margin:8px 0 0}
+.tr-name{font-size:17px;font-weight:700;color:var(--ink)}
+.tr-dates{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+.tr-total{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--ink);margin-top:10px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+#viewTrips .card{margin:12px 0 0}
+.tr-dayh{display:flex;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);padding:10px 0 4px;border-bottom:1px solid var(--line)}
+.tr-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:9px 0;border-bottom:1px solid var(--line)}
+.tr-row:last-child{border-bottom:none}
+.tr-ric{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--surface-2);color:var(--ink-2)}
+.tr-rm{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.tr-rm b{font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-rm span{font-size:11px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-ra{flex:none;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--neg);font-variant-numeric:tabular-nums}
+.tr-person{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.tr-person b{font-size:13px;color:var(--ink)}
+.tr-person span{grid-column:1;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.tr-person i{grid-column:2;grid-row:1 / span 2;align-self:center;font-style:normal;font-size:12.5px;font-weight:700;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.tr-person i.in{color:var(--pos)}
+.tr-person i.out{color:var(--neg)}
+.tr-moves{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.tr-move{padding:9px 11px;border-radius:11px;background:var(--accent-soft);color:var(--accent);font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;white-space:pre}
+.tr-pchip{display:inline-flex;align-items:center;gap:6px;cursor:default}
+/* what a trip expense was for: tiles, icon over name, three to a row */
+.tekinds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tekind{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:11px 4px 9px;border-radius:14px;min-width:0;
+  background:var(--surface-2);border:1.5px solid var(--line);
+  transition:border-color .15s,background .15s,transform .12s;
+}
+.tekind:active{transform:scale(.96)}
+.tekind[aria-pressed="true"]{background:var(--surface)}
+.tk-ic{width:40px;height:40px;border-radius:13px;display:grid;place-items:center}
+.tk-n{font-size:11.5px;font-weight:600;color:var(--ink-2);text-align:center;line-height:1.2}
+.tekind[aria-pressed="true"] .tk-n{color:var(--ink)}
+.tr-px{font-size:11px;color:var(--ink-3);padding:0 2px}
+.tr-addp{display:flex;gap:8px;margin-top:8px}
+.tr-addp .inp{flex:1;min-width:0}
+.lbl-opt{font-weight:500;color:var(--ink-3);font-size:11px;margin-left:4px;text-transform:none;letter-spacing:0}
+.trcur-sym{font-weight:600}
+
 /* Config: one row per setting, what it is on the left and its value on the right */
 .cfgrows{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .cfgrow{
@@ -3429,6 +3495,9 @@ html.locked #lockScreen::before{
     </section>
   </div>
 
+  <div id="viewTrips" hidden>
+    <div id="tripsBody"></div>
+  </div>
   <div class="spacer"></div>
 
   <!-- Asks and answers inside the app: no service, no key, no data leaving the
@@ -3476,9 +3545,9 @@ html.locked #lockScreen::before{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
       வரவு செலவு
     </button>
-    <button role="tab" data-view="shop" aria-selected="false">
+    <button role="tab" data-view="shop" id="thirdTab" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 11.4a2 2 0 002 1.6h7.8a2 2 0 002-1.6L21 7H6.2"/></svg>
-      Shopping cart
+      <span class="tt-lab">Shopping cart</span>
     </button>
     <button type="button" id="btnMore" aria-haspopup="dialog" aria-label="More">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
@@ -4142,6 +4211,96 @@ html.locked #lockScreen::before{
   </div>
 </section>
 
+<!-- TRIP — a trip's name, dates, currency, budget and who is on it -->
+<section class="sheet" id="shTrip" role="dialog" aria-modal="true" aria-labelledby="trTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="trTitle">New trip</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="field">
+      <label for="trName">Name</label>
+      <input class="inp" id="trName" type="text" placeholder="e.g. India — Dec 2026" autocomplete="off">
+    </div>
+    <div class="row2">
+      <div class="field"><label for="trFrom">From</label><input id="trFrom" type="date"></div>
+      <div class="field"><label for="trTo">To</label><input id="trTo" type="date"></div>
+    </div>
+    <div class="field">
+      <label>Currency</label>
+      <div class="toggle2" id="trCur" style="grid-template-columns:1fr 1fr">
+        <button class="a" type="button" data-v="EUR" aria-pressed="true">€ Euro</button>
+        <button class="a" type="button" data-v="INR" aria-pressed="false">₹ Rupee</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="trBudget">Budget <span class="lbl-opt">optional</span></label>
+      <div class="amtfield out"><span class="trcur-sym">€</span><input id="trBudget" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+    </div>
+    <div class="field">
+      <label>Who is on it</label>
+      <div class="chips" id="trPeople"></div>
+      <div class="tr-addp">
+        <input class="inp" id="trPerson" type="text" placeholder="Add a name, e.g. Priya" autocomplete="off">
+        <button class="shopadd-b" type="button" id="trPersonAdd" aria-label="Add this person">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </div>
+    <button class="btn" type="button" id="trSave">Save trip</button>
+    <div id="trDelWrap" style="display:none;margin-top:9px">
+      <button class="btn danger sm" type="button" id="trDelete">Delete this trip</button>
+    </div>
+  </div>
+</section>
+
+<!-- TRIP EXPENSE — one thing a trip cost, who paid, and who shares it -->
+<section class="sheet" id="shTripExp" role="dialog" aria-modal="true" aria-labelledby="teTitle">
+  <div class="sheet-head" style="position:relative">
+    <h2 id="teTitle">Trip expense</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="field">
+      <label>What for</label>
+      <div class="tekinds" id="teKinds"></div>
+    </div>
+    <div class="field">
+      <label for="teAmt">Amount</label>
+      <div class="amtfield out"><span class="trcur-sym" id="teCurSym">€</span><input id="teAmt" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+    </div>
+    <div class="field">
+      <label for="teWhat" id="teWhatLab">Note</label>
+      <input class="inp" id="teWhat" type="text" placeholder="e.g. Taxi to the airport" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="teDate">Date</label>
+      <input id="teDate" type="date">
+    </div>
+    <div class="field">
+      <label>Paid by</label>
+      <div class="chips" id="tePaidBy"></div>
+    </div>
+    <div class="field">
+      <label>Shared between</label>
+      <div class="chips" id="teSplit"></div>
+    </div>
+    <div class="field" id="teAcctWrap">
+      <label>Paid from</label>
+      <div class="pick" id="teAcct" role="listbox" aria-label="Account"></div>
+      <div class="note" style="margin-top:6px">What you pay goes into your ledger too, under Travel, so it counts in the month and the account's balance.</div>
+    </div>
+    <button class="btn" type="button" id="teSave">Save expense</button>
+    <div id="teDelWrap" style="display:none;margin-top:9px">
+      <button class="btn danger sm" type="button" id="teDelete">Delete this expense</button>
+    </div>
+  </div>
+</section>
+
 <!-- ASK — the in-app helper -->
 <section class="sheet" id="shAsk" role="dialog" aria-modal="true" aria-labelledby="askTitle">
   <div class="sheet-head">
@@ -4523,9 +4682,15 @@ html.locked #lockScreen::before{
               euro amount, small, beneath.
             </div>
           </div>
-          <div class="cfgrow">
+          <div class="cfgrow cfg-stack">
             <div class="cf-t"><b>Shopping or trips</b><span>What the third tab holds</span></div>
-            <div class="cf-v">Shopping list<em>coming soon</em></div>
+            <div class="toggle2 cfg-tog" id="cfgThird" style="grid-template-columns:1fr 1fr">
+              <button class="a" type="button" data-v="shop" aria-pressed="true">Shopping list</button>
+              <button class="a" type="button" data-v="trips" aria-pressed="false">Trip expenses</button>
+            </div>
+            <div class="note" style="margin-top:2px">
+              Switching changes only which one the tab shows; nothing in either is lost.
+            </div>
           </div>
           <div class="cfgrow">
             <div class="cf-t"><b>Language</b><span>English or Deutsch</span></div>
@@ -4646,7 +4811,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.12";
+const APP_VERSION = "2.2.13";
 const APP_BUILT = "2026-09-19";
 
 const KEY = "panappai.v1";
@@ -4673,6 +4838,10 @@ const CATS = {
     {id:"health",       n:"Health",              h:325, l:29},
     {id:"dining",       n:"Dining",              h:29, l:42},
     {id:"shopping",     n:"Shopping",            h:39, l:27},
+    /* where a trip's spending lands in the ledger, so it neither eats the
+       Groceries or Dining budgets nor hides among them; the trip keeps its own
+       finer kinds. Hue and depth placed furthest from every other category. */
+    {id:"travel",       n:"Travel",              h:88, l:42},
     {id:"education",    n:"Education",           h:173, l:31},
     {id:"cash",         n:"Cash",                h:179, l:41},
     {id:"cardpay",      n:"Credit Card Payment", h:262, l:25},
@@ -4783,6 +4952,7 @@ const ICON = {
   health:'<path d="M12 20.6S3.9 15.1 3.9 9.4A4.6 4.6 0 0112 7.1a4.6 4.6 0 018.1 2.3c0 5.7-8.1 11.2-8.1 11.2z"/>',
   dining:'<path d="M7 3v6.4a2 2 0 004 0V3"/><path d="M9 11.4V21"/><path d="M16.6 3c-1.2 1.4-1.8 3.1-1.8 5 0 1.6.6 2.6 1.8 3.2V21"/>',
   shopping:'<path d="M5.5 8h13l1 12.5h-15z"/><path d="M9 8V6a3 3 0 016 0v2"/>',
+  travel:'<rect x="4" y="7.5" width="16" height="12.5" rx="2.5"/><path d="M9 7.5V5.5a2 2 0 012-2h2a2 2 0 012 2v2"/><path d="M8 7.5v12.5M16 7.5v12.5"/>',
   subs:'<circle cx="12" cy="12" r="8.5"/><path d="M10.3 8.8l5.4 3.2-5.4 3.2z"/>',
   education:'<path d="M2.5 8.5L12 4.2l9.5 4.3L12 12.8z"/><path d="M6.5 10.9V16c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8v-5.1"/><path d="M21.2 9v5"/>',
   family:'<circle cx="9" cy="8" r="3.2"/><path d="M2.6 20a6.4 6.4 0 0112.8 0"/><path d="M16 5.4a3.2 3.2 0 010 5.4"/><path d="M17.8 14.5a6.4 6.4 0 013.6 5.5"/>',
@@ -5097,7 +5267,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null };
+let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], thirdTab:"shop" };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -5434,7 +5604,10 @@ function stateFromPayload(p){
     hiddenCats: Array.isArray(p.hiddenCats) ? p.hiddenCats.filter(x => typeof x === "string") : [],
     /* what amounts are shown in, and the rate they are shown at */
     currency: p.currency === "INR" ? "INR" : "EUR",
-    fx: normaliseFx(p.fx)
+    fx: normaliseFx(p.fx),
+    /* trips, and whether the third tab holds them or the shopping list */
+    trips: normaliseTrips(p.trips),
+    thirdTab: p.thirdTab === "trips" ? "trips" : "shop"
   };
   if (p.demo) st.demo = true;
   return st;
@@ -5458,8 +5631,40 @@ function stateCleared(){
     feedback: state.feedback || [],
     hiddenCats: state.hiddenCats || [],
     currency: state.currency === "INR" ? "INR" : "EUR",
-    fx: state.fx || null
+    fx: state.fx || null,
+    /* a trip is what happened, like the entries it made, so it goes with them;
+       which tab holds trips is setup, so it stays */
+    trips: [],
+    thirdTab: state.thirdTab === "trips" ? "trips" : "shop"
   };
+}
+
+/** Trips as saved, with anything malformed dropped rather than trusted. */
+function normaliseTrips(list){
+  if (!Array.isArray(list)) return [];
+  return list.filter(t => t && typeof t === "object" && typeof t.id === "string").map(t => {
+    const people = (Array.isArray(t.people) ? t.people : [])
+      .filter(x => x && typeof x.id === "string" && typeof x.n === "string");
+    if (!people.some(x => x.id === "me")) people.unshift({ id:"me", n:"You" });
+    const ids = people.map(x => x.id);
+    return {
+      id: t.id, name: typeof t.name === "string" ? t.name : "Trip",
+      from: typeof t.from === "string" ? t.from : todayISO(),
+      to: typeof t.to === "string" ? t.to : (typeof t.from === "string" ? t.from : todayISO()),
+      cur: t.cur === "INR" ? "INR" : "EUR",
+      budget: +t.budget > 0 ? Math.round(+t.budget) : 0,
+      people: people,
+      items: (Array.isArray(t.items) ? t.items : []).filter(i => i && typeof i.id === "string" && +i.amount > 0).map(i => ({
+        id: i.id, date: typeof i.date === "string" ? i.date : t.from, kind: typeof i.kind === "string" ? i.kind : "other",
+        what: typeof i.what === "string" ? i.what : "", amount: Math.round(+i.amount),
+        paidBy: ids.indexOf(i.paidBy) > -1 ? i.paidBy : "me",
+        split: (Array.isArray(i.split) ? i.split : []).filter(x => ids.indexOf(x) > -1),
+        account: typeof i.account === "string" ? i.account : null,
+        txnId: typeof i.txnId === "string" ? i.txnId : null
+      })),
+      created: typeof t.created === "string" ? t.created : null
+    };
+  });
 }
 
 /** A rate kept only if it is a rate: a positive number of rupees to the euro. */
@@ -5485,6 +5690,8 @@ function load(){
   if (!Array.isArray(state.budgetBase) || !state.budgetBase.length) state.budgetBase = ["salary"];
   if (state.currency !== "INR") state.currency = "EUR";
   state.fx = normaliseFx(state.fx);
+  state.trips = normaliseTrips(state.trips);
+  if (state.thirdTab !== "trips") state.thirdTab = "shop";
   if (!state.cats) state.cats = normaliseCats(null);
   /* Backups written before the catch-all existed have none set, which left the
      Misc envelope counting only entries tagged Misc rather than absorbing the
@@ -6198,6 +6405,7 @@ const HEALTH_LABEL = { red:"Overspent", orange:"Thin buffer", yellow:"Comfortabl
 
 function render(){
   applyCurrency();
+  applyThirdTab();
   const dark = isDark();
   const all = periodTxns(view).slice().sort((a, b) =>
     a.date === b.date ? (a.status === b.status ? 0 : a.status === "planned" ? -1 : 1)
@@ -6401,6 +6609,8 @@ function envSpends(catId, p){
     if (t.category === catId) return true;
     if (!isCatch) return false;
     if (t.ruleId) return false;
+    /* a trip has its own budget, so its spending is not drawn from the cushion */
+    if (t.category === "travel") return false;
     return covered.indexOf(t.category) === -1;
   });
 }
@@ -10021,10 +10231,525 @@ $("#setBack").addEventListener("click", () =>
 
 /* Opening settings is also how a nested sheet gets back here, so it is a
    function rather than only a click handler. */
+/* =========================================================================
+   TRIPS
+
+   A trip is a name, its dates, the currency it is spent in, an optional
+   budget and the people on it; and everything it cost, each with who paid
+   and who shares it. What you paid yourself also goes into the ledger, under
+   Travel, so it counts in the month and in the account it came out of; what
+   someone else paid stays in the trip, which works out who owes whom.
+   ========================================================================= */
+const TRIP_KINDS = [
+  { id:"transport", h:247, l:42, n:"Transport",       ic:ICON.transport },
+  { id:"stay", h:280, l:32,      n:"Stay",            ic:'<path d="M3 18.5V7"/><path d="M3 14h18v4.5"/><path d="M21 14v-2.5a3 3 0 00-3-3h-7V14"/><circle cx="7" cy="11" r="2"/>' },
+  { id:"dining", h:29, l:42,    n:"Dining",          ic:ICON.dining },
+  { id:"snacks", h:330, l:38,    n:"Snacks & drinks", ic:'<path d="M6 8h11l-1.4 11a2 2 0 01-2 1.7H9.4a2 2 0 01-2-1.7z"/><path d="M17 10.5h1.5a2.5 2.5 0 010 5H16.6"/><path d="M9.5 3.5v2M13 3.5v2"/>' },
+  { id:"ticket", h:188, l:30,    n:"Entry ticket",    ic:'<path d="M3.5 8.5a2 2 0 002-2h13a2 2 0 002 2v2a2 2 0 000 3v2a2 2 0 00-2 2h-13a2 2 0 00-2-2v-2a2 2 0 000-3z"/><path d="M14.5 6.5v11" stroke-dasharray="1.6 2"/>' },
+  { id:"shopping", h:45, l:30,  n:"Shopping",        ic:ICON.shopping },
+  { id:"fuel", h:4, l:36,      n:"Fuel",            ic:'<path d="M5 20V5.5a2 2 0 012-2h6a2 2 0 012 2V20"/><path d="M4 20h12"/><path d="M8 8h4"/><path d="M15 9.5h1.5a1.5 1.5 0 011.5 1.5v4.5a1.5 1.5 0 003 0V8l-2.5-2.5"/>' },
+  { id:"toll", h:130, l:30,      n:"Toll",            ic:'<path d="M4 21V9l8-5 8 5v12"/><path d="M4 12.5h16"/><path d="M9.5 21v-5h5v5"/>' },
+  { id:"other", h:210, l:28,     n:"Other",           ic:ICON.other }
+];
+const TRIP_KIND = Object.fromEntries(TRIP_KINDS.map(k => [k.id, k]));
+/* Each kind is coloured the way a category is — its own hue and depth, a
+   soft tint behind the icon and a deeper ink for it — so a kind reads the
+   same on its tile, its bar and its rows. */
+function tripKindIcon(k, size){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="' +
+         size + '" height="' + size + '">' + k.ic + '</svg>';
+}
+function tripKindName(id){ return (TRIP_KIND[id] || TRIP_KIND.other).n; }
+
+let tripOpen = null;          /* the trip being looked at, or null for the list */
+function tripById(id){ return (state.trips || []).find(t => t.id === id) || null; }
+/** A trip's amount, in its own currency. */
+function tfmt(cents, trip){ return amountsHidden ? AMOUNT_MASK : fmtIn(cents, trip.cur); }
+function tripPerson(trip, id){ const p = trip.people.find(x => x.id === id); return p ? p.n : "Someone"; }
+function tripTotal(trip){ return trip.items.reduce((n, i) => n + i.amount, 0); }
+function tripDates(trip){
+  return trip.from === trip.to ? prettyDate(trip.from) : prettyDate(trip.from) + " – " + prettyDate(trip.to);
+}
+
+/**
+ * Who paid what, who owes what, and the fewest payments that square it.
+ * An expense is shared equally between the people it is shared with; the
+ * odd cent goes to the first of them, so the shares always add up to it.
+ */
+function tripBalances(trip){
+  const paid = {}, owe = {};
+  trip.people.forEach(p => { paid[p.id] = 0; owe[p.id] = 0; });
+  trip.items.forEach(i => {
+    paid[i.paidBy] = (paid[i.paidBy] || 0) + i.amount;
+    const who = i.split.length ? i.split : trip.people.map(p => p.id);
+    const each = Math.floor(i.amount / who.length);
+    let rest = i.amount - each * who.length;
+    who.forEach(id => { owe[id] = (owe[id] || 0) + each + (rest > 0 ? 1 : 0); if (rest > 0) rest--; });
+  });
+  const people = trip.people.map(p => ({ id:p.id, n:p.n, paid:paid[p.id] || 0, share:owe[p.id] || 0,
+                                         net:(paid[p.id] || 0) - (owe[p.id] || 0) }));
+  /* settle: the one who owes most pays the one owed most, until it is square */
+  const cred = people.filter(p => p.net > 0).map(p => ({ id:p.id, v:p.net })).sort((a, b) => b.v - a.v);
+  const debt = people.filter(p => p.net < 0).map(p => ({ id:p.id, v:-p.net })).sort((a, b) => b.v - a.v);
+  const moves = [];
+  let ci = 0, di = 0;
+  while (ci < cred.length && di < debt.length){
+    const v = Math.min(cred[ci].v, debt[di].v);
+    if (v > 0) moves.push({ from:debt[di].id, to:cred[ci].id, amount:v });
+    cred[ci].v -= v; debt[di].v -= v;
+    if (!cred[ci].v) ci++;
+    if (!debt[di].v) di++;
+  }
+  return { people, moves };
+}
+
+/**
+ * The ledger entry for an expense you paid: made, kept in step, or taken away
+ * when someone else turns out to have paid it. False when a rupee trip has no
+ * rate yet to put it into the book's euros.
+ */
+function tripLedgerSync(trip, it){
+  let t = it.txnId ? state.txns.find(x => x.id === it.txnId) : null;
+  if (it.paidBy !== "me"){
+    if (t) state.txns = state.txns.filter(x => x !== t);
+    it.txnId = null;
+    return true;
+  }
+  let euro = it.amount;
+  if (trip.cur === "INR"){
+    if (!fxRate()) return false;
+    euro = Math.round(it.amount / fxRate());
+  }
+  if (!t){ t = { id: uid() }; state.txns.push(t); it.txnId = t.id; }
+  Object.assign(t, {
+    type:"expense", status:"done", category:"travel", amount: euro, date: it.date,
+    note: tripKindName(it.kind) + (it.what ? " · " + it.what : "") + " · " + trip.name,
+    account: it.account || null, fromAccount: null, tripId: trip.id
+  });
+  setOrig(t, trip.cur === "INR" ? { cur:"INR", amount: it.amount } : null);
+  return true;
+}
+
+/* ---------- the tab ---------- */
+function applyThirdTab(){
+  const trips = state.thirdTab === "trips";
+  const b = $("#thirdTab");
+  if (!b) return;
+  b.dataset.view = trips ? "trips" : "shop";
+  b.querySelector(".tt-lab").textContent = trips ? "Trips" : "Shopping cart";
+  const svg = b.querySelector("svg");
+  if (svg) svg.innerHTML = trips ? ICON.travel
+    : '<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 11.4a2 2 0 002 1.6h7.8a2 2 0 002-1.6L21 7H6.2"/>';
+  /* standing on the tab that just changed, follow it */
+  if ((panel === "shop" && trips) || (panel === "trips" && !trips)) setPanel(trips ? "trips" : "shop");
+}
+
+/* ---------- the list, and one trip ---------- */
+function renderTrips(){
+  const host = $("#tripsBody");
+  host.innerHTML = "";
+  const trip = tripOpen ? tripById(tripOpen) : null;
+  if (!trip){ tripOpen = null; renderTripList(host); return; }
+  renderTripPage(host, trip);
+}
+
+function renderTripList(host){
+  const head = el("div", "tr-head");
+  head.appendChild(el("h2", "tr-h", "Trips"));
+  const add = el("button", "shopadd-main tr-new", "New trip");
+  add.type = "button";
+  add.addEventListener("click", () => openTripEditor(null));
+  head.appendChild(add);
+  host.appendChild(head);
+
+  const trips = (state.trips || []).slice().sort((a, b) => a.from < b.from ? 1 : a.from > b.from ? -1 : 0);
+  if (!trips.length){
+    const e = el("div", "tr-empty");
+    e.appendChild(el("b", null, "No trips yet"));
+    e.appendChild(el("p", null, "Start one with its dates and who is going. Add what it costs as you go — transport, stay, tickets, snacks — and it adds up by kind and by day, and works out who owes whom."));
+    host.appendChild(e);
+    return;
+  }
+  trips.forEach(t => {
+    const total = tripTotal(t);
+    const card = el("button", "tripcard");
+    card.type = "button";
+    const top = el("div", "tc-top");
+    const ic = el("span", "tc-ic");
+    ic.innerHTML = iconSvg("travel", 20);
+    top.appendChild(ic);
+    const nm = el("div", "tc-n");
+    nm.appendChild(el("b", null, t.name));
+    nm.appendChild(el("span", null, tripDates(t) + " · " + t.people.length + (t.people.length === 1 ? " person" : " people")));
+    top.appendChild(nm);
+    top.appendChild(el("div", "tc-v", tfmt(total, t)));
+    card.appendChild(top);
+    if (t.budget > 0){
+      const track = el("div", "tc-track");
+      const fill = el("i");
+      fill.style.width = Math.min(100, Math.round(total / t.budget * 100)) + "%";
+      fill.style.background = total > t.budget ? "var(--health-red)" : "var(--accent-mid)";
+      track.appendChild(fill);
+      card.appendChild(track);
+      card.appendChild(el("div", "tc-sub", total > t.budget
+        ? tfmt(total - t.budget, t) + " over a budget of " + tfmt(t.budget, t)
+        : tfmt(t.budget - total, t) + " left of " + tfmt(t.budget, t)));
+    }
+    card.addEventListener("click", () => { tripOpen = t.id; renderTrips(); window.scrollTo({ top:0 }); });
+    host.appendChild(card);
+  });
+}
+
+function renderTripPage(host, trip){
+  const nav = el("div", "tr-nav");
+  const back = el("button", "tr-back", "‹ All trips");
+  back.type = "button";
+  back.addEventListener("click", () => { tripOpen = null; renderTrips(); });
+  nav.appendChild(back);
+  const edit = el("button", "tr-edit", "Edit trip");
+  edit.type = "button";
+  edit.addEventListener("click", () => openTripEditor(trip));
+  nav.appendChild(edit);
+  host.appendChild(nav);
+
+  const total = tripTotal(trip);
+  const bal = tripBalances(trip);
+  const me = bal.people.find(p => p.id === "me");
+
+  /* the summary: what it has cost, against the budget, and your part of it */
+  const sum = el("div", "card tr-sum");
+  sum.appendChild(el("div", "tr-name", trip.name));
+  sum.appendChild(el("div", "tr-dates", tripDates(trip) + " · " + (trip.cur === "INR" ? "₹ Rupee" : "€ Euro")));
+  sum.appendChild(el("div", "tr-total", tfmt(total, trip)));
+  if (trip.budget > 0){
+    const track = el("div", "tc-track");
+    const fill = el("i");
+    fill.style.width = Math.min(100, Math.round(total / trip.budget * 100)) + "%";
+    fill.style.background = total > trip.budget ? "var(--health-red)" : "var(--accent-mid)";
+    track.appendChild(fill);
+    sum.appendChild(track);
+    sum.appendChild(el("div", "tc-sub", total > trip.budget
+      ? tfmt(total - trip.budget, trip) + " over the budget of " + tfmt(trip.budget, trip)
+      : tfmt(trip.budget - total, trip) + " left of the budget of " + tfmt(trip.budget, trip)));
+  }
+  if (trip.people.length > 1 && me){
+    sum.appendChild(el("div", "tc-sub", "Your share " + tfmt(me.share, trip) + " · you paid " + tfmt(me.paid, trip)));
+  }
+  host.appendChild(sum);
+
+  const add = el("button", "shopadd-main tr-add", "Add expense");
+  add.type = "button";
+  add.addEventListener("click", () => openTripExpense(trip, null));
+  host.appendChild(add);
+
+  if (!trip.items.length){
+    host.appendChild(el("div", "tr-empty", "Nothing added yet."));
+    return;
+  }
+
+  /* by kind */
+  const byKind = new Map();
+  trip.items.forEach(i => byKind.set(i.kind, (byKind.get(i.kind) || 0) + i.amount));
+  const kinds = [...byKind.entries()].sort((a, b) => b[1] - a[1]);
+  const kc = el("div", "card");
+  kc.appendChild(el("h3", null, "By kind"));
+  const bars = el("div", "bars");
+  const max = kinds[0][1];
+  const darkK = isDark();
+  kinds.forEach(([k, amt]) => {
+    const kind = TRIP_KIND[k] || TRIP_KIND.other;
+    const b = el("div", "bar");
+    b.appendChild(el("div", "bn", tripKindName(k)));
+    const v = el("div", "bv");
+    v.appendChild(el("span", "bp", Math.round(amt / total * 100) + "%"));
+    v.appendChild(document.createTextNode(tfmt(amt, trip)));
+    b.appendChild(v);
+    const track = el("div", "track");
+    const i = el("i");
+    i.style.width = Math.max(2, Math.round(amt / max * 100)) + "%";
+    i.style.background = tintInk(kind, darkK);
+    track.appendChild(i);
+    b.appendChild(track);
+    bars.appendChild(b);
+  });
+  kc.appendChild(bars);
+  host.appendChild(kc);
+
+  /* by day, newest first */
+  const days = new Map();
+  trip.items.forEach(i => { if (!days.has(i.date)) days.set(i.date, []); days.get(i.date).push(i); });
+  const dc = el("div", "card");
+  dc.appendChild(el("h3", null, "By day"));
+  [...days.keys()].sort().reverse().forEach(d => {
+    const list = days.get(d);
+    const dh = el("div", "tr-dayh");
+    dh.appendChild(el("span", null, dayTitle(d)));
+    dh.appendChild(el("span", null, tfmt(list.reduce((n, i) => n + i.amount, 0), trip)));
+    dc.appendChild(dh);
+    list.forEach(i => {
+      const r = el("button", "tr-row");
+      r.type = "button";
+      const kind = TRIP_KIND[i.kind] || TRIP_KIND.other;
+      const ic = el("span", "tr-ric");
+      ic.innerHTML = tripKindIcon(kind, 17);
+      ic.style.background = tint(kind, isDark());
+      ic.style.color = tintInk(kind, isDark());
+      r.appendChild(ic);
+      const mid = el("div", "tr-rm");
+      mid.appendChild(el("b", null, i.what || tripKindName(i.kind)));
+      const who = i.split.length && i.split.length < trip.people.length
+        ? " · shared by " + i.split.map(id => tripPerson(trip, id)).join(", ")
+        : (trip.people.length > 1 ? " · shared by all" : "");
+      mid.appendChild(el("span", null, (i.what ? tripKindName(i.kind) + " · " : "") +
+                                     tripPerson(trip, i.paidBy) + " paid" + who));
+      r.appendChild(mid);
+      r.appendChild(el("div", "tr-ra", tfmt(i.amount, trip)));
+      r.addEventListener("click", () => openTripExpense(trip, i));
+      dc.appendChild(r);
+    });
+  });
+  host.appendChild(dc);
+
+  /* who paid what, and who owes whom */
+  if (trip.people.length > 1){
+    const pc = el("div", "card");
+    pc.appendChild(el("h3", null, "Settle up"));
+    bal.people.forEach(p => {
+      const r = el("div", "tr-person");
+      r.appendChild(el("b", null, p.n));
+      r.appendChild(el("span", null, "paid " + tfmt(p.paid, trip) + " · share " + tfmt(p.share, trip)));
+      r.appendChild(el("i", p.net > 0 ? "in" : p.net < 0 ? "out" : "",
+        p.net > 0 ? "gets back " + tfmt(p.net, trip) : p.net < 0 ? "owes " + tfmt(-p.net, trip) : "square"));
+      pc.appendChild(r);
+    });
+    if (bal.moves.length){
+      const mv = el("div", "tr-moves");
+      bal.moves.forEach(m => mv.appendChild(el("div", "tr-move",
+        tripPerson(trip, m.from) + " → " + tripPerson(trip, m.to) + "  " + tfmt(m.amount, trip))));
+      pc.appendChild(mv);
+    } else {
+      pc.appendChild(el("div", "tr-move", "Everyone is square."));
+    }
+    host.appendChild(pc);
+  }
+}
+
+/* ---------- the trip sheet ---------- */
+let trEditing = null, trDraft = null;
+function openTripEditor(trip){
+  trEditing = trip;
+  trDraft = trip
+    ? { cur: trip.cur, people: trip.people.map(p => Object.assign({}, p)) }
+    : { cur: dispCur(), people: [{ id:"me", n:"You" }] };
+  $("#trTitle").textContent = trip ? "Edit trip" : "New trip";
+  $("#trName").value = trip ? trip.name : "";
+  setDateVal("#trFrom", trip ? trip.from : todayISO());
+  setDateVal("#trTo", trip ? trip.to : addDays(todayISO(), 7));
+  $("#trBudget").value = trip && trip.budget ? (trip.budget / 100).toFixed(2).replace(".", ",") : "";
+  $("#trPerson").value = "";
+  $("#trDelWrap").style.display = trip ? "" : "none";
+  renderTripEditor();
+  sheetOpen("#shTrip");
+}
+function renderTripEditor(){
+  $$("#trCur button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === trDraft.cur)));
+  $("#shTrip .trcur-sym").textContent = CURRENCIES[trDraft.cur].sym;
+  const host = $("#trPeople");
+  host.innerHTML = "";
+  trDraft.people.forEach(p => {
+    const c = el("span", "chip tr-pchip", p.n);
+    if (p.id !== "me"){
+      /* someone who already paid or shares something stays; take it off them first */
+      /* an empty split means everyone, so anyone on the trip shares those too */
+      const used = trEditing && trEditing.items.some(i =>
+        i.paidBy === p.id || !i.split.length || i.split.indexOf(p.id) > -1);
+      if (!used){
+        const x = el("button", "tr-px", "✕");
+        x.type = "button";
+        x.setAttribute("aria-label", "Remove " + p.n);
+        x.addEventListener("click", () => { trDraft.people = trDraft.people.filter(q => q !== p); renderTripEditor(); });
+        c.appendChild(x);
+      }
+    }
+    host.appendChild(c);
+  });
+}
+$$("#trCur button").forEach(b => b.addEventListener("click", () => { trDraft.cur = b.dataset.v; renderTripEditor(); }));
+function tripAddPerson(){
+  const n = $("#trPerson").value.trim();
+  if (!n) return;
+  if (trDraft.people.some(p => p.n.toLowerCase() === n.toLowerCase())){ toast(n + " is already on it"); return; }
+  trDraft.people.push({ id:"p_" + uid(), n: n });
+  $("#trPerson").value = "";
+  renderTripEditor();
+}
+$("#trPersonAdd").addEventListener("click", tripAddPerson);
+$("#trPerson").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); tripAddPerson(); } });
+$("#trSave").addEventListener("click", () => {
+  const name = $("#trName").value.trim();
+  if (!name){ toast("Give the trip a name"); $("#trName").focus(); return; }
+  let from = $("#trFrom").value || todayISO(), to = $("#trTo").value || from;
+  if (to < from){ const x = from; from = to; to = x; }
+  if (trDraft.cur === "INR" && !fxRate()){
+    toast("A rupee trip needs the exchange rate — refresh it in Settings › Config"); return;
+  }
+  const budget = Math.abs(parseAmount($("#trBudget").value) || 0);
+  userTouched();
+  if (trEditing){
+    const curChanged = trEditing.cur !== trDraft.cur;
+    Object.assign(trEditing, { name, from, to, cur: trDraft.cur, budget, people: trDraft.people });
+    /* a new name or currency changes every ledger entry the trip made */
+    trEditing.items.forEach(i => tripLedgerSync(trEditing, i));
+    if (curChanged) toast("Currency changed — amounts are read as " + CURRENCIES[trDraft.cur].sym + " now");
+  } else {
+    const t = { id: uid(), name, from, to, cur: trDraft.cur, budget, people: trDraft.people, items: [],
+                created: new Date().toISOString() };
+    state.trips = (state.trips || []).concat([t]);
+    tripOpen = t.id;
+  }
+  save(); sheetClose(); render(); renderTrips();
+  toast(trEditing ? "Trip updated" : "Trip started");
+});
+$("#trDelete").addEventListener("click", async () => {
+  const t = trEditing;
+  if (!t) return;
+  const linked = t.items.filter(i => i.txnId).length;
+  if (!(await askConfirm({
+    title: "Delete " + t.name + "?",
+    message: t.items.length + " expense" + (t.items.length === 1 ? "" : "s") + " go with it" +
+             (linked ? ", and the " + linked + " ledger entr" + (linked === 1 ? "y" : "ies") + " for what you paid" : "") +
+             ". This cannot be undone."
+  }))) return;
+  userTouched();
+  const ids = new Set(t.items.map(i => i.txnId).filter(Boolean));
+  state.txns = state.txns.filter(x => !ids.has(x.id));
+  state.trips = state.trips.filter(x => x !== t);
+  tripOpen = null;
+  save(); sheetClose(); render(); renderTrips();
+  toast("Trip deleted");
+});
+
+/* ---------- the expense sheet ---------- */
+let teTrip = null, teEditing = null, teDraft = null;
+function openTripExpense(trip, it){
+  teTrip = trip; teEditing = it;
+  const t0 = todayISO();
+  teDraft = it
+    ? { kind: it.kind, paidBy: it.paidBy, split: it.split.length ? it.split.slice() : trip.people.map(p => p.id),
+        account: it.account }
+    : { kind: "transport", paidBy: "me", split: trip.people.map(p => p.id), account: defaultAccountId() };
+  $("#teTitle").textContent = it ? "Edit expense" : "Trip expense";
+  $("#teCurSym").textContent = CURRENCIES[trip.cur].sym;
+  $("#teAmt").value = it ? (it.amount / 100).toFixed(2).replace(".", ",") : "";
+  $("#teWhat").value = it ? it.what : "";
+  setDateVal("#teDate", it ? it.date : (t0 >= trip.from && t0 <= trip.to ? t0 : trip.from));
+  $("#teDelWrap").style.display = it ? "" : "none";
+  renderTripExpense();
+  sheetOpen("#shTripExp");
+  if (!it) setTimeout(() => $("#teAmt").focus(), 340);
+}
+function renderTripExpense(){
+  const trip = teTrip;
+  const kinds = $("#teKinds");
+  kinds.innerHTML = "";
+  const dark = isDark();
+  TRIP_KINDS.forEach(k => {
+    const on = teDraft.kind === k.id;
+    const b = el("button", "tekind");
+    b.type = "button";
+    const ic = el("span", "tk-ic");
+    ic.innerHTML = tripKindIcon(k, 22);
+    ic.style.background = tint(k, dark);
+    ic.style.color = tintInk(k, dark);
+    b.appendChild(ic);
+    b.appendChild(el("span", "tk-n", k.n));
+    b.setAttribute("aria-pressed", String(on));
+    /* chosen, the tile takes its own colour for its edge */
+    if (on) b.style.borderColor = tintInk(k, dark);
+    b.addEventListener("click", () => { teDraft.kind = k.id; renderTripExpense(); });
+    kinds.appendChild(b);
+  });
+  /* a ticket is for somewhere: ask for it by name */
+  const ticket = teDraft.kind === "ticket";
+  $("#teWhatLab").textContent = ticket ? "Attraction" : "Note";
+  $("#teWhat").placeholder = ticket ? "e.g. Mysore Palace" : "e.g. Taxi to the airport";
+
+  const paid = $("#tePaidBy");
+  paid.innerHTML = "";
+  trip.people.forEach(pp => {
+    const b = el("button", "chip", pp.n);
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(teDraft.paidBy === pp.id));
+    b.addEventListener("click", () => { teDraft.paidBy = pp.id; renderTripExpense(); });
+    paid.appendChild(b);
+  });
+  const split = $("#teSplit");
+  split.innerHTML = "";
+  trip.people.forEach(pp => {
+    const on = teDraft.split.indexOf(pp.id) > -1;
+    const b = el("button", "chip", pp.n);
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(on));
+    b.addEventListener("click", () => {
+      teDraft.split = on ? teDraft.split.filter(x => x !== pp.id) : teDraft.split.concat([pp.id]);
+      renderTripExpense();
+    });
+    split.appendChild(b);
+  });
+  /* only what you paid came out of one of your accounts */
+  const mine = teDraft.paidBy === "me" && accountsOf().length;
+  $("#teAcctWrap").hidden = !mine;
+  if (mine){
+    renderChoice($("#teAcct"),
+      [{ v:"", n:"Not recorded", none:true }].concat(
+        accountsOf().map(a => ({ v:a.id, n:a.n, ic:ACCT_ICON[a.kind] || ACCT_ICON.bank }))),
+      teDraft.account || "",
+      v => { teDraft.account = v || null; renderTripExpense(); });
+  }
+}
+$("#teSave").addEventListener("click", () => {
+  const trip = teTrip;
+  const cents = Math.abs(parseAmount($("#teAmt").value) || 0);
+  if (!cents){ toast("Enter an amount greater than zero"); $("#teAmt").focus(); return; }
+  if (!teDraft.split.length){ toast("Pick who shares it"); return; }
+  const it = teEditing || { id: uid(), txnId: null };
+  Object.assign(it, {
+    date: $("#teDate").value || trip.from, kind: teDraft.kind, what: $("#teWhat").value.trim(),
+    amount: cents, paidBy: teDraft.paidBy,
+    /* everyone is the same as nobody chosen: kept empty, so a person added to
+       the trip later shares it too */
+    split: teDraft.split.length === trip.people.length ? [] : teDraft.split.slice(),
+    account: teDraft.paidBy === "me" ? (teDraft.account || null) : null
+  });
+  if (!tripLedgerSync(trip, it)){
+    toast("A rupee trip needs the exchange rate — refresh it in Settings › Config"); return;
+  }
+  userTouched();
+  if (!teEditing) trip.items.push(it);
+  save(); sheetClose(); render(); renderTrips();
+  toast(teEditing ? "Expense updated" : "Added " + tfmt(cents, trip) + (it.paidBy === "me" ? " · in the ledger too" : ""));
+});
+$("#teDelete").addEventListener("click", async () => {
+  const trip = teTrip, it = teEditing;
+  if (!it) return;
+  if (!(await askConfirm({
+    title: "Delete this expense?",
+    message: (it.what || tripKindName(it.kind)) + " — " + tfmt(it.amount, trip) + " on " + prettyDate(it.date) +
+             (it.txnId ? ". Its ledger entry goes too." : ".")
+  }))) return;
+  userTouched();
+  if (it.txnId) state.txns = state.txns.filter(x => x.id !== it.txnId);
+  trip.items = trip.items.filter(x => x !== it);
+  save(); sheetClose(); render(); renderTrips();
+  toast("Expense deleted");
+});
+
 /* ---------- Config ---------- */
 function renderConfig(){
   const cur = state.currency === "INR" ? "INR" : "EUR";
   $$("#cfgCur button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === cur)));
+  const third = state.thirdTab === "trips" ? "trips" : "shop";
+  $$("#cfgThird button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === third)));
   const r = fxRate();
   $("#cfgFxLine").textContent = r
     ? "1 \u20ac = " + fmtIn(Math.round(r * 100), "INR") + (state.fx.date ? " \u00b7 as of " + prettyDate(state.fx.date) : "")
@@ -10061,6 +10786,14 @@ $$("#cfgCur button").forEach(b => b.addEventListener("click", () => {
   state.currency = v;
   save(); render(); renderConfig();
   toast(v === "INR" ? "Amounts now shown in \u20b9" : "Amounts now shown in \u20ac");
+}));
+$$("#cfgThird button").forEach(b => b.addEventListener("click", () => {
+  const v = b.dataset.v;
+  if ((state.thirdTab === "trips" ? "trips" : "shop") === v) return;
+  userTouched();
+  state.thirdTab = v;
+  save(); applyThirdTab(); renderConfig();
+  toast(v === "trips" ? "The third tab is Trips now" : "The third tab is the shopping list again");
 }));
 $("#cfgFxBtn").addEventListener("click", async () => {
   const btn = $("#cfgFxBtn");
@@ -11492,15 +12225,19 @@ function setPanel(p){
      shopping list, which left the top bar looking like a different app's. */
   $("#viewEntries").hidden = p !== "entries";
   $("#viewShop").hidden = p !== "shop";
-  /* the month bar and add button drive the ledger only; shopping lists aren't period-scoped */
-  $(".monthbar").style.display = p === "shop" ? "none" : "";
+  $("#viewTrips").hidden = p !== "trips";
+  /* the month bar and add button drive the ledger only; shopping lists and
+     trips aren't period-scoped, and a trip has its own add button */
+  const own = p === "shop" || p === "trips";
+  $(".monthbar").style.display = own ? "none" : "";
   /* The helper explains the dashboard's figures, so it waits on the dashboard */
   $("#btnAsk").hidden = p !== "dash";
   applyTucks();
-  $("#fabWrap").style.display = p === "shop" ? "none" : "";
+  $("#fabWrap").style.display = own ? "none" : "";
   fabClose();
   $$("#viewTog button[data-view]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.view === p)));
   if (p === "shop") renderShop();
+  if (p === "trips") renderTrips();
 }
 /* More sits in the tab bar but is not a view — it opens a sheet over whichever
    view you were on, so it is bound separately and never takes the selection. */
@@ -12075,6 +12812,7 @@ function miscSig(){
   const parts = [state.budgets, state.budgetPct, state.budgetBase, state.catchAll, state.balance,
                  state.accounts, state.profile, state.cats, (state.skips || []).length];
   if (state.currency === "INR" || state.fx) parts.push(state.currency, state.fx);
+  if ((state.trips && state.trips.length) || state.thirdTab === "trips") parts.push(state.trips, state.thirdTab);
   return JSON.stringify(parts);
 }
 function ghFingerprint(){
@@ -12874,7 +13612,7 @@ document.addEventListener("keydown", e => {
     save();
     render();
     renderShop();
-    ["#eDate", "#balDate", "#shopDate", "#rDate", "#repFrom", "#repTo"]
+    ["#eDate", "#balDate", "#shopDate", "#rDate", "#repFrom", "#repTo", "#trFrom", "#trTo", "#teDate"]
       .forEach(sel => attachCalendar($(sel)));
     syncEyeBtn();
     syncThemeColorMeta();
@@ -13735,6 +14473,12 @@ const ASK_TOPICS = [
       "Untick anything you don't want, and tap Import selected."],
       ["Rows you have imported before are recognised, so importing the same statement twice does not double it."],
       [["Import CSV", ASK_GO.imp]]) },
+  { g:"howto", q:"Switch the third tab to Trips", words:["switch to trips", "trips tab", "shopping or trips", "third tab"],
+    build:howTo("Switch the third tab to Trips", "More › Settings › Config › Shopping or trips", [
+      "Open More › Settings › Config.",
+      "Under Shopping or trips, tap Trip expenses — or Shopping list to go back."],
+      ["Nothing in either is lost when you switch; the tab only shows one of them."],
+      [["Open Config", ASK_GO.settings("config")]]) },
   { g:"howto", q:"Make a shopping list", words:["shopping list", "add items", "grocery list", "shopping cart", "add to list"],
     build:howTo("Make a shopping list", "Shopping cart › Add items", [
       "Open the Shopping cart tab and pick German stores or Indian stores.",
@@ -13765,6 +14509,30 @@ const ASK_TOPICS = [
       "Next time, tap Add items — the saved list is at the top, and one tap puts everything back."],
       ["Correcting a saved shop's total or account there updates its groceries entry too."],
       [["Open Shopping cart", ASK_GO.panel("shop")]]) },
+  { g:"howto", q:"Plan a trip", words:["trip", "trips", "plan a trip", "new trip", "holiday", "vacation", "travel expenses"],
+    build:howTo("Plan a trip", "More › Settings › Config › Trip expenses, then Trips", [
+      "In More › Settings › Config, set Shopping or trips to Trip expenses — the third tab becomes Trips.",
+      "Open Trips and tap New trip.",
+      "Give it a name, its dates, the currency it is spent in, and a budget if you want one.",
+      "Add the people going, then Save trip."],
+      ["Switching the tab back to Shopping list loses nothing; your trips are kept."],
+      [["Open Config", ASK_GO.settings("config")]]) },
+  { g:"howto", q:"Add a trip expense", words:["trip expense", "add to trip", "who paid", "split a bill", "entry ticket", "toll"],
+    build:howTo("Add a trip expense", "Trips › the trip › Add expense", [
+      "Open the trip and tap Add expense.",
+      "Pick what it was for — Transport, Stay, Dining, Snacks & drinks, Entry ticket (with the attraction), Shopping, Fuel, Toll or Other.",
+      "Type the amount in the trip's currency, and the date.",
+      "Choose who paid, and who shares it — everyone by default.",
+      "If you paid, pick the account it came from, then Save expense."],
+      ["What you pay also goes into your ledger under Travel, so it counts in the month and the account's balance. What others pay stays in the trip."],
+      [["Open Trips", () => { sheetClose(); if (state.thirdTab !== "trips"){ ASK_GO.settings("config")(); return; } setPanel("trips"); render(); }]]) },
+  { g:"howto", q:"Settle up after a trip", words:["settle up", "who owes", "owes me", "split", "share of the trip"],
+    build:howTo("Settle up after a trip", "Trips › the trip › Settle up", [
+      "Open the trip and scroll to Settle up.",
+      "Each person shows what they paid, their share, and whether they get money back or owe it.",
+      "Below that are the fewest payments that square everyone."],
+      ["An expense is split equally between the people you chose for it."],
+      []) },
   { g:"howto", q:"Show amounts in rupees (\u20b9)", words:["rupees", "rupee", "inr", "indian rupee", "currency", "exchange rate", "euro to inr"],
     build:howTo("Show amounts in rupees (\u20b9)", "More \u203a Settings \u203a Config \u203a Currency", [
       "Open More \u203a Settings \u203a Config.",
@@ -14422,7 +15190,7 @@ function applyTucks(){
   /* An arrow stands in for a control that is away; with the control showing
      there is nothing for it to do and it would only crowd it. */
   $("#askTab").hidden = panel !== "dash" || !tuckGet(ASK_TUCK_KEY);
-  $("#fabTab").hidden = panel === "shop" || !tuckGet(FAB_TUCK_KEY);
+  $("#fabTab").hidden = panel === "shop" || panel === "trips" || !tuckGet(FAB_TUCK_KEY);
 }
 $("#askTab").addEventListener("click", () => {
   tuckSet(ASK_TUCK_KEY, !tuckGet(ASK_TUCK_KEY));
