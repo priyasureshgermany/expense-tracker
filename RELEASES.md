@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.14 — 2026-09-19
+- new: Config: English or Deutsch — every screen, sheet, message and built-in category in German, dates included; the helper follows next
+
 ## 2.2.13 — 2026-09-19
 - new: Config: the third tab can hold Trips instead of the shopping list — trips with dates, currency, budget and people, expenses by kind with who paid and who shares, and settle-up
 - new: What you pay on a trip goes into the ledger under a new Travel category
