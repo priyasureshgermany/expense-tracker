@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.13 — 2026-09-19
+- new: Config: the third tab can hold Trips instead of the shopping list — trips with dates, currency, budget and people, expenses by kind with who paid and who shares, and settle-up
+- new: What you pay on a trip goes into the ledger under a new Travel category
+
 ## 2.2.12 — 2026-09-19
 - new: Config: show and type amounts in euro or rupees; the exchange rate is fetched only when you tap Refresh exchange rate
 - better: An entry typed in the other currency shows what it was typed as, small, beneath its amount
