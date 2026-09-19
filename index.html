@@ -1616,6 +1616,15 @@ div.rp-rem:hover{background:none}
   font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;
   color:var(--ink-2);
 }
+/* its share of income, just before the amount, quieter than it */
+.bar .bv .bp{
+  font-family:var(--font, inherit);font-size:10.5px;font-weight:600;
+  color:var(--ink-3);margin-right:8px;
+}
+/* Where the money goes: the title, and the whole of it as a share of income at
+   the right, the way the Budget card carries its own */
+.bd-head{display:flex;align-items:center;gap:10px}
+.bd-head .bc-n{margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
 .bar .track{
   grid-column:1/-1;height:6px;background:var(--surface-sunk);
   border-radius:99px;overflow:hidden;
@@ -2504,6 +2513,7 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .setrow[data-pane="github"]  { --tile-h:240; --tile-l:38% }
 .setrow[data-pane="data"]    { --tile-h:52;  --tile-l:26% }
 .setrow[data-pane="about"]   { --tile-h:200; --tile-l:32% }
+.setrow[data-pane="config"]  { --tile-h:98;  --tile-l:28% }
 
 /* A newer build being available is worth saying on the tile, not only inside it. */
 .updot{
@@ -2512,29 +2522,21 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   background:var(--neg);color:#fff;
   font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
 }
-.setrow-wide{position:relative}
-
-/* About closes the grid off across both columns, in its own shade so it reads
-   as an end-piece rather than another topic. */
-.setrow-wide{
-  grid-column:1 / -1;min-height:0;
-  flex-direction:row;align-items:center;gap:13px;
-  background:var(--accent-soft);
-  /* the three sides only — blanking all four took the coloured left edge with
-     them, which is the one thing every tile on this page now carries */
-  border-top-color:transparent;border-right-color:transparent;border-bottom-color:transparent;
-  border-left-color:var(--accent);
+/* Config: one row per setting, what it is on the left and its value on the right */
+.cfgrows{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.cfgrow{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 13px;border-radius:13px;background:var(--surface-2);border:1px solid var(--line);
 }
-.setrow-wide:hover{
-  background:var(--accent-soft);
-  border-top-color:var(--accent);border-right-color:var(--accent);border-bottom-color:var(--accent);
-}
-.setrow-wide .sr-ic{background:var(--surface);width:46px;height:46px;border-radius:14px}
-.setrow-wide .sr-ic svg{width:25px;height:25px}
-.setrow-wide .sr-t{flex:1}
-.setrow-wide .sr-t b{color:var(--accent)}
-.setrow-wide .sr-t span{color:var(--accent);opacity:.72}
-.setrow-wide .sr-go{display:none}
+.cfgrow .cf-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cfgrow .cf-t b{font-size:13.5px;font-weight:600;color:var(--ink)}
+.cfgrow .cf-t span{font-size:11px;color:var(--ink-3)}
+.cfgrow .cf-v{display:flex;flex-direction:column;align-items:flex-end;flex:none;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.cfgrow .cf-v em{font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-top:2px}
+/* About is a tile like the others, last in the grid; the Update badge sits in
+   its top corner, so the tile is what it is measured from. It used to span both
+   columns in a shade of its own, which read as a footer rather than a topic. */
+.setrow-about{position:relative}
 .setpane{animation:paneIn .26s cubic-bezier(.2,.7,.3,1)}
 @keyframes paneIn{
   from{opacity:0;transform:translateX(14px)}
@@ -4212,6 +4214,11 @@ html.locked #lockScreen::before{
       <span class="sr-t"><b>Accounts</b><span>Where your money sits</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
+    <button class="setrow" type="button" data-pane="config">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span>
+      <span class="sr-t"><b>Config</b><span>Currency, trips, language</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
     <button class="setrow" type="button" data-pane="rules">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg></span>
       <span class="sr-t"><b>Recurring entries</b><span id="setRulesSub">Rent, salary, subscriptions</span></span>
@@ -4242,7 +4249,7 @@ html.locked #lockScreen::before{
       <span class="sr-t"><b>Data & backup</b><span>Import, copy, restore, wipe</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
-    <button class="setrow setrow-wide" type="button" data-pane="about">
+    <button class="setrow setrow-about" type="button" data-pane="about">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8h.01"/></svg></span>
       <span class="sr-t"><b>About</b><span id="setAboutSub">Version and what’s new</span></span>
       <span class="updot" id="setAboutDot" hidden>Update</span>
@@ -4479,7 +4486,29 @@ html.locked #lockScreen::before{
       another device by hand.
     </div>
   </div>
-  <div class="sheet-body setpane" id="setPane_about" hidden>
+  <div class="sheet-body setpane" id="setPane_config" hidden>
+      <div class="field">
+        <div class="note">
+          How this app behaves, as opposed to what is in your book. These arrive
+          one at a time; until then each shows what it is set to.
+        </div>
+        <div class="cfgrows">
+          <div class="cfgrow">
+            <div class="cf-t"><b>Currency</b><span>Show amounts in euro or rupees</span></div>
+            <div class="cf-v">€ Euro<em>coming next</em></div>
+          </div>
+          <div class="cfgrow">
+            <div class="cf-t"><b>Shopping or trips</b><span>What the third tab holds</span></div>
+            <div class="cf-v">Shopping list<em>coming soon</em></div>
+          </div>
+          <div class="cfgrow">
+            <div class="cf-t"><b>Language</b><span>English or Deutsch</span></div>
+            <div class="cf-v">English<em>coming soon</em></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-body setpane" id="setPane_about" hidden>
 <div class="field" style="margin-top:20px">
       <div class="aboutbox">
         <div class="ab-row"><span>பணப்பை</span><b id="abName">Expense tracker</b></div>
@@ -4591,8 +4620,8 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.10";
-const APP_BUILT = "2026-09-18";
+const APP_VERSION = "2.2.11";
+const APP_BUILT = "2026-09-19";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -7728,18 +7757,36 @@ function renderBreakdown(all, dark){
   if (spend.length < 2) return;
 
   const by = new Map();
-  spend.forEach(t => by.set(t.category, (by.get(t.category) || 0) + t.amount));
+  let total = 0;
+  spend.forEach(t => { by.set(t.category, (by.get(t.category) || 0) + t.amount); total += t.amount; });
   const rows = Array.from(by.entries()).sort((a, b) => b[1] - a[1]).slice(0, 7);
   const max = rows[0][1];
 
+  /* Each category as a share of income, so the panel reads as how the income
+     is being allocated rather than only which category is biggest. Measured
+     against the income the budgets are measured against — Salary and
+     Benefits unless chosen otherwise — so a 10% here is the same 10% as on a
+     budget. Left off when there is none this period, or when that income is
+     kept off the screen: a share of a hidden salary would give it away. */
+  const baseIds = budgetBaseIds();
+  const base = budgetBaseIncome(view, baseIds);
+  const shareShown = base > 0 && !baseIds.some(id => !catShown(id));
+  const share = cents => pctText(Math.round(cents / base * 1000) / 10) + "%";
+
   const card = el("div", "card");
-  card.appendChild(el("h3", null, "Where the money goes"));
+  const head = el("div", "bd-head");
+  head.appendChild(el("h3", null, "Where the money goes"));
+  if (shareShown) head.appendChild(el("div", "bc-n", share(total) + " of Income"));
+  card.appendChild(head);
   const bars = el("div", "bars");
   rows.forEach(([cid, amount]) => {
     const c = catOf(cid);
     const b = el("div", "bar");
     b.appendChild(el("div", "bn", c.n));
-    b.appendChild(el("div", "bv", fmt(amount)));
+    const v = el("div", "bv");
+    if (shareShown) v.appendChild(el("span", "bp", share(amount)));
+    v.appendChild(document.createTextNode(fmt(amount)));
+    b.appendChild(v);
     const track = el("div", "track");
     const i = el("i");
     i.style.width = Math.max(2, Math.round(amount / max * 100)) + "%";
@@ -9799,7 +9846,7 @@ const SET_TITLES = {
   profile:"Your profile", accounts:"Accounts",
   feedback:"Feedback", fbone:"Feedback", lock:"App lock",
   prefs:"Notifications",
-  github:"GitHub sync", data:"Data & backup", about:"About"
+  github:"GitHub sync", data:"Data & backup", about:"About", config:"Config"
 };
 let setPane = null;
 
