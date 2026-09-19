@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.12 — 2026-09-19
+- new: Config: show and type amounts in euro or rupees; the exchange rate is fetched only when you tap Refresh exchange rate
+- better: An entry typed in the other currency shows what it was typed as, small, beneath its amount
+
 ## 2.2.11 — 2026-09-19
 - new: Where the money goes shows each category as a share of income, and the whole of it in the heading
 - new: Settings has a Config tile, third, for currency, trips and language as they arrive; About is a tile like the rest, last
