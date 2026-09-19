@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.11 — 2026-09-19
+- new: Where the money goes shows each category as a share of income, and the whole of it in the heading
+- new: Settings has a Config tile, third, for currency, trips and language as they arrive; About is a tile like the rest, last
+
 ## 2.2.10 — 2026-09-18
 - new: Helper: in Explain Net this period, tap Income, Expenses or Net to see every entry behind it
 - better: Budget: the heading shows what the budgets come to in euros beside their share of income
