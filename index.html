@@ -3869,7 +3869,7 @@ html.locked #lockScreen::before{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
   </div>
-  <div class="sheet-body"><div id="notesBody"></div></div>
+  <div class="sheet-body"><div id="notesBody" data-notr></div></div>
 </section>
 
 <!-- ADD CATEGORY SHEET -->
@@ -4692,9 +4692,15 @@ html.locked #lockScreen::before{
               Switching changes only which one the tab shows; nothing in either is lost.
             </div>
           </div>
-          <div class="cfgrow">
+          <div class="cfgrow cfg-stack">
             <div class="cf-t"><b>Language</b><span>English or Deutsch</span></div>
-            <div class="cf-v">English<em>coming soon</em></div>
+            <div class="toggle2 cfg-tog" id="cfgLang" style="grid-template-columns:1fr 1fr">
+              <button class="a" type="button" data-v="en" aria-pressed="true">English</button>
+              <button class="a" type="button" data-v="de" aria-pressed="false">Deutsch</button>
+            </div>
+            <div class="note" style="margin-top:2px">
+              Kept on this device. Switching reloads the app in that language.
+            </div>
           </div>
         </div>
       </div>
@@ -4805,13 +4811,1212 @@ html.locked #lockScreen::before{
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 "use strict";
+
+/* =========================================================================
+   LANGUAGE
+
+   English is the app as written. Deutsch is laid over it as the page is
+   drawn: every piece of text that appears — at start, and whenever a screen
+   is rendered, a sheet opens or a toast shows — is looked up and replaced.
+   A whole line is matched exactly; failing that, the phrases of more than
+   one word it contains are swapped one by one, so "12,00 € left of 20,00 €"
+   still comes out German. A single word is only ever swapped as the whole
+   line, which is what keeps your own notes and names from being "translated".
+
+   The choice is kept on this device, and switching reloads the app, so a
+   language is always the whole of it rather than a mixture of old and new.
+   ========================================================================= */
+const APP_LANG = (() => {
+  try{ return localStorage.getItem("panappai.lang") === "de" ? "de" : "en"; }catch(e){ return "en"; }
+})();
+/** The locale dates are written in. */
+function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
+
+const I18N_DE = {
+"  ·  counted by ": "  ·  gezählt nach ",
+"  ·  generated ": "  ·  erstellt ",
+" (cached)": " (zwischengespeichert)",
+" a month": " im Monat",
+" already imported": " bereits importiert",
+" due soon": " bald fällig",
+" for what you paid": " für das, was du bezahlt hast",
+" go with it": " gehen mit",
+" goes. It is a note of a baseline already replaced, so no ": " geht. Sie ist eine Notiz zu einem bereits ersetzten Ausgangswert, daher ändert sich kein ",
+" has not come in yet": " ist noch nicht eingegangen",
+" holds": " enthält",
+" in, ": " rein, ",
+" is already on it": " ist schon dabei",
+" is money coming in, so the way back asks your security question.": " ist eingehendes Geld, daher fragt der Weg zurück nach deiner Sicherheitsfrage.",
+" is scheduled for ": " ist geplant für ",
+" lands today": " kommt heute",
+" ledger entr": " Bucheinträg",
+" left": " übrig",
+" left of ": " übrig von ",
+" left of the budget of ": " übrig vom Budget von ",
+" of Income": " des Einkommens",
+" of income.": " des Einkommens.",
+" on average": " im Durchschnitt",
+" out since": " raus seitdem",
+" over": " zu viel",
+" over a budget of ": " über einem Budget von ",
+" over the budget of ": " über dem Budget von ",
+" paid": " hat bezahlt",
+" paid so far · set starting balances in Settings": " bisher bezahlt · Anfangsstände in den Einstellungen festlegen",
+" people": " Personen",
+" person": " Person",
+" planned date": " geplante Termin",
+" received, ": " erhalten, ",
+" repeating · ": " wiederkehrend · ",
+" saved · snapshot kept": " gespeichert · Stand festgehalten",
+" still expected": " noch erwartet",
+" still to pay": " noch zu zahlen",
+" today, save as of today instead.": " – speichere dann lieber mit Stand von heute.",
+" used (": " verbraucht (",
+" was due ": " war fällig ",
+" what the account": ", was das Konto",
+" will be added on top of ": " bezahlt oder erhalten wurde, kommt oben drauf auf ",
+" will be worked out again from it — ": " daraus neu berechnet – ",
+" with no account": " ohne Konto",
+" · as of ": " · Stand vom ",
+" · filtered": " · gefiltert",
+" · in the ledger too": " · auch im Buch",
+" · next ": " · nächster ",
+" · repeating": " · wiederkehrend",
+" · share ": " · Anteil ",
+" · shared by ": " · geteilt von ",
+" · shared by all": " · von allen geteilt",
+" · takes everything not budgeted": " · nimmt alles ohne eigenes Budget",
+" · up to date": " · aktuell",
+" · you paid ": " · du hast bezahlt ",
+" · you're ": " · du bist zu ",
+"\"Running\" is the copy this device has cached.": "„Läuft“ ist die Kopie, die dieses Gerät zwischengespeichert hat.",
+"% of Income": "% des Einkommens",
+"% of income": "% des Einkommens",
+"% of the wait done": "% der Wartezeit geschafft",
+"% through the period": "% durch den Zeitraum",
+"% used": "% verbraucht",
+"(no description)": "(keine Beschreibung)",
+"(still example data)": "(noch Beispieldaten)",
+", and all of it is replaced.": ", und alles wird ersetzt.",
+", and on its own if that switch is on. An automatic push stands down rather than send a book that is empty, still the example data, or missing a lot compared with the backup; those wait for a push you make on purpose. Every push is a commit, so": ", und automatisch, wenn dieser Schalter an ist. Ein automatisches Hochladen unterbleibt, statt ein leeres Buch, noch die Beispieldaten oder eines mit viel weniger als die Sicherung zu senden; diese warten auf ein bewusstes Hochladen. Jedes Hochladen ist ein Commit, also ist",
+", and the ": ", und die ",
+", each from its own snapshot": ", jedes ab seinem eigenen Stand",
+", percent of income": ", Prozent des Einkommens",
+". If ": ". Wenn ",
+"/mo over ": "/Mon. über ",
+"15th–14th": "15.–14.",
+"15th–14th periods": "Zeiträume 15.–14.",
+"401 — GitHub rejected the token. It may be mistyped, expired or revoked. Generate a new fine-grained token and paste it again.": "401 – GitHub hat das Token abgelehnt. Es ist vielleicht falsch eingegeben, abgelaufen oder widerrufen. Erzeuge ein neues fein abgestuftes Token und füge es erneut ein.",
+"403 — GitHub rate limit hit. Wait a few minutes and try again.": "403 – GitHub-Anfragelimit erreicht. Warte ein paar Minuten und versuch es erneut.",
+"403 — token accepted but not allowed. Set its Repository permissions → Contents to \"Read and write\".": "403 – Token akzeptiert, aber nicht berechtigt. Setze seine Repository permissions → Contents auf „Read and write“.",
+"404 — repo or path not found. Check the owner/repo spelling, and that the token's \"Only select repositories\" list includes this repo.": "404 – Repo oder Pfad nicht gefunden. Prüfe die Schreibweise von besitzer/repo und dass die Liste „Only select repositories“ des Tokens dieses Repo enthält.",
+"; tick them off as you pay.": "; hake sie beim Bezahlen ab.",
+"A % budget is a % of": "Ein %-Budget ist ein % von",
+"A % needs at least one income": "Ein % braucht mindestens eine Einnahme",
+"A notification on your phone or laptop the day before, and on the day.": "Eine Benachrichtigung auf deinem Telefon oder Laptop am Vortag und am Tag selbst.",
+"A reminder for anything due in the next three days.": "Eine Erinnerung für alles, was in den nächsten drei Tagen fällig ist.",
+"A rupee trip needs the exchange rate — refresh it in Settings › Config": "Eine Rupien-Reise braucht den Wechselkurs – aktualisiere ihn unter Einstellungen › Konfiguration",
+"A security question is set — it's the only way back in if you forget the PIN.": "Eine Sicherheitsfrage ist festgelegt – sie ist der einzige Weg zurück, wenn du die PIN vergisst.",
+"A starting point per account. Each one is then tracked forward: this balance, plus income received into it, minus expenses paid from it since that date. Leave a row blank to pass over it — which is what a credit card usually wants, since what it holds is a debt rather than money to count forward.": "Ein Startpunkt pro Konto. Jedes wird dann fortgeschrieben: dieser Stand, plus darauf eingegangene Einnahmen, minus davon bezahlte Ausgaben seit diesem Datum. Lass eine Zeile leer, um sie zu überspringen – das passt meist für eine Kreditkarte, da sie eine Schuld hält und kein Geld zum Fortschreiben.",
+"About": "Info",
+"About hiding a category": "Über das Ausblenden einer Kategorie",
+"About reminders": "Über Erinnerungen",
+"Accept": "Akzeptieren",
+"Account": "Konto",
+"Account added": "Konto hinzugefügt",
+"Account removed": "Konto entfernt",
+"Account type": "Kontoart",
+"Accounts": "Konten",
+"Accounts & balances": "Konten & Stände",
+"Accounts, backup, the rest": "Konten, Sicherung und mehr",
+"Actual expense": "Tatsächliche Ausgaben",
+"Add": "Hinzufügen",
+"Add a logo for": "Logo hinzufügen für",
+"Add a name, e.g. Priya": "Namen hinzufügen, z. B. Priya",
+"Add a recurring entry": "Wiederkehrenden Eintrag hinzufügen",
+"Add account": "Konto hinzufügen",
+"Add category": "Kategorie hinzufügen",
+"Add entry": "Eintrag hinzufügen",
+"Add expense": "Ausgabe hinzufügen",
+"Add it to your home screen for a full-screen app with offline access.": "Füge sie deinem Startbildschirm hinzu – als Vollbild-App mit Offline-Zugriff.",
+"Add items": "Artikel hinzufügen",
+"Add spend": "Ausgabe hinzufügen",
+"Add this category": "Diese Kategorie hinzufügen",
+"Add this item": "Diesen Artikel hinzufügen",
+"Add this person": "Diese Person hinzufügen",
+"Add to Home Screen": "Zum Startbildschirm hinzufügen",
+"Add to Home screen": "Zum Startbildschirm hinzufügen",
+"Added": "Hinzugefügt",
+"Adds a paid expense dated today in this category.": "Fügt eine heute bezahlte Ausgabe in dieser Kategorie hinzu.",
+"After edits settle, when you leave the app, and on opening.": "Nach Änderungen, beim Verlassen der App und beim Öffnen.",
+"All": "Alle",
+"All accounts": "Alle Konten",
+"All accounts — transfers counted as neither": "Alle Konten – Umbuchungen zählen als keins von beiden",
+"All categories": "Alle Kategorien",
+"All entries deleted": "Alle Einträge gelöscht",
+"All sorted": "Alles erledigt",
+"Already imported": "Bereits importiert",
+"Also log it as a groceries expense": "Auch als Lebensmittelausgabe erfassen",
+"Amount": "Betrag",
+"Amounts now shown in €": "Beträge jetzt in €",
+"Amounts now shown in ₹": "Beträge jetzt in ₹",
+"An amount here is what you allow yourself": "Ein Betrag hier ist das, was du dir erlaubst –",
+"Answer": "Antwort",
+"Answer accepted — choose a new PIN": "Antwort akzeptiert – wähle eine neue PIN",
+"Answer to reset your PIN": "Antwort, um deine PIN zurückzusetzen",
+"Any expense that isn't a recurring bill and has no budget of its own is drawn from this one — so Education, a card payment or a shop you've no category for all come out of it, while keeping their own category on the entry. Being the cushion, it's the one budget whose unspent part": "Jede Ausgabe, die keine wiederkehrende Rechnung ist und kein eigenes Budget hat, geht von diesem ab – Bildung, eine Kartenzahlung oder ein Einkauf ohne Kategorie kommen alle hieraus und behalten doch ihre eigene Kategorie am Eintrag. Als Polster ist es das einzige Budget, dessen ungenutzter Teil",
+"Anything already settled stays.": "Bereits Erledigtes bleibt.",
+"Anything another device pushed and this one has not pulled would go.": "Alles, was ein anderes Gerät hochgeladen und dieses noch nicht geholt hat, ginge verloren.",
+"Anything here that has not been pushed would go.": "Alles hier, was noch nicht hochgeladen wurde, ginge verloren.",
+"App lock": "App-Sperre",
+"App lock turned off": "App-Sperre ausgeschaltet",
+"App locked": "App gesperrt",
+"Apply prices": "Preise übernehmen",
+"April": "April",
+"Are you sure?": "Bist du sicher?",
+"As of ": "Stand vom ",
+"Ask": "Fragen",
+"Ask about your money": "Frag zu deinem Geld",
+"Attraction": "Sehenswürdigkeit",
+"August": "August",
+"Automatic": "Automatisch",
+"Automatic push held back — this change removes a lot. Push now to review it.": "Automatisches Hochladen zurückgehalten – diese Änderung entfernt viel. Lade jetzt hoch, um sie zu prüfen.",
+"Automatic — the bank takes this one": "Automatisch – die Bank bucht es ab",
+"Back": "Zurück",
+"Back to GitHub sync": "Zurück zu GitHub-Sync",
+"Back to More": "Zurück zu Mehr",
+"Back to PIN": "Zurück zur PIN",
+"Back to data and backup": "Zurück zu Daten & Sicherung",
+"Back to recurring entries": "Zurück zu den wiederkehrenden Einträgen",
+"Back to settings": "Zurück zu den Einstellungen",
+"Back to the entry": "Zurück zum Eintrag",
+"Back up and move between devices": "Sichern und zwischen Geräten wechseln",
+"Backspace": "Rücktaste",
+"Backup": "Sicherung",
+"Backup & sync": "Sicherung & Sync",
+"Backup copied — paste it somewhere safe": "Sicherung kopiert – füge sie an einem sicheren Ort ein",
+"Backup pushed": "Sicherung hochgeladen",
+"Backups will push on their own": "Sicherungen werden automatisch hochgeladen",
+"Balances are as of": "Stand vom",
+"Balances cleared": "Stände gelöscht",
+"Bank": "Bank",
+"Bank Transfer": "Banküberweisung",
+"Bank statement": "Kontoauszug",
+"Better": "Verbessert",
+"Blocked in your browser settings": "In deinen Browsereinstellungen blockiert",
+"Both": "Beide",
+"Both are on: the PIN hides the screen, and what is stored is unreadable": "Beides ist an: Die PIN verbirgt den Bildschirm, und das Gespeicherte ist unlesbar",
+"Bought": "Gekauft",
+"Budget": "Budget",
+"Budget for ": "Budget für ",
+"Budgets": "Budgets",
+"Budgets cleared": "Budgets geleert",
+"Bug": "Fehler",
+"Bug report": "Fehlerbericht",
+"Bug saved": "Fehler gespeichert",
+"By day": "Nach Tag",
+"By kind": "Nach Art",
+"Calendar": "Kalender",
+"Cancel": "Abbrechen",
+"Capture or select photo": "Foto aufnehmen oder wählen",
+"Card": "Karte",
+"Cash": "Bargeld",
+"Categories": "Kategorien",
+"Category": "Kategorie",
+"Category deleted": "Kategorie gelöscht",
+"Category to budget": "Kategorie für ein Budget",
+"Change": "Ändern",
+"Change PIN": "PIN ändern",
+"Change it for another image, or take it off and go back to the plain mark.": "Tausche es gegen ein anderes Bild, oder entferne es und kehre zum einfachen Zeichen zurück.",
+"Change passphrase": "Passphrase ändern",
+"Change the logo for": "Logo ändern für",
+"Changed": "Geändert",
+"Changes not yet pushed to": "Noch nicht hochgeladene Änderungen an",
+"Changing the total updates the groceries expense this shop posted to the ledger.": "Eine Änderung des Gesamtbetrags aktualisiert die Lebensmittelausgabe, die dieser Einkauf ins Buch übernommen hat.",
+"Chart": "Diagramm",
+"Check the text below, then press Read receipt.": "Prüfe den Text unten und drücke dann „Beleg lesen“.",
+"Choose a 4-digit PIN": "Wähle eine 4-stellige PIN",
+"Choose a different file": "Andere Datei wählen",
+"Choose a passphrase": "Wähle eine Passphrase",
+"Choose the sending account…": "Absenderkonto wählen …",
+"Choose where it came from…": "Wähle, woher es kam …",
+"Choose where it comes from…": "Wähle, woher es kommt …",
+"Choose where it landed…": "Wähle, wo es ankam …",
+"Choose where it lands…": "Wähle, wo es ankommt …",
+"Choose...": "Auswählen …",
+"Clear": "Leeren",
+"Clear all balances": "Alle Stände löschen",
+"Clear every filter": "Alle Filter löschen",
+"Clear every starting balance?": "Alle Anfangsstände löschen?",
+"Clear examples & start fresh": "Beispiele löschen & neu anfangen",
+"Clear the examples?": "Beispiele löschen?",
+"Cleared": "Geleert",
+"Cleared — the book is yours now": "Geleert – das Buch gehört jetzt dir",
+"Close": "Schließen",
+"Column layouts from both are recognised automatically. Nothing leaves your device.": "Spaltenaufbauten beider werden automatisch erkannt. Nichts verlässt dein Gerät.",
+"Comfortable": "Komfortabel",
+"Commerzbank and Deutsche Bank CSV exports, plus most other German bank formats.": "CSV-Exporte der Commerzbank und der Deutschen Bank sowie die meisten anderen deutschen Bankformate.",
+"Commerzbank:": "Commerzbank:",
+"Config": "Konfiguration",
+"Confirm": "Bestätigen",
+"Confirm your PIN": "PIN bestätigen",
+"Connected · backup holds": "Verbunden · Sicherung enthält",
+"Connected · no backup in the repo yet — your next change creates one.": "Verbunden · noch keine Sicherung im Repo – deine nächste Änderung legt eine an.",
+"Connected · the backup is currently empty.": "Verbunden · die Sicherung ist derzeit leer.",
+"Connected, but couldn't read the backup.": "Verbunden, aber die Sicherung konnte nicht gelesen werden.",
+"Connected, but reading the backup failed ·": "Verbunden, aber das Lesen der Sicherung schlug fehl ·",
+"Continue": "Weiter",
+"Copy backup to clipboard": "Sicherung in die Zwischenablage kopieren",
+"Copy the text in the box below": "Kopiere den Text im Feld unten",
+"Could not change it:": "Konnte nicht geändert werden:",
+"Could not encrypt:": "Konnte nicht verschlüsseln:",
+"Could not read that image": "Dieses Bild konnte nicht gelesen werden",
+"Could not turn it off:": "Konnte nicht ausgeschaltet werden:",
+"Couldn't build the file —": "Datei konnte nicht erstellt werden –",
+"Couldn't find a date and amount column": "Keine Datums- und Betragsspalte gefunden",
+"Couldn't find any text in that area — try a wider box, or a brighter photo.": "In diesem Bereich wurde kein Text gefunden – versuch einen größeren Rahmen oder ein helleres Foto.",
+"Couldn't list the backups —": "Sicherungen konnten nicht aufgelistet werden –",
+"Couldn't load the notes — they need the app to be served over http(s).": "Die Hinweise konnten nicht geladen werden – dafür muss die App über http(s) bereitgestellt werden.",
+"Couldn't load the text-recognition model — connect to the internet once, then try again.": "Das Texterkennungsmodell konnte nicht geladen werden – verbinde dich einmal mit dem Internet und versuch es erneut.",
+"Couldn't reach the rate — are you online?": "Kurs nicht erreichbar – bist du online?",
+"Couldn't read that file": "Diese Datei konnte nicht gelesen werden",
+"Couldn't read that photo. Try again, or type the receipt instead.": "Dieses Foto konnte nicht gelesen werden. Versuch es erneut oder tippe den Beleg ab.",
+"Couldn't restore —": "Wiederherstellen fehlgeschlagen –",
+"Couldn't save — storage is full or blocked": "Speichern fehlgeschlagen – Speicher voll oder blockiert",
+"Couldn't save — the encrypted write failed": "Speichern fehlgeschlagen – das verschlüsselte Schreiben schlug fehl",
+"Counted by": "Gezählt nach",
+"Credit": "Gutschrift",
+"Credit Card Payment": "Kreditkartenzahlung",
+"Currency": "Währung",
+"Currency changed — amounts are read as": "Währung geändert – Beträge gelten jetzt als",
+"Currency, trips, language": "Währung, Reisen, Sprache",
+"Custom categories work everywhere the built-in ones do — entries, recurring rules, budgets and the charts. One that's already used by an entry can't be deleted until those entries are retagged.": "Eigene Kategorien funktionieren überall wie die eingebauten – Einträge, wiederkehrende Einträge, Budgets und Diagramme. Eine, die schon von einem Eintrag verwendet wird, lässt sich erst löschen, wenn diese Einträge umkategorisiert sind.",
+"Dairy & frozen": "Milch & Tiefkühl",
+"Dal & pulses": "Dal & Hülsenfrüchte",
+"Dark": "Dunkel",
+"Dashboard": "Übersicht",
+"Data & backup": "Daten & Sicherung",
+"Data lives in this browser on this device by default. Turn on": "Daten liegen standardmäßig in diesem Browser auf diesem Gerät. Schalte",
+"Date": "Datum",
+"Debit": "Belastung",
+"December": "Dezember",
+"Delete": "Löschen",
+"Delete all": "Alle löschen",
+"Delete all entries": "Alle Einträge löschen",
+"Delete every entry?": "Alle Einträge löschen?",
+"Delete it": "Löschen",
+"Delete the snapshot as of ": "Den Stand löschen vom ",
+"Delete this": "Löschen",
+"Delete this entry": "Diesen Eintrag löschen",
+"Delete this entry?": "Diesen Eintrag löschen?",
+"Delete this expense": "Diese Ausgabe löschen",
+"Delete this expense?": "Diese Ausgabe löschen?",
+"Delete this recurring entry": "Diesen wiederkehrenden Eintrag löschen",
+"Delete this recurring entry?": "Diesen wiederkehrenden Eintrag löschen?",
+"Delete this snapshot?": "Diesen Stand löschen?",
+"Delete this trip": "Diese Reise löschen",
+"Deleted": "Gelöscht",
+"Deployed": "Veröffentlicht",
+"Description": "Beschreibung",
+"Details": "Details",
+"Deutsch": "Deutsch",
+"Deutsche Bank:": "Deutsche Bank:",
+"Dining": "Essen gehen",
+"Disable sync": "Sync deaktivieren",
+"Dismiss": "Schließen",
+"Does not repeat": "Wiederholt sich nicht",
+"Drag onto a list item to merge": "Auf einen Listenartikel ziehen, um zusammenzuführen",
+"Drag the box over the": "Zieh den Rahmen über die",
+"Drag the box over the item lines, then read it": "Zieh den Rahmen über die Artikelzeilen und lies sie dann",
+"Drag the box over the item lines, then read it.": "Zieh den Rahmen über die Artikelzeilen und lies sie dann.",
+"Drop your CSV here": "CSV hier ablegen",
+"Due": "Fällig",
+"Due in ": "Fällig in ",
+"Due today": "Heute fällig",
+"Due tomorrow": "Morgen fällig",
+"EMI": "EMI",
+"Earlier backups": "Frühere Sicherungen",
+"Edit a name to re-match it, or drag a": "Bearbeite einen Namen, um ihn neu zuzuordnen, oder zieh eine",
+"Edit budgets": "Budgets bearbeiten",
+"Edit entry": "Eintrag bearbeiten",
+"Edit expense": "Ausgabe bearbeiten",
+"Edit transfer": "Umbuchung bearbeiten",
+"Edit trip": "Reise bearbeiten",
+"Education": "Bildung",
+"Email address": "E-Mail-Adresse",
+"Encrypt": "Verschlüsseln",
+"Encrypt this device": "Dieses Gerät verschlüsseln",
+"Encrypt what is stored here": "Gespeichertes verschlüsseln",
+"Encrypted — the passphrase is needed from now on": "Verschlüsselt – ab jetzt wird die Passphrase gebraucht",
+"Encryption off": "Verschlüsselung aus",
+"English": "English",
+"English or Deutsch": "Englisch oder Deutsch",
+"Enter a token and an owner/repo": "Token und besitzer/repo eingeben",
+"Enter an amount": "Betrag eingeben",
+"Enter an amount greater than zero": "Betrag größer als null eingeben",
+"Enter your PIN": "PIN eingeben",
+"Enter your PIN to delete every entry": "PIN eingeben, um alle Einträge zu löschen",
+"Enter your PIN to turn off backup": "PIN eingeben, um die Sicherung auszuschalten",
+"Enter your passphrase": "Passphrase eingeben",
+"Entries": "Einträge",
+"Entry": "Eintrag",
+"Entry deleted": "Eintrag gelöscht",
+"Entry saved": "Eintrag gespeichert",
+"Entry ticket": "Eintrittskarte",
+"Entry updated": "Eintrag aktualisiert",
+"Euro": "Euro",
+"Every 2 months": "Alle 2 Monate",
+"Every 28 days": "Alle 28 Tage",
+"Every 3 months": "Alle 3 Monate",
+"Every 6 months": "Alle 6 Monate",
+"Every example entry goes and the book starts empty. This cannot be undone.": "Alle Beispieleinträge verschwinden und das Buch beginnt leer. Das kann nicht rückgängig gemacht werden.",
+"Every push keeps the one before it. Nothing here can be overwritten — pick any and see what it holds before deciding.": "Jedes Hochladen behält das vorherige. Nichts hier kann überschrieben werden – wähle eine und sieh dir an, was sie enthält, bevor du entscheidest.",
+"Every year": "Jährlich",
+"Everyone is square.": "Alle sind quitt.",
+"Everything else counts against": "Alles andere zählt gegen",
+"Everything expected in, planned and received.": "Alle erwarteten Einnahmen, geplant und erhalten.",
+"Everything in this browser is replaced by the backup in your repo. ": "Alles in diesem Browser wird durch die Sicherung in deinem Repo ersetzt. ",
+"Everything paid or received since ": "Alles, was seit ",
+"Excel file saved": "Excel-Datei gespeichert",
+"Exchange rate": "Wechselkurs",
+"Expense": "Ausgabe",
+"Expense deleted": "Ausgabe gelöscht",
+"Expense tracker": "Ausgaben-Tracker",
+"Expense updated": "Ausgabe aktualisiert",
+"Expenses": "Ausgaben",
+"Expenses by category": "Ausgaben nach Kategorie",
+"Expenses paid": "Bezahlte Ausgaben",
+"Expenses paid so far": "Bisher bezahlte Ausgaben",
+"Export": "Exportieren",
+"Export Excel": "Excel exportieren",
+"Export PDF": "PDF exportieren",
+"Family": "Familie",
+"February": "Februar",
+"Feedback": "Feedback",
+"Feedback saved": "Feedback gespeichert",
+"Fill in both the question and the answer": "Fülle Frage und Antwort aus",
+"Filled": "Erledigt",
+"Filters cleared": "Filter gelöscht",
+"First name": "Vorname",
+"Fix": "Fehlerbehebung",
+"Flex": "Flexibel",
+"For things you spend on bit by bit — groceries, a buffer for odds and ends — set an amount for the period and watch it draw down as you spend.": "Für Dinge, für die du nach und nach ausgibst – Lebensmittel, ein Puffer für Kleinkram – lege einen Betrag für den Zeitraum fest und sieh zu, wie er beim Ausgeben schrumpft.",
+"Forgot PIN?": "PIN vergessen?",
+"Forgot your PIN?": "PIN vergessen?",
+"Forgotten it?": "Vergessen?",
+"Freelance": "Freiberuflich",
+"Fresh": "Frisch",
+"From": "Von",
+"From ": "Von ",
+"From account": "Von Konto",
+"Fuel": "Treibstoff",
+"Generated": "Erstellt",
+"German stores": "Deutsche Läden",
+"Getting ready…": "Wird vorbereitet …",
+"Gift": "Geschenk",
+"GitHub sync": "GitHub-Sync",
+"GitHub sync disabled": "GitHub-Sync deaktiviert",
+"GitHub sync enabled": "GitHub-Sync aktiviert",
+"GitHub token (repo contents: read & write)": "GitHub-Token (Repo-Inhalte: lesen & schreiben)",
+"Give it a name": "Gib ihr einen Namen",
+"Give the account a name": "Gib dem Konto einen Namen",
+"Give the trip a name": "Gib der Reise einen Namen",
+"Go to this month's dashboard": "Zur Übersicht dieses Monats",
+"Got it": "Verstanden",
+"Groceries — German": "Lebensmittel – Deutsch",
+"Groceries — Indian": "Lebensmittel – Indisch",
+"Have a click around, then clear it and start on your own numbers.": "Schau dich um, dann leere sie und beginne mit deinen eigenen Zahlen.",
+"Health": "Gesundheit",
+"Healthy": "Gesund",
+"Held back — the last change removes a lot. Push now to review it.": "Zurückgehalten – die letzte Änderung entfernt viel. Lade jetzt hoch, um sie zu prüfen.",
+"Hide amounts": "Beträge verbergen",
+"Hide or show the add button": "Plus-Knopf ein- oder ausblenden",
+"Hide or show the helper": "Helfer ein- oder ausblenden",
+"Hide this": "Ausblenden",
+"Hide token": "Token verbergen",
+"Hiding a category": "Eine Kategorie ausblenden",
+"How this app behaves, as opposed to what is in your book. The rest arrive one at a time; until then each shows what it is set to.": "Wie sich diese App verhält, im Gegensatz zu dem, was in deinem Buch steht. Der Rest kommt nach und nach; bis dahin zeigt jeder Punkt seine Einstellung.",
+"I'll do that": "Mach ich",
+"Ideas and bugs": "Ideen und Fehler",
+"Ideas and faults, kept on this device and carried along in your backup. Nothing is sent anywhere.": "Ideen und Fehler, auf diesem Gerät gespeichert und in deiner Sicherung mitgenommen. Nichts wird irgendwohin gesendet.",
+"Import": "Importieren",
+"Import CSV…": "CSV importieren …",
+"Import a bank statement": "Kontoauszug importieren",
+"Import from bank": "Von der Bank importieren",
+"Import selected": "Ausgewählte importieren",
+"Import, copy, restore, wipe": "Importieren, kopieren, wiederherstellen, löschen",
+"Imported": "Importiert",
+"In force now": "Jetzt gültig",
+"In the account now": "Jetzt auf dem Konto",
+"In use — retag those entries first": "In Verwendung – kategorisiere diese Einträge zuerst um",
+"Income": "Einnahmen",
+"Income and expenses": "Einnahmen und Ausgaben",
+"Income this period:": "Einnahmen in diesem Zeitraum:",
+"Indian stores": "Indische Läden",
+"Install app": "App installieren",
+"Install பணப்பை": "பணப்பை installieren",
+"Insurance": "Versicherung",
+"Interest": "Zinsen",
+"Investment": "Geldanlage",
+"It encrypts everything stored on this device. Longer is better than": "Sie verschlüsselt alles, was auf diesem Gerät gespeichert ist. Länger ist besser als",
+"It is only stored here, so this cannot be undone.": "Es ist nur hier gespeichert, daher kann das nicht rückgängig gemacht werden.",
+"It is the only way back if the passphrase is forgotten — without": "Sie ist der einzige Weg zurück, wenn die Passphrase vergessen ist – ohne",
+"Item name from the receipt": "Artikelname vom Beleg",
+"January": "Januar",
+"July": "Juli",
+"June": "Juni",
+"Keep ": "Behalten: ",
+"Keep a category off the screen": "Eine Kategorie ausblenden",
+"Keep dates": "Termine behalten",
+"Kept on this device. Switching reloads the app in that language.": "Auf diesem Gerät gespeichert. Beim Umschalten lädt die App in dieser Sprache neu.",
+"Kindergeld": "Kindergeld",
+"Language": "Sprache",
+"Last 12 months": "Letzte 12 Monate",
+"Last 5": "Letzte 5",
+"Last name": "Nachname",
+"Last pushed": "Zuletzt hochgeladen",
+"Let's go": "Los geht's",
+"Lidl weekly shop": "Lidl-Wocheneinkauf",
+"Light": "Hell",
+"Loading…": "Wird geladen …",
+"Locks the screen only — it does not encrypt the data stored on this device.": "Sperrt nur den Bildschirm – die auf diesem Gerät gespeicherten Daten werden nicht verschlüsselt.",
+"Logo for": "Logo für",
+"Logo removed from": "Logo entfernt von",
+"Logo set for": "Logo festgelegt für",
+"Manual": "Manuell",
+"Manual — you pay this one yourself": "Manuell – du zahlst es selbst",
+"March": "März",
+"Mark as paid": "Als bezahlt markieren",
+"Mark as planned": "Als geplant markieren",
+"Mark as sorted": "Als erledigt markieren",
+"Mark as still open": "Als offen markieren",
+"Marked as paid": "Als bezahlt markiert",
+"Marked as paid · ": "Als bezahlt markiert · ",
+"May": "Mai",
+"Merged into": "Zusammengeführt mit",
+"Misc": "Sonstiges",
+"Molkerei & Eier": "Molkerei & Eier",
+"Money in, money out": "Geld rein, Geld raus",
+"Monthly": "Monatlich",
+"More": "Mehr",
+"Moved back to planned": "Zurück auf geplant",
+"Name": "Name",
+"Name and email": "Name und E-Mail",
+"Net": "Netto",
+"Net this period": "Netto in diesem Zeitraum",
+"Net this period ": "Netto in diesem Zeitraum ",
+"New": "Neu",
+"New category": "Neue Kategorie",
+"New entry": "Neuer Eintrag",
+"New expense category": "Neue Ausgabenkategorie",
+"New income category": "Neue Einnahmenkategorie",
+"New passphrase": "Neue Passphrase",
+"New recurring entry": "Neuer wiederkehrender Eintrag",
+"New trip": "Neue Reise",
+"Next": "Weiter",
+"Next month": "Nächster Monat",
+"No accounts yet — add them in": "Noch keine Konten – füge sie hinzu unter",
+"No accounts yet — add them in Settings › Accounts.": "Noch keine Konten – füge sie unter Einstellungen › Konten hinzu.",
+"No accounts yet.": "Noch keine Konten.",
+"No backups pushed yet.": "Noch keine Sicherungen hochgeladen.",
+"No budgets yet — pick a category below to add one.": "Noch keine Budgets – wähle unten eine Kategorie, um eines anzulegen.",
+"No data": "Keine Daten",
+"No notes yet.": "Noch keine Hinweise.",
+"No priced lines found in that text": "Keine Zeilen mit Preisen in diesem Text gefunden",
+"No security question was set on this device, so the PIN cannot be": "Auf diesem Gerät wurde keine Sicherheitsfrage festgelegt, daher kann die PIN nicht",
+"No security question yet. Without one, a forgotten PIN can't be reset on this device.": "Noch keine Sicherheitsfrage. Ohne sie lässt sich eine vergessene PIN auf diesem Gerät nicht zurücksetzen.",
+"No staple matches — tap + to add “": "Kein Grundartikel passt – tippe auf +, um „",
+"No starting balance set — this is only what has moved through it": "Kein Anfangsstand festgelegt – das ist nur, was darüber lief",
+"No transactions found in that file": "In dieser Datei wurden keine Buchungen gefunden",
+"No trips yet": "Noch keine Reisen",
+"Non-Veg": "Fleisch & Fisch",
+"None": "Keine",
+"Normal": "Normal",
+"Not fetched yet": "Noch nicht abgerufen",
+"Not fetched yet — refresh it before switching to ₹": "Noch nicht abgerufen – aktualisiere ihn, bevor du zu ₹ wechselst",
+"Not recorded": "Nicht erfasst",
+"Not this item": "Nicht dieser Artikel",
+"Not yet pushed": "Noch nicht hochgeladen",
+"Note": "Notiz",
+"Nothing added yet.": "Noch nichts hinzugefügt.",
+"Nothing due": "Nichts fällig",
+"Nothing else is left. This cannot be undone.": "Sonst bleibt nichts. Das kann nicht rückgängig gemacht werden.",
+"Nothing entered — fill in at least one account": "Nichts eingegeben – fülle mindestens ein Konto aus",
+"Nothing has moved it since.": "Seitdem hat sich nichts bewegt.",
+"Nothing in the usual staples matches that.": "Nichts in den üblichen Grundartikeln passt dazu.",
+"Nothing in this stretch to chart.": "In diesem Abschnitt nichts für ein Diagramm.",
+"Nothing is pushed — the repo keeps every version either way.": "Nichts wird hochgeladen – das Repo behält ohnehin jede Version.",
+"Nothing is tagged with it, so nothing else changes.": "Nichts ist damit markiert, also ändert sich sonst nichts.",
+"Nothing matches those filters.": "Nichts passt zu diesen Filtern.",
+"Nothing on the ": "Nichts auf dem ",
+"Nothing saved yet.": "Noch nichts gespeichert.",
+"Nothing selected": "Nichts ausgewählt",
+"Nothing set": "Nichts festgelegt",
+"Nothing spent from this budget yet this period.": "In diesem Zeitraum noch nichts aus diesem Budget ausgegeben.",
+"Nothing to choose from yet.": "Noch nichts zur Auswahl.",
+"Nothing — each stands alone": "Nichts – jedes steht für sich",
+"Notifications": "Benachrichtigungen",
+"Notifications are blocked for this app in your browser settings": "Benachrichtigungen sind für diese App in deinen Browsereinstellungen blockiert",
+"Notifications were not allowed": "Benachrichtigungen wurden nicht erlaubt",
+"Notify this device": "Dieses Gerät benachrichtigen",
+"November": "November",
+"Now": "Jetzt",
+"Obst & Gemüse": "Obst & Gemüse",
+"October": "Oktober",
+"Off — anyone with this device can open the app.": "Aus – jeder mit diesem Gerät kann die App öffnen.",
+"Off — anything stored here can be read by anyone with the device.": "Aus – alles hier Gespeicherte kann jeder mit dem Gerät lesen.",
+"Off — data stays only in this browser.": "Aus – Daten bleiben nur in diesem Browser.",
+"Oils": "Öle",
+"On — a PIN is required after 5 minutes idle, or when the app is reopened.": "An – nach 5 Minuten Inaktivität oder beim erneuten Öffnen ist eine PIN nötig.",
+"On — the book on this device is unreadable without your passphrase.": "An – das Buch auf diesem Gerät ist ohne deine Passphrase unlesbar.",
+"On — your passphrase is asked for when the app opens.": "An – beim Öffnen der App wird deine Passphrase abgefragt.",
+"On — your passphrase on opening, then the PIN after 5 minutes idle.": "An – deine Passphrase beim Öffnen, dann nach 5 Minuten Inaktivität die PIN.",
+"Open this entry to set its account": "Eintrag öffnen, um sein Konto festzulegen",
+"Opening…": "Wird geöffnet …",
+"Or paste CSV text": "Oder CSV-Text einfügen",
+"Other": "Sonstiges",
+"Over income": "Über dem Einkommen",
+"Overdue": "Überfällig",
+"Overdue by ": "Überfällig seit ",
+"Overdue by a day": "Einen Tag überfällig",
+"Overspent": "Überzogen",
+"PIN and recovery question": "PIN und Wiederherstellungsfrage",
+"PIN set — app lock is on": "PIN festgelegt – App-Sperre ist an",
+"Paid": "Bezahlt",
+"Paid by": "Bezahlt von",
+"Paid from": "Bezahlt von",
+"Paid into": "Eingezahlt auf",
+"Pantry & snacks": "Vorrat & Snacks",
+"Passphrase": "Passphrase",
+"Passphrase again": "Passphrase wiederholen",
+"Passphrase changed": "Passphrase geändert",
+"Paste a backup first": "Füge zuerst eine Sicherung ein",
+"Paste a backup here to restore…": "Füge hier eine Sicherung zum Wiederherstellen ein …",
+"Paste some CSV text first": "Füge zuerst CSV-Text ein",
+"Paste the receipt text and it will fill in the prices: each line is matched to an item on your list, and anything it can't match is added to the end of the list with its price.": "Füge den Belegtext ein, und die Preise werden ausgefüllt: Jede Zeile wird einem Artikel deiner Liste zugeordnet, und was nicht passt, wird mit seinem Preis ans Ende der Liste gesetzt.",
+"Pause this entry": "Diesen Eintrag pausieren",
+"Paused": "Pausiert",
+"Payday": "Zahltag",
+"Payday countdown": "Countdown bis zum Zahltag",
+"Period health": "Zeitraum-Gesundheit",
+"Pick a date": "Datum wählen",
+"Pick both accounts": "Wähle beide Konten",
+"Pick how often it repeats": "Wähle, wie oft es sich wiederholt",
+"Pick one to carry on": "Wähle eins, um fortzufahren",
+"Pick the part of the app.": "Wähle den Teil der App.",
+"Pick two different accounts": "Wähle zwei verschiedene Konten",
+"Pick who shares it": "Wähle, wer es teilt",
+"Pick your own dates": "Eigene Daten wählen",
+"Planned": "Geplant",
+"Planned entry added": "Geplanter Eintrag hinzugefügt",
+"Planned expense": "Geplante Ausgaben",
+"Planned expenses paid": "Geplante Ausgaben bezahlt",
+"Previous month": "Vorheriger Monat",
+"Profile cleared": "Profil geleert",
+"Profile saved": "Profil gespeichert",
+"Pull": "Holen",
+"Pull failed ·": "Holen fehlgeschlagen ·",
+"Pull onto this device": "Auf dieses Gerät holen",
+"Pull onto this device?": "Auf dieses Gerät holen?",
+"Pulled": "Geholt",
+"Pulling…": "Wird geholt …",
+"Purchase": "Einkauf",
+"Purchased on": "Gekauft am",
+"Push": "Hochladen",
+"Push anyway": "Trotzdem hochladen",
+"Push blocked · the backup holds": "Hochladen blockiert · die Sicherung enthält",
+"Push cancelled — the backup is untouched.": "Hochladen abgebrochen – die Sicherung ist unberührt.",
+"Push failed ·": "Hochladen fehlgeschlagen ·",
+"Push is a button again": "Hochladen ist wieder ein Knopf",
+"Push now": "Jetzt hochladen",
+"Push on its own": "Automatisch hochladen",
+"Pushes a JSON backup to a file in your own GitHub repo, straight from this browser — when you press": "Lädt eine JSON-Sicherung in eine Datei in deinem eigenen GitHub-Repo hoch, direkt aus diesem Browser – wenn du drückst:",
+"Qty": "Menge",
+"Quantity for": "Menge für",
+"Quarterly": "Vierteljährlich",
+"Range": "Zeitraum",
+"Read pasted text": "Eingefügten Text lesen",
+"Read receipt": "Beleg lesen",
+"Read this area": "Diesen Bereich lesen",
+"Reading that backup…": "Sicherung wird gelesen …",
+"Reading…": "Wird gelesen …",
+"Rebuild dates": "Termine neu berechnen",
+"Rebuild the dates?": "Termine neu berechnen?",
+"Receipt text": "Belegtext",
+"Recent purchases": "Letzte Einkäufe",
+"Recurring entries": "Wiederkehrende Einträge",
+"Recurring entries show up here from three days before they fall due, and stay until you tick them off as paid.": "Wiederkehrende Einträge erscheinen hier drei Tage vor Fälligkeit und bleiben, bis du sie als bezahlt abhakst.",
+"Recurring entry": "Wiederkehrender Eintrag",
+"Recurring entry paused": "Wiederkehrender Eintrag pausiert",
+"Recurring entry resumed": "Wiederkehrender Eintrag fortgesetzt",
+"Recurring entry updated": "Wiederkehrender Eintrag aktualisiert",
+"Recurring entry updated · dates rebuilt": "Wiederkehrender Eintrag aktualisiert · Termine neu berechnet",
+"Recurring payment reminders": "Erinnerungen an wiederkehrende Zahlungen",
+"Refresh exchange rate": "Wechselkurs aktualisieren",
+"Refresh the exchange rate first": "Aktualisiere zuerst den Wechselkurs",
+"Refreshing…": "Wird aktualisiert …",
+"Refund": "Erstattung",
+"Remaining": "Übrig",
+"Reminders": "Erinnerungen",
+"Reminders and what stays hidden": "Erinnerungen und was verborgen bleibt",
+"Reminders off": "Erinnerungen aus",
+"Reminders on": "Erinnerungen an",
+"Remove": "Entfernen",
+"Rent": "Miete",
+"Rent, salary, subscriptions": "Miete, Gehalt, Abos",
+"Repeating entry added · ": "Wiederkehrender Eintrag hinzugefügt · ",
+"Repeating entry removed": "Wiederkehrender Eintrag entfernt",
+"Repeats": "Wiederholt sich",
+"Replace the backup?": "Sicherung ersetzen?",
+"Report": "Bericht",
+"Report a bug": "Fehler melden",
+"Reports": "Berichte",
+"Restore": "Wiederherstellen",
+"Restore an earlier backup": "Frühere Sicherung wiederherstellen",
+"Restore an earlier backup…": "Frühere Sicherung wiederherstellen …",
+"Restore from pasted backup": "Aus eingefügter Sicherung wiederherstellen",
+"Restore the backup from": "Sicherung wiederherstellen vom",
+"Restored": "Wiederhergestellt",
+"Resume this entry": "Diesen Eintrag fortsetzen",
+"Rice & flour": "Reis & Mehl",
+"Running": "Läuft",
+"Rupee": "Rupie",
+"Salary": "Gehalt",
+"Save": "Speichern",
+"Save & enable backup": "Speichern & Sicherung aktivieren",
+"Save as": "Speichern als",
+"Save as of ": "Speichern mit Stand vom ",
+"Save balances": "Stände speichern",
+"Save budgets": "Budgets speichern",
+"Save changes": "Änderungen speichern",
+"Save entry": "Eintrag speichern",
+"Save expense": "Ausgabe speichern",
+"Save profile": "Profil speichern",
+"Save purchase": "Einkauf speichern",
+"Save recurring entry": "Wiederkehrenden Eintrag speichern",
+"Save security question": "Sicherheitsfrage speichern",
+"Save this shop as a list I can reuse": "Diesen Einkauf als wiederverwendbare Liste speichern",
+"Save transfer": "Umbuchung speichern",
+"Save trip": "Reise speichern",
+"Saved": "Gespeichert",
+"Saved before": "Früher gespeichert",
+"Scan receipt": "Beleg scannen",
+"Search notes, category, account…": "Notizen, Kategorie, Konto suchen …",
+"Search or add an item": "Artikel suchen oder hinzufügen",
+"Security question": "Sicherheitsfrage",
+"Security question saved": "Sicherheitsfrage gespeichert",
+"See these entries": "Diese Einträge ansehen",
+"See what would be pushed": "Ansehen, was hochgeladen würde",
+"Self transfer": "Eigene Umbuchung",
+"Sent to ": "Gesendet an ",
+"September": "September",
+"Set a 4-digit PIN": "4-stellige PIN festlegen",
+"Set a security question first": "Lege zuerst eine Sicherheitsfrage fest",
+"Set as an amount": "Als Betrag festlegen",
+"Set as percent of income": "Als Prozent des Einkommens festlegen",
+"Set budgets": "Budgets festlegen",
+"Set money aside": "Geld zurücklegen",
+"Set up sync first": "Richte zuerst den Sync ein",
+"Set up sync first.": "Richte zuerst den Sync ein.",
+"Set — and while the book is encrypted this answer is the way in if the": "Festgelegt – und solange das Buch verschlüsselt ist, ist diese Antwort der Weg hinein, wenn die",
+"Sets the day of the cycle — a monthly entry starting on the 3rd falls due on the 3rd of every month. Occurrences appear as": "Legt den Tag im Zyklus fest – ein monatlicher Eintrag ab dem 3. ist jeden 3. des Monats fällig. Termine erscheinen als",
+"Settings": "Einstellungen",
+"Settings — budgets, accounts, categories or balance": "Einstellungen – Budgets, Konten, Kategorien oder Stand",
+"Settings › Accounts": "Einstellungen › Konten",
+"Settings › GitHub sync": "Einstellungen › GitHub-Sync",
+"Settle up": "Abrechnen",
+"Settled": "Erledigt",
+"Shared between": "Geteilt zwischen",
+"Shopping": "Einkaufen",
+"Shopping cart": "Einkaufswagen",
+"Shopping list": "Einkaufsliste",
+"Shopping or trips": "Einkauf oder Reisen",
+"Show amounts": "Beträge zeigen",
+"Show everything": "Alles zeigen",
+"Show it": "Zeigen",
+"Show older": "Ältere zeigen",
+"Show this": "Zeigen",
+"Show this again?": "Wieder zeigen?",
+"Show token": "Token zeigen",
+"Show what was bought on": "Zeigen, was gekauft wurde am",
+"Showing": "Angezeigt:",
+"Showing income only": "Nur Einnahmen",
+"Snacks & drinks": "Snacks & Getränke",
+"Snapshot deleted": "Stand gelöscht",
+"Snapshot wrong? Update it": "Stand falsch? Aktualisieren",
+"Snapshot · ": "Stand · ",
+"Someone": "Jemand",
+"Something that went wrong": "Etwas, das schiefging",
+"Something you'd like it to do": "Etwas, das die App tun soll",
+"Somewhere else": "Woanders",
+"Spends this period": "Ausgaben in diesem Zeitraum",
+"Spices": "Gewürze",
+"Start": "Start",
+"Start one with its dates and who is going. Add what it costs as you go — transport, stay, tickets, snacks — and it adds up by kind and by day, and works out who owes whom.": "Beginne eine mit Daten und wer mitfährt. Erfasse unterwegs, was sie kostet – Transport, Unterkunft, Tickets, Snacks – sie wird nach Art und Tag zusammengerechnet und ermittelt, wer wem was schuldet.",
+"Start over": "Neu anfangen",
+"Starting balance": "Anfangsstand",
+"Starting from": "Beginnt am",
+"Status": "Status",
+"Stay": "Unterkunft",
+"Stop encrypting": "Verschlüsselung beenden",
+"Stop encrypting?": "Verschlüsselung beenden?",
+"Subscriptions": "Abos",
+"Suggestions": "Vorschläge",
+"Switching changes only which one the tab shows; nothing in either is lost.": "Das Umschalten ändert nur, was der Reiter zeigt; in keinem geht etwas verloren.",
+"Syncing…": "Synchronisiere …",
+"System": "System",
+"Taken how": "Wie abgebucht",
+"Tap \"Pull onto this device\" to bring them in — or \"Push now\" twice if this device really has the version you want to keep.": "Tippe auf „Auf dieses Gerät holen“, um sie zu holen – oder zweimal auf „Jetzt hochladen“, wenn dieses Gerät wirklich die Version hat, die du behalten willst.",
+"Tap a slice to light it up": "Tippe auf ein Stück, um es hervorzuheben",
+"Tap the eye to show amounts before exporting": "Tippe vor dem Export auf das Auge, um Beträge zu zeigen",
+"Tax return": "Steuererstattung",
+"Telecom": "Telekommunikation",
+"That answer doesn't match the one on file": "Diese Antwort stimmt nicht mit der gespeicherten überein",
+"That answer doesn't match. Spacing and capitals are ignored,": "Diese Antwort passt nicht. Leerzeichen und Großschreibung werden ignoriert,",
+"That answer doesn't match. Spacing and capitals are ignored, so it": "Diese Antwort passt nicht. Leerzeichen und Großschreibung werden ignoriert, also ist es",
+"That category already exists": "Diese Kategorie gibt es schon",
+"That does not open it. Your security question's answer works too,": "Damit lässt es sich nicht öffnen. Die Antwort auf deine Sicherheitsfrage funktioniert auch,",
+"That doesn't look like a பணப்பை backup": "Das sieht nicht nach einer பணப்பை-Sicherung aus",
+"That email doesn't look right": "Diese E-Mail sieht nicht richtig aus",
+"That file looks empty": "Diese Datei scheint leer zu sein",
+"That image is too detailed to keep small": "Dieses Bild ist zu detailreich, um es klein zu halten",
+"That's already on the list": "Das steht schon auf der Liste",
+"The PIN and its recovery question are forgotten, and the app opens straight to your book.": "Die PIN und ihre Wiederherstellungsfrage werden vergessen, und die App öffnet direkt dein Buch.",
+"The PIN hides the screen; this makes the stored data unreadable. Your passphrase and your security answer each open it, so forgetting one is not the end of the book — forgetting both is.": "Die PIN verbirgt den Bildschirm; dies macht die gespeicherten Daten unlesbar. Deine Passphrase und deine Sicherheitsantwort öffnen es jeweils, also ist das Vergessen einer davon nicht das Ende des Buchs – das Vergessen beider schon.",
+"The answer is needed as the way back": "Die Antwort wird als Weg zurück gebraucht",
+"The book could not be read. Nothing has been changed — restore a": "Das Buch konnte nicht gelesen werden. Nichts wurde geändert – stelle eine",
+"The book goes back to being stored as plain text on this device,": "Das Buch wird wieder als Klartext auf diesem Gerät gespeichert,",
+"The change itself, in a sentence or two.": "Die Änderung selbst, in ein, zwei Sätzen.",
+"The copy in your repo is overwritten with this device's,": "Die Kopie in deinem Repo wird mit der dieses Geräts überschrieben,",
+"The opening figure on each account is forgotten. Your entries are untouched.": "Der Anfangsstand jedes Kontos wird vergessen. Deine Einträge bleiben unberührt.",
+"The record of what your accounts held as of ": "Die Aufzeichnung, was deine Konten hielten am ",
+"The schedule has changed, so ": "Der Zeitplan hat sich geändert, daher werden ",
+"The steps that led up to it, as near as you remember.": "Die Schritte, die dahin führten, so genau du dich erinnerst.",
+"The third tab is Trips now": "Der dritte Reiter ist jetzt Reisen",
+"The third tab is the shopping list again": "Der dritte Reiter ist wieder die Einkaufsliste",
+"There is no way to look this up later, so it is worth getting right now.": "Das lässt sich später nicht nachschlagen, also lohnt es sich, es jetzt richtig zu machen.",
+"These are all transfers, and a transfer is money moving between your": "Das sind alles Umbuchungen, und eine Umbuchung ist Geld, das zwischen deinen",
+"Thin buffer": "Knapper Puffer",
+"This browser cannot encrypt — WebCrypto is unavailable.": "Dieser Browser kann nicht verschlüsseln – WebCrypto ist nicht verfügbar.",
+"This browser cannot show notifications": "Dieser Browser kann keine Benachrichtigungen anzeigen",
+"This browser has no WebCrypto.": "Dieser Browser hat kein WebCrypto.",
+"This browser is empty — tap \"Pull onto this device\" to bring them in.": "Dieser Browser ist leer – tippe auf „Auf dieses Gerät holen“, um sie zu holen.",
+"This cannot be undone — copy a backup first if you are not sure.": "Das kann nicht rückgängig gemacht werden – kopiere zuerst eine Sicherung, wenn du unsicher bist.",
+"This cannot be undone.": "Das kann nicht rückgängig gemacht werden.",
+"This device will be notified": "Dieses Gerät wird benachrichtigt",
+"This device will not be notified": "Dieses Gerät wird nicht benachrichtigt",
+"This month": "Dieser Monat",
+"This push removes a lot": "Dieses Hochladen entfernt viel",
+"This shop hasn't been posted to the ledger. Entering a total adds it as a groceries expense.": "Dieser Einkauf wurde nicht ins Buch übernommen. Mit einem Gesamtbetrag wird er als Lebensmittelausgabe hinzugefügt.",
+"This week": "Diese Woche",
+"This year": "Dieses Jahr",
+"This year so far": "Dieses Jahr bisher",
+"Those did not match": "Die stimmen nicht überein",
+"Tick off ": "Abhaken: ",
+"Tick off what you bought first": "Hake zuerst ab, was du gekauft hast",
+"To": "Bis",
+"To India": "Nach Indien",
+"To Priya": "An Priya",
+"To account": "Auf Konto",
+"Today": "Heute",
+"Toll": "Maut",
+"Tomorrow": "Morgen",
+"Total bill": "Gesamtrechnung",
+"Total cleared": "Gesamtbetrag geleert",
+"Total expense": "Ausgaben gesamt",
+"Total income": "Einnahmen gesamt",
+"Total set to": "Gesamtbetrag gesetzt auf",
+"Total transfer": "Umbuchungen gesamt",
+"Totals": "Summen",
+"Transfer": "Umbuchung",
+"Transfer from ": "Umbuchung von ",
+"Transfer to ": "Umbuchung auf ",
+"Transfers": "Umbuchungen",
+"Transport": "Transport",
+"Travel": "Reisen",
+"Trip": "Reise",
+"Trip deleted": "Reise gelöscht",
+"Trip expense": "Reiseausgabe",
+"Trip expenses": "Reiseausgaben",
+"Trip started": "Reise begonnen",
+"Trip updated": "Reise aktualisiert",
+"Trips": "Reisen",
+"Turn off": "Ausschalten",
+"Turn off app lock": "App-Sperre ausschalten",
+"Turn off the app lock?": "App-Sperre ausschalten?",
+"Type": "Art",
+"Type a name first": "Gib zuerst einen Namen ein",
+"Type a question, e.g. salary for Aug": "Frage eingeben, z. B. Gehalt für Aug",
+"Type it again": "Noch einmal eingeben",
+"Type to filter the staples below, or add whatever isn’t there.": "Tippe, um die Grundartikel unten zu filtern, oder füge hinzu, was fehlt.",
+"Unlock": "Entsperren",
+"Unlock first.": "Zuerst entsperren.",
+"Up to date with": "Aktuell mit",
+"Update": "Aktualisieren",
+"Update now": "Jetzt aktualisieren",
+"Update settings": "Einstellungen aktualisieren",
+"Update to ": "Aktualisieren auf ",
+"Updated · dates left as they are": "Aktualisiert · Termine unverändert",
+"Updating…": "Wird aktualisiert …",
+"Use at least 8 characters": "Mindestens 8 Zeichen verwenden",
+"Use at least 8 characters.": "Mindestens 8 Zeichen verwenden.",
+"Use today": "Heute verwenden",
+"Utilities": "Nebenkosten",
+"Version": "Version",
+"Version ": "Version ",
+"Version and changes": "Version und Änderungen",
+"Version and what’s new": "Version und Neuigkeiten",
+"View ›": "Liste ›",
+"Waiting on reminders above": "Wartet auf die Erinnerungen oben",
+"Waiting — this push would remove a lot.": "Wartet – dieses Hochladen würde viel entfernen.",
+"Week ": "Woche ",
+"Weekly": "Wöchentlich",
+"What amounts are shown and typed in": "In welcher Währung Beträge angezeigt und eingegeben werden",
+"What did you expect?": "Was hast du erwartet?",
+"What each account holds": "Was jedes Konto enthält",
+"What for": "Wofür",
+"What for? (optional)": "Wofür? (optional)",
+"What happened instead?": "Was ist stattdessen passiert?",
+"What should have happened instead.": "Was stattdessen hätte passieren sollen.",
+"What the third tab holds": "Was der dritte Reiter zeigt",
+"What this device holds that the backup does not. Pushing replaces the backup with this device's copy.": "Was dieses Gerät enthält, die Sicherung aber nicht. Hochladen ersetzt die Sicherung durch die Kopie dieses Geräts.",
+"What were you doing?": "Was hast du gemacht?",
+"What would that give you?": "Was würde dir das bringen?",
+"What would you like it to do?": "Was soll es tun?",
+"What you actually saw.": "Was du tatsächlich gesehen hast.",
+"What you pay goes into your ledger too, under Travel, so it counts in the month and the account's balance.": "Was du zahlst, kommt auch in dein Buch, unter Reisen, und zählt so im Monat und im Kontostand.",
+"What’s new": "Neuigkeiten",
+"When was it paid?": "Wann wurde es bezahlt?",
+"Where did it happen?": "Wo ist es passiert?",
+"Where it came from": "Woher es kam",
+"Where it went": "Wohin es ging",
+"Where money sits. Every entry can say which account it moved through.": "Wo Geld liegt. Jeder Eintrag kann sagen, über welches Konto er lief.",
+"Where the money goes": "Wohin das Geld geht",
+"Where the money went": "Wohin das Geld ging",
+"Where your income goes": "Wohin dein Einkommen geht",
+"Where your money sits": "Wo dein Geld liegt",
+"Which part is this about?": "Um welchen Teil geht es?",
+"Who is on it": "Wer ist dabei",
+"Why it would help. This is the part worth writing down — it is what decides the shape of the answer later.": "Warum es helfen würde. Das lohnt sich aufzuschreiben – es bestimmt später die Form der Antwort.",
+"Worked out on this phone from your own entries. Nothing is sent anywhere, and it answers about this app only.": "Auf diesem Telefon aus deinen eigenen Einträgen berechnet. Nichts wird irgendwohin gesendet, und es beantwortet nur Fragen zu dieser App.",
+"Write a line to carry on": "Schreib eine Zeile, um fortzufahren",
+"Yearly": "Jährlich",
+"Yesterday": "Gestern",
+"You": "Du",
+"You already have an account with that name": "Ein Konto mit diesem Namen gibt es schon",
+"You're looking at example data": "Du siehst Beispieldaten",
+"Your answer": "Deine Antwort",
+"Your book is kept in euro. In rupees every amount is shown at this rate, which changes only when you refresh it. An entry typed in rupees keeps exactly what you typed; one typed in euro shows its euro amount, small, beneath.": "Dein Buch wird in Euro geführt. In Rupien wird jeder Betrag zu diesem Kurs angezeigt, der sich nur ändert, wenn du ihn aktualisierst. Ein in Rupien eingegebener Eintrag behält genau, was du eingegeben hast; ein in Euro eingegebener zeigt seinen Eurobetrag klein darunter.",
+"Your categories": "Deine Kategorien",
+"Your data": "Deine Daten",
+"Your first name greets you under the title.": "Dein Vorname begrüßt dich unter dem Titel.",
+"Your own categories will be listed here.": "Deine eigenen Kategorien erscheinen hier.",
+"Your passphrase": "Deine Passphrase",
+"Your profile": "Dein Profil",
+"Your recurring expenses, M and A —": "Deine wiederkehrenden Ausgaben, M und A –",
+"Your saved lists": "Deine gespeicherten Listen",
+"Your security question": "Deine Sicherheitsfrage",
+"Your share ": "Dein Anteil ",
+"all already on the list": "alles schon auf der Liste",
+"all paid": "alles bezahlt",
+"all received": "alles erhalten",
+"all ticked": "alles abgehakt",
+"another account": "ein anderes Konto",
+"anything to compare against.": "zum Vergleichen.",
+"as of ": "Stand vom ",
+"backup from Settings once you are in.": "Sicherung aus den Einstellungen wieder her, sobald du drin bist.",
+"balance on the dashboard changes — there is simply no longer ": "Stand auf der Übersicht – es gibt nur nichts mehr ",
+"bug report": "Fehlerbericht",
+"category out of the app altogether — its entries, its budget envelope, its": "Kategorie ganz aus der App – ihre Einträge, ihr Budget, ihr",
+"changes not backed up — push them in Settings": "Änderungen nicht gesichert – lade sie in den Einstellungen hoch",
+"coming soon": "demnächst",
+"complicated — three or four unrelated words beat one clever one.": "kompliziert – drei oder vier zusammenhanglose Wörter schlagen ein cleveres.",
+"couldn't reach GitHub — check the connection.": "GitHub nicht erreichbar – prüfe die Verbindung.",
+"counted against": "angerechnet auf",
+"counted as expected spending on the dashboard.": "auf der Übersicht als erwartete Ausgabe zählt.",
+"data path, e.g. data/panappai-backup.json": "Datenpfad, z. B. data/panappai-backup.json",
+"dated to a month that does not exist": "auf einen Monat datiert, den es nicht gibt",
+"day to go": "Tag noch",
+"days to go": "Tage noch",
+"describe the problem": "beschreibe das Problem",
+"due today": "heute fällig",
+"due tomorrow": "morgen fällig",
+"e.g. Both bars sat at nothing": "z. B. Beide Balken standen bei null",
+"e.g. Childcare": "z. B. Kinderbetreuung",
+"e.g. Commerzbank": "z. B. Commerzbank",
+"e.g. India — Dec 2026": "z. B. Indien – Dez. 2026",
+"e.g. Let me tick a reminder off without opening it": "z. B. Eine Erinnerung abhaken, ohne sie zu öffnen",
+"e.g. Most days I just want to mark rent paid and move on": "z. B. Meistens will ich nur die Miete als bezahlt markieren und weitermachen",
+"e.g. My first school?": "z. B. Meine erste Schule?",
+"e.g. Mysore Palace": "z. B. Mysore-Palast",
+"e.g. Opened Reports, picked 12M, tapped a slice": "z. B. Berichte geöffnet, 12M gewählt, auf ein Stück getippt",
+"e.g. Rent": "z. B. Miete",
+"e.g. Rewe groceries": "z. B. Rewe-Einkauf",
+"e.g. Taxi to the airport": "z. B. Taxi zum Flughafen",
+"e.g. The bars should match the totals above": "z. B. Die Balken sollten zu den Summen oben passen",
+"entries across": "Einträge in",
+"example data": "Beispieldaten",
+"except what you have hidden. That is the point — blanking the rows and": "außer dem, was du ausgeblendet hast. Genau darum geht es – die Zeilen zu leeren und",
+"expense": "Ausgabe",
+"fine-grained": "fein abgestuftes",
+"for that category. Every expense you log against it draws it down. Leave a category blank if you don't want to budget it — one-off bills like rent are better as recurring entries.": "für diese Kategorie. Jede erfasste Ausgabe zehrt davon. Lass eine Kategorie leer, wenn du sie nicht budgetieren willst – feste Rechnungen wie die Miete sind besser als wiederkehrende Einträge.",
+"gets back ": "bekommt zurück ",
+"go. Your accounts and profile stay.": "gehen. Deine Konten und dein Profil bleiben.",
+"if the passphrase has gone.": "wenn die Passphrase weg ist.",
+"incl. ": "inkl. ",
+"incl. planned": "inkl. geplant",
+"including any you had moved by hand. Keeping them leaves the dates ": "auch die, die du von Hand verschoben hast. Behältst du sie, bleiben die Termine, ",
+"income": "Einnahme",
+"is always the way back. The token is stored only in this browser's local storage — use a": "immer der Weg zurück. Das Token wird nur im lokalen Speicher dieses Browsers gespeichert – verwende ein",
+"is no longer offered for new entries, but stays on this one": "wird für neue Einträge nicht mehr angeboten, bleibt aber bei diesem",
+"is one you pay yourself each time. Entries carry an": "zahlst du jedes Mal selbst. Einträge tragen ein",
+"is taken by the bank without you — a standing order or direct debit.": "wird ohne dich von der Bank abgebucht – ein Dauerauftrag oder eine Lastschrift.",
+"is the wording itself that has to be right.": "der Wortlaut selbst, der stimmen muss.",
+"isn't": "nicht",
+"it is": "er ist",
+"item lines": "Artikelzeilen",
+"item(s)": "Artikel",
+"items and this device hasn't pulled yet.": "Einträge, und dieses Gerät hat noch nicht geholt.",
+"leaving them in the totals let a hidden salary show through the Income tile —": "sie in den Summen zu lassen, ließ ein verborgenes Gehalt in der Einnahmen-Kachel durchscheinen –",
+"line onto one of these to merge it into that item instead of adding another.": "Zeile auf einen dieser Artikel, um sie damit zusammenzuführen, statt einen weiteren hinzuzufügen.",
+"more than one account is asked about": "mehr als ein Konto gefragt ist",
+"new": "neu",
+"new item": "neuer Artikel",
+"no income in this stretch": "keine Einnahmen in diesem Abschnitt",
+"none of it in the last five": "nichts davon in den letzten fünf",
+"not planned for": "nicht eingeplant",
+"not tagged with an account, so": "ohne Konto markiert, daher",
+"note that is": "Notiz, die",
+"notes that are": "Notizen, die",
+"nothing spent": "nichts ausgegeben",
+"nothing ticked": "nichts abgehakt",
+"nothing yet": "noch nichts",
+"notifies nothing to this device, so do not hide something you still need to be": "benachrichtigt dieses Gerät über nichts, also blende nichts aus, woran du noch",
+"of spending": "der Ausgaben",
+"of the plan still unpaid": "des Plans noch unbezahlt",
+"of what came in ·": "der Einnahmen ·",
+"of what you spent ·": "deiner Ausgaben ·",
+"offers the camera or your gallery, and either can be cropped before it's read. A photo is read on this device — nothing is uploaded anywhere. The first one downloads a small text-recognition model, cached afterward for offline use. It sometimes misreads a digit or a squashed word, so check the text above before pressing": "bietet die Kamera oder deine Galerie an, und beides lässt sich vor dem Lesen zuschneiden. Ein Foto wird auf diesem Gerät gelesen – nichts wird hochgeladen. Beim ersten Mal wird ein kleines Texterkennungsmodell geladen und danach für die Offline-Nutzung zwischengespeichert. Es verliest sich manchmal bei einer Ziffer oder einem gequetschten Wort, also prüfe den Text oben, bevor du drückst:",
+"on one-offs.": "für Einmaliges.",
+"on the bell in the top bar, with a count of how many. The count stays for as": "an der Glocke oben, mit der Anzahl. Die Anzahl bleibt so lange,",
+"on the dashboard but in none of these": "auf der Übersicht, aber in keinem davon",
+"one back.": "eine zurückholen.",
+"one, forgetting it would mean losing every entry, in every backup,": "sie hieße das Vergessen, jeden Eintrag in jeder Sicherung zu verlieren,",
+"only. Leaving out the shop name at the top and the totals at the bottom keeps stray text from being read as an item.": "Lässt du den Ladennamen oben und die Summen unten weg, wird kein fremder Text als Artikel gelesen.",
+"optional": "optional",
+"or": "oder",
+"or clear this site's data and pull it back afterwards.": "oder lösche die Daten dieser Seite und hole es danach zurück.",
+"or tap to choose a file": "oder tippen, um eine Datei zu wählen",
+"owes ": "schuldet ",
+"own accounts — neither in nor out until you pick the one account to": "eigenen Konten wandert – weder rein noch raus, bis du das eine Konto wählst,",
+"owner/repo": "besitzer/repo",
+"paid ": "bezahlt ",
+"pasted text": "eingefügter Text",
+"per period": "pro Zeitraum",
+"period, plus": "Zeitraum, dazu",
+"periods, plus": "Zeiträumen, dazu",
+"permanently.\n\nSet one just below, then turn encryption on.": "für immer.\n\nLege unten eine fest und schalte dann die Verschlüsselung ein.",
+"readable by anyone who has it. Your entries are not touched.": "lesbar für jeden, der es hat. Deine Einträge bleiben unberührt.",
+"recognizing text": "Text wird erkannt",
+"repeating entries.": "wiederkehrende Einträge.",
+"repeating entry.": "wiederkehrender Eintrag.",
+"reset here. Your book is safe — it is in your GitHub backup. Open": "hier zurückgesetzt werden. Dein Buch ist sicher – es liegt in deiner GitHub-Sicherung. Öffne",
+"s hold": " enthalten",
+"see it from.": "von dem aus du es siehst.",
+"shopping item": "Einkaufsartikel",
+"so it is the wording itself that has to be right.": "also muss der Wortlaut selbst stimmen.",
+"so you can see at a glance which still want doing.": "damit du auf einen Blick siehst, was noch zu tun ist.",
+"sorted item": "erledigter Punkt",
+"square": "quitt",
+"still expected": "noch erwartet",
+"still open stays. This cannot be undone.": "noch offen bleibt. Das kann nicht rückgängig gemacht werden.",
+"still to pay": "noch zu zahlen",
+"that file isn't a பணப்பை backup": "diese Datei ist keine பணப்பை-Sicherung",
+"that file isn't a பணப்பை backup.": "diese Datei ist keine பணப்பை-Sicherung.",
+"the app in another browser, set up GitHub sync there and pull it,": "die App in einem anderen Browser, richte dort GitHub-Sync ein und hole es,",
+"the backup file came back empty.": "die Sicherungsdatei kam leer zurück.",
+"the copy the repo holds now": "die Kopie, die das Repo jetzt hat",
+"the passphrase from Change passphrase to rewrap it.": "die Passphrase über „Passphrase ändern“, um sie neu zu verpacken.",
+"the plan is more than the income": "der Plan ist höher als das Einkommen",
+"the security question from Settings › App lock, because revealing what you": "die Sicherheitsfrage aus Einstellungen › App-Sperre, denn wenn du zeigst, was du",
+"these balances": "diese Stände",
+"these two bars": "diese zwei Balken",
+"they are": "sie sind",
+"this balance": "diesen Stand",
+"this month": "dieser Monat",
+"this period": "dieser Zeitraum",
+"this year": "dieses Jahr",
+"to also keep a backup copy in your repo, or use the backup box above to move data to another device by hand.": "ein, um zusätzlich eine Sicherung in deinem Repo zu halten, oder nutze das Sicherungsfeld oben, um Daten von Hand auf ein anderes Gerät zu bringen.",
+"token scoped to just this one repo with \"Contents: Read and write\", never a broad classic token.": "Token nur für dieses eine Repo mit „Contents: Read and write“, niemals ein weitreichendes klassisches Token.",
+"too many requests": "zu viele Anfragen",
+"transfer": "Umbuchung",
+"two of your own accounts is still neither.": "zwei deiner eigenen Konten ist immer noch keins von beiden.",
+"unknown error": "unbekannter Fehler",
+"verification failed": "Überprüfung fehlgeschlagen",
+"version stays in the repo, and Restore an earlier backup can bring": "Version bleibt im Repo, und „Frühere Sicherung wiederherstellen“ kann",
+"where they are and changes only the rest.": "wo sie sind, und nur der Rest ändert sich.",
+"which has nothing new in it.": "in der nichts Neues ist.",
+"will keep their amount, date and category, and lose only the account.": "behalten Betrag, Datum und Kategorie und verlieren nur das Konto.",
+"without the passphrase. Either can be turned off on its own.": "ohne die Passphrase. Beides lässt sich einzeln ausschalten.",
+"wrong permission": "falsche Berechtigung",
+"· no security question set to protect it": "· keine Sicherheitsfrage zum Schutz festgelegt",
+"· sorted": "· erledigt",
+"வரவு செலவு": "வரவு செலவு",
+"— GitHub refused the write. If the repo is empty, add any file (e.g. a README) once, then retry.": "– GitHub hat das Schreiben abgelehnt. Wenn das Repo leer ist, füge einmal eine beliebige Datei hinzu (z. B. eine README) und versuch es erneut.",
+"— as entered, planned or received.": "– wie erfasst, geplant oder erhalten.",
+"— that is all of them": "– das sind alle",
+"— there are older ones": "– es gibt ältere",
+"— transfers counted as neither, a transfer having no one side once": "– Umbuchungen zählen als keins von beiden, da eine Umbuchung keine Seite hat, sobald",
+"— transfers counted from its side": "– Umbuchungen von seiner Seite gezählt",
+"— unexpected GitHub error.": "– unerwarteter GitHub-Fehler.",
+"” yourself.": "“ selbst hinzuzufügen.",
+"‹ All trips": "‹ Alle Reisen",
+"€ Euro": "€ Euro",
+"₹ Rupee": "₹ Rupie"
+};
+const I18N_MAP = new Map();
+/** Spacing collapsed, so a line that breaks across the markup still matches. */
+function i18nKey(s){ return String(s).replace(/\s+/g, " ").trim(); }
+const I18N_FRAG = [];
+const I18N_PAT = [
+  [/^(\d+) days? late$/, (m, n) => n + (n === "1" ? " Tag" : " Tage") + " zu spät"],
+  [/^(\d+) days?$/, (m, n) => n + (n === "1" ? " Tag" : " Tage")],
+  [/^(\d+) months?$/, (m, n) => n + (n === "1" ? " Monat" : " Monate")],
+  [/^(\d+) entr(?:y|ies)$/, (m, n) => n + (n === "1" ? " Eintrag" : " Einträge")],
+  [/^(\d+) entr(?:y|ies) to read$/, (m, n) => n + (n === "1" ? " Eintrag" : " Einträge") + " zum Lesen"],
+  [/^(\d+) entr(?:y|ies) repeating$/, (m, n) => n + (n === "1" ? " Eintrag wiederholt sich" : " Einträge wiederholen sich")],
+  [/^(\d+) ideas?$/, (m, n) => n + (n === "1" ? " Idee" : " Ideen")],
+  [/^(\d+) bugs?$/, (m, n) => n + (n === "1" ? " Fehler" : " Fehler")],
+  [/^Week (\d+)$/, (m, n) => "Woche " + n],
+  [/^(\d+) of (\d+) shown$/, (m, a, b) => a + " von " + b + " angezeigt"],
+  /* an amount and one word: "12,00 € left", "3,00 € over", "5,65 € paid" */
+  [/^(.*\d.*?) left$/, (m, a) => a + " übrig"],
+  [/^(.*\d.*?) over$/, (m, a) => a + " zu viel"],
+  [/^(.*\d.*?) paid$/, (m, a) => a + " bezahlt"],
+  [/^(.*\d.*?) received$/, (m, a) => a + " erhalten"],
+  [/^(.*\d.*?) still to pay$/, (m, a) => a + " noch zu zahlen"],
+  [/^(.*\d.*?) still expected$/, (m, a) => a + " noch erwartet"],
+  [/^(.*\d.*?) to pay$/, (m, a) => a + " zu zahlen"],
+  [/^(.*\d.*?) expected$/, (m, a) => a + " erwartet"],
+  /* an entry's own name after the action: "Edit Netflix" */
+  [/^Edit (.+)$/, (m, a) => a + " bearbeiten"]
+];
+/* Worked inside any line, after the phrases: counts and "x of y" between amounts. */
+const I18N_INLINE = [
+  [/\b1 entry\b/g, "1 Eintrag"],
+  [/\b(\d+) entries\b/g, "$1 Einträge"],
+  [/\b(\d+) days\b/g, "$1 Tage"],
+  [/([\d€₹]) received,/g, "$1 erhalten,"],
+  [/([\d€₹]) in, /g, "$1 rein, "],
+  [/([\d€₹%]) of (?=[\d€₹])/g, "$1 von "]
+];
+if (APP_LANG === "de"){
+  Object.keys(I18N_DE).forEach(en => {
+    const de = I18N_DE[en];
+    const key = i18nKey(en);
+    if (key && !I18N_MAP.has(key)) I18N_MAP.set(key, i18nKey(de));
+    /* Phrases of more than one word may be swapped inside a longer line, and
+       only whole: a phrase is matched at word boundaries, so "a month" is not
+       found inside "a monthly". A single word is only ever swapped as the
+       whole line — "paid " inside "unpaid" is exactly what that prevents. */
+    if (/\S\s+\S/.test(key)){
+      const esc = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+      const lead = /^[A-Za-z]/.test(key) ? "(?<![A-Za-z])" : "";
+      const tail = /[A-Za-z]$/.test(key) ? "(?![A-Za-z])" : "";
+      I18N_FRAG.push([new RegExp(lead + esc + tail, "g"), i18nKey(de), key.length]);
+    }
+  });
+  I18N_FRAG.sort((a, b) => b[2] - a[2]);
+}
+/** A literal in the code, in the language on show. */
+function T(s){
+  if (APP_LANG !== "de") return s;
+  const k = i18nKey(s);
+  return I18N_MAP.has(k) ? I18N_MAP.get(k) : s;
+}
+
+const I18N_SEEN = new Map();
+function i18nText(s){
+  if (I18N_SEEN.has(s)) return I18N_SEEN.get(s);
+  let out = s;
+  const k = i18nKey(s);
+  /* the line's own leading and trailing space is kept around what replaces it */
+  const lead = (/^\s*/.exec(s) || [""])[0], tail = (/\s*$/.exec(s) || [""])[0];
+  if (I18N_MAP.has(k)){
+    out = lead + I18N_MAP.get(k) + tail;
+  } else {
+    let hit = false;
+    for (const [re, fn] of I18N_PAT){
+      if (re.test(k)){ out = lead + k.replace(re, fn) + tail; hit = true; break; }
+    }
+    if (!hit){
+      let body = k;
+      for (let i = 0; i < I18N_FRAG.length; i++){
+        const re = I18N_FRAG[i][0];
+        re.lastIndex = 0;
+        if (re.test(body)){ re.lastIndex = 0; body = body.replace(re, I18N_FRAG[i][1]); }
+      }
+      for (const [re, to] of I18N_INLINE){ re.lastIndex = 0; body = body.replace(re, to); }
+      if (body !== k) out = lead + body + tail;
+    }
+  }
+  if (I18N_SEEN.size > 5000) I18N_SEEN.clear();
+  I18N_SEEN.set(s, out);
+  I18N_SEEN.set(out, out);      /* what it became is already German */
+  return out;
+}
+const I18N_ATTRS = ["placeholder", "aria-label", "title"];
+function i18nNode(n){
+  const p = n.parentNode;
+  if (!p || p.nodeName === "SCRIPT" || p.nodeName === "STYLE" || p.nodeName === "TEXTAREA") return;
+  /* what's new is a record, kept in the language it was written in */
+  if (p.closest && p.closest("[data-notr]")) return;
+  const v = n.nodeValue;
+  if (!v || !/[A-Za-z]{2}/.test(v)) return;
+  const t = i18nText(v);
+  if (t !== v) n.nodeValue = t;
+}
+function i18nAttrs(e){
+  for (const a of I18N_ATTRS){
+    const v = e.getAttribute && e.getAttribute(a);
+    if (v && /[A-Za-z]{2}/.test(v)){
+      const t = i18nText(v);
+      if (t !== v) e.setAttribute(a, t);
+    }
+  }
+}
+function i18nWalk(root){
+  const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let n = tw.nextNode(); n; n = tw.nextNode()) i18nNode(n);
+  if (root.nodeType === 1){
+    i18nAttrs(root);
+    root.querySelectorAll("[placeholder],[aria-label],[title]").forEach(i18nAttrs);
+  }
+}
+if (APP_LANG === "de"){
+  document.documentElement.lang = "de";
+  i18nWalk(document.body);
+  new MutationObserver(ms => {
+    for (const m of ms){
+      if (m.type === "childList"){
+        m.addedNodes.forEach(n => { if (n.nodeType === 3) i18nNode(n); else if (n.nodeType === 1) i18nWalk(n); });
+      } else if (m.type === "characterData"){
+        i18nNode(m.target);
+      } else if (m.type === "attributes"){
+        i18nAttrs(m.target);
+      }
+    }
+  }).observe(document.body, { childList:true, subtree:true, characterData:true,
+                              attributes:true, attributeFilter:I18N_ATTRS });
+}
+
 /* =========================================================================
    பணப்பை — offline euro expense tracker
    ========================================================================= */
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.13";
+const APP_VERSION = "2.2.14";
 const APP_BUILT = "2026-09-19";
 
 const KEY = "panappai.v1";
@@ -5194,7 +6399,7 @@ function shiftMonth(ym, n){
 }
 function monthTitle(ym){
   const [y, m] = ym.split("-").map(Number);
-  return new Date(y, m - 1, 1).toLocaleDateString("en-GB", {month:"long", year:"numeric"});
+  return new Date(y, m - 1, 1).toLocaleDateString(LOC(), {month:"long", year:"numeric"});
 }
 
 /* ---------- budget periods: the 15th to the 14th of the next month ----------
@@ -5219,22 +6424,22 @@ function periodTitle(p){
   const b = new Date(ey, em - 1, PERIOD_START_DAY - 1);
   const short = { day:"numeric", month:"short" };
   return sy === ey
-    ? a.toLocaleDateString("en-GB", short) + " – " + b.toLocaleDateString("en-GB", short) + " " + ey
-    : a.toLocaleDateString("en-GB", short) + " " + sy + " – " + b.toLocaleDateString("en-GB", short) + " " + ey;
+    ? a.toLocaleDateString(LOC(), short) + " – " + b.toLocaleDateString(LOC(), short) + " " + ey
+    : a.toLocaleDateString(LOC(), short) + " " + sy + " – " + b.toLocaleDateString(LOC(), short) + " " + ey;
 }
 /** Short label for the month strip, e.g. "15 Aug". */
 function periodChipLabel(p){
   const [y, m] = p.split("-").map(Number);
-  return new Date(y, m - 1, PERIOD_START_DAY).toLocaleDateString("en-GB", { day:"numeric", month:"short" });
+  return new Date(y, m - 1, PERIOD_START_DAY).toLocaleDateString(LOC(), { day:"numeric", month:"short" });
 }
 function dayTitle(iso){
   const [y, m, d] = iso.split("-").map(Number);
   const dt = new Date(y, m - 1, d);
   const t = todayISO();
-  if (iso === t) return "Today";
+  if (iso === t) return T("Today");
   const yd = new Date(); yd.setDate(yd.getDate() - 1);
-  if (iso === isoOf(yd.getFullYear(), yd.getMonth() + 1, yd.getDate())) return "Yesterday";
-  return dt.toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short"});
+  if (iso === isoOf(yd.getFullYear(), yd.getMonth() + 1, yd.getDate())) return T("Yesterday");
+  return dt.toLocaleDateString(LOC(), {weekday:"short", day:"numeric", month:"short"});
 }
 /** nth occurrence from an anchor, keeping the anchor's day-of-month. */
 const FREQ_DAYS = { weekly:7, days28:28 };
@@ -8316,13 +9521,15 @@ function renderChoice(host, opts, value, onPick){
    CALENDAR - a month grid instead of the browser's own date control, which
    looks different on every platform and cannot be themed.
    ========================================================================= */
-const CAL_DOW = ["Mo","Tu","We","Th","Fr","Sa","Su"];
-const CAL_MONTHS = ["January","February","March","April","May","June",
-  "July","August","September","October","November","December"];
+const CAL_DOW = APP_LANG === "de" ? ["Mo","Di","Mi","Do","Fr","Sa","So"] : ["Mo","Tu","We","Th","Fr","Sa","Su"];
+const CAL_MONTHS = APP_LANG === "de"
+  ? ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"]
+  : ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 function prettyDate(iso){
   if (!iso) return "";
   const parts = iso.split("-").map(Number);
+  if (APP_LANG === "de") return parts[2] + ". " + CAL_MONTHS[parts[1] - 1].slice(0, 3) + " " + parts[0];
   return String(parts[2]).padStart(2, "0") + " " + CAL_MONTHS[parts[1] - 1].slice(0, 3) + " " + parts[0];
 }
 
@@ -10748,6 +11955,7 @@ $("#teDelete").addEventListener("click", async () => {
 function renderConfig(){
   const cur = state.currency === "INR" ? "INR" : "EUR";
   $$("#cfgCur button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === cur)));
+  $$("#cfgLang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === APP_LANG)));
   const third = state.thirdTab === "trips" ? "trips" : "shop";
   $$("#cfgThird button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === third)));
   const r = fxRate();
@@ -10786,6 +11994,14 @@ $$("#cfgCur button").forEach(b => b.addEventListener("click", () => {
   state.currency = v;
   save(); render(); renderConfig();
   toast(v === "INR" ? "Amounts now shown in \u20b9" : "Amounts now shown in \u20ac");
+}));
+/* A language is kept on this device and applied from the first thing drawn,
+   so switching reloads rather than translating what is already on screen. */
+$$("#cfgLang button").forEach(b => b.addEventListener("click", () => {
+  const v = b.dataset.v;
+  if (v === APP_LANG) return;
+  try{ localStorage.setItem("panappai.lang", v); }catch(e){ toast("Couldn't save \u2014 storage is full or blocked"); return; }
+  location.reload();
 }));
 $$("#cfgThird button").forEach(b => b.addEventListener("click", () => {
   const v = b.dataset.v;
@@ -16169,7 +17385,7 @@ function repBuckets(){
      bar is in the same one, and it is written above the chart anyway. */
   const shortDay = iso => {
     const [y, m, d] = iso.split("-").map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString("en-GB", { day:"numeric", month:"short" });
+    return new Date(y, m - 1, d).toLocaleDateString(LOC(), { day:"numeric", month:"short" });
   };
 
   const spans = [];
@@ -16202,7 +17418,7 @@ function repBuckets(){
       while (m < 1){ m += 12; y -= 1; }
       const ym = y + "-" + pad(m);
       spans.push({ from:ym + "-01", to:lastDayOfMonth(ym),
-                   label:new Date(y, m - 1, 1).toLocaleDateString("en-GB", { month:"short" }) });
+                   label:new Date(y, m - 1, 1).toLocaleDateString(LOC(), { month:"short" }) });
     }
   }
 
@@ -16504,7 +17720,7 @@ function repUnitLabel(k, all){
   if (repBasis === "calendar"){
     const [y, mo] = k.split("-").map(Number);
     return new Date(y, mo - 1, 1)
-      .toLocaleDateString("en-GB", { month:"long", year:"numeric" });
+      .toLocaleDateString(LOC(), { month:"long", year:"numeric" });
   }
   const label = periodChipLabel(k);
   const clash = all && all.filter(x => periodChipLabel(x) === label).length > 1;
@@ -16552,12 +17768,12 @@ function repFolder(){
     if (b > r.to) b = r.to;
     const da = new Date(a + "T00:00:00"), db = new Date(b + "T00:00:00");
     const both = { day:"numeric", month:"short" };
-    if (a === b) return da.toLocaleDateString("en-GB", both);
+    if (a === b) return da.toLocaleDateString(LOC(), both);
     /* an ISO week runs Monday to Sunday and crosses the end of a month as
        happily as anything else, so both ends name their own */
     return a.slice(0, 7) === b.slice(0, 7)
-      ? da.getDate() + "–" + db.toLocaleDateString("en-GB", both)
-      : da.toLocaleDateString("en-GB", both) + " – " + db.toLocaleDateString("en-GB", both);
+      ? da.getDate() + "–" + db.toLocaleDateString(LOC(), both)
+      : da.toLocaleDateString(LOC(), both) + " – " + db.toLocaleDateString(LOC(), both);
   };
 
   const plural = mode === "week" ? " weeks"
@@ -17319,7 +18535,7 @@ function histDayLabel(d){
   const y = new Date();
   y.setDate(y.getDate() - 1);
   if (day === isoOf(y.getFullYear(), y.getMonth() + 1, y.getDate())) return "Yesterday";
-  return d.toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"long", year:"numeric" });
+  return d.toLocaleDateString(LOC(), { weekday:"short", day:"numeric", month:"long", year:"numeric" });
 }
 
 /**
@@ -17352,7 +18568,7 @@ function paintGhHistory(){
     row.type = "button";
     const left = el("div");
     left.appendChild(el("div", "bk-d",
-      when.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" })));
+      when.toLocaleTimeString(LOC(), { hour:"2-digit", minute:"2-digit" })));
     if (i === 0) left.appendChild(el("div", "bk-s", "the copy the repo holds now"));
     row.appendChild(left);
     row.appendChild(el("span", "bk-go", i === 0 ? "current" : "open"));
@@ -17418,8 +18634,8 @@ async function ghOfferRestore(sha, when){
     if (!p || !Array.isArray(p.txns)) throw new Error("that file isn't a பணப்பை backup");
     const was = ghSummarise(p);
     const now = ghSummarise(state);
-    const dt = when.toLocaleDateString("en-GB", { day:"2-digit", month:"short" }) + " at " +
-               when.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" });
+    const dt = when.toLocaleDateString(LOC(), { day:"2-digit", month:"short" }) + " at " +
+               when.toLocaleTimeString(LOC(), { hour:"2-digit", minute:"2-digit" });
     if (!(await askConfirm({
       title: "Restore the backup from " + dt + "?",
       message: "It holds " + ghSummaryLine(was) + ". This device has " +
