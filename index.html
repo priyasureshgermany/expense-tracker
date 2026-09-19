@@ -1625,6 +1625,11 @@ div.rp-rem:hover{background:none}
    the right, the way the Budget card carries its own */
 .bd-head{display:flex;align-items:center;gap:10px}
 .bd-head .bc-n{margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* an amount typed in the other currency: what it was typed as, small beneath */
+.amt-orig{
+  display:block;font-size:10px;font-weight:500;line-height:1.2;
+  color:var(--ink-3);letter-spacing:0;margin-top:1px;white-space:nowrap;
+}
 .bar .track{
   grid-column:1/-1;height:6px;background:var(--surface-sunk);
   border-radius:99px;overflow:hidden;
@@ -2532,6 +2537,14 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .cfgrow .cf-t b{font-size:13.5px;font-weight:600;color:var(--ink)}
 .cfgrow .cf-t span{font-size:11px;color:var(--ink-3)}
 .cfgrow .cf-v{display:flex;flex-direction:column;align-items:flex-end;flex:none;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.cfgrow.cfg-stack{flex-direction:column;align-items:stretch;gap:10px}
+.cfg-tog button{font-size:13px;font-weight:600}
+.cfg-fx{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-top:10px;border-top:1px solid var(--line);
+}
+.cfg-fx .cf-t b{font-size:12.5px}
+.cfg-fx .btn{width:auto;flex:none}
 .cfgrow .cf-v em{font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-top:2px}
 /* About is a tile like the others, last in the grid; the Update badge sits in
    its top corner, so the tile is what it is measured from. It used to span both
@@ -4489,13 +4502,26 @@ html.locked #lockScreen::before{
   <div class="sheet-body setpane" id="setPane_config" hidden>
       <div class="field">
         <div class="note">
-          How this app behaves, as opposed to what is in your book. These arrive
-          one at a time; until then each shows what it is set to.
+          How this app behaves, as opposed to what is in your book. The rest
+          arrive one at a time; until then each shows what it is set to.
         </div>
         <div class="cfgrows">
-          <div class="cfgrow">
-            <div class="cf-t"><b>Currency</b><span>Show amounts in euro or rupees</span></div>
-            <div class="cf-v">€ Euro<em>coming next</em></div>
+          <div class="cfgrow cfg-stack">
+            <div class="cf-t"><b>Currency</b><span>What amounts are shown and typed in</span></div>
+            <div class="toggle2 cfg-tog" id="cfgCur" style="grid-template-columns:1fr 1fr">
+              <button class="a" type="button" data-v="EUR" aria-pressed="true">€ Euro</button>
+              <button class="a" type="button" data-v="INR" aria-pressed="false">₹ Rupee</button>
+            </div>
+            <div class="cfg-fx">
+              <div class="cf-t"><b>Exchange rate</b><span id="cfgFxLine">Not fetched yet</span></div>
+              <button class="btn ghost sm" type="button" id="cfgFxBtn">Refresh exchange rate</button>
+            </div>
+            <div class="note" style="margin-top:2px">
+              Your book is kept in euro. In rupees every amount is shown at this
+              rate, which changes only when you refresh it. An entry typed in
+              rupees keeps exactly what you typed; one typed in euro shows its
+              euro amount, small, beneath.
+            </div>
           </div>
           <div class="cfgrow">
             <div class="cf-t"><b>Shopping or trips</b><span>What the third tab holds</span></div>
@@ -4620,7 +4646,7 @@ html.locked #lockScreen::before{
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.11";
+const APP_VERSION = "2.2.12";
 const APP_BUILT = "2026-09-19";
 
 const KEY = "panappai.v1";
@@ -4834,15 +4860,76 @@ function catHidden(cat){
   const id = typeof cat === "string" ? cat : cat.id;
   return list.indexOf(id) !== -1;
 }
+/* ---------- currency ----------
+   The book is kept in euro cents, always: every total, balance, budget and
+   report adds up t.amount and nothing else, so they cannot disagree about which
+   currency they are counting. Rupees are a way of showing it — every amount
+   converted at the rate you last fetched — and a way of typing it: an entry
+   typed in rupees keeps what was typed, exactly, as `orig`, beside the euro
+   figure worked out from it at the time. So a rupee entry reads back as the
+   rupees you typed, and a euro entry shown in rupees says underneath what it
+   was in euro. */
+const inr = new Intl.NumberFormat("en-IN", {style:"currency", currency:"INR"});
+const inr0 = new Intl.NumberFormat("en-IN", {style:"currency", currency:"INR", maximumFractionDigits:0});
+const CURRENCIES = {
+  EUR: { sym:"\u20ac", name:"Euro",  f:eur, f0:eur0 },
+  INR: { sym:"\u20b9", name:"Rupee", f:inr, f0:inr0 }
+};
+/** Rupees to one euro, as last fetched; 0 until it has been. */
+function fxRate(){ return state && state.fx && state.fx.rate > 0 ? state.fx.rate : 0; }
+/** What amounts are shown in. Rupees only once there is a rate to show them at. */
+function dispCur(){ return state && state.currency === "INR" && fxRate() ? "INR" : "EUR"; }
+function curSym(){ return CURRENCIES[dispCur()].sym; }
+/** Euro cents to the cents of what is shown, and back. */
+function toDisp(c){ return dispCur() === "INR" ? Math.round((c || 0) * fxRate()) : (c || 0); }
+function fromDisp(c){ return dispCur() === "INR" ? Math.round((c || 0) / fxRate()) : (c || 0); }
+function fmtIn(cents, cur){ return CURRENCIES[cur].f.format((cents || 0) / 100); }
+
 function fmt(cents, cat){
   if (amountsHidden || catHidden(cat)) return AMOUNT_MASK;
-  return eur.format((cents||0)/100);
+  return fmtIn(toDisp(cents), dispCur());
 }
 function fmtShort(cents){
   if (amountsHidden) return AMOUNT_MASK;
-  const v = Math.abs(cents||0)/100;
-  return v >= 1000 ? eur0.format((cents||0)/100) : eur.format((cents||0)/100);
+  const c = CURRENCIES[dispCur()], v = toDisp(cents) / 100;
+  return Math.abs(v) >= 1000 ? c.f0.format(v) : c.f.format(v);
 }
+/** An element holding an entry's amount, with what it was typed as beneath when that differs. */
+function amtNode(tag, cls, prefix, t){
+  const f = fmtTxn(t);
+  const n = el(tag, cls, prefix + f.main.replace("-", ""));
+  if (f.sub){
+    n.classList.add("has-orig");
+    n.appendChild(el("small", "amt-orig", f.sub));
+  }
+  return n;
+}
+/**
+ * One entry's amount, and what it was typed as when that was the other
+ * currency: { main, sub }. An entry typed in the currency on show reads back
+ * exactly as typed; one typed in the other says so, small, underneath.
+ * Works for a recurring entry as well, which carries `orig` the same way.
+ */
+function fmtTxn(t){
+  if (amountsHidden || catHidden(t.category)) return { main: AMOUNT_MASK, sub: "" };
+  const cur = dispCur();
+  const o = t.orig && CURRENCIES[t.orig.cur] ? t.orig : null;
+  if (o && o.cur === cur) return { main: fmtIn(o.amount, cur), sub: "" };
+  return { main: fmt(t.amount, t.category),
+           sub: o ? fmtIn(o.amount, o.cur) : (cur !== "EUR" ? fmtIn(t.amount, "EUR") : "") };
+}
+/** An amount box's starting text, in the currency on show. */
+function amtForInput(cents, orig){
+  const v = orig && orig.cur === dispCur() ? orig.amount : toDisp(cents);
+  return v ? (v / 100).toFixed(2).replace(".", ",") : "";
+}
+/** What an amount box holds, as the book keeps it: euro cents, and the rupees typed. */
+function amtFromInput(typed){
+  const cur = dispCur();
+  return cur === "EUR" ? { amount: typed, orig: null }
+                       : { amount: fromDisp(typed), orig: { cur: cur, amount: typed } };
+}
+function setOrig(t, orig){ if (orig) t.orig = orig; else delete t.orig; }
 
 /* Defined here beside fmt(), but wired up with getElementById because the
    $ helper isn't declared until further down the script. */
@@ -5010,7 +5097,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null };
+let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -5344,7 +5431,10 @@ function stateFromPayload(p){
     accounts: normaliseAccounts(p.accounts),
     profile: normaliseProfile(p.profile),
     feedback: Array.isArray(p.feedback) ? p.feedback : [],
-    hiddenCats: Array.isArray(p.hiddenCats) ? p.hiddenCats.filter(x => typeof x === "string") : []
+    hiddenCats: Array.isArray(p.hiddenCats) ? p.hiddenCats.filter(x => typeof x === "string") : [],
+    /* what amounts are shown in, and the rate they are shown at */
+    currency: p.currency === "INR" ? "INR" : "EUR",
+    fx: normaliseFx(p.fx)
   };
   if (p.demo) st.demo = true;
   return st;
@@ -5366,8 +5456,17 @@ function stateCleared(){
     /* Clearing empties the book, not the setup around it — and what you have
        chosen to keep off the screen is setup. */
     feedback: state.feedback || [],
-    hiddenCats: state.hiddenCats || []
+    hiddenCats: state.hiddenCats || [],
+    currency: state.currency === "INR" ? "INR" : "EUR",
+    fx: state.fx || null
   };
+}
+
+/** A rate kept only if it is a rate: a positive number of rupees to the euro. */
+function normaliseFx(f){
+  if (!f || typeof f !== "object" || !(+f.rate > 0) || !isFinite(+f.rate)) return null;
+  return { rate: +f.rate, date: typeof f.date === "string" ? f.date.slice(0, 10) : "",
+           at: typeof f.at === "string" ? f.at : null };
 }
 
 function load(){
@@ -5384,6 +5483,8 @@ function load(){
   if (!state.budgets) state.budgets = {};
   if (!state.budgetPct || typeof state.budgetPct !== "object") state.budgetPct = {};
   if (!Array.isArray(state.budgetBase) || !state.budgetBase.length) state.budgetBase = ["salary"];
+  if (state.currency !== "INR") state.currency = "EUR";
+  state.fx = normaliseFx(state.fx);
   if (!state.cats) state.cats = normaliseCats(null);
   /* Backups written before the catch-all existed have none set, which left the
      Misc envelope counting only entries tagged Misc rather than absorbing the
@@ -5773,11 +5874,13 @@ function materialise(){
       const k = rule.id + "|" + d;
       if (existing.has(k) || skips.has(k)) continue;
       existing.add(k);
-      state.txns.push({
+      const occ = {
         id: uid(), type: rule.type, amount: rule.amount, category: rule.category,
         note: rule.note, date: d, slot: d, status:"planned", ruleId: rule.id,
         account: rule.account || null, fromAccount: rule.fromAccount || null
-      });
+      };
+      if (rule.orig) occ.orig = Object.assign({}, rule.orig);
+      state.txns.push(occ);
     }
   });
 }
@@ -6094,6 +6197,7 @@ const HEALTH_VAR = { red:"--health-red", orange:"--health-orange", yellow:"--hea
 const HEALTH_LABEL = { red:"Overspent", orange:"Thin buffer", yellow:"Comfortable", green:"Healthy", neutral:"No data" };
 
 function render(){
+  applyCurrency();
   const dark = isDark();
   const all = periodTxns(view).slice().sort((a, b) =>
     a.date === b.date ? (a.status === b.status ? 0 : a.status === "planned" ? -1 : 1)
@@ -6445,7 +6549,7 @@ function openEnvelope(catId){
         label.appendChild(tag);
       }
       r.appendChild(label);
-      r.appendChild(el("span", "sp-a", fmt(t.amount, t.category)));
+      r.appendChild(amtNode("span", "sp-a", "", t));
       host.appendChild(r);
     });
   }
@@ -6460,13 +6564,16 @@ function envQuickAdd(){
   const cents = Math.abs(parseAmount($("#envAmt").value) || 0);
   if (!cents){ toast("Enter an amount"); return; }
   userTouched();
-  state.txns.push({
-    id: uid(), type:"expense", amount: cents, category: envCat,
+  const typed = amtFromInput(cents);
+  const spend = {
+    id: uid(), type:"expense", amount: typed.amount, category: envCat,
     note: $("#envNote").value.trim(), date: todayISO(), status:"done"
-  });
+  };
+  setOrig(spend, typed.orig);
+  state.txns.push(spend);
   save(); render();
   openEnvelope(envCat);          /* refresh the sheet in place */
-  toast("Added " + fmt(cents) + " to " + catOf(envCat).n);
+  toast("Added " + fmtTxn(spend).main + " to " + catOf(envCat).n);
 }
 $("#envAdd").addEventListener("click", envQuickAdd);
 $("#envAmt").addEventListener("keydown", e => { if (e.key === "Enter") envQuickAdd(); });
@@ -6476,6 +6583,9 @@ $("#envNote").addEventListener("keydown", e => { if (e.key === "Enter") envQuick
    Only the categories actually being budgeted get a row; the rest are one
    dropdown away. Listing all 20-odd made managing four of them a hunt. */
 let budDraft = {};   /* catId -> raw input text, so it survives a re-render */
+/* what each box opened with: saved untouched, a budget keeps its exact cents
+   rather than going to the currency on show and back */
+let budStart = {};
 
 function budCapture(){
   $$("#budRows .br-a").forEach(inp => { budDraft[inp.dataset.cat] = inp.value; });
@@ -6506,7 +6616,7 @@ function renderBudRows(){
     const inp = el("input", "inp br-a");
     inp.type = "text";
     inp.inputMode = "decimal";
-    inp.placeholder = mode === "pct" ? "0 %" : "€ 0,00";
+    inp.placeholder = mode === "pct" ? "0 %" : curSym() + " 0,00";
     inp.dataset.cat = c.id;
     inp.value = budDraft[c.id] || "";
     inp.setAttribute("aria-label", "Budget for " + c.n + (mode === "pct" ? ", percent of income" : ""));
@@ -6514,9 +6624,10 @@ function renderBudRows(){
 
     /* Switching keeps the money, converting rather than clearing: 221,60 € is
        4 % of this period's 5.540,00, and 4 % is 221,60 € back again. */
-    const base = budgetBaseIncome(view, budBaseDraft);
+    /* in the currency the boxes are typed in, so a % converts to what is typed */
+    const base = toDisp(budgetBaseIncome(view, budBaseDraft));
     const tog = el("div", "br-mode");
-    [["eur", "€"], ["pct", "%"]].forEach(([m, lab]) => {
+    [["eur", curSym()], ["pct", "%"]].forEach(([m, lab]) => {
       const b = el("button", null, lab);
       b.type = "button";
       b.setAttribute("aria-pressed", String(mode === m));
@@ -6596,8 +6707,9 @@ function openBudgetEditor(){
     const pct = budgetPctOf(c.id);
     const cur = state.budgets[c.id] || 0;
     if (pct){ budDraft[c.id] = pctText(pct); budMode[c.id] = "pct"; }
-    else if (cur > 0){ budDraft[c.id] = (cur / 100).toFixed(2).replace(".", ","); budMode[c.id] = "eur"; }
+    else if (cur > 0){ budDraft[c.id] = amtForInput(cur); budMode[c.id] = "eur"; }
   });
+  budStart = Object.assign({}, budDraft);
   renderBudRows();
   sheetOpen("#shBudget");
 }
@@ -6644,7 +6756,9 @@ $("#budSave").addEventListener("click", () => {
       const pct = parsePct(budDraft[id]);
       if (pct > 0) nextPct[id] = pct;
     } else {
-      const cents = Math.abs(parseAmount(budDraft[id]) || 0);
+      const cents = budDraft[id] === budStart[id] && state.budgets[id] > 0
+        ? state.budgets[id]
+        : fromDisp(Math.abs(parseAmount(budDraft[id]) || 0));
       if (cents > 0) next[id] = cents;
     }
   });
@@ -7071,7 +7185,7 @@ $("#balSave").addEventListener("click", async () => {
     if (!raw) return;
     const amt = parseAmount(raw);
     if (amt == null) return;
-    a.start = { amount: Math.round(amt), date: date };
+    a.start = { amount: fromDisp(Math.round(amt)), date: date };
     set++;
   });
   if (!set){ toast("Nothing entered — fill in at least one account"); return; }
@@ -7266,8 +7380,8 @@ function renderAccountSettings(){
       left.appendChild(el("div", "lr-n", t.note || catOf(t.category).n));
       left.appendChild(el("div", "lr-m", prettyDate(t.date) + " · " + catOf(t.category).n));
       r.appendChild(left);
-      const amt = el("span", "lr-a " + (t.type === "income" ? "in" : "out"),
-                     (t.type === "income" ? "+" : "−") + fmt(t.amount, t.category).replace("-", ""));
+      const amt = amtNode("span", "lr-a " + (t.type === "income" ? "in" : "out"),
+                          t.type === "income" ? "+" : "−", t);
       r.appendChild(amt);
       r.title = "Open this entry to set its account";
       r.addEventListener("click", () => { sheetClose(); openEntry(t); });
@@ -7681,14 +7795,17 @@ function txnRow(t, dark){
   main.appendChild(t2);
 
   const open = el("button", null);
-  open.style.cssText = "flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;text-align:left;align-items:stretch";
+  /* clipped to its own column: its second line (account, DUE, M or A) used to
+     run on under the amount unseen, and an amount typed in the other currency
+     now has a second line there too */
+  open.style.cssText = "flex:1;min-width:0;overflow:hidden;display:flex;flex-direction:column;gap:1px;text-align:left;align-items:stretch";
   open.appendChild(main);
   open.setAttribute("aria-label", "Edit " + (t.note || c.n));
   open.addEventListener("click", () => openEntry(t));
   row.appendChild(open);
 
-  const amt = el("div", "amt " + (xfer ? "xf" : (t.type === "income" ? "in" : "out")),
-    (xfer ? "" : (t.type === "income" ? "+" : "−")) + fmt(t.amount, t.category).replace("-", ""));
+  const amt = amtNode("div", "amt " + (xfer ? "xf" : (t.type === "income" ? "in" : "out")),
+    xfer ? "" : (t.type === "income" ? "+" : "−"), t);
   row.appendChild(amt);
 
   const tick = el("button", "tick" + (t.status === "done" ? " on" : ""));
@@ -8260,7 +8377,7 @@ function openEntry(txn, type){
       fromAccount: txn.fromAccount || null
     };
     $("#entryTitle").textContent = "Edit entry";
-    $("#eAmt").value = (txn.amount / 100).toFixed(2).replace(".", ",");
+    $("#eAmt").value = amtForInput(txn.amount, txn.orig);
     $("#eNote").value = txn.note || "";
     setDateVal("#eDate", txn.date);
     $("#eDeleteWrap").style.display = "";
@@ -8286,6 +8403,9 @@ function openEntry(txn, type){
   syncEntryUI();
   renderAccountFields();
   sheetOpen("#shEntry");
+  /* what the box started as: saved untouched, an entry keeps the amount it had
+     rather than being re-worked through the rate */
+  ePrefill = $("#eAmt").value;
   if (!txn) setTimeout(() => $("#eAmt").focus(), 340);
 }
 function fabClose(){
@@ -8334,15 +8454,17 @@ const FREQ_OPTS = [
   { v:"bimonthly", n:"Every 2 months" }, { v:"quarterly", n:"Every 3 months" },
   { v:"halfyearly", n:"Every 6 months" }, { v:"yearly", n:"Every year" }
 ];
+let ePrefill = "";
 $("#eSave").addEventListener("click", () => {
   const cents = parseAmount($("#eAmt").value);
   if (!cents || cents <= 0){ toast("Enter an amount greater than zero"); $("#eAmt").focus(); return; }
+  const typed = amtFromInput(cents);
   const date = $("#eDate").value || todayISO();
   const note = $("#eNote").value.trim();
   userTouched();
 
   if (editing){
-    editing.amount = cents;
+    if ($("#eAmt").value !== ePrefill){ editing.amount = typed.amount; setOrig(editing, typed.orig); }
     editing.type = draft.type;
     editing.category = draft.category;
     editing.status = draft.status;
@@ -8363,13 +8485,15 @@ $("#eSave").addEventListener("click", () => {
     }
   }
 
-  state.txns.push({
-    id: uid(), type: draft.type, amount: cents,
+  const fresh = {
+    id: uid(), type: draft.type, amount: typed.amount,
     category: draft.type === "transfer" ? null : draft.category,
     note: note, date: date,
     status: draft.type === "transfer" ? "done" : draft.status,
     account: draft.account || null, fromAccount: draft.fromAccount || null
-  });
+  };
+  setOrig(fresh, typed.orig);
+  state.txns.push(fresh);
   save();
   if (periodOf(date) !== view) view = periodOf(date);
   render(); sheetClose();
@@ -8431,8 +8555,8 @@ function renderRules(){
       : FREQ_LABEL[r.freq] + (next ? " · next " + dayTitle(next).toLowerCase() : "")));
     row.appendChild(m);
 
-    row.appendChild(el("div", "ra " + (r.type === "income" ? "in" : "out"),
-      (r.type === "income" ? "+" : "−") + fmt(r.amount, r.category)));
+    row.appendChild(amtNode("div", "ra " + (r.type === "income" ? "in" : "out"),
+      r.type === "income" ? "+" : "−", r));
     row.insertAdjacentHTML("beforeend",
       '<svg class="rgo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>');
 
@@ -9344,7 +9468,7 @@ function openRule(rule){
       auto: rule.auto === true
     };
     $("#ruleTitle").textContent = "Recurring entry";
-    $("#rAmt").value = (rule.amount / 100).toFixed(2).replace(".", ",");
+    $("#rAmt").value = amtForInput(rule.amount, rule.orig);
     $("#rNote").value = rule.note || "";
     setDateVal("#rDate", rule.anchor);
     $("#rDeleteWrap").style.display = "";
@@ -9410,6 +9534,7 @@ function applyRuleToFuture(rule, rows){
   rows.forEach(x => {
     x.type = rule.type;
     x.amount = rule.amount;
+    setOrig(x, rule.orig ? Object.assign({}, rule.orig) : null);
     x.category = rule.category;
     x.note = rule.note;
     x.account = rule.account || null;
@@ -9436,6 +9561,9 @@ function respinRule(id){
 $("#rSave").addEventListener("click", async () => {
   const cents = parseAmount($("#rAmt").value);
   if (!cents || cents <= 0){ toast("Enter an amount greater than zero"); $("#rAmt").focus(); return; }
+  /* untouched, a rule keeps what it had; changed, it takes what was typed */
+  const untouched = ruleEditing && $("#rAmt").value === amtForInput(ruleEditing.amount, ruleEditing.orig);
+  const typed = untouched ? { amount: ruleEditing.amount, orig: ruleEditing.orig || null } : amtFromInput(cents);
   if (!rDraft.freq){ toast("Pick how often it repeats"); return; }
   const date = $("#rDate").value || todayISO();
   const note = $("#rNote").value.trim();
@@ -9474,10 +9602,11 @@ $("#rSave").addEventListener("click", async () => {
         /* everything but the schedule, so the dates already set survive */
         userTouched();
         Object.assign(ruleEditing, {
-          type: rDraft.type, amount: cents, category: rDraft.category, note: note,
+          type: rDraft.type, amount: typed.amount, category: rDraft.category, note: note,
           auto: !!rDraft.auto,
           account: rDraft.account || null, fromAccount: rDraft.fromAccount || null
         });
+        setOrig(ruleEditing, typed.orig);
         applyRuleToFuture(ruleEditing, future);
         save(); renderRules(); render(); sheetClose();
         toast("Updated · dates left as they are");
@@ -9487,10 +9616,11 @@ $("#rSave").addEventListener("click", async () => {
 
     userTouched();
     Object.assign(ruleEditing, {
-      type: rDraft.type, amount: cents, category: rDraft.category, note: note,
+      type: rDraft.type, amount: typed.amount, category: rDraft.category, note: note,
       freq: rDraft.freq, anchor: date, auto: !!rDraft.auto,
       account: rDraft.account || null, fromAccount: rDraft.fromAccount || null
     });
+    setOrig(ruleEditing, typed.orig);
     if (scheduleMoved){
       respinRule(ruleEditing.id);
     } else {
@@ -9504,11 +9634,12 @@ $("#rSave").addEventListener("click", async () => {
   userTouched();
 
   const rule = {
-    id: uid(), type: rDraft.type, amount: cents, category: rDraft.category,
+    id: uid(), type: rDraft.type, amount: typed.amount, category: rDraft.category,
     note: note, freq: rDraft.freq, anchor: date, active: true,
     auto: !!rDraft.auto,
     account: rDraft.account || null, fromAccount: rDraft.fromAccount || null
   };
+  setOrig(rule, typed.orig);
   state.rules.push(rule);
   materialise();
   save(); renderRules(); render(); sheetClose();
@@ -9890,6 +10021,73 @@ $("#setBack").addEventListener("click", () =>
 
 /* Opening settings is also how a nested sheet gets back here, so it is a
    function rather than only a click handler. */
+/* ---------- Config ---------- */
+function renderConfig(){
+  const cur = state.currency === "INR" ? "INR" : "EUR";
+  $$("#cfgCur button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === cur)));
+  const r = fxRate();
+  $("#cfgFxLine").textContent = r
+    ? "1 \u20ac = " + fmtIn(Math.round(r * 100), "INR") + (state.fx.date ? " \u00b7 as of " + prettyDate(state.fx.date) : "")
+    : "Not fetched yet \u2014 refresh it before switching to \u20b9";
+}
+
+/**
+ * The euro-to-rupee rate, fetched only when asked for. The European Central
+ * Bank's reference rate, through Frankfurter — free, no key, and nothing of
+ * yours goes with the request. Kept in the book, so it works offline and
+ * travels with the backup.
+ */
+async function fxRefresh(){
+  const urls = ["https://api.frankfurter.dev/v1/latest?base=EUR&symbols=INR",
+                "https://api.frankfurter.app/latest?from=EUR&to=INR"];
+  for (const u of urls){
+    try{
+      const res = await fetch(u, { cache:"no-store" });
+      if (!res.ok) continue;
+      const j = await res.json();
+      const rate = j && j.rates && +j.rates.INR;
+      if (rate > 0){
+        return { rate: rate, date: typeof j.date === "string" ? j.date : todayISO(), at: new Date().toISOString() };
+      }
+    }catch(e){ /* offline, or that address gone: try the next */ }
+  }
+  return null;
+}
+$$("#cfgCur button").forEach(b => b.addEventListener("click", () => {
+  const v = b.dataset.v;
+  if (v === "INR" && !fxRate()){ toast("Refresh the exchange rate first"); return; }
+  if ((state.currency === "INR" ? "INR" : "EUR") === v) return;
+  userTouched();
+  state.currency = v;
+  save(); render(); renderConfig();
+  toast(v === "INR" ? "Amounts now shown in \u20b9" : "Amounts now shown in \u20ac");
+}));
+$("#cfgFxBtn").addEventListener("click", async () => {
+  const btn = $("#cfgFxBtn");
+  btn.disabled = true;
+  btn.textContent = "Refreshing\u2026";
+  const fx = await fxRefresh();
+  btn.disabled = false;
+  btn.textContent = "Refresh exchange rate";
+  if (!fx){ toast("Couldn't reach the rate \u2014 are you online?"); return; }
+  userTouched();
+  state.fx = fx;
+  save(); render(); renderConfig();
+  toast("1 \u20ac = " + fmtIn(Math.round(fx.rate * 100), "INR"));
+});
+
+/** Every fixed mark of the currency on the page, set to the one on show. */
+function applyCurrency(){
+  const sym = curSym();
+  const brand = document.querySelector(".brand-cur");
+  if (brand) brand.textContent = dispCur();
+  $$(".amtfield .cur").forEach(n => { n.textContent = sym; });
+  ["#shopTotal", "#envAmt", "#purchTotal"].forEach(sel => {
+    const n = $(sel);
+    if (n) n.placeholder = sym + " 0,00";
+  });
+}
+
 function openSettings(){
   const periods = new Set(state.txns.map(t => periodOf(t.date)));
   $("#statLine").innerHTML =
@@ -9905,6 +10103,7 @@ function openSettings(){
   renderNotifSettings();
   renderHideCats();
   renderFeedbackList();
+  renderConfig();
   const live = state.rules.filter(r => r.active !== false).length;
   $("#setRulesSub").textContent = live
     ? live + " entr" + (live === 1 ? "y" : "ies") + " repeating"
@@ -10326,7 +10525,7 @@ function openPurchase(h){
     host.appendChild(row);
   });
 
-  $("#purchTotal").value = h.total ? (h.total / 100).toFixed(2).replace(".", ",") : "";
+  $("#purchTotal").value = h.total ? amtForInput(h.total) : "";
   purchAccount = h.account || null;
   renderPurchAccount();
   $("#purchNoteIn").value = h.note || "";
@@ -10345,7 +10544,12 @@ function openPurchase(h){
 $("#purchSave").addEventListener("click", () => {
   const h = editingPurchase;
   if (!h) return;
-  const total = Math.abs(parseAmount($("#purchTotal").value) || 0);
+  const untouched = $("#purchTotal").value === (h.total ? amtForInput(h.total) : "");
+  const linkedNow = h.txnId ? state.txns.find(t => t.id === h.txnId) : null;
+  const typedTotal = untouched
+    ? { amount: h.total || 0, orig: linkedNow && linkedNow.orig ? linkedNow.orig : null }
+    : amtFromInput(Math.abs(parseAmount($("#purchTotal").value) || 0));
+  const total = typedTotal.amount;
   h.total = total;
 
   h.account = purchAccount || null;
@@ -10361,6 +10565,7 @@ $("#purchSave").addEventListener("click", () => {
   if (linked){
     if (total > 0){
       linked.amount = total;
+      setOrig(linked, typedTotal.orig);
       linked.account = purchAccount || null;
       linked.note = pNote || fallbackNote;
     } else {
@@ -11190,7 +11395,7 @@ $("#scanApply").addEventListener("click", () => {
   const billed = scanParsed.reduce((s, p) => s + p.price, 0);
   scanParsed = null;
   save(); renderShop(); sheetClose();
-  $("#shopTotal").value = (billed / 100).toFixed(2).replace(".", ",");
+  $("#shopTotal").value = amtForInput(billed);
   toast(updated + " matched, " + added + " added · " + fmt(billed));
 });
 
@@ -11216,7 +11421,8 @@ $("#shopDone").addEventListener("click", () => {
   const date = $("#shopDate").value || todayISO();
   /* the single Total bill box is the source of truth; per-item prices only
      exist when a scanned receipt supplied them */
-  const total = Math.abs(parseAmount($("#shopTotal").value) || 0);
+  const typedTotal = amtFromInput(Math.abs(parseAmount($("#shopTotal").value) || 0));
+  const total = typedTotal.amount;
 
   /* Whatever you type is the entry's note, exactly as if you had written it in
      the entry sheet. Left empty it falls back to naming the store, which is what
@@ -11234,6 +11440,7 @@ $("#shopDone").addEventListener("click", () => {
     userTouched();
     const t = {
       id: uid(), type:"expense", amount: total, category: STORE_CAT[store] || "groceries_de",
+      ...(typedTotal.orig ? { orig: typedTotal.orig } : {}),
       note: note || (STORE_LABEL[store].replace(" stores", "") + " shopping"),
       date: date, status:"done",
       /* so the shop lands on the right account in the balances and the report,
@@ -11849,24 +12056,34 @@ let ghSyncing = false;
 const GH_SNAP_KEY = "panappai.gh.snapshot";
 
 /** Everything about an entry that a push would carry. */
+/* `orig` is added only where there is one, so every entry typed before it
+   existed keeps the signature it already had and nothing reads as edited */
 function txnSig(t){
-  return [t.type, t.amount, t.category, t.date, t.status,
-          t.note || "", t.account || "", t.fromAccount || ""].join("|");
+  const sig = [t.type, t.amount, t.category, t.date, t.status,
+               t.note || "", t.account || "", t.fromAccount || ""].join("|");
+  return t.orig ? sig + "|" + t.orig.cur + ":" + t.orig.amount : sig;
 }
 function ruleSig(r){
-  return [r.type, r.amount, r.category, r.freq, r.anchor, r.note || "",
-          r.active === false ? "off" : "on", r.account || "", r.fromAccount || ""].join("|");
+  const sig = [r.type, r.amount, r.category, r.freq, r.anchor, r.note || "",
+               r.active === false ? "off" : "on", r.account || "", r.fromAccount || ""].join("|");
+  return r.orig ? sig + "|" + r.orig.cur + ":" + r.orig.amount : sig;
 }
 
 /** A compact index of the book: ids to signatures, small enough to keep. */
+/** Everything that is setup rather than entries, as one string to compare. */
+function miscSig(){
+  const parts = [state.budgets, state.budgetPct, state.budgetBase, state.catchAll, state.balance,
+                 state.accounts, state.profile, state.cats, (state.skips || []).length];
+  if (state.currency === "INR" || state.fx) parts.push(state.currency, state.fx);
+  return JSON.stringify(parts);
+}
 function ghFingerprint(){
   const t = {}, r = {};
   state.txns.forEach(x => { t[x.id] = txnSig(x); });
   state.rules.forEach(x => { r[x.id] = ruleSig(x); });
   return {
     t: t, r: r,
-    misc: JSON.stringify([state.budgets, state.budgetPct, state.budgetBase, state.catchAll, state.balance,
-                          state.accounts, state.profile, state.cats, (state.skips || []).length])
+    misc: miscSig()
   };
 }
 function ghSaveSnapshot(){
@@ -11930,8 +12147,7 @@ function ghChanges(){
     }
   });
 
-  const misc = JSON.stringify([state.budgets, state.budgetPct, state.budgetBase, state.catchAll, state.balance,
-                               state.accounts, state.profile, state.cats, (state.skips || []).length]);
+  const misc = miscSig();
   if (misc !== snap.misc){
     out.push({ kind:"edited", what:"Settings — budgets, accounts, categories or balance",
                when:"", amount:0, type:"" });
@@ -12850,7 +13066,7 @@ function askSideBreakdown(type){
     empty: inc ? "No income entered for this period." : "No expenses entered for this period.",
     rows: rows.map(t => ({
       date: dayTitle(t.date), what: askWhat(t), cls: inc ? "in" : "out", plan: t.status !== "done",
-      amount: (inc ? "+" : "−") + fmt(t.amount, t.category),
+      amount: (inc ? "+" : "−") + fmtTxn(t).main,
       after: t.status === "done" ? (inc ? "received" : "paid") : (inc ? "expected" : "to pay")
     })),
     lines: inc ? [["Received", fmt(done)], ["Still expected", fmt(plan)]]
@@ -12874,7 +13090,7 @@ function askNetBreakdown(){
       run += inc ? t.amount : -t.amount;
       if (inc) inn += t.amount; else out += t.amount;
       return { date: dayTitle(t.date), what: askWhat(t), cls: inc ? "in" : "out", plan: t.status !== "done",
-               amount: (inc ? "+" : "−") + fmt(t.amount, t.category), after: fmt(run) };
+               amount: (inc ? "+" : "−") + fmtTxn(t).main, after: fmt(run) };
     }),
     lines: [["Income", fmt(inn)], ["Expenses", fmt(out)]],
     sum: ["Net", fmt(inn - out)]
@@ -13207,7 +13423,7 @@ function askStillToPay(){
   return {
     title: "Still to pay — " + fmt(total),
     body: [rows.length + (rows.length === 1 ? " expense" : " expenses") + " in " + periodTitle(view) + " not ticked off yet, soonest first:"],
-    figs: rows.slice(0, 8).map(t => askFig(dayTitle(t.date) + " · " + (t.note || catOf(t.category).n) + askBadge(t), fmt(t.amount, t.category))),
+    figs: rows.slice(0, 8).map(t => askFig(dayTitle(t.date) + " · " + (t.note || catOf(t.category).n) + askBadge(t), fmtTxn(t).main)),
     sum: ["Still to pay", fmt(total)],
     after: [rows.length > 8 ? "And " + (rows.length - 8) + " more." : "",
             "Tick the circle on a row in வரவு செலவு once it has gone out."],
@@ -13227,7 +13443,7 @@ function askComing(){
     title: soon.length ? "The next 7 days — " + soon.length + (soon.length === 1 ? " entry" : " entries") : "Nothing due in the next 7 days",
     body: [soon.length ? "Planned entries dated today to " + prettyDate(to) + ":" : "No planned entry is dated between today and " + prettyDate(to) + "."],
     figs: soon.slice(0, 10).map(t => askFig(dayTitle(t.date) + " · " + (t.note || catOf(t.category).n) + askBadge(t),
-                                            (t.type === "income" ? "+" : "−") + fmt(t.amount, t.category))),
+                                            (t.type === "income" ? "+" : "−") + fmtTxn(t).main)),
     sum: soon.length ? ["Coming in / going out", fmt(inn) + " / " + fmt(out)] : null,
     after: [late.length ? late.length + (late.length === 1 ? " planned entry is" : " planned entries are") +
                           " dated in the past and still not ticked off — worth a look in வரவு செலவு under Planned." : ""],
@@ -13549,6 +13765,14 @@ const ASK_TOPICS = [
       "Next time, tap Add items — the saved list is at the top, and one tap puts everything back."],
       ["Correcting a saved shop's total or account there updates its groceries entry too."],
       [["Open Shopping cart", ASK_GO.panel("shop")]]) },
+  { g:"howto", q:"Show amounts in rupees (\u20b9)", words:["rupees", "rupee", "inr", "indian rupee", "currency", "exchange rate", "euro to inr"],
+    build:howTo("Show amounts in rupees (\u20b9)", "More \u203a Settings \u203a Config \u203a Currency", [
+      "Open More \u203a Settings \u203a Config.",
+      "Tap Refresh exchange rate \u2014 it fetches today's euro-to-rupee rate, and only when you tap it.",
+      "Tap \u20b9 Rupee. Every amount is now shown in rupees, and new entries are typed in rupees.",
+      "Tap \u20ac Euro to go back."],
+      ["Your book stays in euro underneath. An entry typed in rupees keeps exactly what you typed; one typed in euro shows its euro amount small beneath."],
+      [["Open Config", ASK_GO.settings("config")]]) },
   { g:"howto", q:"Show or hide amounts", words:["hide amounts", "show amounts", "eye", "dots instead", "why are amounts hidden", "privacy"],
     build:howTo("Show or hide amounts", "The eye in the top bar", [
       "Tap the eye at the top right. Amounts show; tap again and they become ••••.",
@@ -13989,7 +14213,7 @@ function askQueryAnswer(p){
     let figs;
     if (rows.length <= 8){
       figs = rows.map(t => askFig(prettyDate(t.date) + " · " + (t.note || catOf(t.category).n) + askBadge(t),
-                                  (net ? (t.type === "income" ? "+" : "−") : "") + fmt(t.amount, t.category)));
+                                  (net ? (t.type === "income" ? "+" : "−") : "") + fmtTxn(t).main));
     } else if (net){
       let inn = 0, out = 0;
       rows.forEach(t => { if (t.type === "income") inn += t.amount; else out += t.amount; });
@@ -15665,8 +15889,8 @@ function repDrawTable(rows){
         ? (acctName(t.fromAccount) || "?") + " → " + (acctName(t.account) || "?")
         : (acctName(t.account) || "—")));
 
-    const inc = el("td", "num in", side === "income" ? fmt(t.amount, t.category) : "");
-    const out = el("td", "num out", side === "expense" ? fmt(t.amount, t.category) : "");
+    const inc = side === "income" ? amtNode("td", "num in", "", t) : el("td", "num in", "");
+    const out = side === "expense" ? amtNode("td", "num out", "", t) : el("td", "num out", "");
     r.appendChild(inc);
     r.appendChild(out);
     if (t.status === "planned") r.style.opacity = ".72";
@@ -16078,7 +16302,7 @@ function sheetXml(rows){
       const ref = colName(i) + (r + 1);
       if (c == null || c.v === "" || c.v == null) return "";
       if (c.t === "d") return '<c r="' + ref + '" s="2"><v>' + excelSerial(c.v) + "</v></c>";
-      if (c.t === "m") return '<c r="' + ref + '" s="3"><v>' + (c.v / 100).toFixed(2) + "</v></c>";
+      if (c.t === "m") return '<c r="' + ref + '" s="3"><v>' + (toDisp(c.v) / 100).toFixed(2) + "</v></c>";
       if (c.t === "n") return '<c r="' + ref + '"><v>' + c.v + "</v></c>";
       const style = c.h ? ' s="1"' : "";
       return '<c r="' + ref + '"' + style + ' t="inlineStr"><is><t xml:space="preserve">' +
@@ -16099,12 +16323,12 @@ function sheetXml(rows){
     "<sheetData>" + body + "</sheetData></worksheet>";
 }
 
-const XLSX_STYLES =
+const xlsxStyles = () =>
   '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
   '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
   '<numFmts count="2">' +
   '<numFmt numFmtId="164" formatCode="dd\\ mmm\\ yyyy"/>' +
-  '<numFmt numFmtId="165" formatCode="#,##0.00\\ &quot;€&quot;"/>' +
+  '<numFmt numFmtId="165" formatCode="#,##0.00\\ &quot;' + curSym() + '&quot;"/>' +
   "</numFmts>" +
   '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font>' +
   '<font><b/><sz val="11"/><name val="Calibri"/></font></fonts>' +
@@ -16152,7 +16376,7 @@ function buildXlsx(rows, sheetName){
       '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' +
       '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
       "</Relationships>" },
-    { name:"xl/styles.xml", data:XLSX_STYLES },
+    { name:"xl/styles.xml", data:xlsxStyles() },
     { name:"xl/worksheets/sheet1.xml", data:sheetXml(rows) }
   ]);
 }
