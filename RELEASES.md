@@ -8,6 +8,14 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.16 — 2026-09-20
+- fix: Trip spending lands in the ledger as Trip Expense, not Travel
+- new: Rename an account in Settings › Accounts — entries keep their account
+- better: Period health says how the period is doing on its own heading, folded or not
+- better: A budget's share of income is just the figure, leaving the name its room
+- better: Categories are picked as tiles, icon over name in its own colour, four to a row
+- fix: Deutsch: what's left in the budget's foot, the accounts line and the install hint
+
 ## 2.2.15 — 2026-09-19
 - new: Helper in Deutsch: every question and answer in German, and it can be asked in German — "gehalt august", "ausgaben 2026"
 
