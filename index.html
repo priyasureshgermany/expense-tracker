@@ -2631,6 +2631,40 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .cat-add{border-style:dashed}
 .cat-add .ct-ic{background:var(--accent-soft);color:var(--accent)}
 
+/* The comb: circles pack closer than squares, since offset rows sit inside
+   each other's gaps, and the name is read from one line under it rather than
+   from every bubble. Twenty-one categories come down from 556px to 304px. */
+.catbees{display:flex;flex-direction:column;align-items:center;gap:5px}
+.beerow{display:flex;gap:9px;justify-content:center}
+/* half a cell in, so a bubble sits in the gap between the two above it */
+.beerow.narrow{margin:-4px 0}
+.bee{
+  width:54px;height:54px;flex:none;border-radius:50%;
+  display:grid;place-items:center;
+  color:var(--bee-ink,var(--ink-2));
+  background:
+    radial-gradient(120% 110% at 32% 22%,rgba(255,255,255,.34),rgba(255,255,255,0) 58%),
+    var(--bee-bg,var(--surface-2));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.14);
+  transition:transform .16s cubic-bezier(.2,.8,.3,1),box-shadow .16s;
+}
+.bee:active{transform:scale(.9)}
+/* the one picked stands out of the comb rather than being ringed inside it */
+.bee.on{
+  transform:scale(1.14);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),
+             0 0 0 2.5px var(--bee-ink), 0 4px 12px rgba(0,0,0,.24);
+}
+.bee-add{
+  background:var(--surface-2);color:var(--accent);
+  box-shadow:inset 0 0 0 1.5px var(--line-strong);
+}
+/* the name of the one picked, read here instead of off every bubble */
+.beecap{
+  margin-top:7px;text-align:center;font-size:12.5px;color:var(--ink-2);
+  min-height:17px;
+}
+.beecap b{font-weight:600;color:var(--ink)}
 /* what a trip expense was for: tiles, icon over name, four to a row. A kind of
    your own carries a × in its corner; the last tile makes one. */
 .tekind{position:relative}
@@ -4769,6 +4803,18 @@ html.locked #lockScreen::before{
             </div>
           </div>
           <div class="cfgrow cfg-stack">
+            <div class="cf-t"><b>Categories</b><span>How the picker lays them out</span></div>
+            <div class="toggle2 cfg-tog" id="cfgCatPick" style="grid-template-columns:1fr 1fr">
+              <button class="a" type="button" data-v="grid" aria-pressed="true">Grid</button>
+              <button class="a" type="button" data-v="bubble" aria-pressed="false">Bubbles</button>
+            </div>
+            <div class="note" style="margin-top:2px">
+              The grid names every category. Bubbles are half the height, with
+              the name of the one picked under them — worth it once you know
+              the icons.
+            </div>
+          </div>
+          <div class="cfgrow cfg-stack">
             <div class="cf-t"><b>Language</b><span>English or Deutsch</span></div>
             <div class="toggle2 cfg-tog" id="cfgLang" style="grid-template-columns:1fr 1fr">
               <button class="a" type="button" data-v="en" aria-pressed="true">English</button>
@@ -5138,6 +5184,7 @@ const I18N_DE = {
 "Both are on: the PIN hides the screen, and what is stored is unreadable": "Beides ist an: Die PIN verbirgt den Bildschirm, und das Gespeicherte ist unlesbar",
 "Both mean the entry came from a repeating entry. A is one the bank takes by itself; M is one you pay yourself.": "Beide bedeuten, dass der Eintrag aus einem wiederkehrenden Eintrag stammt. A bucht die Bank selbst ab; M zahlst du selbst.",
 "Bought": "Gekauft",
+"Bubbles": "Blasen",
 "Budget": "Budget",
 "Budget for ": "Budget für ",
 "Budgets": "Budgets",
@@ -5156,6 +5203,8 @@ const I18N_DE = {
 "Card": "Karte",
 "Cash": "Bargeld",
 "Categories": "Kategorien",
+"Categories shown as a grid": "Kategorien als Raster",
+"Categories shown as bubbles": "Kategorien als Blasen",
 "Category": "Kategorie",
 "Category deleted": "Kategorie gelöscht",
 "Category to budget": "Kategorie für ein Budget",
@@ -5428,6 +5477,7 @@ const I18N_DE = {
 "Go to this month's dashboard": "Zur Übersicht dieses Monats",
 "Got it": "Verstanden",
 "Green · Healthy": "Grün · Gesund",
+"Grid": "Raster",
 "Groceries": "Lebensmittel",
 "Groceries — German": "Lebensmittel – Deutsch",
 "Groceries — German and Groceries — Indian": "Lebensmittel – Deutsch und Lebensmittel – Indisch",
@@ -5445,6 +5495,7 @@ const I18N_DE = {
 "Hide token": "Token verbergen",
 "Hiding a category": "Eine Kategorie ausblenden",
 "How do snapshots work?": "Wie funktionieren Stände?",
+"How the picker lays them out": "Wie die Auswahl sie anordnet",
 "How this app behaves, as opposed to what is in your book. The rest arrive one at a time; until then each shows what it is set to.": "Wie sich diese App verhält, im Gegensatz zu dem, was in deinem Buch steht. Der Rest kommt nach und nach; bis dahin zeigt jeder Punkt seine Einstellung.",
 "How to": "So geht's",
 "I answer about this app and the figures in it. Start typing and pick one of the suggestions, or slide the rows above.": "Ich beantworte Fragen zu dieser App und ihren Zahlen. Fang an zu tippen und wähle einen Vorschlag, oder schieb die Zeilen oben.",
@@ -5783,6 +5834,7 @@ const I18N_DE = {
 "Period health's chips go straight to a period too.": "Die Chips der Zeitraum-Gesundheit führen auch direkt zu einem Zeitraum.",
 "Pick Expense, Income or Transfer, then the amount, description and category.": "Wähle Ausgabe, Einnahme oder Umbuchung, dann Betrag, Beschreibung und Kategorie.",
 "Pick System, Light or Dark at the bottom.": "Wähle unten System, Hell oder Dunkel.",
+"Pick a category": "Kategorie wählen",
 "Pick a category and tap +.": "Wähle eine Kategorie und tippe auf +.",
 "Pick a category, and the account it was paid from.": "Wähle eine Kategorie und das Konto, von dem bezahlt wurde.",
 "Pick a category, and the account it was paid into.": "Wähle eine Kategorie und das Konto, auf das eingezahlt wurde.",
@@ -6120,6 +6172,7 @@ const I18N_DE = {
 "The countdown reads your repeating income — usually Salary.": "Der Countdown liest deine wiederkehrende Einnahme – meist das Gehalt.",
 "The dashboard is showing": "Die Übersicht zeigt",
 "The eye in the top bar": "Das Auge oben",
+"The grid names every category. Bubbles are half the height, with the name of the one picked under them — worth it once you know the icons.": "Das Raster benennt jede Kategorie. Blasen sind halb so hoch, mit dem Namen der gewählten darunter — lohnt sich, sobald du die Symbole kennst.",
 "The health mark reads every expense, one-offs and all — a month is not healthier for leaving them out.": "Die Gesundheitsanzeige liest jede Ausgabe, Einmaliges inklusive – ein Monat wird nicht gesünder, wenn man es weglässt.",
 "The last twelve months": "Die letzten zwölf Monate",
 "The next 7 days —": "Die nächsten 7 Tage –",
@@ -6705,7 +6758,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.17";
+const APP_VERSION = "2.2.18";
 const APP_BUILT = "2026-09-20";
 
 const KEY = "panappai.v1";
@@ -7161,7 +7214,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop" };
+let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop", catPicker:"grid" };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -7502,7 +7555,8 @@ function stateFromPayload(p){
     /* trips, and whether the third tab holds them or the shopping list */
     trips: normaliseTrips(p.trips),
     tripKinds: normaliseTripKinds(p.tripKinds),
-    thirdTab: p.thirdTab === "trips" ? "trips" : "shop"
+    thirdTab: p.thirdTab === "trips" ? "trips" : "shop",
+    catPicker: p.catPicker === "bubble" ? "bubble" : "grid"
   };
   if (p.demo) st.demo = true;
   return st;
@@ -7532,7 +7586,8 @@ function stateCleared(){
     trips: [],
     /* a kind of your own is a label, not a thing that happened, so it stays */
     tripKinds: tripKindsMine(),
-    thirdTab: state.thirdTab === "trips" ? "trips" : "shop"
+    thirdTab: state.thirdTab === "trips" ? "trips" : "shop",
+    catPicker: state.catPicker === "bubble" ? "bubble" : "grid"
   };
 }
 
@@ -7598,6 +7653,7 @@ function load(){
   state.trips = normaliseTrips(state.trips);
   state.tripKinds = normaliseTripKinds(state.tripKinds);
   if (state.thirdTab !== "trips") state.thirdTab = "shop";
+  if (state.catPicker !== "bubble") state.catPicker = "grid";
   if (!state.cats) state.cats = normaliseCats(null);
   /* Backups written before the catch-all existed have none set, which left the
      Misc envelope counting only entries tagged Misc rather than absorbing the
@@ -10133,6 +10189,103 @@ $$("[data-close]").forEach(b => b.addEventListener("click", sheetClose));
 document.addEventListener("keydown", e => { if (e.key === "Escape" && openSheet) sheetClose(); });
 
 /* ---------- entry sheet ---------- */
+/* A category as a bubble, laid out as a honeycomb.
+   Twenty-one tiles four to a row ran six rows deep and pushed the amount and
+   the date off the sheet. Circles pack closer than squares — offset rows sit
+   inside each other's gaps — and the name of the one picked is read from a
+   single line under the comb rather than from every bubble, which is what buys
+   the room. The colour is what you pick by; the caption says what you picked.
+   Rows alternate five and four, so the comb centres itself at any width. */
+function catBees(host, list, current, pick, add){
+  host.innerHTML = "";
+  host.className = "catbees";
+  const dark = isDark();
+  const cells = list.map(c => ({ cat:c }));
+  if (add) cells.push({ add:true });
+
+  const rows = [];
+  for (let i = 0, wide = true; i < cells.length; wide = !wide){
+    const n = wide ? 5 : 4;
+    rows.push({ wide: wide, cells: cells.slice(i, i + n) });
+    i += n;
+  }
+  /* a last row of one or two would hang off the side of the comb */
+  if (rows.length > 1 && rows[rows.length - 1].cells.length < 2){
+    const last = rows.pop();
+    rows[rows.length - 1].cells = rows[rows.length - 1].cells.concat(last.cells);
+  }
+
+  let picked = null;
+  rows.forEach(r => {
+    const line = el("div", "beerow" + (r.wide ? "" : " narrow"));
+    r.cells.forEach(cell => {
+      const b = el("button", "bee" + (cell.add ? " bee-add" : ""));
+      b.type = "button";
+      if (cell.add){
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+        b.title = "New category";
+        b.setAttribute("aria-label", "New category");
+        b.addEventListener("click", add);
+      } else {
+        const c = cell.cat, on = c.id === current;
+        b.innerHTML = iconSvg(c.id, 22);
+        b.style.setProperty("--bee-bg", tint(c, dark));
+        b.style.setProperty("--bee-ink", tintInk(c, dark));
+        b.title = c.legacy
+          ? c.n + " is no longer offered for new entries, but stays on this one"
+          : c.n;
+        b.setAttribute("aria-label", c.n);
+        b.setAttribute("aria-pressed", String(on));
+        if (on){ b.classList.add("on"); picked = c; }
+        b.addEventListener("click", () => pick(c));
+      }
+      line.appendChild(b);
+    });
+    host.appendChild(line);
+  });
+
+  /* what is picked, said once */
+  const cap = el("div", "beecap");
+  cap.appendChild(el("b", null, picked ? picked.n : "Pick a category"));
+  host.appendChild(cap);
+}
+
+/* The same categories as named tiles, four to a row: every name on show, at
+   twice the height. Which of the two you get is yours to choose in Config. */
+function catTiles(host, list, current, pick, add){
+  host.innerHTML = "";
+  host.className = "cattiles";
+  const dark = isDark();
+  list.forEach(c => {
+    const on = c.id === current;
+    const b = el("button", "cattile");
+    b.type = "button";
+    const ic = el("span", "ct-ic");
+    ic.innerHTML = iconSvg(c.id, 20);
+    ic.style.background = tint(c, dark);
+    ic.style.color = tintInk(c, dark);
+    b.appendChild(ic);
+    b.appendChild(el("span", "ct-n", c.n));
+    if (c.legacy) b.title = c.n + " is no longer offered for new entries, but stays on this one";
+    b.setAttribute("aria-pressed", String(on));
+    if (on) b.style.borderColor = tintInk(c, dark);
+    b.addEventListener("click", () => pick(c));
+    host.appendChild(b);
+  });
+  if (add){
+    const t = el("button", "cattile cat-add");
+    t.type = "button";
+    t.innerHTML = '<span class="ct-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="ct-n">New category</span>';
+    t.addEventListener("click", add);
+    host.appendChild(t);
+  }
+}
+
+/** Whichever the Config pane is set to. */
+function catPick(host, list, current, pick, add){
+  (state.catPicker === "bubble" ? catBees : catTiles)(host, list, current, pick, add);
+}
+
 function renderCatChips(){
   const host = $("#eCats");
   host.innerHTML = "";
@@ -10145,34 +10298,12 @@ function renderCatChips(){
     const cur = allCats(draft.type).find(c => c.id === draft.category);
     if (cur) list.push(Object.assign({}, cur, { legacy: true }));
   }
-  list.forEach(c => {
-    const on = draft.category === c.id;
-    const b = el("button", "cattile");
-    b.type = "button";
-    const ic = el("span", "ct-ic");
-    ic.innerHTML = iconSvg(c.id, 20);
-    ic.style.background = tint(c, dark);
-    ic.style.color = tintInk(c, dark);
-    b.appendChild(ic);
-    b.appendChild(el("span", "ct-n", c.n));
-    if (c.legacy) b.title = c.n + " is no longer offered for new entries, but stays on this one";
-    b.setAttribute("aria-pressed", String(on));
-    if (on) b.style.borderColor = tintInk(c, dark);
-    b.addEventListener("click", () => {
-      draft.category = c.id;
-      if (draft.category !== "banktransfer") draft.fromAccount = null;
-      renderCatChips();
-      renderAccountFields();
-    });
-    host.appendChild(b);
-  });
-
-  /* trailing tile so a missing category can be made where it's noticed */
-  const add = el("button", "cattile cat-add");
-  add.type = "button";
-  add.innerHTML = '<span class="ct-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="ct-n">New category</span>';
-  add.addEventListener("click", () => openCatAdd(draft.type));
-  host.appendChild(add);
+  catPick(host, list, draft.category, c => {
+    draft.category = c.id;
+    if (draft.category !== "banktransfer") draft.fromAccount = null;
+    renderCatChips();
+    renderAccountFields();
+  }, () => openCatAdd(draft.type));
 }
 
 const TICK_SVG = '<svg class="pk-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
@@ -11585,26 +11716,11 @@ function renderRuleCats(){
     const cur = allCats(rDraft.type).find(c => c.id === rDraft.category);
     if (cur) list.push(Object.assign({}, cur, { legacy: true }));
   }
-  list.forEach(c => {
-    const on = rDraft.category === c.id;
-    const b = el("button", "cattile");
-    b.type = "button";
-    const ic = el("span", "ct-ic");
-    ic.innerHTML = iconSvg(c.id, 20);
-    ic.style.background = tint(c, dark);
-    ic.style.color = tintInk(c, dark);
-    b.appendChild(ic);
-    b.appendChild(el("span", "ct-n", c.n));
-    if (c.legacy) b.title = c.n + " is no longer offered for new entries, but stays on this one";
-    b.setAttribute("aria-pressed", String(on));
-    if (on) b.style.borderColor = tintInk(c, dark);
-    b.addEventListener("click", () => {
-      rDraft.category = c.id;
-      renderRuleCats();
-      renderRuleAccounts();
-    });
-    host.appendChild(b);
-  });
+  catPick(host, list, rDraft.category, c => {
+    rDraft.category = c.id;
+    renderRuleCats();
+    renderRuleAccounts();
+  }, null);
 }
 
 /* Bank Transfer income moves between two of your own accounts, so it needs
@@ -12808,6 +12924,8 @@ function renderConfig(){
   $$("#cfgLang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === APP_LANG)));
   const third = state.thirdTab === "trips" ? "trips" : "shop";
   $$("#cfgThird button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === third)));
+  const cp = state.catPicker === "bubble" ? "bubble" : "grid";
+  $$("#cfgCatPick button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === cp)));
   const r = fxRate();
   $("#cfgFxLine").textContent = r
     ? "1 \u20ac = " + fmtIn(Math.round(r * 100), "INR") + (state.fx.date ? " \u00b7 as of " + prettyDate(state.fx.date) : "")
@@ -12860,6 +12978,17 @@ $$("#cfgThird button").forEach(b => b.addEventListener("click", () => {
   state.thirdTab = v;
   save(); applyThirdTab(); renderConfig();
   toast(v === "trips" ? "The third tab is Trips now" : "The third tab is the shopping list again");
+}));
+$$("#cfgCatPick button").forEach(b => b.addEventListener("click", () => {
+  const v = b.dataset.v;
+  if ((state.catPicker === "bubble" ? "bubble" : "grid") === v) return;
+  userTouched();
+  state.catPicker = v;
+  save(); renderConfig();
+  /* both sheets are built fresh when opened, but one may be open behind this */
+  if (typeof draft === "object" && draft && $("#eCats")) renderCatChips();
+  if (typeof rDraft === "object" && rDraft && $("#rCats")) renderRuleCats();
+  toast(v === "bubble" ? "Categories shown as bubbles" : "Categories shown as a grid");
 }));
 $("#cfgFxBtn").addEventListener("click", async () => {
   const btn = $("#cfgFxBtn");
@@ -14880,6 +15009,7 @@ function miscSig(){
   if (state.currency === "INR" || state.fx) parts.push(state.currency, state.fx);
   if ((state.trips && state.trips.length) || state.thirdTab === "trips") parts.push(state.trips, state.thirdTab);
   if (tripKindsMine().length) parts.push(state.tripKinds);
+  if (state.catPicker === "bubble") parts.push(state.catPicker);
   return JSON.stringify(parts);
 }
 function ghFingerprint(){
