@@ -498,7 +498,7 @@ button.tile:hover .tile-go{color:var(--accent)}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .env-left{
   font-family:var(--mono);font-size:12px;font-weight:600;
-  font-variant-numeric:tabular-nums;flex:none;
+  font-variant-numeric:tabular-nums;flex:none;white-space:nowrap;
 }
 .env-track{height:8px;background:var(--surface-sunk);border-radius:99px;overflow:hidden}
 .env-track i{
@@ -539,12 +539,12 @@ button.tile:hover .tile-go{color:var(--accent)}
    phone-width card reaches back over the title. */
 .bc-head{position:relative}
 .bc-head .bc-n{margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
-/* A budget's share of income, in the middle of its top line: the name and the
-   amount take equal halves either side of it, so it sits centred. */
+/* A budget's share of income, between the name and what is left of it. The
+   two sides were held to equal halves so the share sat centred; once it says
+   what it is a share of, equal halves broke "454,85 € left" across two lines,
+   and the name is the part that can be shortened without losing a figure. */
 .env-pct{flex:none;font-size:11px;font-weight:600;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
-/* 32px is the icon and its gap, which sit on the name side; the same on this
-   side keeps the two halves equal and the share in the true middle */
-.env-top .env-left{flex:1;min-width:0;text-align:right;padding-left:32px}
+.env-top .env-left{flex:none;text-align:right;padding-left:10px}
 .inp.br-a{
   flex:none;width:92px;padding:7px 9px;text-align:right;
   font-family:var(--mono);font-size:13px;font-weight:600;
@@ -1402,18 +1402,26 @@ div.rp-rem:hover{background:none}
 }
 /* Which period is on show and how it is doing, at the right of the panel's own
    title, so both survive the panel being folded. The health is the dot's
-   colour rather than a word: the word is on Money in, money out already. */
-.monthstrip-wrap > .foldt{width:100%}
+   colour rather than a word: the word is on Money in, money out already. The
+   tag is its own button, which is why the title is a row and not the panel's
+   only child — a button cannot hold a button. */
+.ms-head{display:flex;align-items:center;gap:10px}
 .ms-now{
-  margin-left:auto;display:flex;align-items:center;gap:6px;flex:none;
-  font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
-  color:var(--ink-3);
+  margin-left:auto;display:flex;align-items:center;gap:5px;flex:none;
+  padding:4px 7px;margin-right:-7px;border-radius:999px;
+  font-size:10.5px;font-weight:600;letter-spacing:.01em;
+  color:var(--ink-3);transition:background .15s,color .15s;
 }
+/* Not the uppercase of the tag on Money in, money out: that one is a word,
+   this is a phrase, and set in capitals it took the room the panel's own
+   title needs in Deutsch. */
+.ms-now:hover{background:var(--surface-2);color:var(--ink-2)}
+.ms-now:active{transform:scale(.97)}
 .ms-dot{
   width:8px;height:8px;border-radius:50%;flex:none;
   background:var(--dot-color, var(--ink-3));
 }
-.ms-pct{letter-spacing:.02em;font-variant-numeric:tabular-nums;font-family:var(--mono);opacity:.85}
+.ms-pct{font-variant-numeric:tabular-nums;font-family:var(--mono);opacity:.85}
 .monthstrip-t{
   font-size:11px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--ink-3);font-weight:600;margin-bottom:8px;
@@ -1979,6 +1987,18 @@ html.fab-tucked .fabmenu{display:none}
 }
 
 .askrow{display:flex;gap:8px;align-items:center}
+/* The box stays put, and its suggestions with it. Typing a word the helper
+   knows opened a long list, which pushed the box off the top of the sheet:
+   you were then typing into something you could not see. The two stick
+   together inside the body that scrolls, over the sheet's own colour, and the
+   block is pulled out to the body's side padding so nothing slides past
+   beside it. The pull upwards covers the padding above, where scrolled rows
+   would otherwise show through. */
+.asktop{
+  position:sticky;top:-17px;z-index:3;
+  margin:-16px -18px 0;padding:16px 18px 9px;
+  background:var(--surface);
+}
 .askrow .inp{flex:1;min-width:0}
 .askgo{
   flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
@@ -2098,10 +2118,14 @@ html.fab-tucked .fabmenu{display:none}
 .askline.report  .rp-chips button::before{background:var(--pos)}
 .askline.howto   .rp-chips button::before{background:var(--warn)}
 /* Suggestions as you type. In the flow rather than floating: the sheet body
-   scrolls, and a floating list would be cut off at its foot. */
+   scrolls, and a floating list would be cut off at its foot. Its own height is
+   capped and it slides on its own, so a long list neither pushes the box away
+   nor buries the rows and the answer under it. */
 .askac{
   margin-top:6px;border:1px solid var(--line);border-radius:12px;overflow:hidden;
   background:var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.12);
+  max-height:42dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
 }
 .askac-i{
   display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
@@ -2607,7 +2631,17 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .cat-add{border-style:dashed}
 .cat-add .ct-ic{background:var(--accent-soft);color:var(--accent)}
 
-/* what a trip expense was for: tiles, icon over name, four to a row */
+/* what a trip expense was for: tiles, icon over name, four to a row. A kind of
+   your own carries a × in its corner; the last tile makes one. */
+.tekind{position:relative}
+.tk-x{
+  position:absolute;top:-4px;right:-4px;width:19px;height:19px;border-radius:50%;
+  display:grid;place-items:center;background:var(--surface-sunk);
+  color:var(--ink-3);border:1px solid var(--line);
+}
+.tk-x:hover{color:var(--neg);border-color:var(--neg)}
+.tk-add{border-style:dashed}
+.tk-add .tk-ic{background:var(--accent-soft);color:var(--accent)}
 .tekinds{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:7px}
 .tekind{
   display:flex;flex-direction:column;align-items:center;gap:6px;
@@ -3447,7 +3481,9 @@ html.locked #lockScreen::before{
     </div>
 
     <section class="monthstrip-wrap">
-      <div class="monthstrip-t">Period health</div>
+      <div class="ms-head">
+        <div class="monthstrip-t">Period health</div>
+      </div>
       <div class="monthstrip" id="monthStrip"></div>
     </section>
 
@@ -4348,14 +4384,16 @@ html.locked #lockScreen::before{
     </button>
   </div>
   <div class="sheet-body">
-    <div class="askrow">
-      <input class="inp" id="askQ" type="text" autocomplete="off"
-             placeholder="Type a question, e.g. salary for Aug">
-      <button class="askgo" id="askGo" type="button" aria-label="Ask">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="M12 5l7 7-7 7"/></svg>
-      </button>
+    <div class="asktop">
+      <div class="askrow">
+        <input class="inp" id="askQ" type="text" autocomplete="off"
+               placeholder="Type a question, e.g. salary for Aug">
+        <button class="askgo" id="askGo" type="button" aria-label="Ask">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div class="askac" id="askAc" role="listbox" aria-label="Suggestions" hidden></div>
     </div>
-    <div class="askac" id="askAc" role="listbox" aria-label="Suggestions" hidden></div>
     <div class="askrows" id="askChips"></div>
     <div id="askOut"></div>
     <div class="note" id="askFoot" style="margin-top:14px">
@@ -4928,6 +4966,7 @@ const I18N_DE = {
 " · you paid ": " · du hast bezahlt ",
 " · you're ": " · du bist zu ",
 "\"Running\" is the copy this device has cached.": "„Läuft“ ist die Kopie, die dieses Gerät zwischengespeichert hat.",
+"% of Inc": "% des Eink.",
 "% of Income": "% des Einkommens",
 "% of income": "% des Einkommens",
 "% of its income:": "% seines Einkommens:",
@@ -5364,6 +5403,7 @@ const I18N_DE = {
 "Fold a dashboard panel": "Einen Bereich der Übersicht einklappen",
 "Folded panels stay folded the next time you open the app.": "Eingeklappte Bereiche bleiben beim nächsten Öffnen der App eingeklappt.",
 "For things you spend on bit by bit — groceries, a buffer for odds and ends — set an amount for the period and watch it draw down as you spend.": "Für Dinge, für die du nach und nach ausgibst – Lebensmittel, ein Puffer für Kleinkram – lege einen Betrag für den Zeitraum fest und sieh zu, wie er beim Ausgeben schrumpft.",
+"For what this trip cost that the tiles do not name.": "Für das, was die Reise gekostet hat und die Kacheln nicht benennen.",
 "Forgot PIN?": "PIN vergessen?",
 "Forgot your PIN?": "PIN vergessen?",
 "Forgotten it?": "Vergessen?",
@@ -5426,6 +5466,7 @@ const I18N_DE = {
 "In force now": "Jetzt gültig",
 "In the account now": "Jetzt auf dem Konto",
 "In the account now —": "Jetzt auf dem Konto –",
+"In use — change those expenses first": "In Benutzung — ändere zuerst diese Ausgaben",
 "In use — retag those entries first": "In Verwendung – kategorisiere diese Einträge zuerst um",
 "Income": "Einnahmen",
 "Income and expenses": "Einnahmen und Ausgaben",
@@ -5555,6 +5596,7 @@ const I18N_DE = {
 "New expense category": "Neue Ausgabenkategorie",
 "New income": "Neue Einnahme",
 "New income category": "Neue Einnahmenkategorie",
+"New kind": "Neue Art",
 "New passphrase": "Neue Passphrase",
 "New recurring entry": "Neuer wiederkehrender Eintrag",
 "New transfer": "Neue Umbuchung",
@@ -5609,6 +5651,7 @@ const I18N_DE = {
 "Nothing in either is lost when you switch; the tab only shows one of them.": "Beim Umschalten geht in keinem etwas verloren; der Reiter zeigt nur eines davon.",
 "Nothing in the usual staples matches that.": "Nichts in den üblichen Grundartikeln passt dazu.",
 "Nothing in this stretch to chart.": "In diesem Abschnitt nichts für ein Diagramm.",
+"Nothing is filed under it.": "Es ist nichts darunter eingetragen.",
 "Nothing is over.": "Nichts ist überzogen.",
 "Nothing is pushed — the repo keeps every version either way.": "Nichts wird hochgeladen – das Repo behält ohnehin jede Version.",
 "Nothing is tagged with it, so nothing else changes.": "Nichts ist damit markiert, also ändert sich sonst nichts.",
@@ -5826,6 +5869,7 @@ const I18N_DE = {
 "Reminders off": "Erinnerungen aus",
 "Reminders on": "Erinnerungen an",
 "Remove": "Entfernen",
+"Removed": "Entfernt",
 "Rename": "Umbenennen",
 "Renamed to": "Umbenannt in",
 "Rent": "Miete",
@@ -6254,6 +6298,7 @@ const I18N_DE = {
 "Yellow · Comfortable": "Gelb · Komfortabel",
 "Yesterday": "Gestern",
 "You": "Du",
+"You already have a kind with that name": "Du hast schon eine Art mit diesem Namen",
 "You already have an account with that name": "Ein Konto mit diesem Namen gibt es schon",
 "You are": "Du bist",
 "You're looking at example data": "Du siehst Beispieldaten",
@@ -6347,6 +6392,7 @@ const I18N_DE = {
 "item(s)": "Artikel",
 "items and this device hasn't pulled yet.": "Einträge, und dieses Gerät hat noch nicht geholt.",
 "keeps": "behält",
+"kept": "behalten",
 "leaving them in the totals let a hidden salary show through the Income tile —": "sie in den Summen zu lassen, ließ ein verborgenes Gehalt in der Einnahmen-Kachel durchscheinen –",
 "level": "gleich",
 "line onto one of these to merge it into that item instead of adding another.": "Zeile auf einen dieser Artikel, um sie damit zusammenzuführen, statt einen weiteren hinzuzufügen.",
@@ -6509,7 +6555,13 @@ const I18N_PAT = [
   [/^(.*\d.*?) expected$/, (m, a) => a + " erwartet"],
   /* an entry's own name after the action: "Edit Netflix" */
   [/^Edit (.+)$/, (m, a) => a + " bearbeiten"],
-  [/^Rename (.+)$/, (m, a) => a + " umbenennen"]
+  [/^Rename (.+)$/, (m, a) => a + " umbenennen"],
+  /* the same shape for what goes: "Remove Commerzbank?", "Removed Laundry" */
+  [/^Remove (.+)\?$/, (m, a) => a + " entfernen?"],
+  [/^Remove (.+)$/, (m, a) => a + " entfernen"],
+  [/^Removed (.+)$/, (m, a) => a + " entfernt"],
+  /* what was just made, named in quotes: Added "Laundry" */
+  [/^Added "(.+)"$/, (m, a) => "„" + a + "“ hinzugefügt"]
 ];
 /* Worked inside any line, after the phrases: counts and "x of y" between amounts. */
 const I18N_INLINE = [
@@ -6537,6 +6589,12 @@ const I18N_INLINE = [
   [/([\d€₹]) left · /g, "$1 übrig · "],
   [/([\d€₹]) over · /g, "$1 zu viel · "],
   [/ against (?=\d)/g, " gegenüber "],
+  /* a trip's own lines: how many are on it, and who paid for a thing */
+  [/\b(\d+) people\b/g, "$1 Personen"],
+  [/\b(\d+) person\b/g, "$1 Person"],
+  [/^You paid/, "Du hast bezahlt"],
+  [/ paid · /g, " hat bezahlt · "],
+  [/ paid$/, " hat bezahlt"],
   [/(\d)th\b/g, "$1."],
   [/₹([\d.,]+) on (?=\d)/g, "₹$1 am "],
   [/([\d€₹%]) of (?=[\d€₹])/g, "$1 von "]
@@ -6647,7 +6705,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.16";
+const APP_VERSION = "2.2.17";
 const APP_BUILT = "2026-09-20";
 
 const KEY = "panappai.v1";
@@ -7103,7 +7161,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], thirdTab:"shop" };
+let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop" };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -7443,6 +7501,7 @@ function stateFromPayload(p){
     fx: normaliseFx(p.fx),
     /* trips, and whether the third tab holds them or the shopping list */
     trips: normaliseTrips(p.trips),
+    tripKinds: normaliseTripKinds(p.tripKinds),
     thirdTab: p.thirdTab === "trips" ? "trips" : "shop"
   };
   if (p.demo) st.demo = true;
@@ -7471,8 +7530,18 @@ function stateCleared(){
     /* a trip is what happened, like the entries it made, so it goes with them;
        which tab holds trips is setup, so it stays */
     trips: [],
+    /* a kind of your own is a label, not a thing that happened, so it stays */
+    tripKinds: tripKindsMine(),
     thirdTab: state.thirdTab === "trips" ? "trips" : "shop"
   };
+}
+
+/** Kinds of your own as saved, each needing an id, a name and a colour. */
+function normaliseTripKinds(list){
+  if (!Array.isArray(list)) return [];
+  return list.filter(k => k && typeof k === "object" && typeof k.id === "string" && typeof k.n === "string")
+             .map(k => ({ id:k.id, n:k.n, h: Number(k.h) || 210, l: Number(k.l) || 30,
+                          icon: typeof k.icon === "string" ? k.icon : null, custom:true }));
 }
 
 /** Trips as saved, with anything malformed dropped rather than trusted. */
@@ -7527,6 +7596,7 @@ function load(){
   if (state.currency !== "INR") state.currency = "EUR";
   state.fx = normaliseFx(state.fx);
   state.trips = normaliseTrips(state.trips);
+  state.tripKinds = normaliseTripKinds(state.tripKinds);
   if (state.thirdTab !== "trips") state.thirdTab = "shop";
   if (!state.cats) state.cats = normaliseCats(null);
   /* Backups written before the catch-all existed have none set, which left the
@@ -8522,12 +8592,12 @@ function renderBudgets(){
     top.appendChild(el("div", "env-n", cat.n));
     /* its share of income: what it was set to, if set as one, else what its
        amount comes to */
-    /* Just the figure. "4 % of Income" beside a long category name pushed the
-       name out of its own row, and the card's heading already says what the
-       share is of; the words stay as the title. */
+    /* Shortened, not stripped: "4% of Income" beside a long category name
+       pushed the name out of its own row, but the bare figure read as though a
+       word had gone missing. The full words stay as the title. */
     if (shareShown && planned > 0){
       const full = setPct ? pctText(setPct) + "% of Income" : shareOf(planned);
-      const pctEl = el("div", "env-pct", full.replace(" of Income", ""));
+      const pctEl = el("div", "env-pct", full.replace(" of Income", " of Inc"));
       pctEl.title = full;
       top.appendChild(pctEl);
     }
@@ -9828,19 +9898,33 @@ let stripCentred = false;
    period is on show. The word stays as the title, for a pointer and a reader.
    Painted after the title exists, which is only once makeFoldable has made it. */
 function paintPeriodHealthTag(){
-  const head = document.querySelector(".monthstrip-wrap > .foldt");
+  const head = document.querySelector(".monthstrip-wrap > .ms-head");
   if (!head) return;
   let tag = head.querySelector(".ms-now");
-  if (!tag){ tag = el("span", "ms-now"); head.appendChild(tag); }
+  if (!tag){
+    /* Beside the fold button rather than inside it: a colour and a bare
+       percentage are the two things on this panel most likely to be asked
+       about, so the tag answers for itself. The helper already has the
+       answer — the bands and what this period keeps — so it is that answer
+       this opens, rather than a second wording of it to keep in step. */
+    tag = el("button", "ms-now");
+    tag.type = "button";
+    tag.addEventListener("click", () => { askOpen(); askAnswer("What do the health colours mean?", askHealth); });
+    head.appendChild(tag);
+  }
   const cur = monthTotals(view);
   const band = healthBand(cur.inc, cur.exp);
   tag.innerHTML = "";
   tag.style.setProperty("--dot-color", "var(" + HEALTH_VAR[band] + ")");
   tag.title = HEALTH_LABEL[band];
+  tag.setAttribute("aria-label", "What do the health colours mean?");
   tag.appendChild(el("span", "ms-dot"));
   /* "This month" only while this month is the one on show */
   tag.appendChild(el("b", null, view === periodOf(todayISO()) ? "This month" : periodChipLabel(view)));
-  if (cur.inc > 0) tag.appendChild(el("span", "ms-pct", Math.round((cur.inc - cur.exp) / cur.inc * 100) + "%"));
+  /* what the figure is: the share of this period's income not spent */
+  if (cur.inc > 0)
+    tag.appendChild(el("span", "ms-pct",
+      Math.round((cur.inc - cur.exp) / cur.inc * 100) + "% " + T("kept")));
 }
 
 function emptyState(monthCount){
@@ -12153,17 +12237,26 @@ const TRIP_KINDS = [
   { id:"shopping", h:45, l:30,  n:"Shopping",        ic:ICON.shopping },
   { id:"fuel", h:4, l:36,      n:"Fuel",            ic:'<path d="M5 20V5.5a2 2 0 012-2h6a2 2 0 012 2V20"/><path d="M4 20h12"/><path d="M8 8h4"/><path d="M15 9.5h1.5a1.5 1.5 0 011.5 1.5v4.5a1.5 1.5 0 003 0V8l-2.5-2.5"/>' },
   { id:"toll", h:130, l:30,      n:"Toll",            ic:'<path d="M4 21V9l8-5 8 5v12"/><path d="M4 12.5h16"/><path d="M9.5 21v-5h5v5"/>' },
-  { id:"other", h:210, l:28,     n:"Other",           ic:ICON.other }
+  { id:"other", h:210, l:28,     n:"Misc",            ic:ICON.other }
 ];
-const TRIP_KIND = Object.fromEntries(TRIP_KINDS.map(k => [k.id, k]));
+/* Kinds of your own, for whatever a trip turns out to cost that the nine
+   built-ins do not name. They live in the book beside the trips, since a kind
+   with nothing to read it would leave those expenses unlabelled. */
+function tripKindsMine(){ return Array.isArray(state.tripKinds) ? state.tripKinds : []; }
+function tripKindsAll(){ return TRIP_KINDS.concat(tripKindsMine()); }
+function tripKindOf(id){
+  return tripKindsAll().find(k => k.id === id) || TRIP_KINDS[TRIP_KINDS.length - 1];
+}
+/* a built-in carries its glyph; one of yours carries the name of one */
+function tripKindPaths(k){ return k.ic || ICON[k.icon] || ICON.other; }
 /* Each kind is coloured the way a category is — its own hue and depth, a
    soft tint behind the icon and a deeper ink for it — so a kind reads the
    same on its tile, its bar and its rows. */
 function tripKindIcon(k, size){
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="' +
-         size + '" height="' + size + '">' + k.ic + '</svg>';
+         size + '" height="' + size + '">' + tripKindPaths(k) + '</svg>';
 }
-function tripKindName(id){ return (TRIP_KIND[id] || TRIP_KIND.other).n; }
+function tripKindName(id){ return tripKindOf(id).n; }
 
 let tripOpen = null;          /* the trip being looked at, or null for the list */
 function tripById(id){ return (state.trips || []).find(t => t.id === id) || null; }
@@ -12361,7 +12454,7 @@ function renderTripPage(host, trip){
   const max = kinds[0][1];
   const darkK = isDark();
   kinds.forEach(([k, amt]) => {
-    const kind = TRIP_KIND[k] || TRIP_KIND.other;
+    const kind = tripKindOf(k);
     const b = el("div", "bar");
     b.appendChild(el("div", "bn", tripKindName(k)));
     const v = el("div", "bv");
@@ -12393,7 +12486,7 @@ function renderTripPage(host, trip){
     list.forEach(i => {
       const r = el("button", "tr-row");
       r.type = "button";
-      const kind = TRIP_KIND[i.kind] || TRIP_KIND.other;
+      const kind = tripKindOf(i.kind);
       const ic = el("span", "tr-ric");
       ic.innerHTML = tripKindIcon(kind, 17);
       ic.style.background = tint(kind, isDark());
@@ -12552,12 +12645,45 @@ function openTripExpense(trip, it){
   sheetOpen("#shTripExp");
   if (!it) setTimeout(() => $("#teAmt").focus(), 340);
 }
+/* A kind of your own: a name, a colour placed away from the others, and a
+   glyph guessed from the name the way a category's is. */
+async function addTripKind(){
+  const typed = await askText({
+    title: "New kind",
+    message: "For what this trip cost that the tiles do not name.",
+    placeholder: "e.g. Laundry",
+    password: false,
+    confirm: "Add",
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>'
+  });
+  if (typed == null) return;
+  const name = typed.trim().replace(/\s+/g, " ");
+  if (!name){ toast("Give it a name"); return; }
+  if (tripKindsAll().some(k => k.n.toLowerCase() === name.toLowerCase())){
+    toast("You already have a kind with that name"); return;
+  }
+  const others = tripKindsAll();
+  const used = others.map(k => k.h);
+  let hue = 0;
+  for (let step = 0; step < 360; step += 18){
+    const h = (step * 7) % 360;
+    if (!used.some(u => Math.abs(u - h) < 14)){ hue = h; break; }
+  }
+  const got = pickCatColor(hue, others);
+  const kind = { id:"tk_" + uid(), n:name, h:got.h, l:got.l, icon: guessIcon(name), custom:true };
+  userTouched();
+  state.tripKinds = tripKindsMine().concat([kind]);
+  teDraft.kind = kind.id;
+  save(); renderTripExpense(); render();
+  toast('Added "' + name + '"');
+}
+
 function renderTripExpense(){
   const trip = teTrip;
   const kinds = $("#teKinds");
   kinds.innerHTML = "";
   const dark = isDark();
-  TRIP_KINDS.forEach(k => {
+  tripKindsAll().forEach(k => {
     const on = teDraft.kind === k.id;
     const b = el("button", "tekind");
     b.type = "button";
@@ -12571,8 +12697,35 @@ function renderTripExpense(){
     /* chosen, the tile takes its own colour for its edge */
     if (on) b.style.borderColor = tintInk(k, dark);
     b.addEventListener("click", () => { teDraft.kind = k.id; renderTripExpense(); });
+    /* one of yours can go again, as long as nothing is filed under it */
+    if (k.custom){
+      const x = el("span", "tk-x");
+      x.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+      x.title = "Remove " + k.n;
+      x.addEventListener("click", async e => {
+        e.stopPropagation();
+        if ((state.trips || []).some(t => (t.items || []).some(i => i.kind === k.id))){
+          toast("In use — change those expenses first"); return;
+        }
+        const yes = await askConfirm({ title:"Remove " + k.n + "?",
+          message:"Nothing is filed under it.", confirm:"Remove" });
+        if (!yes) return;
+        userTouched();
+        state.tripKinds = tripKindsMine().filter(o => o.id !== k.id);
+        if (teDraft.kind === k.id) teDraft.kind = "other";
+        save(); renderTripExpense(); render();
+        toast("Removed " + k.n);
+      });
+      b.appendChild(x);
+    }
     kinds.appendChild(b);
   });
+  /* the last tile makes a kind of your own, where the gap in the nine is felt */
+  const add = el("button", "tekind tk-add");
+  add.type = "button";
+  add.innerHTML = '<span class="tk-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="tk-n">New kind</span>';
+  add.addEventListener("click", addTripKind);
+  kinds.appendChild(add);
   /* a ticket is for somewhere: ask for it by name */
   const ticket = teDraft.kind === "ticket";
   $("#teWhatLab").textContent = ticket ? "Attraction" : "Note";
@@ -14726,6 +14879,7 @@ function miscSig(){
                  state.accounts, state.profile, state.cats, (state.skips || []).length];
   if (state.currency === "INR" || state.fx) parts.push(state.currency, state.fx);
   if ((state.trips && state.trips.length) || state.thirdTab === "trips") parts.push(state.trips, state.thirdTab);
+  if (tripKindsMine().length) parts.push(state.tripKinds);
   return JSON.stringify(parts);
 }
 function ghFingerprint(){
@@ -16732,6 +16886,10 @@ function askRenderSugs(){
     host.appendChild(b);
   });
   host.hidden = false;
+  /* the list slides on its own now, so what the arrows have picked has to be
+     brought into it rather than assumed to be on screen */
+  const sel = host.querySelector('[aria-selected="true"]');
+  if (sel) sel.scrollIntoView({ block:"nearest" });
 }
 function askChoose(s){
   $("#askAc").hidden = true;

@@ -8,6 +8,13 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.17 — 2026-09-20
+- better: The budget share says what it is a share of again — 5% of Inc — and what is left stays on one line
+- new: Tap the dot on Period health for what the colour and the percentage mean
+- new: Trips: Misc in place of Other, and a tile for a kind of your own
+- fix: The helper's box stays in sight as you type, its suggestions sliding below it
+- fix: Deutsch: who is on a trip, who paid for what, and names added or removed
+
 ## 2.2.16 — 2026-09-20
 - fix: Trip spending lands in the ledger as Trip Expense, not Travel
 - new: Rename an account in Settings › Accounts — entries keep their account
