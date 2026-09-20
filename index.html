@@ -2166,7 +2166,15 @@ html.fab-tucked .fabmenu{display:none}
   right:max(18px, calc(50vw - var(--shell)/2 + 18px));
   bottom:calc(80px + env(safe-area-inset-bottom));
   display:flex;flex-direction:column;align-items:flex-end;gap:10px;
+  /* The wrapper is only a column holding the + and the menu that slides out of
+     it, and the closed menu is kept in the layout so it can slide rather than
+     vanish — which left this box 140 wide and 214 tall over the bottom right
+     of every screen, taking taps meant for whatever was under it. The Period
+     health chips were where that showed: two of the five did nothing. Only the
+     controls themselves take a tap; the space around them is not a control. */
+  pointer-events:none;
 }
+.fab{pointer-events:auto}
 /* Real glass rather than a tinted disc. The transparency lives in the fill,
    not in element opacity — fading the whole button would fade the icon with it,
    which is what capped how far this could go before. The page is blurred and
@@ -6748,7 +6756,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.19";
+const APP_VERSION = "2.2.20";
 const APP_BUILT = "2026-09-20";
 
 const KEY = "panappai.v1";
