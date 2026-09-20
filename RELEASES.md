@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.18 — 2026-09-20
+- new: Config › Categories: pick the grid or bubbles for the category picker
+- better: Bubbles fit the categories in half the height, naming the one you pick underneath
+
 ## 2.2.17 — 2026-09-20
 - better: The budget share says what it is a share of again — 5% of Inc — and what is left stays on one line
 - new: Tap the dot on Period health for what the colour and the percentage mean
