@@ -1400,15 +1400,20 @@ div.rp-rem:hover{background:none}
   margin:14px 14px 0;padding:14px 15px 12px;
   background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--line);
 }
-/* The health of the period on show, at the right of the panel's own title, so
-   it still says how the period is doing with the panel folded. Worded and
-   sized like the tag on Money in, money out, since they say the same thing. */
+/* Which period is on show and how it is doing, at the right of the panel's own
+   title, so both survive the panel being folded. The health is the dot's
+   colour rather than a word: the word is on Money in, money out already. */
 .monthstrip-wrap > .foldt{width:100%}
 .ms-now{
-  margin-left:auto;display:flex;align-items:baseline;gap:7px;flex:none;
+  margin-left:auto;display:flex;align-items:center;gap:6px;flex:none;
   font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  color:var(--ink-3);
 }
-.ms-now span{letter-spacing:.02em;font-variant-numeric:tabular-nums;opacity:.8}
+.ms-dot{
+  width:8px;height:8px;border-radius:50%;flex:none;
+  background:var(--dot-color, var(--ink-3));
+}
+.ms-pct{letter-spacing:.02em;font-variant-numeric:tabular-nums;font-family:var(--mono);opacity:.85}
 .monthstrip-t{
   font-size:11px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--ink-3);font-weight:600;margin-bottom:8px;
@@ -9817,6 +9822,10 @@ let stripCentred = false;
 
 /* The health of the period on show, on the panel's own title, so a folded
    panel still says how the period is doing — and folded is how it mostly sits.
+   The health word itself belongs to Money in, money out; saying it twice on one
+   screen made two panels look like the same panel. Here it is a dot in the
+   band's colour, the signal the month chips below already use, beside which
+   period is on show. The word stays as the title, for a pointer and a reader.
    Painted after the title exists, which is only once makeFoldable has made it. */
 function paintPeriodHealthTag(){
   const head = document.querySelector(".monthstrip-wrap > .foldt");
@@ -9826,9 +9835,12 @@ function paintPeriodHealthTag(){
   const cur = monthTotals(view);
   const band = healthBand(cur.inc, cur.exp);
   tag.innerHTML = "";
-  tag.style.color = "var(" + HEALTH_VAR[band] + ")";
-  tag.appendChild(el("b", null, HEALTH_LABEL[band]));
-  if (cur.inc > 0) tag.appendChild(el("span", null, Math.round((cur.inc - cur.exp) / cur.inc * 100) + "%"));
+  tag.style.setProperty("--dot-color", "var(" + HEALTH_VAR[band] + ")");
+  tag.title = HEALTH_LABEL[band];
+  tag.appendChild(el("span", "ms-dot"));
+  /* "This month" only while this month is the one on show */
+  tag.appendChild(el("b", null, view === periodOf(todayISO()) ? "This month" : periodChipLabel(view)));
+  if (cur.inc > 0) tag.appendChild(el("span", "ms-pct", Math.round((cur.inc - cur.exp) / cur.inc * 100) + "%"));
 }
 
 function emptyState(monthCount){
