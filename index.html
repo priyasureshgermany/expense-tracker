@@ -2618,6 +2618,7 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
    near-identical rounds; as tiles the colour is what you pick by. */
 .cattiles{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:7px}
 .cattile{
+  position:relative;
   display:flex;flex-direction:column;align-items:center;gap:6px;
   padding:10px 3px 8px;border-radius:13px;min-width:0;
   background:var(--surface-2);border:1.5px solid var(--line);
@@ -2639,6 +2640,7 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 /* half a cell in, so a bubble sits in the gap between the two above it */
 .beerow.narrow{margin:-4px 0}
 .bee{
+  position:relative;
   width:54px;height:54px;flex:none;border-radius:50%;
   display:grid;place-items:center;
   color:var(--bee-ink,var(--ink-2));
@@ -2665,29 +2667,16 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   min-height:17px;
 }
 .beecap b{font-weight:600;color:var(--ink)}
-/* what a trip expense was for: tiles, icon over name, four to a row. A kind of
-   your own carries a × in its corner; the last tile makes one. */
-.tekind{position:relative}
+/* A kind of your own carries a × in its corner, on a tile or on a bubble.
+   Everything else about this picker is the category picker's, since it is the
+   category picker — see .cattiles and .catbees. */
 .tk-x{
   position:absolute;top:-4px;right:-4px;width:19px;height:19px;border-radius:50%;
   display:grid;place-items:center;background:var(--surface-sunk);
-  color:var(--ink-3);border:1px solid var(--line);
+  color:var(--ink-3);border:1px solid var(--line);z-index:2;
 }
+.bee .tk-x{top:-2px;right:-2px}
 .tk-x:hover{color:var(--neg);border-color:var(--neg)}
-.tk-add{border-style:dashed}
-.tk-add .tk-ic{background:var(--accent-soft);color:var(--accent)}
-.tekinds{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:7px}
-.tekind{
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  padding:10px 3px 8px;border-radius:13px;min-width:0;
-  background:var(--surface-2);border:1.5px solid var(--line);
-  transition:border-color .15s,background .15s,transform .12s;
-}
-.tekind:active{transform:scale(.96)}
-.tekind[aria-pressed="true"]{background:var(--surface)}
-.tk-ic{width:36px;height:36px;border-radius:12px;display:grid;place-items:center}
-.tk-n{font-size:10.5px;font-weight:600;color:var(--ink-2);text-align:center;line-height:1.2;overflow-wrap:anywhere}
-.tekind[aria-pressed="true"] .tk-n{color:var(--ink)}
 .tr-px{font-size:11px;color:var(--ink-3);padding:0 2px}
 .tr-addp{display:flex;gap:8px;margin-top:8px}
 .tr-addp .inp{flex:1;min-width:0}
@@ -4375,7 +4364,7 @@ html.locked #lockScreen::before{
   <div class="sheet-body">
     <div class="field">
       <label>What for</label>
-      <div class="tekinds" id="teKinds"></div>
+      <div class="cattiles" id="teKinds"></div>
     </div>
     <div class="field">
       <label for="teAmt">Amount</label>
@@ -5846,6 +5835,7 @@ const I18N_DE = {
 "Pick the part of the app.": "Wähle den Teil der App.",
 "Pick the stretch: This week, This month, Last 12 months, This year, or Flex for your own dates.": "Wähle den Zeitraum: Diese Woche, Dieser Monat, Letzte 12 Monate, Dieses Jahr oder Flexibel für eigene Daten.",
 "Pick two different accounts": "Wähle zwei verschiedene Konten",
+"Pick what it was for": "Wähle, wofür es war",
 "Pick what it was for — Transport, Stay, Dining, Snacks & drinks, Entry ticket (with the attraction), Shopping, Fuel, Toll or Other.": "Wähle, wofür es war – Transport, Unterkunft, Essen gehen, Snacks & Getränke, Eintrittskarte (mit der Sehenswürdigkeit), Einkaufen, Treibstoff, Maut oder Sonstiges.",
 "Pick who shares it": "Wähle, wer es teilt",
 "Pick your own dates": "Eigene Daten wählen",
@@ -6758,7 +6748,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.18";
+const APP_VERSION = "2.2.19";
 const APP_BUILT = "2026-09-20";
 
 const KEY = "panappai.v1";
@@ -10196,7 +10186,12 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && openSheet)
    single line under the comb rather than from every bubble, which is what buys
    the room. The colour is what you pick by; the caption says what you picked.
    Rows alternate five and four, so the comb centres itself at any width. */
-function catBees(host, list, current, pick, add){
+function catBees(host, list, current, pick, add, o){
+  o = o || {};
+  const icon = o.icon || ((c, size) => iconSvg(c.id, size));
+  const name = o.name || (c => c.n);
+  const addName = o.addName || "New category";
+  const empty = o.empty || "Pick a category";
   host.innerHTML = "";
   host.className = "catbees";
   const dark = isDark();
@@ -10223,21 +10218,20 @@ function catBees(host, list, current, pick, add){
       b.type = "button";
       if (cell.add){
         b.innerHTML = '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
-        b.title = "New category";
-        b.setAttribute("aria-label", "New category");
+        b.title = addName;
+        b.setAttribute("aria-label", addName);
         b.addEventListener("click", add);
       } else {
         const c = cell.cat, on = c.id === current;
-        b.innerHTML = iconSvg(c.id, 22);
+        b.innerHTML = icon(c, 22);
         b.style.setProperty("--bee-bg", tint(c, dark));
         b.style.setProperty("--bee-ink", tintInk(c, dark));
-        b.title = c.legacy
-          ? c.n + " is no longer offered for new entries, but stays on this one"
-          : c.n;
-        b.setAttribute("aria-label", c.n);
+        b.title = o.title ? o.title(c) : name(c);
+        b.setAttribute("aria-label", name(c));
         b.setAttribute("aria-pressed", String(on));
         if (on){ b.classList.add("on"); picked = c; }
         b.addEventListener("click", () => pick(c));
+        if (o.extra) o.extra(c, b);
       }
       line.appendChild(b);
     });
@@ -10246,13 +10240,17 @@ function catBees(host, list, current, pick, add){
 
   /* what is picked, said once */
   const cap = el("div", "beecap");
-  cap.appendChild(el("b", null, picked ? picked.n : "Pick a category"));
+  cap.appendChild(el("b", null, picked ? name(picked) : empty));
   host.appendChild(cap);
 }
 
 /* The same categories as named tiles, four to a row: every name on show, at
    twice the height. Which of the two you get is yours to choose in Config. */
-function catTiles(host, list, current, pick, add){
+function catTiles(host, list, current, pick, add, o){
+  o = o || {};
+  const icon = o.icon || ((c, size) => iconSvg(c.id, size));
+  const name = o.name || (c => c.n);
+  const addName = o.addName || "New category";
   host.innerHTML = "";
   host.className = "cattiles";
   const dark = isDark();
@@ -10261,29 +10259,40 @@ function catTiles(host, list, current, pick, add){
     const b = el("button", "cattile");
     b.type = "button";
     const ic = el("span", "ct-ic");
-    ic.innerHTML = iconSvg(c.id, 20);
+    ic.innerHTML = icon(c, 20);
     ic.style.background = tint(c, dark);
     ic.style.color = tintInk(c, dark);
     b.appendChild(ic);
-    b.appendChild(el("span", "ct-n", c.n));
-    if (c.legacy) b.title = c.n + " is no longer offered for new entries, but stays on this one";
+    b.appendChild(el("span", "ct-n", name(c)));
+    if (o.title) b.title = o.title(c);
     b.setAttribute("aria-pressed", String(on));
     if (on) b.style.borderColor = tintInk(c, dark);
     b.addEventListener("click", () => pick(c));
+    if (o.extra) o.extra(c, b);
     host.appendChild(b);
   });
   if (add){
     const t = el("button", "cattile cat-add");
     t.type = "button";
-    t.innerHTML = '<span class="ct-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="ct-n">New category</span>';
+    t.innerHTML = '<span class="ct-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="ct-n">' + esc(addName) + '</span>';
     t.addEventListener("click", add);
     host.appendChild(t);
   }
 }
 
-/** Whichever the Config pane is set to. */
-function catPick(host, list, current, pick, add){
-  (state.catPicker === "bubble" ? catBees : catTiles)(host, list, current, pick, add);
+/** Why a category is on this entry but not offered for the next one. */
+function catLegacyTitle(c){
+  return c.legacy ? c.n + " is no longer offered for new entries, but stays on this one" : c.n;
+}
+
+/**
+ * Whichever the Config pane is set to, for every picker of coloured things:
+ * a category on an entry, on a recurring entry, and a kind on a trip expense.
+ * One setting for all of them — a grid in one sheet and a comb in the next
+ * would be two apps.
+ */
+function catPick(host, list, current, pick, add, o){
+  (state.catPicker === "bubble" ? catBees : catTiles)(host, list, current, pick, add, o);
 }
 
 function renderCatChips(){
@@ -10303,7 +10312,7 @@ function renderCatChips(){
     if (draft.category !== "banktransfer") draft.fromAccount = null;
     renderCatChips();
     renderAccountFields();
-  }, () => openCatAdd(draft.type));
+  }, () => openCatAdd(draft.type), { title: catLegacyTitle });
 }
 
 const TICK_SVG = '<svg class="pk-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
@@ -11720,7 +11729,7 @@ function renderRuleCats(){
     rDraft.category = c.id;
     renderRuleCats();
     renderRuleAccounts();
-  }, null);
+  }, null, { title: catLegacyTitle });
 }
 
 /* Bank Transfer income moves between two of your own accounts, so it needs
@@ -12799,49 +12808,34 @@ function renderTripExpense(){
   const kinds = $("#teKinds");
   kinds.innerHTML = "";
   const dark = isDark();
-  tripKindsAll().forEach(k => {
-    const on = teDraft.kind === k.id;
-    const b = el("button", "tekind");
-    b.type = "button";
-    const ic = el("span", "tk-ic");
-    ic.innerHTML = tripKindIcon(k, 20);
-    ic.style.background = tint(k, dark);
-    ic.style.color = tintInk(k, dark);
-    b.appendChild(ic);
-    b.appendChild(el("span", "tk-n", k.n));
-    b.setAttribute("aria-pressed", String(on));
-    /* chosen, the tile takes its own colour for its edge */
-    if (on) b.style.borderColor = tintInk(k, dark);
-    b.addEventListener("click", () => { teDraft.kind = k.id; renderTripExpense(); });
-    /* one of yours can go again, as long as nothing is filed under it */
-    if (k.custom){
-      const x = el("span", "tk-x");
-      x.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
-      x.title = "Remove " + k.n;
-      x.addEventListener("click", async e => {
-        e.stopPropagation();
-        if ((state.trips || []).some(t => (t.items || []).some(i => i.kind === k.id))){
-          toast("In use — change those expenses first"); return;
-        }
-        const yes = await askConfirm({ title:"Remove " + k.n + "?",
-          message:"Nothing is filed under it.", confirm:"Remove" });
-        if (!yes) return;
-        userTouched();
-        state.tripKinds = tripKindsMine().filter(o => o.id !== k.id);
-        if (teDraft.kind === k.id) teDraft.kind = "other";
-        save(); renderTripExpense(); render();
-        toast("Removed " + k.n);
-      });
-      b.appendChild(x);
-    }
-    kinds.appendChild(b);
-  });
-  /* the last tile makes a kind of your own, where the gap in the nine is felt */
-  const add = el("button", "tekind tk-add");
-  add.type = "button";
-  add.innerHTML = '<span class="tk-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="tk-n">New kind</span>';
-  add.addEventListener("click", addTripKind);
-  kinds.appendChild(add);
+  /* the entry sheet's picker, in whichever shape Config is set to — and the
+     last one of them makes a kind of your own, where the gap is felt */
+  catPick(kinds, tripKindsAll(), teDraft.kind,
+    k => { teDraft.kind = k.id; renderTripExpense(); },
+    addTripKind,
+    { icon: tripKindIcon, addName: "New kind", empty: "Pick what it was for",
+      /* one of yours can go again, as long as nothing is filed under it */
+      extra: (k, b) => {
+        if (!k.custom) return;
+        const x = el("span", "tk-x");
+        x.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+        x.title = "Remove " + k.n;
+        x.addEventListener("click", async e => {
+          e.stopPropagation();
+          if ((state.trips || []).some(t => (t.items || []).some(i => i.kind === k.id))){
+            toast("In use — change those expenses first"); return;
+          }
+          const yes = await askConfirm({ title:"Remove " + k.n + "?",
+            message:"Nothing is filed under it.", confirm:"Remove" });
+          if (!yes) return;
+          userTouched();
+          state.tripKinds = tripKindsMine().filter(o => o.id !== k.id);
+          if (teDraft.kind === k.id) teDraft.kind = "other";
+          save(); renderTripExpense(); render();
+          toast("Removed " + k.n);
+        });
+        b.appendChild(x);
+      } });
   /* a ticket is for somewhere: ask for it by name */
   const ticket = teDraft.kind === "ticket";
   $("#teWhatLab").textContent = ticket ? "Attraction" : "Note";
