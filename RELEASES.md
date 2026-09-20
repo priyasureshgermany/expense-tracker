@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.2.19 — 2026-09-20
+- better: The Grid or Bubbles choice now covers trip expenses too, not only entries and recurring ones
+
 ## 2.2.18 — 2026-09-20
 - new: Config › Categories: pick the grid or bubbles for the category picker
 - better: Bubbles fit the categories in half the height, naming the one you pick underneath
