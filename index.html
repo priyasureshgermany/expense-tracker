@@ -3135,11 +3135,14 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
    says when the next money comes in, and these two say what has been going the
    other way while it was awaited. Each opens the report it is the total of, so
    the figure is a way in rather than a dead end. */
-/* How yesterday went, in a sentence, directly above the figure it is about —
-   the figure answers "how much", this answers "and is that good". */
+/* How yesterday went: the face and the sentence as one line, directly above
+   the figure they are about. The figure answers "how much"; these answer "and
+   is that good", the face at a glance and the words on a read. Under the name
+   the face was a mark floating on its own, belonging to nothing next to it. */
 .pw-say{
+  display:flex;align-items:center;justify-content:center;gap:9px;
   margin-top:20px;font-size:13px;font-weight:600;line-height:1.45;
-  color:rgba(255,255,255,.92);text-shadow:0 2px 10px rgba(0,0,0,.24);
+  text-align:left;color:rgba(255,255,255,.92);text-shadow:0 2px 10px rgba(0,0,0,.24);
 }
 .pw-say[hidden]{display:none}
 .pw-stats{display:grid;grid-template-columns:1fr auto;gap:10px;width:100%;margin-top:10px}
@@ -3175,13 +3178,10 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
    not. It is drawn from the same figure beside it and says nothing the figure
    does not — which is why it goes away with the amounts when the eye is shut,
    rather than announcing through the mask whether the day was over a hundred. */
-/* Under the name and above the ring: the first thing on the screen after who
-   you are, which is where a verdict on yesterday belongs — not tucked beside
-   the figure, where it read as a bullet point. */
-.pw-face{display:none;flex:none;line-height:0;margin:-6px 0 14px}
+.pw-face{display:none;flex:none;line-height:0}
 .pw-face.happy,.pw-face.sad{display:block}
 .pw-face[hidden]{display:none}
-.pwf{width:40px;height:40px;overflow:visible}
+.pwf{width:30px;height:30px;overflow:visible}
 .pwf circle,.pwf path{
   fill:none;stroke:currentColor;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round;
@@ -3748,7 +3748,6 @@ html.locked #lockScreen::before{
 <div id="payWelcome" role="dialog" aria-modal="true" aria-label="Payday countdown">
   <div class="pw-card">
     <div class="pw-hi" id="pwHi"></div>
-    <span class="pw-face" id="pwFace" hidden><svg class="pwf" viewBox="0 0 24 24" aria-hidden="true"><circle class="pwf-o" cx="12" cy="12" r="9.3"/><circle class="pwf-e" cx="8.9" cy="10.1" r="1.25"/><circle class="pwf-e" cx="15.1" cy="10.1" r="1.25"/><path class="pwf-m pwf-up" d="M8.1 14.3c1 1.7 2.3 2.5 3.9 2.5s2.9-.8 3.9-2.5"/><path class="pwf-m pwf-dn" d="M8.1 16.7c1-1.7 2.3-2.5 3.9-2.5s2.9.8 3.9 2.5"/><path class="pwf-t" d="M15.1 12.2c0 0 1.15 1.4 1.15 2.1a1.15 1.15 0 01-2.3 0c0-.7 1.15-2.1 1.15-2.1z"/></svg></span>
     <div class="pw-ring" id="pwRing">
       <svg viewBox="0 0 120 120" aria-hidden="true">
         <circle class="pw-tr" cx="60" cy="60" r="52"/>
@@ -3761,7 +3760,7 @@ html.locked #lockScreen::before{
     </div>
     <div class="pw-line" id="pwLine"></div>
     <div class="pw-sub" id="pwSub"></div>
-    <div class="pw-say" id="pwSay" hidden></div>
+    <div class="pw-say" id="pwSay" hidden><span class="pw-face" id="pwFace" hidden><svg class="pwf" viewBox="0 0 24 24" aria-hidden="true"><circle class="pwf-o" cx="12" cy="12" r="9.3"/><circle class="pwf-e" cx="8.9" cy="10.1" r="1.25"/><circle class="pwf-e" cx="15.1" cy="10.1" r="1.25"/><path class="pwf-m pwf-up" d="M8.1 14.3c1 1.7 2.3 2.5 3.9 2.5s2.9-.8 3.9-2.5"/><path class="pwf-m pwf-dn" d="M8.1 16.7c1-1.7 2.3-2.5 3.9-2.5s2.9.8 3.9 2.5"/><path class="pwf-t" d="M15.1 12.2c0 0 1.15 1.4 1.15 2.1a1.15 1.15 0 01-2.3 0c0-.7 1.15-2.1 1.15-2.1z"/></svg></span><span id="pwSayT"></span></div>
     <div class="pw-stats" id="pwStats" hidden>
       <button class="pw-stat" id="pwSpan" type="button">
         <span id="pwSpanN">Yesterday</span>
@@ -5747,7 +5746,7 @@ const I18N_DE = {
 "Next": "Weiter",
 "Next month": "Nächster Monat",
 "Next time, tap Add items — the saved list is at the top, and one tap puts everything back.": "Tippe beim nächsten Mal auf Artikel hinzufügen – die gespeicherte Liste steht oben, und ein Tipp setzt alles zurück auf die Liste.",
-"Nicely done — you spent less than 100 € yesterday.": "Gut gemacht – gestern warst du unter 100 €.",
+"Nicely done — you spent under 100 € yesterday.": "Gut gemacht – gestern unter 100 € geblieben.",
 "No GitHub? Data & backup › Copy backup to clipboard on the old phone, then paste it under Restore from pasted backup on the new one.": "Kein GitHub? Daten & Sicherung › Sicherung in die Zwischenablage kopieren auf dem alten Telefon, dann auf dem neuen unter Aus eingefügter Sicherung wiederherstellen einfügen.",
 "No accounts yet — add them in": "Noch keine Konten – füge sie hinzu unter",
 "No accounts yet — add them in Settings › Accounts.": "Noch keine Konten – füge sie unter Einstellungen › Konten hinzu.",
@@ -5823,7 +5822,7 @@ const I18N_DE = {
 "Off — anyone with this device can open the app.": "Aus – jeder mit diesem Gerät kann die App öffnen.",
 "Off — anything stored here can be read by anyone with the device.": "Aus – alles hier Gespeicherte kann jeder mit dem Gerät lesen.",
 "Off — data stays only in this browser.": "Aus – Daten bleiben nur in diesem Browser.",
-"Oh no — yesterday went over 100 €.": "Oh nein – gestern waren es mehr als 100 €.",
+"Oh no — you spent over 100 € yesterday.": "Oh nein – gestern über 100 € ausgegeben.",
 "Oils": "Öle",
 "On Android or a laptop, tap Install app on the dashboard's banner.": "Tippe auf Android oder einem Laptop im Banner der Übersicht auf App installieren.",
 "On a budget's row, switch € to % and type the percentage. The amount already there is converted, not cleared.": "Schalte in der Zeile eines Budgets von € auf % und gib den Prozentsatz ein. Der vorhandene Betrag wird umgerechnet, nicht gelöscht.",
@@ -15863,9 +15862,9 @@ function payWelcomeStats(){
   face.classList.toggle("sad", show && !good);
   face.title = good ? "Less than 100 € yesterday" : "More than 100 € yesterday";
   say.hidden = !show;
-  say.textContent = good
-    ? "Nicely done — you spent less than 100 € yesterday."
-    : "Oh no — yesterday went over 100 €.";
+  $("#pwSayT").textContent = good
+    ? "Nicely done — you spent under 100 € yesterday."
+    : "Oh no — you spent over 100 € yesterday.";
 }
 
 function payWelcomeClose(){
