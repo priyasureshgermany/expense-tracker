@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.3.3 — 2026-09-26
+- better: A face and a line just above the figure say how yesterday went
+
 ## 2.3.2 — 2026-09-26
 - better: The welcome screen shows yesterday alone, with a switch beside it for this week — whichever you leave it on is what it opens with
 

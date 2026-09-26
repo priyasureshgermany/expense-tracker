@@ -3135,7 +3135,17 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
    says when the next money comes in, and these two say what has been going the
    other way while it was awaited. Each opens the report it is the total of, so
    the figure is a way in rather than a dead end. */
-.pw-stats{display:grid;grid-template-columns:1fr auto;gap:10px;width:100%;margin-top:22px}
+/* How yesterday went: the face and the sentence as one line, directly above
+   the figure they are about. The figure answers "how much"; these answer "and
+   is that good", the face at a glance and the words on a read. Under the name
+   the face was a mark floating on its own, belonging to nothing next to it. */
+.pw-say{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  margin-top:20px;font-size:13px;font-weight:600;line-height:1.45;
+  text-align:left;color:rgba(255,255,255,.92);text-shadow:0 2px 10px rgba(0,0,0,.24);
+}
+.pw-say[hidden]{display:none}
+.pw-stats{display:grid;grid-template-columns:1fr auto;gap:10px;width:100%;margin-top:10px}
 /* The switch is its own button beside the figure, not a second tap target
    inside it: one tap opens the report, the other changes which report that
    would be, and the two must not be a pixel apart. */
@@ -3163,8 +3173,6 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   font-size:15.5px;font-weight:700;letter-spacing:-.01em;
   font-variant-numeric:tabular-nums;text-shadow:0 2px 10px rgba(0,0,0,.24);
 }
-.pw-val{display:flex;align-items:center;gap:6px}
-
 /* How yesterday went, at a glance and before the number is read: a hundred
    euro in a day is the line, under it the face is pleased and over it it is
    not. It is drawn from the same figure beside it and says nothing the figure
@@ -3173,7 +3181,7 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .pw-face{display:none;flex:none;line-height:0}
 .pw-face.happy,.pw-face.sad{display:block}
 .pw-face[hidden]{display:none}
-.pwf{width:19px;height:19px;overflow:visible}
+.pwf{width:30px;height:30px;overflow:visible}
 .pwf circle,.pwf path{
   fill:none;stroke:currentColor;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round;
@@ -3752,10 +3760,11 @@ html.locked #lockScreen::before{
     </div>
     <div class="pw-line" id="pwLine"></div>
     <div class="pw-sub" id="pwSub"></div>
+    <div class="pw-say" id="pwSay" hidden><span class="pw-face" id="pwFace" hidden><svg class="pwf" viewBox="0 0 24 24" aria-hidden="true"><circle class="pwf-o" cx="12" cy="12" r="9.3"/><circle class="pwf-e" cx="8.9" cy="10.1" r="1.25"/><circle class="pwf-e" cx="15.1" cy="10.1" r="1.25"/><path class="pwf-m pwf-up" d="M8.1 14.3c1 1.7 2.3 2.5 3.9 2.5s2.9-.8 3.9-2.5"/><path class="pwf-m pwf-dn" d="M8.1 16.7c1-1.7 2.3-2.5 3.9-2.5s2.9.8 3.9 2.5"/><path class="pwf-t" d="M15.1 12.2c0 0 1.15 1.4 1.15 2.1a1.15 1.15 0 01-2.3 0c0-.7 1.15-2.1 1.15-2.1z"/></svg></span><span id="pwSayT"></span></div>
     <div class="pw-stats" id="pwStats" hidden>
       <button class="pw-stat" id="pwSpan" type="button">
         <span id="pwSpanN">Yesterday</span>
-        <span class="pw-val"><span class="pw-face" id="pwFace" hidden><svg class="pwf" viewBox="0 0 24 24" aria-hidden="true"><circle class="pwf-o" cx="12" cy="12" r="9.3"/><circle class="pwf-e" cx="8.9" cy="10.1" r="1.25"/><circle class="pwf-e" cx="15.1" cy="10.1" r="1.25"/><path class="pwf-m pwf-up" d="M8.1 14.3c1 1.7 2.3 2.5 3.9 2.5s2.9-.8 3.9-2.5"/><path class="pwf-m pwf-dn" d="M8.1 16.7c1-1.7 2.3-2.5 3.9-2.5s2.9.8 3.9 2.5"/><path class="pwf-t" d="M15.1 12.2c0 0 1.15 1.4 1.15 2.1a1.15 1.15 0 01-2.3 0c0-.7 1.15-2.1 1.15-2.1z"/></svg></span><b id="pwSpanV">—</b></span>
+        <b id="pwSpanV">—</b>
       </button>
       <button class="pw-swap" id="pwSwap" type="button" aria-label="Show this week">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg>
@@ -5737,6 +5746,7 @@ const I18N_DE = {
 "Next": "Weiter",
 "Next month": "Nächster Monat",
 "Next time, tap Add items — the saved list is at the top, and one tap puts everything back.": "Tippe beim nächsten Mal auf Artikel hinzufügen – die gespeicherte Liste steht oben, und ein Tipp setzt alles zurück auf die Liste.",
+"Nicely done — you spent under 100 € yesterday.": "Gut gemacht – gestern unter 100 € geblieben.",
 "No GitHub? Data & backup › Copy backup to clipboard on the old phone, then paste it under Restore from pasted backup on the new one.": "Kein GitHub? Daten & Sicherung › Sicherung in die Zwischenablage kopieren auf dem alten Telefon, dann auf dem neuen unter Aus eingefügter Sicherung wiederherstellen einfügen.",
 "No accounts yet — add them in": "Noch keine Konten – füge sie hinzu unter",
 "No accounts yet — add them in Settings › Accounts.": "Noch keine Konten – füge sie unter Einstellungen › Konten hinzu.",
@@ -5812,6 +5822,7 @@ const I18N_DE = {
 "Off — anyone with this device can open the app.": "Aus – jeder mit diesem Gerät kann die App öffnen.",
 "Off — anything stored here can be read by anyone with the device.": "Aus – alles hier Gespeicherte kann jeder mit dem Gerät lesen.",
 "Off — data stays only in this browser.": "Aus – Daten bleiben nur in diesem Browser.",
+"Oh no — you spent over 100 € yesterday.": "Oh nein – gestern über 100 € ausgegeben.",
 "Oils": "Öle",
 "On Android or a laptop, tap Install app on the dashboard's banner.": "Tippe auf Android oder einem Laptop im Banner der Übersicht auf App installieren.",
 "On a budget's row, switch € to % and type the percentage. The amount already there is converted, not cleared.": "Schalte in der Zeile eines Budgets von € auf % und gib den Prozentsatz ein. Der vorhandene Betrag wird umgerechnet, nicht gelöscht.",
@@ -6843,7 +6854,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.2";
+const APP_VERSION = "2.3.3";
 const APP_BUILT = "2026-09-26";
 
 const KEY = "panappai.v1";
@@ -15843,12 +15854,17 @@ function payWelcomeStats(){
      in, so the line is the same line in rupees. Exactly a hundred is not more
      than a hundred, so it is a good day. A week has no face — a hundred a day
      would leave an ordinary week permanently sad, which says nothing. */
-  const face = $("#pwFace");
+  const face = $("#pwFace"), say = $("#pwSay");
   const show = !amountsHidden && !week;
+  const good = total <= 10000;
   face.hidden = !show;
-  face.classList.toggle("happy", show && total <= 10000);
-  face.classList.toggle("sad", show && total > 10000);
-  face.title = total <= 10000 ? "Less than 100 € yesterday" : "More than 100 € yesterday";
+  face.classList.toggle("happy", show && good);
+  face.classList.toggle("sad", show && !good);
+  face.title = good ? "Less than 100 € yesterday" : "More than 100 € yesterday";
+  say.hidden = !show;
+  $("#pwSayT").textContent = good
+    ? "Nicely done — you spent under 100 € yesterday."
+    : "Oh no — you spent over 100 € yesterday.";
 }
 
 function payWelcomeClose(){
