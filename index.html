@@ -3153,6 +3153,48 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   font-size:15.5px;font-weight:700;letter-spacing:-.01em;
   font-variant-numeric:tabular-nums;text-shadow:0 2px 10px rgba(0,0,0,.24);
 }
+.pw-val{display:flex;align-items:center;gap:6px}
+
+/* How yesterday went, at a glance and before the number is read: a hundred
+   euro in a day is the line, under it the face is pleased and over it it is
+   not. It is drawn from the same figure beside it and says nothing the figure
+   does not — which is why it goes away with the amounts when the eye is shut,
+   rather than announcing through the mask whether the day was over a hundred. */
+.pw-face{display:none;flex:none;line-height:0}
+.pw-face.happy,.pw-face.sad{display:block}
+.pw-face[hidden]{display:none}
+.pwf{width:19px;height:19px;overflow:visible}
+.pwf circle,.pwf path{
+  fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.pwf-e{fill:currentColor;stroke:none;transform-box:fill-box;transform-origin:center}
+.pwf-t{fill:currentColor;stroke:none;opacity:0}
+.pw-face.happy{color:#7BF3C2}
+.pw-face.sad{color:#FFC46B}
+.pw-face.happy .pwf-dn,.pw-face.sad .pwf-up{display:none}
+
+/* A bob and a blink when it is pleased; a slow sway and one tear when it is
+   not. Both loop quietly — the screen is up for half a minute and a face that
+   never settles would be the loudest thing on it. */
+@keyframes pwf-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes pwf-sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+@keyframes pwf-blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.12)}}
+@keyframes pwf-tear{
+  0%,55%{opacity:0;transform:translateY(0) scale(.7)}
+  65%{opacity:.95;transform:translateY(0) scale(1)}
+  95%{opacity:0;transform:translateY(5px) scale(.9)}
+  100%{opacity:0;transform:translateY(5px) scale(.9)}
+}
+.pw-face.happy .pwf{animation:pwf-bob 1.9s ease-in-out infinite}
+.pw-face.happy .pwf-e{animation:pwf-blink 4.2s ease-in-out infinite}
+.pw-face.sad .pwf{animation:pwf-sway 3.4s ease-in-out infinite;transform-origin:50% 90%}
+.pw-face.sad .pwf-t{animation:pwf-tear 3.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+/* with motion turned down the face still says which one it is */
+@media (prefers-reduced-motion:reduce){
+  .pw-face .pwf,.pw-face .pwf-e,.pw-face .pwf-t{animation:none}
+  .pw-face.sad .pwf-t{opacity:.95}
+}
 .pw-go{
   margin-top:22px;padding:11px 30px;border-radius:99px;
   background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.32);
@@ -3702,7 +3744,8 @@ html.locked #lockScreen::before{
     <div class="pw-sub" id="pwSub"></div>
     <div class="pw-stats" id="pwStats" hidden>
       <button class="pw-stat" id="pwYest" type="button">
-        <span>Yesterday</span><b id="pwYestV">—</b>
+        <span>Yesterday</span>
+        <span class="pw-val"><span class="pw-face" id="pwFace" hidden><svg class="pwf" viewBox="0 0 24 24" aria-hidden="true"><circle class="pwf-o" cx="12" cy="12" r="9.3"/><circle class="pwf-e" cx="8.9" cy="10.1" r="1.25"/><circle class="pwf-e" cx="15.1" cy="10.1" r="1.25"/><path class="pwf-m pwf-up" d="M8.1 14.3c1 1.7 2.3 2.5 3.9 2.5s2.9-.8 3.9-2.5"/><path class="pwf-m pwf-dn" d="M8.1 16.7c1-1.7 2.3-2.5 3.9-2.5s2.9.8 3.9 2.5"/><path class="pwf-t" d="M15.1 12.2c0 0 1.15 1.4 1.15 2.1a1.15 1.15 0 01-2.3 0c0-.7 1.15-2.1 1.15-2.1z"/></svg></span><b id="pwYestV">—</b></span>
       </button>
       <button class="pw-stat" id="pwWeek" type="button">
         <span>This week</span><b id="pwWeekV">—</b>
@@ -5594,6 +5637,7 @@ const I18N_DE = {
 "Last pushed": "Zuletzt hochgeladen",
 "Leaves out": "Lässt aus:",
 "Left": "Übrig",
+"Less than 100 € yesterday": "Gestern weniger als 100 €",
 "Let's go": "Los geht's",
 "Lidl weekly shop": "Lidl-Wocheneinkauf",
 "Light": "Hell",
@@ -5634,6 +5678,7 @@ const I18N_DE = {
 "Monthly": "Monatlich",
 "Months side by side": "Monate nebeneinander",
 "More": "Mehr",
+"More than 100 € yesterday": "Gestern mehr als 100 €",
 "More › Reports": "Mehr › Berichte",
 "More › Settings › About › Update now": "Mehr › Einstellungen › Info › Jetzt aktualisieren",
 "More › Settings › Accounts": "Mehr › Einstellungen › Konten",
@@ -6786,7 +6831,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.0";
+const APP_VERSION = "2.3.1";
 const APP_BUILT = "2026-09-26";
 
 const KEY = "panappai.v1";
@@ -15762,8 +15807,18 @@ function payWelcomeStats(){
   const any = state.txns.some(t => t.type === "expense" && !isTransfer(t) && t.status === "done");
   row.hidden = !any;
   if (!any) return;
-  $("#pwYestV").textContent = fmt(spentBetween(yst, yst));
+  const yTot = spentBetween(yst, yst);
+  $("#pwYestV").textContent = fmt(yTot);
   $("#pwWeekV").textContent = fmt(spentBetween(mon, today));
+
+  /* A hundred euro, in euro: the book is kept in cents whatever it is shown
+     in, so the line is the same line in rupees. Exactly a hundred is not more
+     than a hundred, so it is a good day. */
+  const face = $("#pwFace");
+  face.hidden = amountsHidden;
+  face.classList.toggle("happy", !amountsHidden && yTot <= 10000);
+  face.classList.toggle("sad", !amountsHidden && yTot > 10000);
+  face.title = yTot <= 10000 ? "Less than 100 € yesterday" : "More than 100 € yesterday";
 }
 
 function payWelcomeClose(){
