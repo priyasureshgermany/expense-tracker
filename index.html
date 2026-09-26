@@ -1688,12 +1688,22 @@ div.rp-rem:hover{background:none}
   padding:8px 6px calc(10px + env(safe-area-inset-bottom));
   box-shadow:0 -1px 0 rgba(15,25,34,.04), 0 -10px 30px rgba(15,25,34,.06);
 }
-.tabbar-5{grid-template-columns:repeat(5,1fr)}
-/* A grid column does not stop a flex item from being as wide as its longest
-   line, so without min-width:0 the labels ran out over their neighbours
-   instead of wrapping inside their own column. */
-.tabbar-5 button{font-size:9.5px;padding:5px 1px;min-width:0}
-.tabbar-5 button > span,.tabbar-5 button{overflow-wrap:anywhere}
+.tabbar-5{grid-template-columns:repeat(5,1fr);column-gap:2px}
+/* Five across is tight. Every label is in a box of its own, two lines deep
+   whether it needs one line or two: the glyphs then sit on one line across the
+   whole bar however long a name is — வரவு செலவு wraps, Dashboard does not —
+   and a long name stays inside its own column instead of running over its
+   neighbour's. */
+.tabbar-5 button{
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  gap:3px;padding:6px 3px;min-width:0;width:100%;
+}
+.tabbar-5 button > svg{flex:none}
+.tabbar-5 .tb-lab{
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  height:26px;width:100%;min-width:0;overflow:hidden;
+  font-size:9px;line-height:1.2;overflow-wrap:anywhere;
+}
 @supports (backdrop-filter:blur(20px)){
   .tabbar{background:color-mix(in srgb, var(--surface) 86%, transparent);backdrop-filter:saturate(180%) blur(20px)}
 }
@@ -3788,8 +3798,8 @@ html.locked #lockScreen::before{
         <div id="calcRows"></div>
       </div>
       <div class="note" style="margin-top:10px">
-        Worked out on this phone, and the history with it. Nothing here is
-        written to your book until you put it in an entry.
+        The history is kept with your book, so it is in the backup and on your
+        other devices. An answer only becomes an entry when you say so.
       </div>
     </div>
   </div>
@@ -3838,23 +3848,23 @@ html.locked #lockScreen::before{
   <div class="tabbar tabbar-5" id="viewTog" role="tablist">
     <button role="tab" data-view="dash" aria-selected="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-      Dashboard
+      <span class="tb-lab">Dashboard</span>
     </button>
     <button role="tab" data-view="entries" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
-      வரவு செலவு
+      <span class="tb-lab">வரவு செலவு</span>
     </button>
     <button role="tab" data-view="shop" id="thirdTab" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 11.4a2 2 0 002 1.6h7.8a2 2 0 002-1.6L21 7H6.2"/></svg>
-      <span class="tt-lab">Shopping cart</span>
+      <span class="tb-lab tt-lab">Shopping cart</span>
     </button>
     <button role="tab" data-view="calc" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><path d="M7.5 7h9"/><path d="M8 12h.01M12 12h.01M16 12h.01M8 16.5h.01M12 16.5h.01M16 16.5h.01"/></svg>
-      Calculator
+      <span class="tb-lab">Calculator</span>
     </button>
     <button type="button" id="btnMore" aria-haspopup="dialog" aria-label="More">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
-      More
+      <span class="tb-lab">More</span>
       <span class="tabdot" id="moreDot" hidden></span>
     </button>
   </div>
@@ -6399,6 +6409,7 @@ const I18N_DE = {
 "The eye in the top bar": "Das Auge oben",
 "The grid names every category. Bubbles are half the height, with the name of the one picked under them — worth it once you know the icons.": "Das Raster benennt jede Kategorie. Blasen sind halb so hoch, mit dem Namen der gewählten darunter — lohnt sich, sobald du die Symbole kennst.",
 "The health mark reads every expense, one-offs and all — a month is not healthier for leaving them out.": "Die Gesundheitsanzeige liest jede Ausgabe, Einmaliges inklusive – ein Monat wird nicht gesünder, wenn man es weglässt.",
+"The history is kept with your book, so it is in the backup and on your other devices. An answer only becomes an entry when you say so.": "Der Verlauf gehört zu deinem Buch, ist also in der Sicherung und auf deinen anderen Geräten. Eine Antwort wird erst zum Eintrag, wenn du es sagst.",
 "The last twelve months": "Die letzten zwölf Monate",
 "The next 7 days —": "Die nächsten 7 Tage –",
 "The opening figure on each account is forgotten. Your entries are untouched.": "Der Anfangsstand jedes Kontos wird vergessen. Deine Einträge bleiben unberührt.",
@@ -6574,7 +6585,6 @@ const I18N_DE = {
 "With Planned on, the chart is drawn against your income, and the green Remaining slice is what no plan claims.": "Mit Geplant wird das Diagramm gegen dein Einkommen gezeichnet, und das grüne Stück Übrig ist, was kein Plan beansprucht.",
 "Without GitHub sync, a backup copied earlier can be pasted into Data & backup › Restore from pasted backup.": "Ohne GitHub-Sync lässt sich eine früher kopierte Sicherung unter Daten & Sicherung › Aus eingefügter Sicherung wiederherstellen einfügen.",
 "Worked out on this phone from your own entries. Nothing is sent anywhere, and it answers about this app only.": "Auf diesem Telefon aus deinen eigenen Einträgen berechnet. Nichts wird irgendwohin gesendet, und es beantwortet nur Fragen zu dieser App.",
-"Worked out on this phone, and the history with it. Nothing here is written to your book until you put it in an entry.": "Auf diesem Telefon berechnet, und der Verlauf bleibt hier. Nichts davon kommt in dein Buch, bis du es in einen Eintrag übernimmst.",
 "Write a line to carry on": "Schreib eine Zeile, um fortzufahren",
 "Yearly": "Jährlich",
 "Yellow · Comfortable": "Gelb · Komfortabel",
@@ -6987,7 +6997,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.4";
+const APP_VERSION = "2.3.5";
 const APP_BUILT = "2026-09-26";
 
 const KEY = "panappai.v1";
@@ -7443,7 +7453,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop", catPicker:"grid", welcomeSpan:"yesterday" };
+let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop", catPicker:"grid", welcomeSpan:"yesterday", calcLog:[] };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -7786,7 +7796,8 @@ function stateFromPayload(p){
     tripKinds: normaliseTripKinds(p.tripKinds),
     thirdTab: p.thirdTab === "trips" ? "trips" : "shop",
     catPicker: p.catPicker === "bubble" ? "bubble" : "grid",
-    welcomeSpan: p.welcomeSpan === "week" ? "week" : "yesterday"
+    welcomeSpan: p.welcomeSpan === "week" ? "week" : "yesterday",
+    calcLog: normaliseCalcLog(p.calcLog)
   };
   if (p.demo) st.demo = true;
   return st;
@@ -7818,9 +7829,20 @@ function stateCleared(){
     tripKinds: tripKindsMine(),
     thirdTab: state.thirdTab === "trips" ? "trips" : "shop",
     catPicker: state.catPicker === "bubble" ? "bubble" : "grid",
-    welcomeSpan: welcomeSpan()
+    welcomeSpan: welcomeSpan(),
+    /* the sums are notes to yourself, not entries, so clearing the book leaves
+       them where they are */
+    calcLog: calcLogOf()
   };
 }
+
+/** The calculator's history as saved: a sum as it was typed, and its answer. */
+function normaliseCalcLog(list){
+  if (!Array.isArray(list)) return [];
+  return list.filter(r => r && typeof r.e === "string" && typeof r.v === "string")
+             .slice(0, 20).map(r => ({ e: r.e, v: r.v }));
+}
+function calcLogOf(){ return Array.isArray(state.calcLog) ? state.calcLog : []; }
 
 /** Kinds of your own as saved, each needing an id, a name and a colour. */
 function normaliseTripKinds(list){
@@ -7886,6 +7908,16 @@ function load(){
   if (state.thirdTab !== "trips") state.thirdTab = "shop";
   if (state.catPicker !== "bubble") state.catPicker = "grid";
   if (state.welcomeSpan !== "week") state.welcomeSpan = "yesterday";
+  state.calcLog = normaliseCalcLog(state.calcLog);
+  /* v2.3.4 kept the history on the device; move it into the book once, so the
+     sums worked out before this release are not lost to the change. */
+  try{
+    const old = localStorage.getItem("panappai.calc");
+    if (old){
+      if (!state.calcLog.length) state.calcLog = normaliseCalcLog(JSON.parse(old));
+      localStorage.removeItem("panappai.calc");
+    }
+  }catch(e){}
   if (!state.cats) state.cats = normaliseCats(null);
   /* Backups written before the catch-all existed have none set, which left the
      Misc envelope counting only entries tagged Misc rather than absorbing the
@@ -15249,6 +15281,7 @@ function miscSig(){
   if (tripKindsMine().length) parts.push(state.tripKinds);
   if (state.catPicker === "bubble") parts.push(state.catPicker);
   if (state.welcomeSpan === "week") parts.push(state.welcomeSpan);
+  if (calcLogOf().length) parts.push(state.calcLog);
   return JSON.stringify(parts);
 }
 function ghFingerprint(){
@@ -15927,17 +15960,11 @@ function payWords(days){
    it. Kept as a string while it is being typed — a number cannot hold "1," or
    a leading zero — and turned into a number only to work with.
    ========================================================================= */
-/* The history is scratch, not ledger: it stays on the phone it was worked out
-   on rather than travelling in the backup, where a column of sums would be
-   noise beside the entries. Twenty of them, newest first. */
-const CALC_KEY = "panappai.calc";
+/* The history lives in the book, so it is in the backup and on whichever
+   device the book is pulled onto: a sum worked out on the phone is worth
+   having on the laptop. Twenty of them, newest first. */
 const CALC_KEEP = 20;
-let calcLog = [];
-try{
-  const raw = JSON.parse(localStorage.getItem(CALC_KEY) || "[]");
-  if (Array.isArray(raw)) calcLog = raw.filter(r => r && typeof r.e === "string" && typeof r.v === "string").slice(0, CALC_KEEP);
-}catch(e){ calcLog = []; }
-function calcLogSave(){ try{ localStorage.setItem(CALC_KEY, JSON.stringify(calcLog)); }catch(e){} }
+function calcLogSave(){ save(); }
 
 let calcTape = [];        /* what has been typed since the last answer */
 let calcNow = "0";        /* what is being typed, with "." for the point */
@@ -15958,9 +15985,10 @@ function calcValue(){ return parseFloat(calcNow) || 0; }
 function calcHistRender(){
   const host = $("#calcRows"), wrap = $("#calcHist");
   if (!host) return;
-  wrap.hidden = !calcLog.length;
+  const log = calcLogOf();
+  wrap.hidden = !log.length;
   host.innerHTML = "";
-  calcLog.forEach(r => {
+  log.forEach(r => {
     const row = el("button", "calc-row");
     row.type = "button";
     row.appendChild(el("span", "calc-e", r.e + " ="));
@@ -15990,8 +16018,10 @@ function calcRender(){
 function calcRecord(result){
   const e = calcTape.join(" ");
   if (!e || calcTape.length < 3) return;
-  calcLog.unshift({ e: e, v: calcTrim(result) });
-  if (calcLog.length > CALC_KEEP) calcLog.length = CALC_KEEP;
+  const log = calcLogOf();
+  log.unshift({ e: e, v: calcTrim(result) });
+  if (log.length > CALC_KEEP) log.length = CALC_KEEP;
+  state.calcLog = log;
   calcLogSave();
 }
 /** Floats bite: 0.1 + 0.2 is not 0.3, and nobody wants to see that here. */
@@ -16066,13 +16096,13 @@ function calcKey(k){
 }
 $$("#calcKeys .ck").forEach(b => b.addEventListener("click", () => calcKey(b.dataset.k)));
 $("#calcWipe").addEventListener("click", async () => {
-  if (!calcLog.length) return;
+  if (!calcLogOf().length) return;
   if (!(await askConfirm({
     title: "Clear the history?",
     message: "The sums go; nothing in your book changes.",
     confirm: "Clear"
   }))) return;
-  calcLog = [];
+  state.calcLog = [];
   calcLogSave();
   calcHistRender();
   toast("History cleared");
