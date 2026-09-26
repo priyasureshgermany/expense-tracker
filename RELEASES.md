@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.3.0 — 2026-09-26
+- new: The welcome screen says what went out yesterday and so far this week, each tapping through to its own report
+- better: It stays half a minute instead of five seconds, and a tap, Escape or the button still cuts it short
+
 ## 2.2.20 — 2026-09-20
 - fix: The + no longer swallows taps around it — the Period health chips under it work again
 

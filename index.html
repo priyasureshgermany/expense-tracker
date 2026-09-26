@@ -3131,8 +3131,30 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   text-shadow:0 2px 12px rgba(0,0,0,.26);
 }
 .pw-sub{margin-top:6px;font-size:12.5px;color:rgba(255,255,255,.72);line-height:1.45}
+/* What has gone out lately, on the screen the app opens with: the countdown
+   says when the next money comes in, and these two say what has been going the
+   other way while it was awaited. Each opens the report it is the total of, so
+   the figure is a way in rather than a dead end. */
+.pw-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:22px}
+.pw-stats[hidden]{display:none}
+.pw-stat{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:11px 8px;border-radius:15px;color:#fff;
+  background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.2);
+  backdrop-filter:blur(3px);
+  transition:background .15s,transform .12s;
+}
+.pw-stat:active{background:rgba(255,255,255,.2);transform:scale(.97)}
+.pw-stat span{
+  font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.72);
+}
+.pw-stat b{
+  font-size:15.5px;font-weight:700;letter-spacing:-.01em;
+  font-variant-numeric:tabular-nums;text-shadow:0 2px 10px rgba(0,0,0,.24);
+}
 .pw-go{
-  margin-top:26px;padding:11px 30px;border-radius:99px;
+  margin-top:22px;padding:11px 30px;border-radius:99px;
   background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.32);
   color:#fff;font-size:13.5px;font-weight:700;letter-spacing:.01em;
   backdrop-filter:blur(3px);
@@ -3678,6 +3700,14 @@ html.locked #lockScreen::before{
     </div>
     <div class="pw-line" id="pwLine"></div>
     <div class="pw-sub" id="pwSub"></div>
+    <div class="pw-stats" id="pwStats" hidden>
+      <button class="pw-stat" id="pwYest" type="button">
+        <span>Yesterday</span><b id="pwYestV">—</b>
+      </button>
+      <button class="pw-stat" id="pwWeek" type="button">
+        <span>This week</span><b id="pwWeekV">—</b>
+      </button>
+    </div>
     <button class="pw-go" type="button">Let's go</button>
   </div>
 </div>
@@ -6756,8 +6786,8 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.2.20";
-const APP_BUILT = "2026-09-20";
+const APP_VERSION = "2.3.0";
+const APP_BUILT = "2026-09-26";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -15693,6 +15723,49 @@ let payWelcomeTimer = null;
    screen is open and a screen that is not. */
 let payWelcomeWipe = null;
 
+/**
+ * What has actually gone out between two dates, both ends counted: expenses
+ * that have been ticked off, transfers aside — money moved between your own
+ * accounts was never spent — and nothing from a category kept off the screen.
+ * The same rule the reports count by, so the figure and the report it opens
+ * agree to the cent.
+ */
+function spentBetween(from, to){
+  let n = 0;
+  state.txns.forEach(t => {
+    if (t.type !== "expense" || isTransfer(t)) return;
+    if (t.status !== "done") return;
+    if (!txnShown(t)) return;
+    if (t.date < from || t.date > to) return;
+    n += t.amount;
+  });
+  return n;
+}
+
+/** The Monday of the week a date falls in; getDay() calls Sunday 0. */
+function weekStart(iso){
+  const d = new Date(iso + "T00:00:00");
+  return addDays(iso, -((d.getDay() + 6) % 7));
+}
+
+/**
+ * The two figures under the countdown, and what each opens. The week runs
+ * Monday to today rather than Monday to Sunday, which is what a report of this
+ * week covers — a report is of what has happened — so tapping one lands on the
+ * very rows it added up.
+ */
+function payWelcomeStats(){
+  const row = $("#pwStats");
+  if (!row) return;
+  const today = todayISO(), yst = addDays(today, -1), mon = weekStart(today);
+  /* nothing has ever been spent: two zeroes would be furniture */
+  const any = state.txns.some(t => t.type === "expense" && !isTransfer(t) && t.status === "done");
+  row.hidden = !any;
+  if (!any) return;
+  $("#pwYestV").textContent = fmt(spentBetween(yst, yst));
+  $("#pwWeekV").textContent = fmt(spentBetween(mon, today));
+}
+
 function payWelcomeClose(){
   const box = $("#payWelcome");
   if (!box || !box.classList.contains("on")) return;
@@ -15745,6 +15818,8 @@ function payWelcomeOpen(auto){
       ? p.name + " was due " + prettyDate(p.date) + ". Tick it off once it arrives."
       : p.name + (w.state === "today" ? "" : " · " + Math.round(p.pct * 100) + "% of the wait done");
 
+  payWelcomeStats();
+
   /* Put up, then made visible a reflow later. Both in the same tick and the
      browser has only the end state to draw, so there is nothing to move
      between and the fade never happens. */
@@ -15781,12 +15856,31 @@ function payWelcomeOpen(auto){
     })(t0);
   }
 
-  /* Long enough to read the number, the date and the amount without hurrying,
-     and short enough that it is never in the way — a tap anywhere, Escape or
-     the button all cut it short. */
-  payWelcomeTimer = setTimeout(payWelcomeClose, 5000);
+  /* Half a minute: long enough to read the number, the date and the amount,
+     and now to take in what has gone out lately and tap through to it, which
+     five seconds did not leave room for. A tap anywhere, Escape or the button
+     all cut it short, so the waiting is never imposed. */
+  payWelcomeTimer = setTimeout(payWelcomeClose, 30000);
 }
 
+/* Both stop the tap reaching the screen behind them, whose job is to close on
+   any tap at all; each closes it itself and then opens its own report. */
+function payWelcomeGo(e, from, to){
+  e.stopPropagation();
+  payWelcomeClose();
+  askGoReport({ from: from, to: to, kind: "expense", tab: "table" });
+}
+$("#pwYest").addEventListener("click", e => {
+  const y = addDays(todayISO(), -1);
+  payWelcomeGo(e, y, y);
+});
+/* the report's own 1W rather than two typed dates: the same Monday-to-today
+   stretch, but it says This week on the way in and stays this week tomorrow */
+$("#pwWeek").addEventListener("click", e => {
+  e.stopPropagation();
+  payWelcomeClose();
+  askGoReport({ range: "week", kind: "expense", tab: "table" });
+});
 $("#payWelcome").addEventListener("click", payWelcomeClose);
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && $("#payWelcome").classList.contains("on")) payWelcomeClose();
