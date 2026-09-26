@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.3.2 — 2026-09-26
+- better: The welcome screen shows yesterday alone, with a switch beside it for this week — whichever you leave it on is what it opens with
+
 ## 2.3.1 — 2026-09-26
 - new: A small face beside yesterday's spending: pleased under 100 €, not over it
 
