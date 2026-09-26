@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.3.6 — 2026-09-26
+- new: The helper knows the calculator, its history, renaming an account, bubbles, a trip kind of your own and what the welcome screen says
+
 ## 2.3.5 — 2026-09-26
 - better: The calculator's history is kept with your book, so it is in the backup and on your other devices
 - fix: The five tabs line up: every glyph on one line, every label in its own column
