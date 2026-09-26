@@ -1681,11 +1681,19 @@ div.rp-rem:hover{background:none}
   position:fixed;left:0;right:0;bottom:0;z-index:28;
   max-width:var(--shell);margin:0 auto;
   display:grid;grid-template-columns:repeat(4,1fr);
+  /* five across since the calculator joined; the labels are what gives, not
+     the touch targets, which stay the full width of their column */
   background:var(--surface);
   border-top:1px solid var(--line);
   padding:8px 6px calc(10px + env(safe-area-inset-bottom));
   box-shadow:0 -1px 0 rgba(15,25,34,.04), 0 -10px 30px rgba(15,25,34,.06);
 }
+.tabbar-5{grid-template-columns:repeat(5,1fr)}
+/* A grid column does not stop a flex item from being as wide as its longest
+   line, so without min-width:0 the labels ran out over their neighbours
+   instead of wrapping inside their own column. */
+.tabbar-5 button{font-size:9.5px;padding:5px 1px;min-width:0}
+.tabbar-5 button > span,.tabbar-5 button{overflow-wrap:anywhere}
 @supports (backdrop-filter:blur(20px)){
   .tabbar{background:color-mix(in srgb, var(--surface) 86%, transparent);backdrop-filter:saturate(180%) blur(20px)}
 }
@@ -3140,9 +3148,9 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
    is that good", the face at a glance and the words on a read. Under the name
    the face was a mark floating on its own, belonging to nothing next to it. */
 .pw-say{
-  display:flex;align-items:center;justify-content:center;gap:9px;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
   margin-top:20px;font-size:13px;font-weight:600;line-height:1.45;
-  text-align:left;color:rgba(255,255,255,.92);text-shadow:0 2px 10px rgba(0,0,0,.24);
+  color:rgba(255,255,255,.92);text-shadow:0 2px 10px rgba(0,0,0,.24);
 }
 .pw-say[hidden]{display:none}
 .pw-stats{display:grid;grid-template-columns:1fr auto;gap:10px;width:100%;margin-top:10px}
@@ -3181,7 +3189,7 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .pw-face{display:none;flex:none;line-height:0}
 .pw-face.happy,.pw-face.sad{display:block}
 .pw-face[hidden]{display:none}
-.pwf{width:30px;height:30px;overflow:visible}
+.pwf{width:36px;height:36px;overflow:visible}
 .pwf circle,.pwf path{
   fill:none;stroke:currentColor;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round;
@@ -3225,6 +3233,65 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 @media (prefers-reduced-motion:reduce){
   .pw-ar{transition:none}
 }
+
+/* ---------- Calculator ----------
+   A fourth view, for the arithmetic that happens beside a ledger — splitting a
+   bill, totting up a receipt, taking a percentage off. It writes nothing: the
+   one way out of it is the button that carries the answer into a new entry,
+   where it is an amount like any other you would have typed.
+   -------------------------------------------------------------------------- */
+.calcwrap{padding:14px 14px 0;max-width:var(--shell);margin:0 auto}
+.calc-out{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:16px 16px 14px;text-align:right;overflow:hidden;
+}
+.calc-prev{
+  font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
+  min-height:17px;font-variant-numeric:tabular-nums;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.calc-now{
+  font-family:var(--mono);font-size:33px;font-weight:700;letter-spacing:-.02em;
+  color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.15;
+  white-space:nowrap;overflow-x:auto;scrollbar-width:none;
+}
+.calc-now::-webkit-scrollbar{display:none}
+.calc-keys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.ck{
+  height:58px;border-radius:16px;font-size:20px;font-weight:600;
+  background:var(--surface);border:1px solid var(--line);color:var(--ink);
+  display:grid;place-items:center;
+  transition:background .14s,transform .1s,border-color .14s;
+}
+.ck svg{width:21px;height:21px}
+.ck:active{transform:scale(.95);background:var(--surface-2)}
+.ck-fn{background:var(--surface-2);color:var(--ink-2);font-size:17px}
+.ck-op{color:var(--accent);font-weight:700}
+.ck-op[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.ck-eq{background:linear-gradient(135deg,var(--accent-mid),var(--accent));color:var(--accent-ink);border-color:transparent}
+#calcToEntry{margin-top:12px}
+/* What has been worked out, newest first: tap one to bring its answer back
+   into the display and carry on from it. */
+.calc-hist{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.calc-hist[hidden]{display:none}
+.calc-histh{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.calc-histh span{
+  font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;
+}
+.calc-clear{font-size:12px;font-weight:600;color:var(--accent);padding:4px 6px;border-radius:8px}
+.calc-clear:active{background:var(--accent-soft)}
+.calc-row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;width:100%;
+  padding:9px 2px;border-bottom:1px solid var(--line);text-align:left;
+}
+.calc-row:last-child{border-bottom:none}
+.calc-row:active{background:var(--surface-2)}
+.calc-e{
+  font-family:var(--mono);font-size:12px;color:var(--ink-3);
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.calc-v{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink);flex:none}
 
 /* ---------- App lock ---------- */
 html.locked .shell{display:none}
@@ -3682,6 +3749,51 @@ html.locked #lockScreen::before{
     </section>
   </div>
 
+  <div id="viewCalc" hidden>
+    <div class="calcwrap">
+      <div class="calc-out">
+        <div class="calc-prev" id="calcPrev"></div>
+        <div class="calc-now" id="calcNow">0</div>
+      </div>
+      <div class="calc-keys" id="calcKeys">
+        <button type="button" class="ck ck-fn" data-k="c">C</button>
+        <button type="button" class="ck ck-fn" data-k="sign" aria-label="Change the sign">±</button>
+        <button type="button" class="ck ck-fn" data-k="pct" aria-label="Per cent">%</button>
+        <button type="button" class="ck ck-op" data-k="/" aria-label="Divide">÷</button>
+        <button type="button" class="ck" data-k="7">7</button>
+        <button type="button" class="ck" data-k="8">8</button>
+        <button type="button" class="ck" data-k="9">9</button>
+        <button type="button" class="ck ck-op" data-k="*" aria-label="Times">×</button>
+        <button type="button" class="ck" data-k="4">4</button>
+        <button type="button" class="ck" data-k="5">5</button>
+        <button type="button" class="ck" data-k="6">6</button>
+        <button type="button" class="ck ck-op" data-k="-" aria-label="Minus">−</button>
+        <button type="button" class="ck" data-k="1">1</button>
+        <button type="button" class="ck" data-k="2">2</button>
+        <button type="button" class="ck" data-k="3">3</button>
+        <button type="button" class="ck ck-op" data-k="+" aria-label="Plus">+</button>
+        <button type="button" class="ck" data-k="0">0</button>
+        <button type="button" class="ck" data-k="dot" aria-label="Decimal point">,</button>
+        <button type="button" class="ck ck-fn" data-k="back" aria-label="Backspace">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H9.5L3 12l6.5 7H21z"/><path d="M13 10l5 4M18 10l-5 4"/></svg>
+        </button>
+        <button type="button" class="ck ck-eq" data-k="=" aria-label="Equals">=</button>
+      </div>
+      <button class="btn ghost" type="button" id="calcToEntry">Use in a new entry</button>
+      <div class="calc-hist" id="calcHist" hidden>
+        <div class="calc-histh">
+          <span>History</span>
+          <button class="calc-clear" type="button" id="calcWipe">Clear</button>
+        </div>
+        <div id="calcRows"></div>
+      </div>
+      <div class="note" style="margin-top:10px">
+        Worked out on this phone, and the history with it. Nothing here is
+        written to your book until you put it in an entry.
+      </div>
+    </div>
+  </div>
+
   <div id="viewTrips" hidden>
     <div id="tripsBody"></div>
   </div>
@@ -3723,7 +3835,7 @@ html.locked #lockScreen::before{
     </button>
   </div>
 
-  <div class="tabbar" id="viewTog" role="tablist">
+  <div class="tabbar tabbar-5" id="viewTog" role="tablist">
     <button role="tab" data-view="dash" aria-selected="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
       Dashboard
@@ -3735,6 +3847,10 @@ html.locked #lockScreen::before{
     <button role="tab" data-view="shop" id="thirdTab" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 11.4a2 2 0 002 1.6h7.8a2 2 0 002-1.6L21 7H6.2"/></svg>
       <span class="tt-lab">Shopping cart</span>
+    </button>
+    <button role="tab" data-view="calc" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><path d="M7.5 7h9"/><path d="M8 12h.01M12 12h.01M16 12h.01M8 16.5h.01M12 16.5h.01M16 16.5h.01"/></svg>
+      Calculator
     </button>
     <button type="button" id="btnMore" aria-haspopup="dialog" aria-label="More">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
@@ -5285,6 +5401,7 @@ const I18N_DE = {
 "Bug saved": "Fehler gespeichert",
 "By day": "Nach Tag",
 "By kind": "Nach Art",
+"Calculator": "Rechner",
 "Calendar": "Kalender",
 "Calendar months report": "Bericht nach Kalendermonaten",
 "Cancel": "Abbrechen",
@@ -5304,6 +5421,7 @@ const I18N_DE = {
 "Change passphrase": "Passphrase ändern",
 "Change the logo for": "Logo ändern für",
 "Change the payday countdown": "Zahltag-Countdown ändern",
+"Change the sign": "Vorzeichen wechseln",
 "Change what needs changing and tap Save entry — or tap Delete this entry at the bottom.": "Ändere, was nötig ist, und tippe auf Eintrag speichern – oder unten auf Diesen Eintrag löschen.",
 "Changed": "Geändert",
 "Changes not yet pushed to": "Noch nicht hochgeladene Änderungen an",
@@ -5330,6 +5448,7 @@ const I18N_DE = {
 "Clear examples & start fresh": "Beispiele löschen & neu anfangen",
 "Clear the example data": "Die Beispieldaten löschen",
 "Clear the examples?": "Beispiele löschen?",
+"Clear the history?": "Verlauf leeren?",
 "Cleared": "Geleert",
 "Cleared — the book is yours now": "Geleert – das Buch gehört jetzt dir",
 "Close": "Schließen",
@@ -5392,6 +5511,7 @@ const I18N_DE = {
 "Dates arrive as dates and amounts as numbers, so SUM and pivot tables work.": "Daten kommen als Daten und Beträge als Zahlen an, sodass SUMME und Pivot-Tabellen funktionieren.",
 "Debit": "Belastung",
 "December": "Dezember",
+"Decimal point": "Komma",
 "Delete": "Löschen",
 "Delete a snapshot": "Einen Stand löschen",
 "Delete all": "Alle löschen",
@@ -5419,6 +5539,7 @@ const I18N_DE = {
 "Dining": "Essen gehen",
 "Disable sync": "Sync deaktivieren",
 "Dismiss": "Schließen",
+"Divide": "Teilen",
 "Does not repeat": "Wiederholt sich nicht",
 "Drag onto a list item to merge": "Auf einen Listenartikel ziehen, um zusammenzuführen",
 "Drag the box over the": "Zieh den Rahmen über die",
@@ -5469,6 +5590,7 @@ const I18N_DE = {
 "Entry saved": "Eintrag gespeichert",
 "Entry ticket": "Eintrittskarte",
 "Entry updated": "Eintrag aktualisiert",
+"Equals": "Gleich",
 "Euro": "Euro",
 "Every 2 months": "Alle 2 Monate",
 "Every 28 days": "Alle 28 Tage",
@@ -5583,6 +5705,8 @@ const I18N_DE = {
 "Hide this": "Ausblenden",
 "Hide token": "Token verbergen",
 "Hiding a category": "Eine Kategorie ausblenden",
+"History": "Verlauf",
+"History cleared": "Verlauf geleert",
 "How do snapshots work?": "Wie funktionieren Stände?",
 "How the picker lays them out": "Wie die Auswahl sie anordnet",
 "How this app behaves, as opposed to what is in your book. The rest arrive one at a time; until then each shows what it is set to.": "Wie sich diese App verhält, im Gegensatz zu dem, was in deinem Buch steht. Der Rest kommt nach und nach; bis dahin zeigt jeder Punkt seine Einstellung.",
@@ -5688,6 +5812,7 @@ const I18N_DE = {
 "Marked as paid · ": "Als bezahlt markiert · ",
 "May": "Mai",
 "Merged into": "Zusammengeführt mit",
+"Minus": "Minus",
 "Misc": "Sonstiges",
 "Molkerei & Eier": "Molkerei & Eier",
 "Money in": "Geld rein",
@@ -5783,6 +5908,7 @@ const I18N_DE = {
 "Not yet pushed": "Noch nicht hochgeladen",
 "Note": "Notiz",
 "Nothing added yet.": "Noch nichts hinzugefügt.",
+"Nothing divides by zero": "Nichts lässt sich durch null teilen",
 "Nothing due": "Nichts fällig",
 "Nothing due in the next 7 days": "In den nächsten 7 Tagen ist nichts fällig",
 "Nothing else is left. This cannot be undone.": "Sonst bleibt nichts. Das kann nicht rückgängig gemacht werden.",
@@ -5807,6 +5933,7 @@ const I18N_DE = {
 "Nothing set": "Nichts festgelegt",
 "Nothing spent from this budget yet this period.": "In diesem Zeitraum noch nichts aus diesem Budget ausgegeben.",
 "Nothing spent yet": "Noch nichts ausgegeben",
+"Nothing to carry over yet": "Noch nichts zum Übernehmen",
 "Nothing to choose from yet.": "Noch nichts zur Auswahl.",
 "Nothing went on one-offs this period.": "In diesem Zeitraum ging nichts für Einmaliges drauf.",
 "Nothing — each stands alone": "Nichts – jedes steht für sich",
@@ -5922,6 +6049,7 @@ const I18N_DE = {
 "Payday comes from a repeating income entry. Add one under Settings › Recurring entries and it will be counted from there.": "Der Zahltag kommt aus einer wiederkehrenden Einnahme. Lege eine unter Einstellungen › Wiederkehrende Einträge an, und es wird ab dort gezählt.",
 "Payday countdown": "Countdown bis zum Zahltag",
 "Payday is today": "Heute ist Zahltag",
+"Per cent": "Prozent",
 "Period health": "Zeitraum-Gesundheit",
 "Period health —": "Zeitraum-Gesundheit –",
 "Period health's chips go straight to a period too.": "Die Chips der Zeitraum-Gesundheit führen auch direkt zu einem Zeitraum.",
@@ -5958,6 +6086,7 @@ const I18N_DE = {
 "Planned · Automatic": "Geplant · Automatisch",
 "Planned · Manual": "Geplant · Manuell",
 "Planned, in Reports": "Geplant, in Berichten",
+"Plus": "Plus",
 "Previous month": "Vorheriger Monat",
 "Profile cleared": "Profil geleert",
 "Profile saved": "Profil gespeichert",
@@ -6277,6 +6406,7 @@ const I18N_DE = {
 "The schedule has changed, so ": "Der Zeitplan hat sich geändert, daher werden ",
 "The steps that led up to it, as near as you remember.": "Die Schritte, die dahin führten, so genau du dich erinnerst.",
 "The strip shows this period in the middle with two either side, planned entries included. Tap one to open that period.": "Die Leiste zeigt diesen Zeitraum in der Mitte, mit zwei auf jeder Seite, geplante Einträge inklusive. Tippe auf einen, um diesen Zeitraum zu öffnen.",
+"The sums go; nothing in your book changes.": "Die Rechnungen verschwinden; an deinem Buch ändert sich nichts.",
 "The third tab is Trips now": "Der dritte Reiter ist jetzt Reisen",
 "The third tab is the shopping list again": "Der dritte Reiter ist wieder die Einkaufsliste",
 "The whole plan has been paid.": "Der ganze Plan ist bezahlt.",
@@ -6310,6 +6440,7 @@ const I18N_DE = {
 "Tick off what you bought first": "Hake zuerst ab, was du gekauft hast",
 "Tick the circle on a row in வரவு செலவு once it has gone out.": "Hake den Kreis in einer Zeile in வரவு செலவு ab, sobald es abgeflossen ist.",
 "Tick the items you bought as you go.": "Hake die gekauften Artikel unterwegs ab.",
+"Times": "Mal",
 "To": "Bis",
 "To India": "Nach Indien",
 "To Priya": "An Priya",
@@ -6383,6 +6514,7 @@ const I18N_DE = {
 "Updating…": "Wird aktualisiert …",
 "Use at least 8 characters": "Mindestens 8 Zeichen verwenden",
 "Use at least 8 characters.": "Mindestens 8 Zeichen verwenden.",
+"Use in a new entry": "In einen neuen Eintrag übernehmen",
 "Use the pie chart": "Das Tortendiagramm nutzen",
 "Use the tabs across the top: All, Planned (still to come), Filled (settled) or Transfers.": "Nutze die Reiter oben: Alle, Geplant (kommt noch), Erledigt oder Umbuchungen.",
 "Use today": "Heute verwenden",
@@ -6442,6 +6574,7 @@ const I18N_DE = {
 "With Planned on, the chart is drawn against your income, and the green Remaining slice is what no plan claims.": "Mit Geplant wird das Diagramm gegen dein Einkommen gezeichnet, und das grüne Stück Übrig ist, was kein Plan beansprucht.",
 "Without GitHub sync, a backup copied earlier can be pasted into Data & backup › Restore from pasted backup.": "Ohne GitHub-Sync lässt sich eine früher kopierte Sicherung unter Daten & Sicherung › Aus eingefügter Sicherung wiederherstellen einfügen.",
 "Worked out on this phone from your own entries. Nothing is sent anywhere, and it answers about this app only.": "Auf diesem Telefon aus deinen eigenen Einträgen berechnet. Nichts wird irgendwohin gesendet, und es beantwortet nur Fragen zu dieser App.",
+"Worked out on this phone, and the history with it. Nothing here is written to your book until you put it in an entry.": "Auf diesem Telefon berechnet, und der Verlauf bleibt hier. Nichts davon kommt in dein Buch, bis du es in einen Eintrag übernimmst.",
 "Write a line to carry on": "Schreib eine Zeile, um fortzufahren",
 "Yearly": "Jährlich",
 "Yellow · Comfortable": "Gelb · Komfortabel",
@@ -6854,7 +6987,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.3";
+const APP_VERSION = "2.3.4";
 const APP_BUILT = "2026-09-26";
 
 const KEY = "panappai.v1";
@@ -14524,9 +14657,10 @@ function setPanel(p){
   $("#viewEntries").hidden = p !== "entries";
   $("#viewShop").hidden = p !== "shop";
   $("#viewTrips").hidden = p !== "trips";
+  $("#viewCalc").hidden = p !== "calc";
   /* the month bar and add button drive the ledger only; shopping lists and
      trips aren't period-scoped, and a trip has its own add button */
-  const own = p === "shop" || p === "trips";
+  const own = p === "shop" || p === "trips" || p === "calc";
   $(".monthbar").style.display = own ? "none" : "";
   /* The helper explains the dashboard's figures, so it waits on the dashboard */
   $("#btnAsk").hidden = p !== "dash";
@@ -14536,6 +14670,7 @@ function setPanel(p){
   $$("#viewTog button[data-view]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.view === p)));
   if (p === "shop") renderShop();
   if (p === "trips") renderTrips();
+  if (p === "calc") calcRender();
 }
 /* More sits in the tab bar but is not a view — it opens a sheet over whichever
    view you were on, so it is bound separately and never takes the selection. */
@@ -15782,6 +15917,196 @@ function payWords(days){
   return { big:String(late), word:false,
            unit:"day" + (late === 1 ? "" : "s") + " late", state:"late" };
 }
+
+/* =========================================================================
+   CALCULATOR
+
+   One entry at a time and one pending operation, which is what a basic
+   calculator is: type a number, pick an operation, type another, and either
+   ask for the answer or pick a third operation, which settles the one before
+   it. Kept as a string while it is being typed — a number cannot hold "1," or
+   a leading zero — and turned into a number only to work with.
+   ========================================================================= */
+/* The history is scratch, not ledger: it stays on the phone it was worked out
+   on rather than travelling in the backup, where a column of sums would be
+   noise beside the entries. Twenty of them, newest first. */
+const CALC_KEY = "panappai.calc";
+const CALC_KEEP = 20;
+let calcLog = [];
+try{
+  const raw = JSON.parse(localStorage.getItem(CALC_KEY) || "[]");
+  if (Array.isArray(raw)) calcLog = raw.filter(r => r && typeof r.e === "string" && typeof r.v === "string").slice(0, CALC_KEEP);
+}catch(e){ calcLog = []; }
+function calcLogSave(){ try{ localStorage.setItem(CALC_KEY, JSON.stringify(calcLog)); }catch(e){} }
+
+let calcTape = [];        /* what has been typed since the last answer */
+let calcNow = "0";        /* what is being typed, with "." for the point */
+let calcAcc = null;       /* the number waiting for it */
+let calcOp = null;        /* and what to do with the two */
+let calcFresh = true;     /* the next digit starts a new number */
+
+const CALC_SIGN = { "+":"+", "-":"−", "*":"×", "/":"÷" };
+/** As typed, but in the app's own way of writing numbers. */
+function calcShow(str){
+  const neg = str.charAt(0) === "-";
+  const body = neg ? str.slice(1) : str;
+  const bits = body.split(".");
+  const whole = bits[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return (neg ? "−" : "") + whole + (bits.length > 1 ? "," + bits[1] : "");
+}
+function calcValue(){ return parseFloat(calcNow) || 0; }
+function calcHistRender(){
+  const host = $("#calcRows"), wrap = $("#calcHist");
+  if (!host) return;
+  wrap.hidden = !calcLog.length;
+  host.innerHTML = "";
+  calcLog.forEach(r => {
+    const row = el("button", "calc-row");
+    row.type = "button";
+    row.appendChild(el("span", "calc-e", r.e + " ="));
+    row.appendChild(el("span", "calc-v", calcShow(r.v)));
+    row.title = "Use " + calcShow(r.v);
+    /* an answer picked up again is where the next sum starts */
+    row.addEventListener("click", () => {
+      calcNow = r.v; calcAcc = null; calcOp = null; calcFresh = true; calcTape = [];
+      calcRender();
+      $("#calcNow").scrollIntoView({ block:"nearest" });
+    });
+    host.appendChild(row);
+  });
+}
+
+function calcRender(){
+  $("#calcNow").textContent = calcShow(calcNow);
+  $("#calcPrev").textContent = calcOp
+    ? calcShow(calcTrim(calcAcc)) + " " + CALC_SIGN[calcOp]
+    : "";
+  $$("#calcKeys .ck-op").forEach(b =>
+    b.setAttribute("aria-pressed", String(!!calcOp && calcFresh && b.dataset.k === calcOp)));
+  calcHistRender();
+}
+
+/** One line of history: what was typed, and what it came to. */
+function calcRecord(result){
+  const e = calcTape.join(" ");
+  if (!e || calcTape.length < 3) return;
+  calcLog.unshift({ e: e, v: calcTrim(result) });
+  if (calcLog.length > CALC_KEEP) calcLog.length = CALC_KEEP;
+  calcLogSave();
+}
+/** Floats bite: 0.1 + 0.2 is not 0.3, and nobody wants to see that here. */
+function calcTrim(n){
+  if (!isFinite(n)) return "0";
+  const r = Math.round(n * 1e10) / 1e10;
+  return String(r);
+}
+function calcApply(a, op, b){
+  if (op === "+") return a + b;
+  if (op === "-") return a - b;
+  if (op === "*") return a * b;
+  if (op === "/") return b === 0 ? NaN : a / b;
+  return b;
+}
+function calcSettle(){
+  if (calcOp === null) return calcValue();
+  const out = calcApply(calcAcc, calcOp, calcValue());
+  return isFinite(out) ? out : NaN;
+}
+function calcKey(k){
+  if (k === "c"){ calcNow = "0"; calcAcc = null; calcOp = null; calcFresh = true; calcTape = []; }
+  else if (k === "back"){
+    if (calcFresh) calcNow = "0";
+    else { calcNow = calcNow.length > 1 ? calcNow.slice(0, -1) : "0"; if (calcNow === "-") calcNow = "0"; }
+    if (calcNow === "0") calcFresh = true;
+  }
+  else if (k === "sign"){
+    calcNow = calcNow.charAt(0) === "-" ? calcNow.slice(1) : (calcNow === "0" ? "0" : "-" + calcNow);
+  }
+  else if (k === "pct"){ calcNow = calcTrim(calcValue() / 100); calcFresh = false; }
+  else if (k === "dot"){
+    if (calcFresh){ calcNow = "0."; calcFresh = false; }
+    else if (calcNow.indexOf(".") === -1) calcNow += ".";
+  }
+  else if (/^[0-9]$/.test(k)){
+    if (calcFresh || calcNow === "0"){ calcNow = k; calcFresh = false; }
+    else if (calcNow.replace(/[-.]/g, "").length < 12) calcNow += k;
+  }
+  else if (k === "="){
+    const out = calcSettle();
+    if (!isNaN(out) && calcOp !== null){
+      calcTape.push(calcShow(calcNow));
+      calcRecord(out);
+    }
+    calcNow = isNaN(out) ? "0" : calcTrim(out);
+    calcAcc = null; calcOp = null;
+    calcFresh = true;
+    /* the answer is where the next sum starts, so the tape starts with it */
+    calcTape = isNaN(out) ? [] : [calcShow(calcNow)];
+    if (isNaN(out)) toast("Nothing divides by zero");
+  }
+  else if (CALC_SIGN[k]){
+    /* an operator with one already pending settles that one first, so a run of
+       them reads left to right the way it was typed */
+    if (calcOp !== null && !calcFresh){
+      const out = calcSettle();
+      if (isNaN(out)){ calcKey("c"); toast("Nothing divides by zero"); return; }
+      calcTape.push(calcShow(calcNow));
+      calcAcc = out;
+      calcNow = calcTrim(out);
+    } else {
+      /* whatever is on the display opens the sum, unless one is already open */
+      if (!calcTape.length || calcOp === null) calcTape = [calcShow(calcNow)];
+      calcAcc = calcValue();
+    }
+    calcTape.push(CALC_SIGN[k]);
+    calcOp = k;
+    calcFresh = true;
+  }
+  calcRender();
+}
+$$("#calcKeys .ck").forEach(b => b.addEventListener("click", () => calcKey(b.dataset.k)));
+$("#calcWipe").addEventListener("click", async () => {
+  if (!calcLog.length) return;
+  if (!(await askConfirm({
+    title: "Clear the history?",
+    message: "The sums go; nothing in your book changes.",
+    confirm: "Clear"
+  }))) return;
+  calcLog = [];
+  calcLogSave();
+  calcHistRender();
+  toast("History cleared");
+});
+/* A keyboard is there on a laptop, and typing 12*3 should work as typed. */
+document.addEventListener("keydown", e => {
+  if (panel !== "calc" || e.ctrlKey || e.metaKey || e.altKey) return;
+  const t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+  const k = e.key;
+  let hit = null;
+  if (/^[0-9]$/.test(k)) hit = k;
+  else if (k === "." || k === ",") hit = "dot";
+  else if (k === "+" || k === "-" || k === "*" || k === "/") hit = k;
+  else if (k === "x" || k === "X") hit = "*";
+  else if (k === "Enter" || k === "=") hit = "=";
+  else if (k === "Backspace") hit = "back";
+  else if (k === "Escape" || k === "Delete") hit = "c";
+  else if (k === "%") hit = "pct";
+  if (!hit) return;
+  e.preventDefault();
+  calcKey(hit);
+});
+/* The one way out: the answer, in a new expense, as an amount typed in
+   whatever the app is showing amounts in. */
+$("#calcToEntry").addEventListener("click", () => {
+  const out = calcSettle();
+  if (!isFinite(out) || isNaN(out)){ toast("Nothing to carry over yet"); return; }
+  const v = Math.abs(Math.round(out * 100)) / 100;
+  if (!v){ toast("Nothing to carry over yet"); return; }
+  calcNow = calcTrim(out); calcAcc = null; calcOp = null; calcFresh = true; calcRender();
+  openEntry(null, "expense");
+  $("#eAmt").value = v.toFixed(2).replace(".", ",");
+});
 
 /* ---------- the welcome ---------- */
 /* Once per opening of the app. Coming back to the dashboard from the ledger
@@ -17620,7 +17945,7 @@ function applyTucks(){
   /* An arrow stands in for a control that is away; with the control showing
      there is nothing for it to do and it would only crowd it. */
   $("#askTab").hidden = panel !== "dash" || !tuckGet(ASK_TUCK_KEY);
-  $("#fabTab").hidden = panel === "shop" || panel === "trips" || !tuckGet(FAB_TUCK_KEY);
+  $("#fabTab").hidden = panel === "shop" || panel === "trips" || panel === "calc" || !tuckGet(FAB_TUCK_KEY);
 }
 $("#askTab").addEventListener("click", () => {
   tuckSet(ASK_TUCK_KEY, !tuckGet(ASK_TUCK_KEY));
