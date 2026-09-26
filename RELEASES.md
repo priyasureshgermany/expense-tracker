@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.3.5 — 2026-09-26
+- better: The calculator's history is kept with your book, so it is in the backup and on your other devices
+- fix: The five tabs line up: every glyph on one line, every label in its own column
+
 ## 2.3.4 — 2026-09-26
 - new: A calculator in the tab bar, with the sums it works out kept in a history on this phone
 - better: The face sits on its own line above the sentence about yesterday
