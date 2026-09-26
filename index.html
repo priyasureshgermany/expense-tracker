@@ -3135,7 +3135,17 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
    says when the next money comes in, and these two say what has been going the
    other way while it was awaited. Each opens the report it is the total of, so
    the figure is a way in rather than a dead end. */
-.pw-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:22px}
+.pw-stats{display:grid;grid-template-columns:1fr auto;gap:10px;width:100%;margin-top:22px}
+/* The switch is its own button beside the figure, not a second tap target
+   inside it: one tap opens the report, the other changes which report that
+   would be, and the two must not be a pixel apart. */
+.pw-swap{
+  flex:none;width:44px;border-radius:15px;display:grid;place-items:center;color:#fff;
+  background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.2);
+  backdrop-filter:blur(3px);transition:background .15s,transform .12s;
+}
+.pw-swap svg{width:17px;height:17px;opacity:.85}
+.pw-swap:active{background:rgba(255,255,255,.2);transform:scale(.94)}
 .pw-stats[hidden]{display:none}
 .pw-stat{
   display:flex;flex-direction:column;align-items:center;gap:4px;
@@ -3743,12 +3753,12 @@ html.locked #lockScreen::before{
     <div class="pw-line" id="pwLine"></div>
     <div class="pw-sub" id="pwSub"></div>
     <div class="pw-stats" id="pwStats" hidden>
-      <button class="pw-stat" id="pwYest" type="button">
-        <span>Yesterday</span>
-        <span class="pw-val"><span class="pw-face" id="pwFace" hidden><svg class="pwf" viewBox="0 0 24 24" aria-hidden="true"><circle class="pwf-o" cx="12" cy="12" r="9.3"/><circle class="pwf-e" cx="8.9" cy="10.1" r="1.25"/><circle class="pwf-e" cx="15.1" cy="10.1" r="1.25"/><path class="pwf-m pwf-up" d="M8.1 14.3c1 1.7 2.3 2.5 3.9 2.5s2.9-.8 3.9-2.5"/><path class="pwf-m pwf-dn" d="M8.1 16.7c1-1.7 2.3-2.5 3.9-2.5s2.9.8 3.9 2.5"/><path class="pwf-t" d="M15.1 12.2c0 0 1.15 1.4 1.15 2.1a1.15 1.15 0 01-2.3 0c0-.7 1.15-2.1 1.15-2.1z"/></svg></span><b id="pwYestV">—</b></span>
+      <button class="pw-stat" id="pwSpan" type="button">
+        <span id="pwSpanN">Yesterday</span>
+        <span class="pw-val"><span class="pw-face" id="pwFace" hidden><svg class="pwf" viewBox="0 0 24 24" aria-hidden="true"><circle class="pwf-o" cx="12" cy="12" r="9.3"/><circle class="pwf-e" cx="8.9" cy="10.1" r="1.25"/><circle class="pwf-e" cx="15.1" cy="10.1" r="1.25"/><path class="pwf-m pwf-up" d="M8.1 14.3c1 1.7 2.3 2.5 3.9 2.5s2.9-.8 3.9-2.5"/><path class="pwf-m pwf-dn" d="M8.1 16.7c1-1.7 2.3-2.5 3.9-2.5s2.9.8 3.9 2.5"/><path class="pwf-t" d="M15.1 12.2c0 0 1.15 1.4 1.15 2.1a1.15 1.15 0 01-2.3 0c0-.7 1.15-2.1 1.15-2.1z"/></svg></span><b id="pwSpanV">—</b></span>
       </button>
-      <button class="pw-stat" id="pwWeek" type="button">
-        <span>This week</span><b id="pwWeekV">—</b>
+      <button class="pw-swap" id="pwSwap" type="button" aria-label="Show this week">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg>
       </button>
     </div>
     <button class="pw-go" type="button">Let's go</button>
@@ -6116,8 +6126,10 @@ const I18N_DE = {
 "Show or hide amounts": "Beträge zeigen oder verbergen",
 "Show this": "Zeigen",
 "Show this again?": "Wieder zeigen?",
+"Show this week": "Diese Woche zeigen",
 "Show token": "Token zeigen",
 "Show what was bought on": "Zeigen, was gekauft wurde am",
+"Show yesterday": "Gestern zeigen",
 "Showing": "Angezeigt:",
 "Showing income only": "Nur Einnahmen",
 "Since each one's date,": "Seit dem jeweiligen Datum:",
@@ -6831,7 +6843,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.1";
+const APP_VERSION = "2.3.2";
 const APP_BUILT = "2026-09-26";
 
 const KEY = "panappai.v1";
@@ -7287,7 +7299,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop", catPicker:"grid" };
+let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop", catPicker:"grid", welcomeSpan:"yesterday" };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -7629,7 +7641,8 @@ function stateFromPayload(p){
     trips: normaliseTrips(p.trips),
     tripKinds: normaliseTripKinds(p.tripKinds),
     thirdTab: p.thirdTab === "trips" ? "trips" : "shop",
-    catPicker: p.catPicker === "bubble" ? "bubble" : "grid"
+    catPicker: p.catPicker === "bubble" ? "bubble" : "grid",
+    welcomeSpan: p.welcomeSpan === "week" ? "week" : "yesterday"
   };
   if (p.demo) st.demo = true;
   return st;
@@ -7660,7 +7673,8 @@ function stateCleared(){
     /* a kind of your own is a label, not a thing that happened, so it stays */
     tripKinds: tripKindsMine(),
     thirdTab: state.thirdTab === "trips" ? "trips" : "shop",
-    catPicker: state.catPicker === "bubble" ? "bubble" : "grid"
+    catPicker: state.catPicker === "bubble" ? "bubble" : "grid",
+    welcomeSpan: welcomeSpan()
   };
 }
 
@@ -7727,6 +7741,7 @@ function load(){
   state.tripKinds = normaliseTripKinds(state.tripKinds);
   if (state.thirdTab !== "trips") state.thirdTab = "shop";
   if (state.catPicker !== "bubble") state.catPicker = "grid";
+  if (state.welcomeSpan !== "week") state.welcomeSpan = "yesterday";
   if (!state.cats) state.cats = normaliseCats(null);
   /* Backups written before the catch-all existed have none set, which left the
      Misc envelope counting only entries tagged Misc rather than absorbing the
@@ -15087,6 +15102,7 @@ function miscSig(){
   if ((state.trips && state.trips.length) || state.thirdTab === "trips") parts.push(state.trips, state.thirdTab);
   if (tripKindsMine().length) parts.push(state.tripKinds);
   if (state.catPicker === "bubble") parts.push(state.catPicker);
+  if (state.welcomeSpan === "week") parts.push(state.welcomeSpan);
   return JSON.stringify(parts);
 }
 function ghFingerprint(){
@@ -15799,26 +15815,40 @@ function weekStart(iso){
  * week covers — a report is of what has happened — so tapping one lands on the
  * very rows it added up.
  */
+/** Yesterday unless the switch has been used, which is remembered. */
+function welcomeSpan(){ return state.welcomeSpan === "week" ? "week" : "yesterday"; }
+
+/**
+ * One figure, the one asked for. Two side by side made the screen a small
+ * report; a day is what a day's spending is judged against, and the week is a
+ * tap away for whoever wants it.
+ */
 function payWelcomeStats(){
   const row = $("#pwStats");
   if (!row) return;
-  const today = todayISO(), yst = addDays(today, -1), mon = weekStart(today);
-  /* nothing has ever been spent: two zeroes would be furniture */
+  /* nothing has ever been spent: a zero here would be furniture */
   const any = state.txns.some(t => t.type === "expense" && !isTransfer(t) && t.status === "done");
   row.hidden = !any;
   if (!any) return;
-  const yTot = spentBetween(yst, yst);
-  $("#pwYestV").textContent = fmt(yTot);
-  $("#pwWeekV").textContent = fmt(spentBetween(mon, today));
+
+  const today = todayISO(), yst = addDays(today, -1);
+  const week = welcomeSpan() === "week";
+  const total = week ? spentBetween(weekStart(today), today) : spentBetween(yst, yst);
+  $("#pwSpanN").textContent = week ? "This week" : "Yesterday";
+  $("#pwSpanV").textContent = fmt(total);
+  $("#pwSwap").setAttribute("aria-label", week ? "Show yesterday" : "Show this week");
+  $("#pwSwap").title = week ? "Show yesterday" : "Show this week";
 
   /* A hundred euro, in euro: the book is kept in cents whatever it is shown
      in, so the line is the same line in rupees. Exactly a hundred is not more
-     than a hundred, so it is a good day. */
+     than a hundred, so it is a good day. A week has no face — a hundred a day
+     would leave an ordinary week permanently sad, which says nothing. */
   const face = $("#pwFace");
-  face.hidden = amountsHidden;
-  face.classList.toggle("happy", !amountsHidden && yTot <= 10000);
-  face.classList.toggle("sad", !amountsHidden && yTot > 10000);
-  face.title = yTot <= 10000 ? "Less than 100 € yesterday" : "More than 100 € yesterday";
+  const show = !amountsHidden && !week;
+  face.hidden = !show;
+  face.classList.toggle("happy", show && total <= 10000);
+  face.classList.toggle("sad", show && total > 10000);
+  face.title = total <= 10000 ? "Less than 100 € yesterday" : "More than 100 € yesterday";
 }
 
 function payWelcomeClose(){
@@ -15925,16 +15955,28 @@ function payWelcomeGo(e, from, to){
   payWelcomeClose();
   askGoReport({ from: from, to: to, kind: "expense", tab: "table" });
 }
-$("#pwYest").addEventListener("click", e => {
+$("#pwSpan").addEventListener("click", e => {
+  if (welcomeSpan() === "week"){
+    /* the report's own 1W rather than two typed dates: the same Monday-to-today
+       stretch, but it says This week on the way in and is still this week
+       tomorrow */
+    e.stopPropagation();
+    payWelcomeClose();
+    askGoReport({ range: "week", kind: "expense", tab: "table" });
+    return;
+  }
   const y = addDays(todayISO(), -1);
   payWelcomeGo(e, y, y);
 });
-/* the report's own 1W rather than two typed dates: the same Monday-to-today
-   stretch, but it says This week on the way in and stays this week tomorrow */
-$("#pwWeek").addEventListener("click", e => {
+/* Switching is reading, not leaving: the screen stays, and its half minute
+   starts again so it cannot close between the tap and the figure being read. */
+$("#pwSwap").addEventListener("click", e => {
   e.stopPropagation();
-  payWelcomeClose();
-  askGoReport({ range: "week", kind: "expense", tab: "table" });
+  state.welcomeSpan = welcomeSpan() === "week" ? "yesterday" : "week";
+  save();
+  payWelcomeStats();
+  if (payWelcomeTimer) clearTimeout(payWelcomeTimer);
+  payWelcomeTimer = setTimeout(payWelcomeClose, 30000);
 });
 $("#payWelcome").addEventListener("click", payWelcomeClose);
 document.addEventListener("keydown", e => {
