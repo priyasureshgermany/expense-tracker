@@ -2337,6 +2337,22 @@ html.fab-tucked .fabmenu{display:none}
   padding:16px 18px calc(20px + env(safe-area-inset-bottom));
   overflow-y:auto;-webkit-overflow-scrolling:touch;
 }
+/* What a sheet is for, kept on the screen: Save on an entry, the stretch and
+   the two views on a report. A sheet can be most of a phone tall, and what it
+   is for should not be a scroll away at the bottom of it. */
+.sheet-foot{
+  flex:none;
+  padding:11px 18px calc(12px + env(safe-area-inset-bottom));
+  background:var(--surface);
+  border-top:1px solid var(--line);
+  box-shadow:0 -8px 20px rgba(15,25,34,.06);
+}
+.sheet-foot .btn{margin-top:0}
+/* the body's own bottom padding is the foot's job now */
+.sheet:has(> .sheet-foot) > .sheet-body{padding-bottom:14px}
+.rp-foot{display:flex;flex-direction:column;gap:8px}
+.rp-foot .rp-ranges{margin-bottom:0}
+.rp-foot .tabbar2{margin-bottom:0}
 
 /* ---------- Form ---------- */
 .field{margin-bottom:15px}
@@ -4001,6 +4017,8 @@ html.locked #lockScreen::before{
         </div>
       </div>
     </div>
+  </div>
+  <div class="sheet-foot">
     <button class="btn" id="eSave">Save entry</button>
     <div id="eDeleteWrap" style="display:none;margin-top:9px">
       <button class="btn danger sm" id="eDelete">Delete this entry</button>
@@ -4185,6 +4203,8 @@ html.locked #lockScreen::before{
       </div>
     </div>
 
+  </div>
+  <div class="sheet-foot">
     <button class="btn" id="rSave">Save recurring entry</button>
     <div id="rDeleteWrap" style="display:none;margin-top:9px">
       <button class="btn ghost sm" id="rPause">Pause this entry</button>
@@ -4457,16 +4477,12 @@ html.locked #lockScreen::before{
     </button>
   </div>
 
+  <!-- The stretch and the two ways of reading it, at the foot of the sheet
+       rather than the head of it: they are what a hand goes back to while it
+       reads, and the head of a long report is a scroll away. The filters that
+       are set once — the search, the kinds, the categories, the accounts —
+       stay in the body where they were. -->
   <div class="sheet-body" id="repBody">
-    <!-- which stretch of time -->
-    <div class="rp-ranges" id="repRanges">
-      <button type="button" data-range="week"   aria-pressed="false" title="This week"      aria-label="This week">1W</button>
-      <button type="button" data-range="month"  aria-pressed="true"  title="This month"     aria-label="This month">1M</button>
-      <button type="button" data-range="last12" aria-pressed="false" title="Last 12 months" aria-label="Last 12 months">12M</button>
-      <button type="button" data-range="year"   aria-pressed="false" title="This year so far" aria-label="This year so far" id="repYearBtn">2026</button>
-      <button type="button" data-range="custom" aria-pressed="false" title="Pick your own dates" aria-label="Pick your own dates">Flex</button>
-    </div>
-
     <div class="rp-basis" id="repBasisWrap">
       <span class="rp-bl">Counted by</span>
       <div class="toggle2" id="repBasis">
@@ -4522,11 +4538,6 @@ html.locked #lockScreen::before{
       <div class="rp-chips slide" id="repAcctChips"></div>
       </div>
 
-    <div class="tabbar2" id="repTabs" role="tablist">
-      <button role="tab" data-rtab="chart" aria-selected="true">Chart</button>
-      <button role="tab" data-rtab="table" aria-selected="false">Details</button>
-    </div>
-
     <!-- 1 : the shape of it -->
     <div class="rp-pane" id="repPane_chart">
       <div class="rp-chartcap" id="repChartCap" hidden>Where it went</div>
@@ -4565,6 +4576,24 @@ html.locked #lockScreen::before{
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M3 9h18M9 3v18"/></svg>
         Export Excel
       </button>
+    </div>
+  </div>
+
+  <!-- The stretch and the two ways of reading it, at the foot of the sheet
+       rather than the head of it: they are what a hand goes back to while it
+       reads, and the head of a long report is a scroll away. What is set once —
+       the search, the kinds, the categories, the accounts — stays in the body. -->
+  <div class="sheet-foot rp-foot">
+    <div class="rp-ranges" id="repRanges">
+      <button type="button" data-range="week"   aria-pressed="false" title="This week"      aria-label="This week">1W</button>
+      <button type="button" data-range="month"  aria-pressed="true"  title="This month"     aria-label="This month">1M</button>
+      <button type="button" data-range="last12" aria-pressed="false" title="Last 12 months" aria-label="Last 12 months">12M</button>
+      <button type="button" data-range="year"   aria-pressed="false" title="This year so far" aria-label="This year so far" id="repYearBtn">2026</button>
+      <button type="button" data-range="custom" aria-pressed="false" title="Pick your own dates" aria-label="Pick your own dates">Flex</button>
+    </div>
+    <div class="tabbar2" id="repTabs" role="tablist">
+      <button role="tab" data-rtab="chart" aria-selected="true">Chart</button>
+      <button role="tab" data-rtab="table" aria-selected="false">Details</button>
     </div>
   </div>
 </section>
@@ -4652,6 +4681,8 @@ html.locked #lockScreen::before{
       <div class="pick" id="teAcct" role="listbox" aria-label="Account"></div>
       <div class="note" style="margin-top:6px">What you pay goes into your ledger too, under Trip Expense, so it counts in the month and the account's balance.</div>
     </div>
+  </div>
+  <div class="sheet-foot">
     <button class="btn" type="button" id="teSave">Save expense</button>
     <div id="teDelWrap" style="display:none;margin-top:9px">
       <button class="btn danger sm" type="button" id="teDelete">Delete this expense</button>
@@ -7068,7 +7099,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.7";
+const APP_VERSION = "2.3.8";
 const APP_BUILT = "2026-09-27";
 
 const KEY = "panappai.v1";
@@ -19806,13 +19837,20 @@ function openReport(){
 }
 
 $$("#repRanges button").forEach(b => b.addEventListener("click", () => {
+  /* the stretch on show, read before the switch: asked after it, repDates()
+     is already answering for Flex, whose two boxes are the empty ones being
+     filled — which is how Flex came up as today to today rather than as the
+     month you were just looking at */
+  const was = repDates();
   repRange = b.dataset.range;
   if (repRange === "custom" && !$("#repFrom").value){
-    const r = repDates();
-    setDateVal("#repFrom", r.from);
-    setDateVal("#repTo", r.to);
+    setDateVal("#repFrom", was.from);
+    setDateVal("#repTo", was.to);
   }
   repRender();
+  /* The chips are at the foot and the two dates are up in the body, so Flex
+     asks for something that is not on the screen. Bring it there. */
+  if (repRange === "custom") $("#repCustom").scrollIntoView({ block:"center", behavior:"smooth" });
 }));
 $$("#repBasis button").forEach(b => b.addEventListener("click", () => {
   repBasis = b.dataset.v;
