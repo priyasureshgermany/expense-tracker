@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.3.9 — 2026-09-27
+- new: Data & backup exports every entry as a CSV, in a file Excel opens as it is
+
 ## 2.3.8 — 2026-09-27
 - better: Save stays on the screen: the entry, recurring and trip expense sheets keep it at the foot
 - better: A report's stretch and its Chart or Details sit at the foot of the sheet, in reach while you read

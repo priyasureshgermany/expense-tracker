@@ -5032,6 +5032,15 @@ html.locked #lockScreen::before{
       <div class="note" style="margin-top:6px">Commerzbank and Deutsche Bank CSV exports, plus most other German bank formats.</div>
     </div>
 <div class="field">
+      <label>Export</label>
+      <button class="btn ghost sm" id="csvOut">Export entries as CSV…</button>
+      <div class="note" style="margin-top:6px">
+        Every entry you have, oldest first, in a file Excel opens as it is —
+        semicolons and commas the German way. It is a copy to read, not a
+        backup: to move your book, use the backup below or GitHub sync.
+      </div>
+    </div>
+<div class="field">
       <label>Backup</label>
       <div style="display:flex;flex-direction:column;gap:8px">
         <button class="btn ghost sm" id="copyBackup">Copy backup to clipboard</button>
@@ -5345,6 +5354,7 @@ const I18N_DE = {
 "A notification on your phone or laptop the day before, and on the day.": "Eine Benachrichtigung auf deinem Telefon oder Laptop am Vortag und am Tag selbst.",
 "A reminder for anything due in the next three days.": "Eine Erinnerung für alles, was in den nächsten drei Tagen fällig ist.",
 "A report by calendar months": "Ein Bericht nach Kalendermonaten",
+"A report exports the stretch you are looking at instead — Reports › Export Excel or Export PDF.": "Ein Bericht exportiert stattdessen den Zeitraum, den du gerade ansiehst — Berichte › Excel exportieren oder PDF exportieren.",
 "A rupee trip needs the exchange rate — refresh it in Settings › Config": "Eine Rupien-Reise braucht den Wechselkurs – aktualisiere ihn unter Einstellungen › Konfiguration",
 "A saved snapshot is a record of a baseline already replaced, so deleting one changes no balance.": "Ein gespeicherter Stand ist eine Aufzeichnung eines bereits ersetzten Ausgangswerts, daher ändert sein Löschen keinen Kontostand.",
 "A security question is set — it's the only way back in if you forget the PIN.": "Eine Sicherheitsfrage ist festgelegt – sie ist der einzige Weg zurück, wenn du die PIN vergisst.",
@@ -5403,6 +5413,7 @@ const I18N_DE = {
 "Also log it as a groceries expense": "Auch als Lebensmittelausgabe erfassen",
 "Altogether that is": "Insgesamt sind das",
 "Amount": "Betrag",
+"Amounts have to be showing: tap the eye first if they are hidden.": "Die Beträge müssen sichtbar sein: tippe zuerst auf das Auge, wenn sie verborgen sind.",
 "Amounts now shown in €": "Beträge jetzt in €",
 "Amounts now shown in ₹": "Beträge jetzt in ₹",
 "An account still attached to entries cannot be removed until those entries are moved.": "Ein Konto, an dem noch Einträge hängen, lässt sich erst entfernen, wenn diese verschoben sind.",
@@ -5679,6 +5690,7 @@ const I18N_DE = {
 "Every 6 months": "Alle 6 Monate",
 "Every account is counted forward from its own snapshot, and those are added up:": "Jedes Konto wird ab seinem eigenen Stand fortgeschrieben, und diese werden addiert:",
 "Every entry this period in date order, income less expenses, with the net after each. Planned entries are included and dimmed.": "Jeder Eintrag dieses Zeitraums nach Datum, Einnahmen minus Ausgaben, mit dem Netto nach jedem. Geplante Einträge sind enthalten und abgeblendet.",
+"Every entry you have, oldest first, in a file Excel opens as it is — semicolons and commas the German way. It is a copy to read, not a backup: to move your book, use the backup below or GitHub sync.": "Alle deine Einträge, die ältesten zuerst, in einer Datei, die Excel direkt öffnet — Semikolons und Kommas auf deutsche Art. Es ist eine Kopie zum Lesen, keine Sicherung: zum Umziehen deines Buchs nimm die Sicherung unten oder GitHub-Sync.",
 "Every example entry goes and the book starts empty. This cannot be undone.": "Alle Beispieleinträge verschwinden und das Buch beginnt leer. Das kann nicht rückgängig gemacht werden.",
 "Every expense entered for": "Jede Ausgabe für",
 "Every expense that comes from a repeating entry — the M and A rows — whether it has been paid yet or not.": "Jede Ausgabe aus einem wiederkehrenden Eintrag – die Zeilen mit M und A –, ob schon bezahlt oder nicht.",
@@ -5721,11 +5733,13 @@ const I18N_DE = {
 "Explain the Expenses tile": "Erkläre die Ausgaben-Kachel",
 "Explain the Income tile": "Erkläre die Einnahmen-Kachel",
 "Explain “In the account now”": "Erkläre „Jetzt auf dem Konto“",
-"Export": "Exportieren",
+"Export": "Export",
 "Export Excel": "Excel exportieren",
 "Export PDF": "PDF exportieren",
 "Export a CSV from your bank — Commerzbank: Umsätze › Exportieren als CSV; Deutsche Bank: Umsätze › Export › CSV.": "Exportiere eine CSV bei deiner Bank – Commerzbank: Umsätze › Exportieren als CSV; Deutsche Bank: Umsätze › Export › CSV.",
 "Export a report as PDF": "Einen Bericht als PDF exportieren",
+"Export entries as CSV…": "Einträge als CSV exportieren…",
+"Export my entries to a spreadsheet": "Meine Einträge in eine Tabelle exportieren",
 "Export to Excel": "Nach Excel exportieren",
 "Family": "Familie",
 "February": "Februar",
@@ -5839,6 +5853,7 @@ const I18N_DE = {
 "It is read on the phone itself; nothing is uploaded. The Total bill is filled in from the lines.": "Er wird auf dem Telefon selbst gelesen; nichts wird hochgeladen. Die Gesamtrechnung wird aus den Zeilen ausgefüllt.",
 "It is the ledger and nothing else: a budget's unspent part is not added on top, and transfers between your own accounts are left out.": "Es ist das Buch und nichts sonst: Der ungenutzte Teil eines Budgets kommt nicht oben drauf, und Umbuchungen zwischen deinen eigenen Konten bleiben außen vor.",
 "It is the only way back if the passphrase is forgotten — without": "Sie ist der einzige Weg zurück, wenn die Passphrase vergessen ist – ohne",
+"It opens in Excel as it is. It is a copy to read: to move your book to another device use the backup box, or GitHub sync.": "Sie öffnet sich direkt in Excel. Es ist eine Kopie zum Lesen: um dein Buch auf ein anderes Gerät zu bringen, nimm das Sicherungsfeld oder GitHub-Sync.",
 "It stays half a minute; a tap anywhere, Escape or Let's go closes it. With amounts hidden, the face and its line go too.": "Er bleibt eine halbe Minute; ein Tippen irgendwo, Escape oder Los geht's schließt ihn. Bei verborgenen Beträgen verschwinden auch Gesicht und Zeile.",
 "It works everywhere the built-in ones do. A category that entries still use cannot be deleted until they are moved to another.": "Sie funktioniert überall wie die eingebauten. Eine Kategorie, die Einträge noch verwenden, lässt sich erst löschen, wenn diese verschoben sind.",
 "Item name from the receipt": "Artikelname vom Beleg",
@@ -5919,6 +5934,7 @@ const I18N_DE = {
 "More › Settings › Config › Shopping or trips": "Mehr › Einstellungen › Konfiguration › Einkauf oder Reisen",
 "More › Settings › Config › Trip expenses, then Trips": "Mehr › Einstellungen › Konfiguration › Reiseausgaben, dann Reisen",
 "More › Settings › Data & backup › Delete all entries": "Mehr › Einstellungen › Daten & Sicherung › Alle Einträge löschen",
+"More › Settings › Data & backup › Export": "Mehr › Einstellungen › Daten & Sicherung › Export",
 "More › Settings › Data & backup › Import CSV": "Mehr › Einstellungen › Daten & Sicherung › CSV importieren",
 "More › Settings › Feedback": "Mehr › Einstellungen › Feedback",
 "More › Settings › GitHub sync": "Mehr › Einstellungen › GitHub-Sync",
@@ -6022,6 +6038,7 @@ const I18N_DE = {
 "Nothing spent yet": "Noch nichts ausgegeben",
 "Nothing to carry over yet": "Noch nichts zum Übernehmen",
 "Nothing to choose from yet.": "Noch nichts zur Auswahl.",
+"Nothing to export yet": "Noch nichts zu exportieren",
 "Nothing went on one-offs this period.": "In diesem Zeitraum ging nichts für Einmaliges drauf.",
 "Nothing — each stands alone": "Nichts – jedes steht für sich",
 "Notifications": "Benachrichtigungen",
@@ -6419,6 +6436,7 @@ const I18N_DE = {
 "Tap Encrypt this device and choose a passphrase.": "Tippe auf Dieses Gerät verschlüsseln und wähle eine Passphrase.",
 "Tap Export Excel.": "Tippe auf Excel exportieren.",
 "Tap Export PDF, then choose Save as PDF in the print dialog.": "Tippe auf PDF exportieren und wähle dann im Druckdialog Als PDF speichern.",
+"Tap Export entries as CSV — every entry you have, oldest first.": "Tippe auf Einträge als CSV exportieren — alle deine Einträge, die ältesten zuerst.",
 "Tap Feedback for an idea, or Report a bug for something that went wrong.": "Tippe auf Feedback für eine Idee oder auf Fehler melden für etwas, das schiefging.",
 "Tap Income or Expenses for every entry behind it, or Net for the whole period in date order.": "Tippe auf Einnahmen oder Ausgaben für jeden Eintrag dahinter, oder auf Netto für den ganzen Zeitraum nach Datum.",
 "Tap More, then Reports.": "Tippe auf Mehr, dann auf Berichte.",
@@ -7099,7 +7117,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.8";
+const APP_VERSION = "2.3.9";
 const APP_BUILT = "2026-09-27";
 
 const KEY = "panappai.v1";
@@ -17595,6 +17613,16 @@ const ASK_TOPICS = [
     words:["welcome screen", "opening screen", "face", "smiley", "sad face", "yesterday spending", "this week spending", "countdown screen",
             "begrüßungsbildschirm", "begrüßung", "gesicht", "gestern ausgegeben"],
     build:askWelcome },
+  { g:"howto", q:"Export my entries to a spreadsheet",
+    words:["export", "csv", "excel", "spreadsheet", "download my entries", "open in excel",
+           "exportieren", "tabelle", "herunterladen"],
+    build:howTo("Export my entries to a spreadsheet", "More › Settings › Data & backup › Export", [
+      "Open More › Settings › Data & backup.",
+      "Tap Export entries as CSV — every entry you have, oldest first.",
+      "Amounts have to be showing: tap the eye first if they are hidden."],
+      ["It opens in Excel as it is. It is a copy to read: to move your book to another device use the backup box, or GitHub sync.",
+       "A report exports the stretch you are looking at instead — Reports › Export Excel or Export PDF."],
+      [["Open Data & backup", ASK_GO.settings("data")]]) },
   { g:"howto", q:"Use the calculator", words:["calculator", "calculate", "add up", "work out", "sum", "split the bill", "maths", "math", "percentage", "per cent",
             "rechner", "rechnen", "ausrechnen", "prozent", "summe"],
     build:howTo("Use the calculator", "The Calculator tab", [
@@ -20109,6 +20137,48 @@ function buildXlsx(rows, sheetName){
   ]);
 }
 
+/* =========================================================================
+   CSV of the whole book
+
+   A copy to read, not a backup: it holds what each entry is, not the setup
+   around it, and nothing reads it back. Written the way a German Excel
+   expects — semicolons between the cells, commas inside the numbers, and a
+   byte-order mark so the umlauts and the € survive being opened.
+   ========================================================================= */
+function csvCell(v){
+  const t = String(v == null ? "" : v);
+  return /[";\r\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+}
+function csvAmount(cents){ return ((cents || 0) / 100).toFixed(2).replace(".", ","); }
+
+function buildEntriesCsv(){
+  const rows = [["Date", "Type", "Category", "Note", "Account", "From account",
+                 "Income", "Expense", "Status", "Repeats", "Typed", "Currency"]];
+  state.txns.slice()
+    .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.id < b.id ? -1 : 1))
+    .forEach(t => {
+      const xfer = isTransfer(t);
+      rows.push([
+        t.date,
+        xfer ? "Transfer" : (t.type === "income" ? "Income" : "Expense"),
+        xfer ? "Self transfer" : catOf(t.category).n,
+        t.note || "",
+        acctName(t.account) || "",
+        xfer ? (acctName(t.fromAccount) || "") : "",
+        t.type === "income" && !xfer ? csvAmount(t.amount) : "",
+        t.type === "expense" && !xfer ? csvAmount(t.amount) : "",
+        t.status === "planned" ? "Planned" : "Paid",
+        /* made by a recurring rule, and which kind the rule is: A when the
+           bank takes it, M when you pay it yourself */
+        t.ruleId ? (ruleAuto(ruleFor(t.ruleId)) ? "Automatic" : "Manual") : "",
+        t.orig ? csvAmount(t.orig.amount) : "",
+        t.orig ? t.orig.cur : ""
+      ]);
+    });
+  /* \uFEFF for Excel, \r\n because that is what a CSV is */
+  return "\uFEFF" + rows.map(r => r.map(csvCell).join(";")).join("\r\n") + "\r\n";
+}
+
 function saveBlob(blob, name){
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -20175,6 +20245,18 @@ function repExportRows(){
   out.push([{ v:"Net", h:1 }, null, null, null, null, { v:tot.net, t:"m" }]);
   return out;
 }
+
+$("#csvOut").addEventListener("click", () => {
+  if (amountsHidden){ toast("Tap the eye to show amounts before exporting"); return; }
+  if (!state.txns.length){ toast("Nothing to export yet"); return; }
+  try{
+    const blob = new Blob([buildEntriesCsv()], { type:"text/csv;charset=utf-8" });
+    saveBlob(blob, "panappai-entries-" + todayISO() + ".csv");
+    toast(state.txns.length + " entries saved");
+  }catch(e){
+    toast("Couldn't build the file — " + (e && e.message ? e.message : "unknown"));
+  }
+});
 
 $("#repXlsx").addEventListener("click", () => {
   if (amountsHidden){
