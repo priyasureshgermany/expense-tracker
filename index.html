@@ -3234,11 +3234,24 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .pw-scene[hidden]{display:none}
 .pw-scene svg{width:100%;height:auto;overflow:visible}
 
-/* the wallet: a warm outline, since it is the thing being emptied */
-.sc-wal{fill:none;stroke:rgba(255,255,255,.62);stroke-width:2.1;stroke-linejoin:round}
-.sc-body{fill:rgba(255,255,255,.10)}
-.sc-clip{fill:rgba(255,255,255,.14);stroke-width:1.6}
-.sc-flap{stroke-linecap:round;transform-box:fill-box;transform-origin:0% 100%}
+/* The wallet, drawn as one: notes standing in the back pocket, a front panel
+   that tips open on its own foot, a seam of stitching along it and a snap at
+   the top. A rounded box with a line over it read as a box with a line over
+   it; this reads as something you would put in a pocket. */
+.sc-wal{fill:none;stroke:rgba(255,255,255,.66);stroke-width:2.1;stroke-linejoin:round;stroke-linecap:round}
+/* Solid rather than see-through, so it reads as an object with an inside:
+   the notes stand between the two panels and the front one hides them. */
+.sc-back{fill:rgba(5,48,66,.72)}
+.sc-fr{fill:rgba(9,74,97,.96)}
+.sc-tab{fill:rgba(9,74,97,.96);stroke-width:2}
+/* the notes are the one pale thing in it, so they read as paper */
+.sc-bill rect{fill:rgba(233,255,248,.9);stroke:rgba(255,255,255,.5);stroke-width:1.2}
+.sc-mark{stroke:rgba(10,66,78,.5);stroke-width:1.6}
+.sc-stitch{stroke:rgba(255,255,255,.4);stroke-width:1.3;stroke-dasharray:3 3.4}
+.sc-stud{fill:rgba(255,255,255,.55);stroke-width:1.3}
+/* the front tips forward from its foot, the notes rise as one goes */
+.sc-front{transform-box:fill-box;transform-origin:50% 100%}
+.sc-bills{transform-box:fill-box;transform-origin:50% 100%}
 
 /* coins in the app's own gold, the colour of the € on its icon */
 .sc-coin{opacity:0}
@@ -3270,11 +3283,17 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   86%  {transform:translate(236px,78px) scale(.72) rotate(450deg);opacity:0}
   100% {transform:translate(236px,78px) scale(.72) rotate(450deg);opacity:0}
 }
-@keyframes sc-flap{
-  0%,4%{transform:rotate(0deg)}
-  10%{transform:rotate(-11deg)}
-  40%{transform:rotate(-8deg)}
-  56%,100%{transform:rotate(0deg)}
+@keyframes sc-open{
+  0%,4%{transform:rotate(0deg) translateY(0)}
+  12%{transform:rotate(7deg) translateY(1px)}
+  42%{transform:rotate(5deg) translateY(1px)}
+  58%,100%{transform:rotate(0deg) translateY(0)}
+}
+@keyframes sc-lift{
+  0%,6%{transform:translateY(0) rotate(0deg)}
+  16%{transform:translateY(-3px) rotate(-1.5deg)}
+  46%{transform:translateY(-2px) rotate(-1deg)}
+  62%,100%{transform:translateY(0) rotate(0deg)}
 }
 @keyframes sc-blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
 /* pleased: it lifts as the last coin lands */
@@ -3304,7 +3323,8 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .pw-scene .k3{animation-delay:.68s}
 .pw-scene .k4{animation-delay:.95s}
 .pw-scene .k5{animation-delay:1.2s}
-.pw-scene .sc-flap{animation:sc-flap 3.4s ease-in-out infinite}
+.pw-scene .sc-front{animation:sc-open 3.4s ease-in-out infinite}
+.pw-scene .sc-bills{animation:sc-lift 3.4s ease-in-out infinite}
 .pw-scene .sc-face{transform-box:fill-box;transform-origin:50% 85%}
 .pw-scene.happy .sc-face{animation:sc-glad 3.4s cubic-bezier(.3,.7,.3,1) infinite}
 .pw-scene.happy .sc-e{animation:sc-blink 4.6s ease-in-out infinite}
@@ -3313,7 +3333,8 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 /* Motion turned down: the wallet, the face and one coin on its way, held
    still. The drawing still says which day it was. */
 @media (prefers-reduced-motion:reduce){
-  .pw-scene .sc-coin,.pw-scene .sc-flap,.pw-scene .sc-face,.pw-scene .sc-e,.pw-scene .sc-t{animation:none}
+  .pw-scene .sc-coin,.pw-scene .sc-front,.pw-scene .sc-bills,
+  .pw-scene .sc-face,.pw-scene .sc-e,.pw-scene .sc-t{animation:none}
   .pw-scene .k1{opacity:1;transform:translate(150px,22px)}
   .pw-scene.sad .sc-t{opacity:.95}
 }
@@ -4003,7 +4024,7 @@ html.locked #lockScreen::before{
     </div>
     <div class="pw-line" id="pwLine"></div>
     <div class="pw-sub" id="pwSub"></div>
-    <div class="pw-scene" id="pwFace" hidden><svg viewBox="0 0 300 96" aria-hidden="true"><g class="sc-wal"><rect class="sc-body" x="14" y="46" width="70" height="36" rx="9"/><path class="sc-flap" d="M16 52v-5a7 7 0 017-7h52a7 7 0 017 7v5"/><rect class="sc-clip" x="58" y="58" width="26" height="13" rx="6.5"/></g><g class="sc-coin k1"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k2"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k3"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k5"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k4"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-face"><circle class="sc-o" cx="252" cy="56" r="20"/><circle class="sc-e" cx="244.6" cy="50" r="2.4"/><circle class="sc-e" cx="259.4" cy="50" r="2.4"/><path class="sc-m sc-up" d="M243 62.5c2 3.6 5 5.3 9 5.3s7-1.7 9-5.3"/><path class="sc-m sc-dn" d="M243 68c2-3.6 5-5.3 9-5.3s7 1.7 9 5.3"/><path class="sc-t" d="M259.4 53.4c0 0 2.4 3 2.4 4.4a2.4 2.4 0 01-4.8 0c0-1.4 2.4-4.4 2.4-4.4z"/></g></svg></div>
+    <div class="pw-scene" id="pwFace" hidden><svg viewBox="0 0 300 96" aria-hidden="true"><g class="sc-wal"><rect class="sc-back" x="18" y="46" width="78" height="38" rx="8"/><g class="sc-bills"><g class="sc-bill" transform="rotate(-6 60 48)"><rect x="44" y="34" width="34" height="22" rx="2.6"/><path class="sc-mark" d="M49 42h12"/></g><g class="sc-bill" transform="rotate(4 52 50)"><rect x="36" y="38" width="32" height="20" rx="2.6"/><path class="sc-mark" d="M41 45h10"/></g></g><g class="sc-front"><path class="sc-tab" d="M49 56v-4.2a8 8 0 0116 0V56"/><rect class="sc-fr" x="18" y="56" width="78" height="28" rx="8"/><path class="sc-stitch" d="M24 62.5h66"/><circle class="sc-stud" cx="57" cy="56.5" r="3.1"/></g></g><g class="sc-coin k1"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k2"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k3"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k5"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k4"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-face"><circle class="sc-o" cx="252" cy="56" r="20"/><circle class="sc-e" cx="244.6" cy="50" r="2.4"/><circle class="sc-e" cx="259.4" cy="50" r="2.4"/><path class="sc-m sc-up" d="M243 62.5c2 3.6 5 5.3 9 5.3s7-1.7 9-5.3"/><path class="sc-m sc-dn" d="M243 68c2-3.6 5-5.3 9-5.3s7 1.7 9 5.3"/><path class="sc-t" d="M259.4 53.4c0 0 2.4 3 2.4 4.4a2.4 2.4 0 01-4.8 0c0-1.4 2.4-4.4 2.4-4.4z"/></g></svg></div>
     <div class="pw-say" id="pwSay" hidden><span id="pwSayT"></span></div>
     <div class="pw-stats" id="pwStats" hidden>
       <button class="pw-stat" id="pwSpan" type="button">
@@ -7184,7 +7205,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.10";
+const APP_VERSION = "2.3.11";
 const APP_BUILT = "2026-09-27";
 
 const KEY = "panappai.v1";

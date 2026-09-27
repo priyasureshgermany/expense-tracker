@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.3.11 — 2026-09-27
+- better: The wallet on the welcome screen is drawn as one: notes standing inside it, a snap on top, stitching along the front
+
 ## 2.3.10 — 2026-09-27
 - better: Yesterday plays out across the card: coins leaving a wallet, and the face reacting after they land
 - better: The switch beside the figure is peacock, lit against the card rather than cutting across it
