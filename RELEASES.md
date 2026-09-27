@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 2.3.10 — 2026-09-27
+- better: Yesterday plays out across the card: coins leaving a wallet, and the face reacting after they land
+- better: The switch beside the figure is peacock, lit against the card rather than cutting across it
+
 ## 2.3.9 — 2026-09-27
 - new: Data & backup exports every entry as a CSV, in a file Excel opens as it is
 
