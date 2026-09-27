@@ -3187,13 +3187,21 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 /* The switch is its own button beside the figure, not a second tap target
    inside it: one tap opens the report, the other changes which report that
    would be, and the two must not be a pixel apart. */
+/* Peacock: the card's own blue-green, taken two shades brighter. It belongs to
+   the gradient behind it rather than cutting across it, and is still the one
+   lit thing on that side of the card — which is what a control you are meant
+   to find needs to be. */
 .pw-swap{
-  flex:none;width:44px;border-radius:15px;display:grid;place-items:center;color:#fff;
-  background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.2);
-  backdrop-filter:blur(3px);transition:background .15s,transform .12s;
+  flex:none;width:44px;border-radius:15px;display:grid;place-items:center;
+  color:#062A35;
+  background:linear-gradient(140deg,#4FD6E6,#1394B8);
+  border:1px solid rgba(255,255,255,.45);
+  box-shadow:0 3px 14px rgba(8,90,120,.42), inset 0 1px 0 rgba(255,255,255,.55);
+  transition:filter .15s,transform .12s;
 }
-.pw-swap svg{width:17px;height:17px;opacity:.85}
-.pw-swap:active{background:rgba(255,255,255,.2);transform:scale(.94)}
+.pw-swap svg{width:18px;height:18px;opacity:1;stroke-width:2.2}
+.pw-swap:hover{filter:brightness(1.06)}
+.pw-swap:active{transform:scale(.94);filter:brightness(.96)}
 .pw-stats[hidden]{display:none}
 .pw-stat{
   display:flex;flex-direction:column;align-items:center;gap:4px;
@@ -3211,45 +3219,103 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   font-size:15.5px;font-weight:700;letter-spacing:-.01em;
   font-variant-numeric:tabular-nums;text-shadow:0 2px 10px rgba(0,0,0,.24);
 }
-/* How yesterday went, at a glance and before the number is read: a hundred
-   euro in a day is the line, under it the face is pleased and over it it is
-   not. It is drawn from the same figure beside it and says nothing the figure
-   does not — which is why it goes away with the amounts when the eye is shut,
-   rather than announcing through the mask whether the day was over a hundred. */
-.pw-face{display:none;flex:none;line-height:0}
-.pw-face.happy,.pw-face.sad{display:block}
-.pw-face[hidden]{display:none}
-.pwf{width:36px;height:36px;overflow:visible}
-.pwf circle,.pwf path{
-  fill:none;stroke:currentColor;stroke-width:1.7;
-  stroke-linecap:round;stroke-linejoin:round;
-}
-.pwf-e{fill:currentColor;stroke:none;transform-box:fill-box;transform-origin:center}
-.pwf-t{fill:currentColor;stroke:none;opacity:0}
-.pw-face.happy{color:#7BF3C2}
-.pw-face.sad{color:#FFC46B}
-.pw-face.happy .pwf-dn,.pw-face.sad .pwf-up{display:none}
+/* ---------- yesterday, played out ----------
 
-/* A bob and a blink when it is pleased; a slow sway and one tear when it is
-   not. Both loop quietly — the screen is up for half a minute and a face that
-   never settles would be the loudest thing on it. */
-@keyframes pwf-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-@keyframes pwf-sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
-@keyframes pwf-blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.12)}}
-@keyframes pwf-tear{
-  0%,55%{opacity:0;transform:translateY(0) scale(.7)}
-  65%{opacity:.95;transform:translateY(0) scale(1)}
-  95%{opacity:0;transform:translateY(5px) scale(.9)}
-  100%{opacity:0;transform:translateY(5px) scale(.9)}
+   A face of nineteen pixels beside a ring of a hundred and eighty said what it
+   had to say and looked like a footnote doing it. This is the width of the
+   card and the height of a line of the countdown: a wallet at the left, coins
+   leaving it in an arc, and at the right the face they land in front of,
+   reacting after they pass — pleased on a day under a hundred euro, not on a
+   day over it. Three coins go on a good day and five on a bad one, quicker,
+   which is the only figure in the drawing and an honest one.
+   -------------------------------------------------------------------------- */
+.pw-scene{display:none;width:100%;margin:2px 0 -2px;line-height:0}
+.pw-scene.happy,.pw-scene.sad{display:block}
+.pw-scene[hidden]{display:none}
+.pw-scene svg{width:100%;height:auto;overflow:visible}
+
+/* the wallet: a warm outline, since it is the thing being emptied */
+.sc-wal{fill:none;stroke:rgba(255,255,255,.62);stroke-width:2.1;stroke-linejoin:round}
+.sc-body{fill:rgba(255,255,255,.10)}
+.sc-clip{fill:rgba(255,255,255,.14);stroke-width:1.6}
+.sc-flap{stroke-linecap:round;transform-box:fill-box;transform-origin:0% 100%}
+
+/* coins in the app's own gold, the colour of the € on its icon */
+.sc-coin{opacity:0}
+.sc-coin circle{fill:#F5C44B}
+.sc-coin .sc-rim{fill:none;stroke:rgba(255,255,255,.55);stroke-width:1.4}
+.sc-coin text{
+  fill:#6A4B05;font-size:11px;font-weight:800;text-anchor:middle;
+  font-family:var(--font),system-ui,sans-serif;
 }
-.pw-face.happy .pwf{animation:pwf-bob 1.9s ease-in-out infinite}
-.pw-face.happy .pwf-e{animation:pwf-blink 4.2s ease-in-out infinite}
-.pw-face.sad .pwf{animation:pwf-sway 3.4s ease-in-out infinite;transform-origin:50% 90%}
-.pw-face.sad .pwf-t{animation:pwf-tear 3.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-/* with motion turned down the face still says which one it is */
+
+/* the face at the end of the arc */
+.sc-face circle,.sc-face path{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sc-e{fill:currentColor;stroke:none;transform-box:fill-box;transform-origin:center}
+.sc-t{fill:currentColor;stroke:none;opacity:0}
+.pw-scene.happy{color:#7BF3C2}
+.pw-scene.sad{color:#FFC46B}
+.pw-scene.happy .sc-dn,.pw-scene.sad .sc-up{display:none}
+/* a good day keeps two of the five coins in the wallet */
+.pw-scene.happy .k4,.pw-scene.happy .k5{display:none}
+
+/* The loop: the money goes first, the face answers for it. One turn is three
+   and a half seconds, and the screen is up for half a minute, so it plays
+   eight or nine times — which is why nothing in it flashes. */
+@keyframes sc-fly{
+  0%   {transform:translate(72px,60px) scale(.45) rotate(0deg);opacity:0}
+  10%  {transform:translate(88px,44px) scale(1) rotate(50deg);opacity:1}
+  42%  {transform:translate(150px,22px) scale(1) rotate(210deg);opacity:1}
+  68%  {transform:translate(204px,44px) scale(.95) rotate(350deg);opacity:.95}
+  86%  {transform:translate(236px,78px) scale(.72) rotate(450deg);opacity:0}
+  100% {transform:translate(236px,78px) scale(.72) rotate(450deg);opacity:0}
+}
+@keyframes sc-flap{
+  0%,4%{transform:rotate(0deg)}
+  10%{transform:rotate(-11deg)}
+  40%{transform:rotate(-8deg)}
+  56%,100%{transform:rotate(0deg)}
+}
+@keyframes sc-blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+/* pleased: it lifts as the last coin lands */
+@keyframes sc-glad{
+  0%,52%{transform:translate(0,0) scale(1)}
+  64%{transform:translate(0,-5px) scale(1.07)}
+  76%{transform:translate(0,0) scale(1)}
+  86%{transform:translate(0,-2px) scale(1.03)}
+  100%{transform:translate(0,0) scale(1)}
+}
+/* not pleased: it sags under them */
+@keyframes sc-glum{
+  0%,52%{transform:translate(0,0) rotate(0deg)}
+  64%{transform:translate(0,3px) rotate(-7deg)}
+  78%{transform:translate(0,4px) rotate(6deg)}
+  92%{transform:translate(0,3px) rotate(-3deg)}
+  100%{transform:translate(0,0) rotate(0deg)}
+}
+@keyframes sc-tear{
+  0%,62%{opacity:0;transform:translate(0,0) scale(.6)}
+  72%{opacity:.95;transform:translate(0,0) scale(1)}
+  96%{opacity:0;transform:translate(0,7px) scale(.85)}
+  100%{opacity:0;transform:translate(0,7px) scale(.85)}
+}
+.pw-scene .sc-coin{animation:sc-fly 3.4s cubic-bezier(.34,.05,.5,1) infinite}
+.pw-scene .k2{animation-delay:.34s}
+.pw-scene .k3{animation-delay:.68s}
+.pw-scene .k4{animation-delay:.95s}
+.pw-scene .k5{animation-delay:1.2s}
+.pw-scene .sc-flap{animation:sc-flap 3.4s ease-in-out infinite}
+.pw-scene .sc-face{transform-box:fill-box;transform-origin:50% 85%}
+.pw-scene.happy .sc-face{animation:sc-glad 3.4s cubic-bezier(.3,.7,.3,1) infinite}
+.pw-scene.happy .sc-e{animation:sc-blink 4.6s ease-in-out infinite}
+.pw-scene.sad .sc-face{animation:sc-glum 3.4s ease-in-out infinite}
+.pw-scene.sad .sc-t{animation:sc-tear 3.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+/* Motion turned down: the wallet, the face and one coin on its way, held
+   still. The drawing still says which day it was. */
 @media (prefers-reduced-motion:reduce){
-  .pw-face .pwf,.pw-face .pwf-e,.pw-face .pwf-t{animation:none}
-  .pw-face.sad .pwf-t{opacity:.95}
+  .pw-scene .sc-coin,.pw-scene .sc-flap,.pw-scene .sc-face,.pw-scene .sc-e,.pw-scene .sc-t{animation:none}
+  .pw-scene .k1{opacity:1;transform:translate(150px,22px)}
+  .pw-scene.sad .sc-t{opacity:.95}
 }
 .pw-go{
   margin-top:22px;padding:11px 30px;border-radius:99px;
@@ -3937,7 +4003,8 @@ html.locked #lockScreen::before{
     </div>
     <div class="pw-line" id="pwLine"></div>
     <div class="pw-sub" id="pwSub"></div>
-    <div class="pw-say" id="pwSay" hidden><span class="pw-face" id="pwFace" hidden><svg class="pwf" viewBox="0 0 24 24" aria-hidden="true"><circle class="pwf-o" cx="12" cy="12" r="9.3"/><circle class="pwf-e" cx="8.9" cy="10.1" r="1.25"/><circle class="pwf-e" cx="15.1" cy="10.1" r="1.25"/><path class="pwf-m pwf-up" d="M8.1 14.3c1 1.7 2.3 2.5 3.9 2.5s2.9-.8 3.9-2.5"/><path class="pwf-m pwf-dn" d="M8.1 16.7c1-1.7 2.3-2.5 3.9-2.5s2.9.8 3.9 2.5"/><path class="pwf-t" d="M15.1 12.2c0 0 1.15 1.4 1.15 2.1a1.15 1.15 0 01-2.3 0c0-.7 1.15-2.1 1.15-2.1z"/></svg></span><span id="pwSayT"></span></div>
+    <div class="pw-scene" id="pwFace" hidden><svg viewBox="0 0 300 96" aria-hidden="true"><g class="sc-wal"><rect class="sc-body" x="14" y="46" width="70" height="36" rx="9"/><path class="sc-flap" d="M16 52v-5a7 7 0 017-7h52a7 7 0 017 7v5"/><rect class="sc-clip" x="58" y="58" width="26" height="13" rx="6.5"/></g><g class="sc-coin k1"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k2"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k3"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k5"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-coin k4"><circle r="9.5"/><ellipse class="sc-rim" rx="9.5" ry="9.5"/><text y="3.7">€</text></g><g class="sc-face"><circle class="sc-o" cx="252" cy="56" r="20"/><circle class="sc-e" cx="244.6" cy="50" r="2.4"/><circle class="sc-e" cx="259.4" cy="50" r="2.4"/><path class="sc-m sc-up" d="M243 62.5c2 3.6 5 5.3 9 5.3s7-1.7 9-5.3"/><path class="sc-m sc-dn" d="M243 68c2-3.6 5-5.3 9-5.3s7 1.7 9 5.3"/><path class="sc-t" d="M259.4 53.4c0 0 2.4 3 2.4 4.4a2.4 2.4 0 01-4.8 0c0-1.4 2.4-4.4 2.4-4.4z"/></g></svg></div>
+    <div class="pw-say" id="pwSay" hidden><span id="pwSayT"></span></div>
     <div class="pw-stats" id="pwStats" hidden>
       <button class="pw-stat" id="pwSpan" type="button">
         <span id="pwSpanN">Yesterday</span>
@@ -7117,7 +7184,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.9";
+const APP_VERSION = "2.3.10";
 const APP_BUILT = "2026-09-27";
 
 const KEY = "panappai.v1";
