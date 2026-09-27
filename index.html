@@ -1676,6 +1676,10 @@ div.rp-rem:hover{background:none}
 /* ---------- Bottom bar ---------- */
 /* Clears the fixed tab bar plus the FAB sitting above it. */
 .spacer{height:calc(104px + env(safe-area-inset-bottom))}
+/* The calculator is measured to the viewport and keeps its own room for the
+   bar, so the spacer would only give the page 104px to slide — and sliding is
+   what puts the keys back out of reach. */
+#viewCalc:not([hidden]) ~ .spacer{display:none}
 
 .tabbar{
   position:fixed;left:0;right:0;bottom:0;z-index:28;
@@ -3250,7 +3254,27 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
    one way out of it is the button that carries the answer into a new entry,
    where it is an amount like any other you would have typed.
    -------------------------------------------------------------------------- */
-.calcwrap{padding:14px 14px 0;max-width:var(--shell);margin:0 auto}
+/* The keys sit at the foot of the screen, where a thumb is, and the history
+   fills whatever is left above them and slides on its own. Laid out rather than
+   left in the flow: a history of twenty would otherwise push the keypad down
+   the page, which is exactly the hand it was meant to save. */
+/* Bounded rather than flexed: the shell's min-height lets it grow with its
+   content, so flex:1 would have handed the keypad as much room as it asked for
+   and pushed it off the foot of the screen. A height measured from the
+   viewport, less the bar at the top, is what pins it. */
+#viewCalc{
+  display:flex;flex-direction:column;
+  height:calc(100dvh - var(--topbar-h, 56px));
+}
+.calcwrap{
+  display:flex;flex-direction:column;flex:1;min-height:0;
+  padding:12px 14px 0;width:100%;max-width:var(--shell);margin:0 auto;
+  /* a screen too short for the keypad — a laptop window, or a phone with the
+     keyboard up — scrolls here rather than leaving the last row unreachable */
+  overflow-y:auto;
+}
+.calc-top{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+.calc-foot{flex:none;padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 .calc-out{
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
   padding:16px 16px 14px;text-align:right;overflow:hidden;
@@ -3279,10 +3303,17 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .ck-op{color:var(--accent);font-weight:700}
 .ck-op[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
 .ck-eq{background:linear-gradient(135deg,var(--accent-mid),var(--accent));color:var(--accent-ink);border-color:transparent}
-#calcToEntry{margin-top:12px}
+#calcToEntry{margin-top:10px}
+/* a short screen gets shorter keys before it gets a scroll */
+@media (max-height:680px){
+  .ck{height:46px;font-size:18px}
+  .calc-keys{gap:6px;margin-top:10px}
+  .calc-now{font-size:27px}
+  .calc-out{padding:12px 14px 11px}
+}
 /* What has been worked out, newest first: tap one to bring its answer back
    into the display and carry on from it. */
-.calc-hist{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.calc-hist{margin-bottom:12px}
 .calc-hist[hidden]{display:none}
 .calc-histh{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .calc-histh span{
@@ -3761,6 +3792,20 @@ html.locked #lockScreen::before{
 
   <div id="viewCalc" hidden>
     <div class="calcwrap">
+      <div class="calc-top">
+        <div class="calc-hist" id="calcHist" hidden>
+          <div class="calc-histh">
+            <span>History</span>
+            <button class="calc-clear" type="button" id="calcWipe">Clear</button>
+          </div>
+          <div id="calcRows"></div>
+        </div>
+        <div class="note">
+          The history is kept with your book, so it is in the backup and on your
+          other devices. An answer only becomes an entry when you say so.
+        </div>
+      </div>
+      <div class="calc-foot">
       <div class="calc-out">
         <div class="calc-prev" id="calcPrev"></div>
         <div class="calc-now" id="calcNow">0</div>
@@ -3790,16 +3835,6 @@ html.locked #lockScreen::before{
         <button type="button" class="ck ck-eq" data-k="=" aria-label="Equals">=</button>
       </div>
       <button class="btn ghost" type="button" id="calcToEntry">Use in a new entry</button>
-      <div class="calc-hist" id="calcHist" hidden>
-        <div class="calc-histh">
-          <span>History</span>
-          <button class="calc-clear" type="button" id="calcWipe">Clear</button>
-        </div>
-        <div id="calcRows"></div>
-      </div>
-      <div class="note" style="margin-top:10px">
-        The history is kept with your book, so it is in the backup and on your
-        other devices. An answer only becomes an entry when you say so.
       </div>
     </div>
   </div>
@@ -4706,24 +4741,14 @@ html.locked #lockScreen::before{
       <span class="sr-t"><b>Your profile</b><span>Name and email</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
-    <button class="setrow" type="button" data-pane="accounts">
-      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d='M3 9.5L12 4l9 5.5'/><path d='M5 10.5v7M9.7 10.5v7M14.3 10.5v7M19 10.5v7'/><path d='M3 20.5h18'/></svg></span>
-      <span class="sr-t"><b>Accounts</b><span>Where your money sits</span></span>
-      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-    <button class="setrow" type="button" data-pane="config">
-      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span>
-      <span class="sr-t"><b>Config</b><span>Currency, trips, language</span></span>
+    <button class="setrow" type="button" data-pane="data">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></svg></span>
+      <span class="sr-t"><b>Data & backup</b><span>Import, copy, restore, wipe</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow" type="button" data-pane="rules">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg></span>
       <span class="sr-t"><b>Recurring entries</b><span id="setRulesSub">Rent, salary, subscriptions</span></span>
-      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-    <button class="setrow" type="button" data-pane="feedback">
-      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.1-3.9A8.4 8.4 0 1121 11.5z"/><path d="M12 8.2v3.6"/><path d="M12 15.2h.01"/></svg></span>
-      <span class="sr-t"><b>Feedback</b><span id="setFbSub">Ideas and bugs</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow" type="button" data-pane="lock">
@@ -4736,14 +4761,24 @@ html.locked #lockScreen::before{
       <span class="sr-t"><b>Notifications</b><span id="setPrefsSub">Reminders and what stays hidden</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
+    <button class="setrow" type="button" data-pane="config">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span>
+      <span class="sr-t"><b>Config</b><span>Currency, trips, language</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="feedback">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.1-3.9A8.4 8.4 0 1121 11.5z"/><path d="M12 8.2v3.6"/><path d="M12 15.2h.01"/></svg></span>
+      <span class="sr-t"><b>Feedback</b><span id="setFbSub">Ideas and bugs</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="accounts">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d='M3 9.5L12 4l9 5.5'/><path d='M5 10.5v7M9.7 10.5v7M14.3 10.5v7M19 10.5v7'/><path d='M3 20.5h18'/></svg></span>
+      <span class="sr-t"><b>Accounts</b><span>Where your money sits</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
     <button class="setrow" type="button" data-pane="github">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 00-1.3-3.2 4.3 4.3 0 00-.1-3.2s-1.1-.3-3.5 1.3a12 12 0 00-6.2 0C6.5 2.7 5.4 3 5.4 3a4.3 4.3 0 00-.1 3.2A4.6 4.6 0 004 9.4c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></span>
       <span class="sr-t"><b>GitHub sync</b><span>Back up and move between devices</span></span>
-      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-    <button class="setrow" type="button" data-pane="data">
-      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></svg></span>
-      <span class="sr-t"><b>Data & backup</b><span>Import, copy, restore, wipe</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow setrow-about" type="button" data-pane="about">
@@ -5992,7 +6027,7 @@ const I18N_DE = {
 "Open Accounts": "Konten öffnen",
 "Open App lock": "App-Sperre öffnen",
 "Open Budget": "Budget öffnen",
-"Open Calculator and scroll past the keys.": "Öffne den Rechner und scrolle an den Tasten vorbei.",
+"Open Calculator. The history is above the keys, at the top of the screen.": "Öffne den Rechner. Der Verlauf steht über den Tasten, oben am Bildschirm.",
 "Open Config": "Konfiguration öffnen",
 "Open Data & backup": "Daten & Sicherung öffnen",
 "Open Edit budgets on the dashboard's Budget panel.": "Öffne Budgets bearbeiten im Bereich Budget der Übersicht.",
@@ -7033,8 +7068,8 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.6";
-const APP_BUILT = "2026-09-26";
+const APP_VERSION = "2.3.7";
+const APP_BUILT = "2026-09-27";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -17541,7 +17576,7 @@ const ASK_TOPICS = [
   { g:"howto", q:"Find a sum I worked out", words:["calculator history", "history", "earlier sums", "previous calculation", "what did i calculate", "clear the history",
             "verlauf", "rechnerverlauf", "frühere rechnungen", "letzte rechnungen"],
     build:howTo("Find a sum I worked out", "The Calculator tab › History", [
-      "Open Calculator and scroll past the keys.",
+      "Open Calculator. The history is above the keys, at the top of the screen.",
       "The last twenty sums are there, newest first, each with what it came to.",
       "Tap one to put its answer back on the display and carry on from it.",
       "Clear empties the list; it asks first."],
