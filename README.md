@@ -486,25 +486,17 @@ summarised is always what is listed.
 **Planned is kept apart from settled.** Each tile says how much of its figure
 has not happened yet — "incl. 324,99 € planned" — because a total that quietly
 mixes what you have paid with what you merely expect is not one you can act on.
-The spreadsheet export carries Settled, Planned and Total as three separate
-rows.
 
 ### Exporting
 
-**Export PDF** opens the device's own print dialog, where "Save as PDF" writes
-the file. The print styling drops every control and prints both the chart and
-the full table, whichever tab is on screen. No library is involved, so it works
-offline.
+Reports do not export. Export PDF and Export Excel were taken out in 3.0.0 as
+little used; the whole book still goes out as a CSV from Settings › Data &
+backup › Export.
 
-**Export Excel** writes a real `.xlsx` — built here rather than by a library,
-since the format is a zip of XML and a zip entry may be stored rather than
-compressed. Dates arrive as dates and amounts as numbers, so `SUM` and a pivot
-table work on the file rather than on text Excel has guessed at.
+### The report's eye
 
-Both refuse while amounts are hidden behind the eye, rather than exporting rows
-of bullets — and there is an eye in the report's own header for exactly that
-moment. Reports is a sheet over the page, so the one in the top bar is behind it
-and out of reach; without a second one, revealing amounts meant closing the
+There is an eye in the report's own header. Reports is a sheet over the page,
+so the one in the top bar is behind it and out of reach; without a second one, revealing amounts meant closing the
 report, tapping the eye and opening it again. It flips the same setting rather
 than a separate one, so the two can never disagree about whether amounts show.
 

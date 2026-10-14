@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.0.0 — 2026-10-14
+- better: Reports no longer carry Export PDF and Export Excel; the whole book still exports as CSV from Settings › Data & backup.
+
 ## 2.3.11 — 2026-09-27
 - better: The wallet on the welcome screen is drawn as one: notes standing inside it, a snap on top, stitching along the front
 
