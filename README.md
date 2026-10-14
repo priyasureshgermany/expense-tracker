@@ -299,6 +299,13 @@ attached to entries can't be removed until those entries are retagged.
 moving between your own accounts — so it asks **From account** as well as
 **To account**. Picking any other income category hides the from-field again.
 
+**The balance month by month.** Under "In the account now" a line runs through
+what the accounts held at the end of each of the last twelve months, and today
+for this one. Tap a month to read it. It is counted exactly as the figure above
+it is, each account from its own snapshot, so its last point is that figure.
+A month before a snapshot is worked back from it, and only holds if the entries
+before the snapshot are complete, so that stretch is drawn dashed and says so.
+
 ## Naming the parts
 
 Every region has a stable name, so a change can be asked for precisely —

@@ -459,6 +459,22 @@ button.tile:hover .tile-go{color:var(--accent)}
   font-variant-numeric:proportional-nums;
 }
 .bal-s{font-size:11.5px;color:rgba(255,255,255,.66);margin-top:4px}
+/* The balance month by month, drawn in white on the card's own gradient so it
+   reads as part of the figure above it rather than a second panel. */
+.bal-line{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.16)}
+.bal-line[hidden]{display:none}
+.bal-line svg{display:block;width:100%;height:auto;overflow:visible}
+.bl-path{fill:none;stroke:#fff;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.bl-back{fill:none;stroke:rgba(255,255,255,.7);stroke-width:1.6;stroke-dasharray:3 4;stroke-linecap:round}
+.bl-dot{fill:#12708F;stroke:#fff;stroke-width:1.5}
+.bl-dot.on{fill:#fff;stroke:rgba(255,255,255,.35);stroke-width:5}
+.bl-lb{font-size:8.5px;fill:rgba(255,255,255,.6)}
+.bl-lb.on{fill:#fff;font-weight:600}
+.bl-hit{fill:transparent;cursor:pointer}
+.bl-val{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  margin-top:4px;font-size:12px;color:rgba(255,255,255,.75)}
+.bl-val b{color:#fff;font-weight:700;font-variant-numeric:tabular-nums}
+.bl-note{font-size:10.5px;color:rgba(255,255,255,.55);margin-top:3px}
 
 /* ---------- Budget envelopes ---------- */
 .budgetcard{
@@ -3661,6 +3677,11 @@ html.locked #lockScreen::before{
       <div class="bal-k">In the account now</div>
       <div class="bal-v" id="balNow">€0.00</div>
       <div class="bal-s" id="balSub">—</div>
+      <div class="bal-line" id="balLine" hidden>
+        <div id="balLineChart"></div>
+        <div class="bl-val" id="balLineVal"></div>
+        <div class="bl-note" id="balLineNote" hidden>Dashed: worked back from a balance you saved later</div>
+      </div>
     </section>
 
     <section class="statement">
@@ -5241,6 +5262,8 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Dashed: worked back from a balance you saved later": "Gestrichelt: zurückgerechnet aus einem später gespeicherten Kontostand",
+"End of": "Ende",
 "  ·  counted by ": "  ·  gezählt nach ",
 "  ·  generated ": "  ·  erstellt ",
 " (cached)": " (zwischengespeichert)",
@@ -7098,7 +7121,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.0.0";
+const APP_VERSION = "3.0.1";
 const APP_BUILT = "2026-10-14";
 
 const KEY = "panappai.v1";
@@ -7629,22 +7652,28 @@ function accountLedger(id){
     if (t.status !== "done" || !txnShown(t)) return;
     if (from && t.date < from) return;
     if (t.date > to) return;
-    let delta = 0;
-    if (isTransfer(t)){
-      /* leaves one account and lands in the other, netting to nothing overall */
-      if (t.account === id) delta += t.amount;
-      if (t.fromAccount === id) delta -= t.amount;
-    } else {
-      if (t.account === id) delta += (t.type === "income" ? t.amount : -t.amount);
-      /* the sending side of a Bank Transfer income entry */
-      if (t.fromAccount === id && t.type === "income") delta -= t.amount;
-    }
+    const delta = acctDelta(t, id);
     if (delta) rows.push({ t:t, delta:delta });
   });
   rows.sort((x, y) => x.t.date < y.t.date ? -1 : x.t.date > y.t.date ? 1 : 0);
   let run = start;
   rows.forEach(r => { run += r.delta; r.after = run; });
   return { account:a, from:from, start:start, rows:rows, total:run };
+}
+/** How much one entry moves one account, whatever its date or status. Shared by
+    the ledger and the month-by-month line so the two cannot count differently. */
+function acctDelta(t, id){
+  let delta = 0;
+  if (isTransfer(t)){
+    /* leaves one account and lands in the other, netting to nothing overall */
+    if (t.account === id) delta += t.amount;
+    if (t.fromAccount === id) delta -= t.amount;
+  } else {
+    if (t.account === id) delta += (t.type === "income" ? t.amount : -t.amount);
+    /* the sending side of a Bank Transfer income entry */
+    if (t.fromAccount === id && t.type === "income") delta -= t.amount;
+  }
+  return delta;
 }
 function accountBalance(id){
   const l = accountLedger(id);
@@ -9613,6 +9642,7 @@ function balanceNow(){
 
 function renderBalance(){
   $("#balCard").hidden = false;
+  renderBalanceLine();
   const el2 = $("#balNow");
 
   /* No per-account baseline anywhere: the one figure the app used to keep, if
@@ -9649,6 +9679,143 @@ function renderBalance(){
     " · " + fmt(t.inc) + " in, " + fmt(t.exp) + " out since" +
     (t.loose ? " · " + fmt(t.loose) + " with no account" : "");
 }
+
+/* =========================================================================
+   THE BALANCE MONTH BY MONTH
+
+   What the accounts held at the end of each month, and today for this one.
+   Counted the way "In the account now" is counted — each account from its own
+   snapshot, the same settled entries, the same accounts — so the last point is
+   that figure to the cent rather than a second opinion of it.
+
+   A month before a snapshot is worked back from it: what the account held on
+   the snapshot's day, less everything settled between that month's end and
+   then. That is only as right as the entries before the snapshot are
+   complete, which is why those stretches are drawn dashed and say so.
+   ========================================================================= */
+
+/** What the accounts held at the end of `iso` (never later than today). */
+function balanceAt(iso){
+  const to = todayISO();
+  if (iso > to) iso = to;
+  let back = false;
+  /* one anchor: a figure on a date, moved by `delta` forward to `iso` or back */
+  const along = (amount, from, delta) => {
+    if (from && iso < from) back = true;
+    let v = amount;
+    state.txns.forEach(t => {
+      if (t.status !== "done" || !txnShown(t) || t.date > to) return;
+      const d = delta(t);
+      if (!d) return;
+      if (!from || t.date >= from){ if (t.date <= iso) v += d; }
+      else if (t.date > iso) v -= d;
+    });
+    return v;
+  };
+
+  let v = 0;
+  if (accountsOf().some(a => a.start)){
+    balanceableAccounts().forEach(a => {
+      v += along(a.start ? a.start.amount : 0, a.start ? a.start.date : null,
+                 t => acctDelta(t, a.id));
+    });
+    /* entries naming no account, from the earliest baseline, as balanceNow has them */
+    v += along(0, earliestStart(), t =>
+      isTransfer(t) || t.account || t.fromAccount ? 0
+        : (t.type === "income" ? t.amount : -t.amount));
+  } else {
+    const b = balanceSetting();
+    v = along(b ? b.amount : 0, b ? b.date : null, t =>
+      isTransfer(t) ? 0 : (t.type === "income" ? t.amount : -t.amount));
+  }
+  return { v:v, back:back };
+}
+
+/** Up to the last twelve month-ends, from the first month the book has anything. */
+function balanceLinePoints(){
+  const to = todayISO();
+  let first = to;
+  state.txns.forEach(t => {
+    if (t.status === "done" && txnShown(t) && t.date < first) first = t.date;
+  });
+  accountsOf().forEach(a => { if (a.start && a.start.date < first) first = a.start.date; });
+  const b = balanceSetting();
+  if (b && b.date < first) first = b.date;
+
+  let [y, m] = to.split("-").map(Number);
+  const [fy, fm] = first.split("-").map(Number);
+  const out = [];
+  while (out.length < 12 && (y > fy || (y === fy && m >= fm))){
+    const last = new Date(y, m, 0).getDate();
+    const iso = out.length ? isoOf(y, m, last) : to;
+    const r = balanceAt(iso);
+    out.unshift({ iso:iso, now:!out.length, v:r.v, back:r.back,
+                  label:new Date(y, m - 1, 1).toLocaleDateString(LOC(), { month:"short" }) });
+    if (--m < 1){ m = 12; y--; }
+  }
+  return out;
+}
+
+const BLINE = { w:320, h:78, padX:10, padT:8, base:60 };
+let balLinePick = null;     /* which month is being read, by index */
+let balLineLen = 0;         /* how many months it was picked among */
+
+function renderBalanceLine(){
+  const wrap = $("#balLine");
+  const pts = balanceLinePoints();
+  /* one point is a dot, not a line: the card already says what today holds */
+  if (pts.length < 2){ wrap.hidden = true; return; }
+  wrap.hidden = false;
+  /* a pick means a month only among the same months; otherwise back to today */
+  if (balLinePick === null || pts.length !== balLineLen) balLinePick = pts.length - 1;
+  balLineLen = pts.length;
+
+  const { w, h, padX, padT, base } = BLINE;
+  let lo = Math.min(...pts.map(p => p.v)), hi = Math.max(...pts.map(p => p.v));
+  if (hi === lo){ hi += 1; lo -= 1; }
+  const slot = (w - padX * 2) / (pts.length - 1);
+  const X = i => padX + slot * i;
+  const Y = v => base - (v - lo) / (hi - lo) * (base - padT);
+
+  let g = "";
+  /* solid where every account is counted forward, dashed where any is worked back */
+  for (let i = 1; i < pts.length; i++){
+    g += '<path class="' + (pts[i - 1].back ? "bl-back" : "bl-path") + '" d="M' +
+         X(i - 1).toFixed(1) + " " + Y(pts[i - 1].v).toFixed(1) + "L" +
+         X(i).toFixed(1) + " " + Y(pts[i].v).toFixed(1) + '"/>';
+  }
+  pts.forEach((p, i) => {
+    const on = i === balLinePick;
+    g += '<circle class="bl-dot' + (on ? " on" : "") + '" cx="' + X(i).toFixed(1) +
+         '" cy="' + Y(p.v).toFixed(1) + '" r="' + (on ? 3.6 : 2.6) + '"/>';
+    /* with twelve across a phone every other label is all there is room for */
+    if (on || pts.length <= 7 || (pts.length - 1 - i) % 2 === 0)
+      g += '<text class="bl-lb' + (on ? " on" : "") + '" x="' + X(i).toFixed(1) +
+           '" y="' + (h - 4) + '" text-anchor="' +
+           (i === 0 ? "start" : i === pts.length - 1 ? "end" : "middle") + '">' +
+           esc(p.label) + "</text>";
+    g += '<rect class="bl-hit" data-i="' + i + '" x="' + (X(i) - slot / 2).toFixed(1) +
+         '" y="0" width="' + slot.toFixed(1) + '" height="' + h + '"/>';
+  });
+  $("#balLineChart").innerHTML =
+    '<svg viewBox="0 0 ' + w + " " + h + '" aria-hidden="true">' + g + "</svg>";
+
+  const p = pts[balLinePick];
+  $("#balLineVal").innerHTML = p.now
+    ? "<span>Today</span><b>" + esc(fmt(p.v)) + "</b>"
+    : "<span><span>End of</span> " + esc(new Date(p.iso + "T00:00:00")
+        .toLocaleDateString(LOC(), { month:"long", year:"numeric" })) +
+      "</span><b>" + esc(fmt(p.v)) + "</b>";
+  $("#balLineNote").hidden = !pts.some(x => x.back);
+}
+
+/* tapping a month reads it out; delegated, since the svg is redrawn each time */
+$("#balLineChart").addEventListener("click", e => {
+  const hit = e.target.closest(".bl-hit");
+  if (!hit) return;
+  balLinePick = +hit.dataset.i;
+  renderBalanceLine();
+});
 
 /**
  * Accounts that can hold an opening balance. A card is a credit line rather
