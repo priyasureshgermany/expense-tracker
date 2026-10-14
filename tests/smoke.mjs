@@ -71,6 +71,25 @@ export default [
     assert.equal(r.ok, true);
   }},
 
+  { name: "no horizontal page scroll at phone width", async run(pg){
+    const over = await pg.eval("document.documentElement.scrollWidth - document.documentElement.clientWidth");
+    assert.ok(over <= 0, "overflow " + over + "px");
+  }},
+
+  { name: "body paints a background in light, dark and system themes", async run(pg){
+    const r = await pg.fn(() => {
+      const html = document.documentElement, keep = html.getAttribute("data-theme");
+      const out = [];
+      for (const t of ["light", "dark", null]){
+        t ? html.setAttribute("data-theme", t) : html.removeAttribute("data-theme");
+        out.push(getComputedStyle(document.body).backgroundColor);
+      }
+      keep ? html.setAttribute("data-theme", keep) : html.removeAttribute("data-theme");
+      return out;
+    });
+    r.forEach(bg => assert.ok(bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent", bg));
+  }},
+
   { name: "Settings and More open", async run(pg){
     await pg.fn(async () => {
       openSettings(); await new Promise(r => setTimeout(r, 200)); sheetClose();

@@ -40,8 +40,12 @@ fi
 
 # Markdown is documentation, not shipped code — README, RELEASES and FEEDBACK
 # all change without the app changing, so none of them should force a release.
-# Nor do the tests or the tools around the app.
-if ! echo "$staged" | grep -qvE '^(data/|tools/|tests/|version\.json$)|\.md$'; then
+# Nor do the tests or the tools around the app, nor a file being deleted: a
+# deletion adds nothing to ship, and one the app still needed fails the smoke
+# tests above before it gets here.
+changed=$(git diff --cached --name-only --diff-filter=d)
+[ -z "$changed" ] && exit 0
+if ! echo "$changed" | grep -qvE '^(data/|tools/|tests/|version\.json$)|\.md$'; then
   exit 0
 fi
 
