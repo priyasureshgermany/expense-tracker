@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.0.2 — 2026-10-14
+- better: The balance line is off by default now; switch it on in Settings › Config › Balance line.
+
 ## 3.0.1 — 2026-10-14
 - new: A line under In the account now shows the balance at the end of each of the last twelve months; tap a month to read it, and months worked back from a later snapshot are drawn dashed.
 

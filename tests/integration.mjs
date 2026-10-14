@@ -50,6 +50,28 @@ export default [
     assert.equal(cents(r.read), r.now);
   }},
 
+  { name: "balance line: hidden by default, and Settings switches it on and off", async run(pg){
+    const r = await pg.fn(async () => {
+      __T.useBook();
+      state.balLine = false; render();
+      const byDefault = document.querySelector("#balLine").hidden;
+      openSettings(); await new Promise(r => setTimeout(r, 250));
+      document.querySelector('#cfgBalLine [data-v="on"]').click();
+      const on = { hidden: document.querySelector("#balLine").hidden, flag: state.balLine,
+                   pressed: document.querySelector('#cfgBalLine [data-v="on"]').getAttribute("aria-pressed") };
+      document.querySelector('#cfgBalLine [data-v="off"]').click();
+      const off = { hidden: document.querySelector("#balLine").hidden, flag: state.balLine };
+      sheetClose();
+      const kept = stateFromPayload(JSON.parse(JSON.stringify(Object.assign({}, state, { balLine:true })))).balLine;
+      __T.restore();
+      return { byDefault, on, off, kept };
+    });
+    assert.equal(r.byDefault, true);
+    assert.deepEqual(r.on, { hidden:false, flag:true, pressed:"true" });
+    assert.deepEqual(r.off, { hidden:true, flag:false });
+    assert.equal(r.kept, true, "the setting survives a backup round trip");
+  }},
+
   { name: "balance line: tapping a month reads that month out", async run(pg){
     const r = await pg.fn(() => {
       __T.useBook();
@@ -198,9 +220,14 @@ export default [
       document.querySelectorAll("#balLineChart .bl-hit")[2]
         .dispatchEvent(new MouseEvent("click", { bubbles:true }));
       await new Promise(r => setTimeout(r, 400));     /* the dictionary swaps on the next tick */
+      openSettings(); await new Promise(r => setTimeout(r, 400));
+      const row = document.querySelector("#cfgBalLine").closest(".cfgrow");
       const out = { val: document.querySelector("#balLineVal").innerText,
                     note: document.querySelector("#balLineNote").innerText,
-                    k: document.querySelector(".bal-k").innerText };
+                    k: document.querySelector(".bal-k").innerText,
+                    cfg: row.querySelector(".cf-t b").innerText,
+                    btns: [...row.querySelectorAll("button")].map(b => b.innerText) };
+      sheetClose();
       __T.restore();
       return out;
     });
@@ -209,5 +236,7 @@ export default [
     assert.match(r.val, /^Ende Mai 2026/);
     assert.match(r.note, /^Gestrichelt/);
     assert.doesNotMatch(r.k, /account now/i);
+    assert.equal(r.cfg, "Saldoverlauf");
+    assert.deepEqual(r.btns, ["Aus", "An"]);
   }}
 ];

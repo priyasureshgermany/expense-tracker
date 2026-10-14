@@ -5122,6 +5122,17 @@ html.locked #lockScreen::before{
             </div>
           </div>
           <div class="cfgrow cfg-stack">
+            <div class="cf-t"><b>Balance line</b><span>Month by month on the balance card</span></div>
+            <div class="toggle2 cfg-tog" id="cfgBalLine" style="grid-template-columns:1fr 1fr">
+              <button class="a" type="button" data-v="off" aria-pressed="true">Off</button>
+              <button class="a" type="button" data-v="on" aria-pressed="false">On</button>
+            </div>
+            <div class="note" style="margin-top:2px">
+              A line under In the account now through what your accounts held at
+              the end of each of the last twelve months.
+            </div>
+          </div>
+          <div class="cfgrow cfg-stack">
             <div class="cf-t"><b>Language</b><span>English or Deutsch</span></div>
             <div class="toggle2 cfg-tog" id="cfgLang" style="grid-template-columns:1fr 1fr">
               <button class="a" type="button" data-v="en" aria-pressed="true">English</button>
@@ -5262,6 +5273,13 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Balance line": "Saldoverlauf",
+"Month by month on the balance card": "Monat für Monat auf der Kontostand-Karte",
+"Off": "Aus",
+"On": "An",
+"A line under In the account now through what your accounts held at the end of each of the last twelve months.": "Eine Linie unter Jetzt auf dem Konto durch das, was deine Konten am Ende jedes der letzten zwölf Monate hatten.",
+"Balance line shown on the dashboard": "Saldoverlauf wird auf der Übersicht gezeigt",
+"Balance line hidden": "Saldoverlauf ausgeblendet",
 "Dashed: worked back from a balance you saved later": "Gestrichelt: zurückgerechnet aus einem später gespeicherten Kontostand",
 "End of": "Ende",
 "  ·  counted by ": "  ·  gezählt nach ",
@@ -7121,7 +7139,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.0.1";
+const APP_VERSION = "3.0.2";
 const APP_BUILT = "2026-10-14";
 
 const KEY = "panappai.v1";
@@ -7577,7 +7595,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop", catPicker:"grid", welcomeSpan:"yesterday", calcLog:[] };
+let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop", catPicker:"grid", welcomeSpan:"yesterday", balLine:false, calcLog:[] };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -7927,6 +7945,8 @@ function stateFromPayload(p){
     thirdTab: p.thirdTab === "trips" ? "trips" : "shop",
     catPicker: p.catPicker === "bubble" ? "bubble" : "grid",
     welcomeSpan: p.welcomeSpan === "week" ? "week" : "yesterday",
+    /* the balance month by month on the dashboard: off unless switched on */
+    balLine: p.balLine === true,
     calcLog: normaliseCalcLog(p.calcLog)
   };
   if (p.demo) st.demo = true;
@@ -7960,6 +7980,7 @@ function stateCleared(){
     thirdTab: state.thirdTab === "trips" ? "trips" : "shop",
     catPicker: state.catPicker === "bubble" ? "bubble" : "grid",
     welcomeSpan: welcomeSpan(),
+    balLine: state.balLine === true,
     /* the sums are notes to yourself, not entries, so clearing the book leaves
        them where they are */
     calcLog: calcLogOf()
@@ -8038,6 +8059,7 @@ function load(){
   if (state.thirdTab !== "trips") state.thirdTab = "shop";
   if (state.catPicker !== "bubble") state.catPicker = "grid";
   if (state.welcomeSpan !== "week") state.welcomeSpan = "yesterday";
+  state.balLine = state.balLine === true;
   state.calcLog = normaliseCalcLog(state.calcLog);
   /* v2.3.4 kept the history on the device; move it into the book once, so the
      sums worked out before this release are not lost to the change. */
@@ -9762,6 +9784,7 @@ let balLineLen = 0;         /* how many months it was picked among */
 
 function renderBalanceLine(){
   const wrap = $("#balLine");
+  if (state.balLine !== true){ wrap.hidden = true; return; }
   const pts = balanceLinePoints();
   /* one point is a dot, not a line: the card already says what today holds */
   if (pts.length < 2){ wrap.hidden = true; return; }
@@ -13462,6 +13485,8 @@ function renderConfig(){
   $$("#cfgThird button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === third)));
   const cp = state.catPicker === "bubble" ? "bubble" : "grid";
   $$("#cfgCatPick button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === cp)));
+  const bl = state.balLine === true ? "on" : "off";
+  $$("#cfgBalLine button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === bl)));
   const r = fxRate();
   $("#cfgFxLine").textContent = r
     ? "1 \u20ac = " + fmtIn(Math.round(r * 100), "INR") + (state.fx.date ? " \u00b7 as of " + prettyDate(state.fx.date) : "")
@@ -13525,6 +13550,14 @@ $$("#cfgCatPick button").forEach(b => b.addEventListener("click", () => {
   if (typeof draft === "object" && draft && $("#eCats")) renderCatChips();
   if (typeof rDraft === "object" && rDraft && $("#rCats")) renderRuleCats();
   toast(v === "bubble" ? "Categories shown as bubbles" : "Categories shown as a grid");
+}));
+$$("#cfgBalLine button").forEach(b => b.addEventListener("click", () => {
+  const on = b.dataset.v === "on";
+  if ((state.balLine === true) === on) return;
+  userTouched();
+  state.balLine = on;
+  save(); renderConfig(); renderBalanceLine();
+  toast(on ? "Balance line shown on the dashboard" : "Balance line hidden");
 }));
 $("#cfgFxBtn").addEventListener("click", async () => {
   const btn = $("#cfgFxBtn");
@@ -15549,6 +15582,7 @@ function miscSig(){
   if (tripKindsMine().length) parts.push(state.tripKinds);
   if (state.catPicker === "bubble") parts.push(state.catPicker);
   if (state.welcomeSpan === "week") parts.push(state.welcomeSpan);
+  if (state.balLine === true) parts.push("balLine");
   if (calcLogOf().length) parts.push(state.calcLog);
   return JSON.stringify(parts);
 }

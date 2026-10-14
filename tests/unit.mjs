@@ -159,6 +159,12 @@ export default [
     assert.deepEqual(r, ["groceries_de", "rent", "transport", "subs", "salary", "refund", "other", "other_in"]);
   }},
 
+  { name: "balance line setting: off unless the book says true", async run(pg){
+    const r = await pg.fn(() => [stateFromPayload({}).balLine, stateFromPayload({ balLine:true }).balLine,
+                                 stateFromPayload({ balLine:"yes" }).balLine]);
+    assert.deepEqual(r, [false, true, false]);
+  }},
+
   { name: "stateFromPayload keeps every field it is given", async run(pg){
     /* a field dropped here is a field erased by the next pull or restore */
     const r = await pg.fn(() => {
