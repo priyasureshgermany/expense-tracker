@@ -268,7 +268,7 @@ API for personal accounts, and a static page cannot hold credentials safely.
 | `manifest.webmanifest` | PWA manifest — name, icons, standalone display |
 | `sw.js` | Service worker — caches the app shell for offline / installed use |
 | `icons/` | App icons (192, 512, maskable, apple-touch) |
-| `test.mjs` | Playwright test suite — 19 checks incl. both bank CSV formats |
+| `tests/` | Smoke, unit and integration tests, run with `node tests/run.mjs` (see Testing) |
 | `tools/make-icons.py` | Draws the icon set — a leather wallet with Sansad Bhavan and a euro tooled into it — and writes every size into `icons/`. Run `python tools/make-icons.py` from the repo root after changing it; needs Pillow |
 
 ## Installing it as an app
@@ -280,8 +280,6 @@ chrome, and offline access after the first load. It must be served over
 `http(s)://` — service workers don't run from a `file://` URL, so host it on
 any static server (GitHub Pages, Netlify, `python -m http.server`, etc.) to get
 the install prompt.
-
-Run the tests with `node test.mjs` (needs Playwright installed).
 
 ## Your profile and accounts
 
@@ -529,9 +527,9 @@ node tests/run.mjs
 
 | Level | File | What it asks |
 |---|---|---|
-| Smoke | `tests/smoke.mjs` | Does it load without an error, do its three version numbers agree, does every screen open, and is the single-file script free of duplicate functions and stray control bytes? |
-| Unit | `tests/unit.mjs` | One function at a time: amounts, dates, ISO weeks, periods, account deltas, the ledger, the balance on a date, report totals, CSV cells, backup parsing. |
-| Integration | `tests/integration.mjs` | Pieces together: the figure on screen against the function behind it, adding an entry through the sheet, report bars against the rows in them, a backup round trip, German over a new screen. |
+| Smoke | `tests/smoke.mjs` | Does it load without an error, do its three version numbers agree, does every screen open without the page scrolling sideways, does the body paint in every theme, and is the single-file script free of duplicate functions and stray control bytes? |
+| Unit | `tests/unit.mjs` | One function at a time: amounts, dates, ISO weeks, periods, recurring cadences, bank date cells, payee categories, account deltas, the ledger, the balance on a date, report totals, CSV cells, backup parsing. |
+| Integration | `tests/integration.mjs` | Pieces together: the figure on screen against the function behind it, adding an entry through the sheet, importing both bank layouts and finding duplicates on re-import, report bars against the rows in them, a backup round trip, German over a new screen. |
 
 `node tests/run.mjs smoke` (or `unit`, `integration`) runs one level, and
 `--headed` shows the browser.

@@ -130,6 +130,35 @@ export default [
     assert.equal(r.masked, "••••");
   }},
 
+  { name: "occurrence steps each cadence, clamping to short months", async run(pg){
+    const r = await pg.fn(() => [
+      occurrence("2026-01-31", "monthly", 1),     /* no 31 Feb */
+      occurrence("2026-01-31", "monthly", 2),     /* back to the 31st */
+      occurrence("2026-11-15", "bimonthly", 1),   /* across the year */
+      occurrence("2026-01-10", "quarterly", 3),
+      occurrence("2026-03-31", "halfyearly", 1),
+      occurrence("2028-02-29", "yearly", 1),      /* leap day to a common year */
+      occurrence("2026-10-14", "weekly", 3),
+      occurrence("2026-12-20", "days28", 1)
+    ]);
+    assert.deepEqual(r, ["2026-02-28", "2026-03-31", "2027-01-15", "2026-10-10",
+                         "2026-09-30", "2029-02-28", "2026-11-04", "2027-01-17"]);
+  }},
+
+  { name: "parseDateCell reads bank date formats", async run(pg){
+    const r = await pg.fn(() => ["03.08.2026", "3.8.26", "2026-08-03", "03/08/2026", "Kontostand", ""].map(parseDateCell));
+    assert.deepEqual(r, ["2026-08-03", "2026-08-03", "2026-08-03", "2026-08-03", null, null]);
+  }},
+
+  { name: "guessCat files common German payees", async run(pg){
+    const r = await pg.fn(() => [
+      guessCat("REWE SAGT DANKE", false), guessCat("MIETE HAUSVERWALTUNG", false),
+      guessCat("DEUTSCHLANDTICKET", false), guessCat("NETFLIX INTERNATIONAL", false),
+      guessCat("LOHN / GEHALT", true), guessCat("STEUERERSTATTUNG FINANZAMT", true),
+      guessCat("XYZ UNKNOWN", false), guessCat("XYZ UNKNOWN", true)]);
+    assert.deepEqual(r, ["groceries_de", "rent", "transport", "subs", "salary", "refund", "other", "other_in"]);
+  }},
+
   { name: "stateFromPayload keeps every field it is given", async run(pg){
     /* a field dropped here is a field erased by the next pull or restore */
     const r = await pg.fn(() => {
