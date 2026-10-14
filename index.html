@@ -1198,6 +1198,14 @@ div.rp-rem:hover{background:none}
   color:var(--ink-3);font-weight:600;margin-bottom:10px;
 }
 .rp-barskey{display:flex;align-items:center;gap:5px;letter-spacing:0;text-transform:none;font-weight:500}
+/* bars or lines: a small switch beside the key, showing the one it turns into */
+.rp-barsmode{
+  display:inline-grid;place-items:center;width:24px;height:24px;margin-left:8px;padding:0;
+  border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink-2);cursor:pointer;
+}
+.rp-barsmode svg{width:14px;height:14px}
+.rp-bars .bx-ln{fill:none;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+.rp-bars .bx-dot{stroke:var(--surface-2);stroke-width:1.5}
 .rp-barskey i{width:9px;height:9px;border-radius:3px;display:inline-block}
 .rp-barskey i.k-in{background:var(--bar-in)}
 .rp-barskey i.k-out{background:var(--bar-out);margin-left:7px}
@@ -4589,6 +4597,8 @@ html.locked #lockScreen::before{
         <span id="repBarsT">Income and expenses</span>
         <span class="rp-barskey">
           <i class="k-in"></i>Income <i class="k-out"></i>Expense
+          <button class="rp-barsmode" id="repBarsMode" type="button"
+                  title="Show as a line chart" aria-label="Show as a line chart"></button>
         </span>
       </div>
       <div id="repBarsChart"></div>
@@ -5273,6 +5283,8 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Show as a line chart": "Als Liniendiagramm zeigen",
+"Show as bars": "Als Balken zeigen",
 "Balance line": "Saldoverlauf",
 "Month by month on the balance card": "Monat für Monat auf der Kontostand-Karte",
 "Off": "Aus",
@@ -7139,7 +7151,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.0.2";
+const APP_VERSION = "3.0.3";
 const APP_BUILT = "2026-10-14";
 
 const KEY = "panappai.v1";
@@ -19292,6 +19304,10 @@ function repBuckets(){
 
 const RBAR = { w:320, h:120, padL:40, padR:4, padT:8, base:96 };
 let repBarPick = null;      /* which bucket is being read, by index */
+/* Bars or lines, kept on this device: how a chart is read is a habit of the
+   person holding the phone, not part of the book. */
+let repBarsLine = false;
+try{ repBarsLine = localStorage.getItem("panappai.repBarsLine") === "1"; }catch(e){}
 
 /* The two series are drawn as the ring draws a category: a hue with a depth,
    shaded top to bottom, and lit rather than outlined when chosen. Green and red
@@ -19326,6 +19342,12 @@ function repAxisNum(cents){
 
 function repDrawBars(){
   const wrap = $("#repBars");
+  /* the switch shows the shape it turns the chart into */
+  const sw = $("#repBarsMode");
+  sw.innerHTML = repBarsLine ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 20V11M12 20V5M18 20v-6"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 6-8 3 3"/></svg>';
+  const label = repBarsLine ? "Show as bars" : "Show as a line chart";
+  sw.title = label;
+  sw.setAttribute("aria-label", label);
   const b = repBuckets();
   const narrow = !!(repSelIsCat() || repCats.length || repAccts.length ||
                     repKind !== "all");
@@ -19413,9 +19435,45 @@ function repDrawBars(){
   g += '<line class="bx-zero" x1="' + padL + '" y1="' + base +
        '" x2="' + (w - padR) + '" y2="' + base + '"/>';
 
+  /* As lines: the same scale, buckets and targets, each series a line through
+     the middle of its column, the column being read marked on both. */
+  if (repBarsLine){
+    const cx = i => padL + slot * i + slot / 2;
+    const y = v => base - (v / max) * span;
+    const line = k => b.map((x, i) => (i ? "L" : "M") + cx(i).toFixed(1) + " " + y(x[k]).toFixed(1)).join("");
+    /* each line shades the ground beneath it down to the baseline, fading as
+       it goes, so where the two cross reads as one colour over the other */
+    let areas = "", fades = "";
+    ["inc", "out"].forEach(k => {
+      const col = pieShades(BAR_CAT[k], dark, true).top;
+      fades += '<linearGradient id="ba' + k + '" x1="0" y1="0" x2="0" y2="1">' +
+               '<stop offset="0" stop-color="' + col + '" stop-opacity="' + (dark ? "0.42" : "0.32") + '"/>' +
+               '<stop offset="1" stop-color="' + col + '" stop-opacity="0.02"/></linearGradient>';
+      areas += '<path class="bx-area" fill="url(#ba' + k + ')" d="' + line(k) +
+               "L" + cx(b.length - 1).toFixed(1) + " " + base + "L" + cx(0).toFixed(1) + " " + base + 'Z"/>';
+    });
+    g += "<defs>" + fades + "</defs>" + areas;
+    ["inc", "out"].forEach(k => {
+      const col = pieShades(BAR_CAT[k], dark, true).top;
+      g += '<path class="bx-ln" stroke="' + col + '" d="' + line(k) + '"/>';
+      b.forEach((x, i) => {
+        const on = i === repBarPick;
+        g += '<circle class="bx-dot" fill="' + col + '" cx="' + cx(i).toFixed(1) + '" cy="' +
+             y(x[k]).toFixed(1) + '" r="' + (on ? 4.2 : 2.6) + '"/>';
+      });
+    });
+  }
+
   b.forEach((x, i) => {
     const cx = padL + slot * i + slot / 2;
     const on = i === repBarPick;
+    if (repBarsLine){
+      g += '<text class="bx-lb' + (on ? " on" : "") + '" x="' + cx.toFixed(1) +
+           '" y="' + (base + 13) + '" text-anchor="middle">' + esc(x.label) + '</text>';
+      g += '<rect class="bx-hit" data-i="' + i + '" x="' + (cx - slot / 2).toFixed(1) +
+           '" y="0" width="' + slot.toFixed(1) + '" height="' + RBAR.h + '"/>';
+      return;
+    }
     const hi = Math.max(x.inc ? 1.5 : 0, (x.inc / max) * span);
     const ho = Math.max(x.out ? 1.5 : 0, (x.out / max) * span);
     /* Chosen is lit and lifted, the way a slice is — not a slab of background
@@ -19445,6 +19503,12 @@ function repDrawBars(){
     '<span class="bv-p"><i class="k-in"></i>Income<b>' + esc(fmt(pick.inc)) + '</b></span>' +
     '<span class="bv-p"><i class="k-out"></i>Expense<b>' + esc(fmt(pick.out)) + '</b></span>';
 }
+
+$("#repBarsMode").addEventListener("click", () => {
+  repBarsLine = !repBarsLine;
+  try{ localStorage.setItem("panappai.repBarsLine", repBarsLine ? "1" : "0"); }catch(e){}
+  repDrawBars();
+});
 
 /* tapping a column reads it out; delegated, since the svg is redrawn each time */
 $("#repBarsChart").addEventListener("click", e => {
