@@ -1291,86 +1291,6 @@ div.rp-rem:hover{background:none}
    which rows belong to which heading without a second colour doing it */
 .rp-table tbody tr.rp-in td:first-child{padding-left:28px}
 
-.rp-exports{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;
-  margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
-}
-
-/* Printing is the PDF export: everything but the report goes away, both tabs
-   are shown whichever one is on screen, and the sheet becomes a document. */
-@media print{
-  @page{margin:14mm}
-  /* Paper is white whatever the app is set to, so the reading has to be the
-     light one. Exported from dark mode the page came out with pale grey type
-     on white — the background was forced and the ink was not. */
-  :root{
-    color-scheme:light !important;
-    --ground:#F4F6F8 !important; --surface:#FFFFFF !important; --surface-2:#EFF2F5 !important; --surface-sunk:#E7EBEF !important;
-    --ink:#0F1922 !important; --ink-2:#465563 !important; --ink-3:#5C6C7E !important;
-    --line:#DFE4EA !important; --line-strong:#C6CED7 !important;
-    --accent:#0F5273 !important; --accent-ink:#FFFFFF !important; --accent-soft:#E3EDF3 !important; --accent-mid:#5D93B0 !important;
-    --pos:#0B6B4B !important; --pos-soft:#DFF0E8 !important;
-    --neg:#A93724 !important; --neg-deep:#6E1B10 !important; --neg-soft:#F8E4E0 !important;
-    --warn:#8A5B10 !important; --warn-soft:#FBEEDA !important;
-    --bar-in:#0A5C41 !important; --bar-out:#8E2C1D !important;
-  }
-  html,body{background:#fff !important;height:auto !important;overflow:visible !important}
-  body{color:var(--ink) !important}
-  .topbar,.monthbar,.tabbar,.fabwrap,.scrim,.toast,#payWelcome,#viewDash,#viewEntries,#viewShop,
-  .sheet:not(#shReport),.rp-exports,.rp-ranges,.rp-basis,.rp-custom,.tabbar2,
-  .rp-filters,.sheet-head .iconbtn{display:none !important}
-  #shReport{
-    position:static !important;transform:none !important;max-width:none !important;
-    height:auto !important;max-height:none !important;box-shadow:none !important;
-    border-radius:0 !important;background:#fff !important;
-  }
-  #shReport .sheet-body{overflow:visible !important;padding:0 !important}
-  #shReport .sheet-head{border-bottom:2px solid #000;padding-left:0}
-  #shReport .sheet-head::before{display:none}
-  .rp-pane[hidden]{display:block !important}
-  .rp-tablewrap{overflow:visible !important;border:0 !important}
-  .rp-table{font-size:10px}
-  .rp-table thead th{background:#eee !important;color:#000 !important}
-  .rp-table tbody tr{break-inside:avoid}
-  /* A folded month on screen is a tidy summary; a folded month on paper is a
-     missing month. The PDF is this stylesheet printing the page as it stands,
-     so every group is opened here rather than by redrawing the table first. */
-  .rp-table tbody tr.rp-hid{display:table-row !important}
-  .rp-grp .rp-car{display:none !important}
-  .rp-table tbody tr.rp-grp{background:#eee !important;break-after:avoid}
-  /* nothing scrolls on paper, so nothing needs sticking to the edge of it */
-  .rp-gl,.rp-gt{position:static !important}
-  /* Two things cut the pie in half on the way to paper.
-
-     The shell is still in the flow with a viewport of minimum height, which on
-     paper is a whole page of nothing before the report starts — and everything
-     after it lands one page further down than it was measured for.
-
-     And the sheet is a flex column, the chart pane a grid. Chrome breaks a
-     flex or grid container across pages by clipping it, not by moving the
-     child that would not fit, so break-inside:avoid was being asked of a box
-     that could not honour it. Laid out as plain blocks they paginate the
-     ordinary way and the rule holds. */
-  .shell{display:none !important}
-  #shReport,#shReport .sheet-body,#shReport .rp-pane{display:block !important}
-  .rp-chart{
-    display:block !important;break-inside:avoid;break-after:avoid;
-    text-align:center;
-  }
-  /* 84vw against a sheet of paper is most of its width; the pie is drawn at
-     300px and prints at the size it was drawn */
-  .rp-chart svg{width:300px !important;margin:0 auto}
-  .rp-chartcap{break-after:avoid}
-  /* the legend is a list, so it breaks between rows rather than being carried
-     whole to the next page and leaving half of this one empty */
-  .rp-legend{display:block !important}
-  .rp-lg{break-inside:avoid}
-  .rp-bars{break-inside:avoid}
-  .rp-hint{display:none !important}
-  .rp-print-only{display:block !important}
-}
-.rp-print-only{display:none}
-
 /* ---------- Purchase detail ---------- */
 .purch-meta{font-size:12.5px;color:var(--ink-3);margin-bottom:12px}
 .purchlist{display:flex;flex-direction:column}
@@ -4653,18 +4573,6 @@ html.locked #lockScreen::before{
       <div id="repBarsChart"></div>
       <div class="rp-barsval" id="repBarsVal"></div>
     </div>
-
-
-    <div class="rp-exports">
-      <button class="btn ghost sm" id="repPdf">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7" rx="1.5"/><path d="M6 18H4a2 2 0 01-2-2v-3a2 2 0 012-2h16a2 2 0 012 2v3a2 2 0 01-2 2h-2"/></svg>
-        Export PDF
-      </button>
-      <button class="btn ghost sm" id="repXlsx">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M3 9h18M9 3v18"/></svg>
-        Export Excel
-      </button>
-    </div>
   </div>
 
   <!-- The stretch and the two ways of reading it, at the foot of the sheet
@@ -5442,7 +5350,6 @@ const I18N_DE = {
 "A notification on your phone or laptop the day before, and on the day.": "Eine Benachrichtigung auf deinem Telefon oder Laptop am Vortag und am Tag selbst.",
 "A reminder for anything due in the next three days.": "Eine Erinnerung für alles, was in den nächsten drei Tagen fällig ist.",
 "A report by calendar months": "Ein Bericht nach Kalendermonaten",
-"A report exports the stretch you are looking at instead — Reports › Export Excel or Export PDF.": "Ein Bericht exportiert stattdessen den Zeitraum, den du gerade ansiehst — Berichte › Excel exportieren oder PDF exportieren.",
 "A rupee trip needs the exchange rate — refresh it in Settings › Config": "Eine Rupien-Reise braucht den Wechselkurs – aktualisiere ihn unter Einstellungen › Konfiguration",
 "A saved snapshot is a record of a baseline already replaced, so deleting one changes no balance.": "Ein gespeicherter Stand ist eine Aufzeichnung eines bereits ersetzten Ausgangswerts, daher ändert sein Löschen keinen Kontostand.",
 "A security question is set — it's the only way back in if you forget the PIN.": "Eine Sicherheitsfrage ist festgelegt – sie ist der einzige Weg zurück, wenn du die PIN vergisst.",
@@ -5687,7 +5594,6 @@ const I18N_DE = {
 "Data & backup": "Daten & Sicherung",
 "Data lives in this browser on this device by default. Turn on": "Daten liegen standardmäßig in diesem Browser auf diesem Gerät. Schalte",
 "Date": "Datum",
-"Dates arrive as dates and amounts as numbers, so SUM and pivot tables work.": "Daten kommen als Daten und Beträge als Zahlen an, sodass SUMME und Pivot-Tabellen funktionieren.",
 "Debit": "Belastung",
 "December": "Dezember",
 "Decimal point": "Komma",
@@ -5798,7 +5704,6 @@ const I18N_DE = {
 "Everything in this browser is replaced by the backup in your repo. ": "Alles in diesem Browser wird durch die Sicherung in deinem Repo ersetzt. ",
 "Everything paid or received since ": "Alles, was seit ",
 "Everything this period": "Alles in diesem Zeitraum",
-"Excel file saved": "Excel-Datei gespeichert",
 "Exchange rate": "Wechselkurs",
 "Expense": "Ausgabe",
 "Expense deleted": "Ausgabe gelöscht",
@@ -5822,13 +5727,9 @@ const I18N_DE = {
 "Explain the Income tile": "Erkläre die Einnahmen-Kachel",
 "Explain “In the account now”": "Erkläre „Jetzt auf dem Konto“",
 "Export": "Export",
-"Export Excel": "Excel exportieren",
-"Export PDF": "PDF exportieren",
 "Export a CSV from your bank — Commerzbank: Umsätze › Exportieren als CSV; Deutsche Bank: Umsätze › Export › CSV.": "Exportiere eine CSV bei deiner Bank – Commerzbank: Umsätze › Exportieren als CSV; Deutsche Bank: Umsätze › Export › CSV.",
-"Export a report as PDF": "Einen Bericht als PDF exportieren",
 "Export entries as CSV…": "Einträge als CSV exportieren…",
 "Export my entries to a spreadsheet": "Meine Einträge in eine Tabelle exportieren",
-"Export to Excel": "Nach Excel exportieren",
 "Family": "Familie",
 "February": "Februar",
 "Feedback": "Feedback",
@@ -5984,7 +5885,6 @@ const I18N_DE = {
 "Make a catch-all budget": "Ein Auffangbudget anlegen",
 "Make a fine-grained GitHub token for one private repo, with Contents: Read and write.": "Erstelle ein fein abgestuftes GitHub-Token für ein privates Repo, mit Contents: Read and write.",
 "Make a shopping list": "Eine Einkaufsliste anlegen",
-"Make sure amounts are showing (the eye in the report's header).": "Achte darauf, dass Beträge sichtbar sind (das Auge in der Kopfzeile des Berichts).",
 "Make sure amounts are showing.": "Achte darauf, dass Beträge sichtbar sind.",
 "Manual": "Manuell",
 "Manual bills (M)": "Manuelle Rechnungen (M)",
@@ -6170,9 +6070,7 @@ const I18N_DE = {
 "Open Feedback": "Feedback öffnen",
 "Open GitHub sync": "GitHub-Sync öffnen",
 "Open More": "Mehr öffnen",
-"Open More › Reports and filter it as you want.": "Öffne Mehr › Berichte und filtere, wie du willst.",
 "Open More › Reports and pick This month or This year.": "Öffne Mehr › Berichte und wähle Dieser Monat oder Dieses Jahr.",
-"Open More › Reports and set it up as you want it.": "Öffne Mehr › Berichte und stell ihn ein, wie du willst.",
 "Open More › Reports and tap Chart.": "Öffne Mehr › Berichte und tippe auf Diagramm.",
 "Open More › Reports.": "Öffne Mehr › Berichte.",
 "Open More › Settings › About and tap Update now.": "Öffne Mehr › Einstellungen › Info und tippe auf Jetzt aktualisieren.",
@@ -6358,8 +6256,6 @@ const I18N_DE = {
 "Reports has its own eye in its header, which flips the same setting.": "Berichte hat ein eigenes Auge in der Kopfzeile, das dieselbe Einstellung umschaltet.",
 "Reports › Chart": "Berichte › Diagramm",
 "Reports › Counted by": "Berichte › Gezählt nach",
-"Reports › Export Excel": "Berichte › Excel exportieren",
-"Reports › Export PDF": "Berichte › PDF exportieren",
 "Reports › category and account rows": "Berichte › Kategorie- und Kontozeilen",
 "Restore": "Wiederherstellen",
 "Restore an earlier backup": "Frühere Sicherung wiederherstellen",
@@ -6522,8 +6418,6 @@ const I18N_DE = {
 "Tap Clear examples & start fresh.": "Tippe auf Beispiele löschen & neu anfangen.",
 "Tap Delete all entries and confirm.": "Tippe auf Alle Einträge löschen und bestätige.",
 "Tap Encrypt this device and choose a passphrase.": "Tippe auf Dieses Gerät verschlüsseln und wähle eine Passphrase.",
-"Tap Export Excel.": "Tippe auf Excel exportieren.",
-"Tap Export PDF, then choose Save as PDF in the print dialog.": "Tippe auf PDF exportieren und wähle dann im Druckdialog Als PDF speichern.",
 "Tap Export entries as CSV — every entry you have, oldest first.": "Tippe auf Einträge als CSV exportieren — alle deine Einträge, die ältesten zuerst.",
 "Tap Feedback for an idea, or Report a bug for something that went wrong.": "Tippe auf Feedback für eine Idee oder auf Fehler melden für etwas, das schiefging.",
 "Tap Income or Expenses for every entry behind it, or Net for the whole period in date order.": "Tippe auf Einnahmen oder Ausgaben für jeden Eintrag dahinter, oder auf Netto für den ganzen Zeitraum nach Datum.",
@@ -6596,7 +6490,6 @@ const I18N_DE = {
 "The book goes back to being stored as plain text on this device,": "Das Buch wird wieder als Klartext auf diesem Gerät gespeichert,",
 "The budget then follows your income each period, and the card shows each one as % of Income.": "Das Budget folgt dann jedem Zeitraum deinem Einkommen, und die Karte zeigt jedes als % des Einkommens.",
 "The change itself, in a sentence or two.": "Die Änderung selbst, in ein, zwei Sätzen.",
-"The chart and the full table are both printed, whichever tab is on screen.": "Diagramm und vollständige Tabelle werden beide gedruckt, egal welcher Reiter offen ist.",
 "The choice is remembered. Exports refuse while amounts are hidden, rather than print dots.": "Die Wahl wird gemerkt. Exporte verweigern sich, solange Beträge verborgen sind, statt Punkte zu drucken.",
 "The copy in your repo is overwritten with this device's,": "Die Kopie in deinem Repo wird mit der dieses Geräts überschrieben,",
 "The countdown reads your repeating income — usually Salary.": "Der Countdown liest deine wiederkehrende Einnahme – meist das Gehalt.",
@@ -7205,8 +7098,8 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "2.3.11";
-const APP_BUILT = "2026-09-27";
+const APP_VERSION = "3.0.0";
+const APP_BUILT = "2026-10-14";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -17584,119 +17477,6 @@ const ASK_TOPICS = [
       "Tap See these entries to jump to the table filtered to it; tap the slice again to clear."],
       ["With Planned on, the chart is drawn against your income, and the green Remaining slice is what no plan claims."],
       [["Open Reports", ASK_GO.report]]) },
-  { g:"howto", q:"Export a report as PDF", words:["pdf", "print", "export pdf", "save report"],
-    build:howTo("Export a report as PDF", "Reports › Export PDF", [
-      "Open More › Reports and set it up as you want it.",
-      "Make sure amounts are showing (the eye in the report's header).",
-      "Tap Export PDF, then choose Save as PDF in the print dialog."],
-      ["The chart and the full table are both printed, whichever tab is on screen."],
-      [["Open Reports", ASK_GO.report]]) },
-  { g:"howto", q:"Export to Excel", words:["excel", "xlsx", "spreadsheet", "export excel"],
-    build:howTo("Export to Excel", "Reports › Export Excel", [
-      "Open More › Reports and filter it as you want.",
-      "Make sure amounts are showing.",
-      "Tap Export Excel."],
-      ["Dates arrive as dates and amounts as numbers, so SUM and pivot tables work."],
-      [["Open Reports", ASK_GO.report]]) },
-  { g:"howto", q:"Set an app lock PIN", words:["app lock", "set a pin", "pin", "lock the app", "passcode"],
-    build:howTo("Set an app lock PIN", "More › Settings › App lock", [
-      "Open More › Settings › App lock.",
-      "Tap Set a 4-digit PIN and enter it twice.",
-      "Fill in a Security question and answer, and tap Save security question."],
-      ["It asks again after five minutes idle and whenever the app is reopened."],
-      [["Open App lock", ASK_GO.settings("lock")]]) },
-  { g:"howto", q:"I forgot my PIN", words:["forgot my pin", "forgot pin", "reset pin", "locked out"],
-    build:howTo("I forgot my PIN", "Lock screen › Forgot PIN?", [
-      "On the lock screen, tap Forgot PIN?.",
-      "Answer your security question.",
-      "Set a new PIN."],
-      ["The PIN is never stored as itself, so it can't be shown back — the question is the way in."],
-      []) },
-  { g:"howto", q:"Encrypt the data on this phone", words:["encrypt", "encryption", "passphrase", "secure my data"],
-    build:howTo("Encrypt the data on this phone", "More › Settings › App lock › Encrypt this device", [
-      "Open More › Settings › App lock.",
-      "Tap Encrypt this device and choose a passphrase."],
-      ["The PIN hides the screen; this makes the stored data unreadable. Your passphrase or your security answer opens it — forgetting both is the end of the book, so keep a backup."],
-      [["Open App lock", ASK_GO.settings("lock")]]) },
-  { g:"howto", q:"Back up to GitHub", words:["github", "back up", "backup", "sync", "push now"],
-    build:howTo("Back up to GitHub", "More › Settings › GitHub sync", [
-      "Make a fine-grained GitHub token for one private repo, with Contents: Read and write.",
-      "Open More › Settings › GitHub sync and fill in the token, owner/repo and data path.",
-      "Tap Save & enable backup, then Push now.",
-      "Turn on Push on its own to back up after edits without thinking about it."],
-      ["Every push is a commit, so an earlier backup can always be restored."],
-      [["Open GitHub sync", ASK_GO.settings("github")]]) },
-  { g:"howto", q:"Restore an earlier backup", words:["restore", "earlier backup", "undo", "go back to a backup", "lost data"],
-    build:howTo("Restore an earlier backup", "More › Settings › GitHub sync › Restore an earlier backup", [
-      "Open More › Settings › GitHub sync.",
-      "Tap Restore an earlier backup… and pick the one you want."],
-      ["Without GitHub sync, a backup copied earlier can be pasted into Data & backup › Restore from pasted backup."],
-      [["Open GitHub sync", ASK_GO.settings("github")]]) },
-  { g:"howto", q:"Move to a new phone", words:["new phone", "another device", "move my data", "transfer data", "pull onto this device", "laptop"],
-    build:howTo("Move to a new phone", "Settings › GitHub sync › Pull onto this device", [
-      "On the new phone, open More › Settings › GitHub sync.",
-      "Enter the same token, repo and data path, and tap Save & enable backup.",
-      "Tap Pull onto this device."],
-      ["No GitHub? Data & backup › Copy backup to clipboard on the old phone, then paste it under Restore from pasted backup on the new one."],
-      [["Open GitHub sync", ASK_GO.settings("github")]]) },
-  { g:"howto", q:"Delete all entries", words:["delete all", "start over", "wipe", "erase everything", "reset the app"],
-    build:howTo("Delete all entries", "More › Settings › Data & backup › Delete all entries", [
-      "Back up first: Push now, or Copy backup to clipboard.",
-      "Open More › Settings › Data & backup.",
-      "Tap Delete all entries and confirm."],
-      ["It asks first and says what is about to go."],
-      [["Open Data & backup", ASK_GO.settings("data")]]) },
-  { g:"howto", q:"Clear the example data", words:["example data", "demo data", "clear examples", "start fresh"],
-    build:howTo("Clear the example data", "Dashboard › Clear examples & start fresh", [
-      "While the example book is showing, a banner on the dashboard says so.",
-      "Tap Clear examples & start fresh."],
-      ["The banner only appears while the examples are there."],
-      [["Open the dashboard", ASK_GO.panel("dash")]]) },
-  { g:"howto", q:"Turn on reminders", words:["reminders", "notifications", "notify", "remind me", "bell"],
-    build:howTo("Turn on reminders", "More › Settings › Notifications", [
-      "Open More › Settings › Notifications.",
-      "Turn on Recurring payment reminders for anything due in the next three days.",
-      "Turn on Notify this device for a phone notification the day before, and on the day."],
-      ["The bell at the top shows what is due, and its dot counts it."],
-      [["Open Notifications", ASK_GO.settings("prefs")]]) },
-  { g:"howto", q:"Switch to dark or light", words:["dark mode", "light mode", "theme", "night mode"],
-    build:howTo("Switch to dark or light", "More › System · Light · Dark", [
-      "Tap More.",
-      "Pick System, Light or Dark at the bottom."],
-      ["System follows the phone's own setting."],
-      [["Open More", ASK_GO.more]]) },
-  { g:"howto", q:"Update the app", words:["update the app", "new version", "update now", "latest version", "version"],
-    build:howTo("Update the app", "More › Settings › About › Update now", [
-      "When a new version is ready, More › What's new shows Update.",
-      "Open More › Settings › About and tap Update now."],
-      ["Running shows whether this phone has the latest copy or a cached older one."],
-      [["Open About", ASK_GO.settings("about")]]) },
-  { g:"howto", q:"See what's new", words:["what's new", "whats new", "release notes", "changes"],
-    build:howTo("See what's new", "More › What's new", [
-      "Tap More, then What's new.",
-      "Each version lists its changes — fixes, new things and improvements."],
-      [], [["What's new", ASK_GO.notes]]) },
-  { g:"howto", q:"Install on the home screen", words:["install", "home screen", "add to home screen", "app icon"],
-    build:howTo("Install on the home screen", "Dashboard › Install app", [
-      "On Android or a laptop, tap Install app on the dashboard's banner.",
-      "On an iPhone, open it in Safari, tap Share, then Add to Home Screen."],
-      ["Installed, it opens full screen and works offline."],
-      []) },
-  { g:"howto", q:"Send feedback or report a bug", words:["feedback", "report a bug", "bug", "idea", "suggestion"],
-    build:howTo("Send feedback or report a bug", "More › Settings › Feedback", [
-      "Open More › Settings › Feedback.",
-      "Tap Feedback for an idea, or Report a bug for something that went wrong.",
-      "Answer one question at a time and save."],
-      ["Kept on this phone and carried in your backup. Nothing is sent anywhere."],
-      [["Open Feedback", ASK_GO.settings("feedback")]]) },
-  { g:"howto", q:"Change my name", words:["change my name", "profile", "my email", "greeting"],
-    build:howTo("Change my name", "More › Settings › Your profile", [
-      "Open More › Settings › Your profile.",
-      "Fill in your first name, last name and email, and tap Save profile."],
-      ["Your first name greets you under the title."],
-      [["Open profile", ASK_GO.settings("profile")]]) },
-
-  /* --- what has arrived since the helper was last written --- */
   { g:"explain", q:"What the welcome screen says",
     words:["welcome screen", "opening screen", "face", "smiley", "sad face", "yesterday spending", "this week spending", "countdown screen",
             "begrüßungsbildschirm", "begrüßung", "gesicht", "gestern ausgegeben"],
@@ -17708,8 +17488,7 @@ const ASK_TOPICS = [
       "Open More › Settings › Data & backup.",
       "Tap Export entries as CSV — every entry you have, oldest first.",
       "Amounts have to be showing: tap the eye first if they are hidden."],
-      ["It opens in Excel as it is. It is a copy to read: to move your book to another device use the backup box, or GitHub sync.",
-       "A report exports the stretch you are looking at instead — Reports › Export Excel or Export PDF."],
+      ["It opens in Excel as it is. It is a copy to read: to move your book to another device use the backup box, or GitHub sync."],
       [["Open Data & backup", ASK_GO.settings("data")]]) },
   { g:"howto", q:"Use the calculator", words:["calculator", "calculate", "add up", "work out", "sum", "split the bill", "maths", "math", "percentage", "per cent",
             "rechner", "rechnen", "ausrechnen", "prozent", "summe"],
@@ -19796,9 +19575,8 @@ function repDrawTable(rows){
       });
       tb.appendChild(hr);
 
-      /* Folded rows are built and then hidden rather than left out, so that
-         printing — which is how the PDF is made — can show them all without
-         needing the table redrawn first. */
+      /* Folded rows are built and then hidden rather than left out, so a
+         month opens without the table being redrawn. */
       mine.forEach(t => {
         const r = rowFor(t);
         r.classList.add("rp-in");
@@ -20042,190 +19820,6 @@ $("#repBack").addEventListener("click", () => { sheetClose(); openMore(); });
 $("#repEye").addEventListener("click", toggleAmounts);
 
 /* =========================================================================
-   EXPORTING A REPORT
-
-   Excel gets a real .xlsx rather than a CSV. An .xlsx is a zip of XML files,
-   and a zip entry may be stored rather than deflated, so the whole thing can be
-   written here without a compression library — only a CRC is needed, which is
-   twenty lines. The gain is that dates arrive as dates and amounts as numbers,
-   so SUM and a pivot table work on the file rather than on text that Excel has
-   guessed at, which with a German decimal comma it usually guesses wrong.
-
-   PDF goes through the browser's own print, styled for paper. It costs nothing
-   to carry, works offline from the first use, and on a phone it lands in Files
-   or Downloads like any other print-to-PDF.
-   ========================================================================= */
-
-const CRC_TABLE = (() => {
-  const t = new Uint32Array(256);
-  for (let i = 0; i < 256; i++){
-    let c = i;
-    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-    t[i] = c >>> 0;
-  }
-  return t;
-})();
-
-function crc32(bytes){
-  let c = 0xFFFFFFFF;
-  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
-  return (c ^ 0xFFFFFFFF) >>> 0;
-}
-
-/** A zip with every entry stored, which is all a .xlsx reader needs. */
-function zipStore(files){
-  const enc = new TextEncoder();
-  const parts = [];
-  const central = [];
-  let at = 0;
-
-  const u16 = n => [n & 0xFF, (n >>> 8) & 0xFF];
-  const u32 = n => [n & 0xFF, (n >>> 8) & 0xFF, (n >>> 16) & 0xFF, (n >>> 24) & 0xFF];
-
-  files.forEach(f => {
-    const name = enc.encode(f.name);
-    const data = typeof f.data === "string" ? enc.encode(f.data) : f.data;
-    const crc = crc32(data);
-    const head = [].concat(
-      u32(0x04034b50), u16(20), u16(0), u16(0), u16(0), u16(0),
-      u32(crc), u32(data.length), u32(data.length),
-      u16(name.length), u16(0)
-    );
-    parts.push(new Uint8Array(head), name, data);
-    central.push({ name:name, crc:crc, size:data.length, at:at });
-    at += head.length + name.length + data.length;
-  });
-
-  const dir = [];
-  central.forEach(c => {
-    const head = [].concat(
-      u32(0x02014b50), u16(20), u16(20), u16(0), u16(0), u16(0), u16(0),
-      u32(c.crc), u32(c.size), u32(c.size),
-      u16(c.name.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(c.at)
-    );
-    dir.push(new Uint8Array(head), c.name);
-  });
-  const dirBytes = dir.reduce((n, p) => n + p.length, 0);
-  const end = new Uint8Array([].concat(
-    u32(0x06054b50), u16(0), u16(0),
-    u16(files.length), u16(files.length), u32(dirBytes), u32(at), u16(0)
-  ));
-
-  return new Blob(parts.concat(dir, [end]), {
-    type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  });
-}
-
-const xmlEsc = s => String(s == null ? "" : s)
-  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-  .replace(/"/g, "&quot;")
-  /* a character class, not an alternation: XML forbids these outright,
-     and one of them slipping through makes the whole workbook unreadable */
-  .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, "");
-
-/** Excel counts days from 30 Dec 1899, and believes 1900 had a 29 February. */
-function excelSerial(iso){
-  const d = new Date(iso + "T00:00:00Z");
-  return Math.round((d.getTime() - Date.UTC(1899, 11, 30)) / 86400000);
-}
-
-const colName = i => {
-  let s = "";
-  i++;
-  while (i > 0){ const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = ((i - m) / 26) | 0; }
-  return s;
-};
-
-/**
- * One sheet from rows of cells. A cell is {v, t} where t is "s" for text,
- * "n" for a number, "d" for a date and "m" for money.
- */
-function sheetXml(rows){
-  const body = rows.map((cells, r) => {
-    const tds = cells.map((c, i) => {
-      const ref = colName(i) + (r + 1);
-      if (c == null || c.v === "" || c.v == null) return "";
-      if (c.t === "d") return '<c r="' + ref + '" s="2"><v>' + excelSerial(c.v) + "</v></c>";
-      if (c.t === "m") return '<c r="' + ref + '" s="3"><v>' + (toDisp(c.v) / 100).toFixed(2) + "</v></c>";
-      if (c.t === "n") return '<c r="' + ref + '"><v>' + c.v + "</v></c>";
-      const style = c.h ? ' s="1"' : "";
-      return '<c r="' + ref + '"' + style + ' t="inlineStr"><is><t xml:space="preserve">' +
-             xmlEsc(c.v) + "</t></is></c>";
-    }).join("");
-    return '<row r="' + (r + 1) + '">' + tds + "</row>";
-  }).join("");
-
-  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
-    '<sheetViews><sheetView workbookViewId="0" tabSelected="1">' +
-    '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>' +
-    "</sheetView></sheetViews>" +
-    '<cols><col min="1" max="1" width="12"/><col min="2" max="2" width="10"/>' +
-    '<col min="3" max="3" width="20"/><col min="4" max="4" width="34"/>' +
-    '<col min="5" max="5" width="22"/><col min="6" max="7" width="13"/>' +
-    '<col min="8" max="8" width="10"/></cols>' +
-    "<sheetData>" + body + "</sheetData></worksheet>";
-}
-
-const xlsxStyles = () =>
-  '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-  '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
-  '<numFmts count="2">' +
-  '<numFmt numFmtId="164" formatCode="dd\\ mmm\\ yyyy"/>' +
-  '<numFmt numFmtId="165" formatCode="#,##0.00\\ &quot;' + curSym() + '&quot;"/>' +
-  "</numFmts>" +
-  '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font>' +
-  '<font><b/><sz val="11"/><name val="Calibri"/></font></fonts>' +
-  '<fills count="3"><fill><patternFill patternType="none"/></fill>' +
-  '<fill><patternFill patternType="gray125"/></fill>' +
-  '<fill><patternFill patternType="solid"><fgColor rgb="FFE7EBEF"/><bgColor indexed="64"/></patternFill></fill></fills>' +
-  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
-  '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
-  '<cellXfs count="4">' +
-  '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
-  '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>' +
-  '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
-  '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
-  "</cellXfs>" +
-  /* readers that follow the schema strictly want a named default style,
-     and warn or refuse without one */
-  '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
-  "</styleSheet>";
-
-function buildXlsx(rows, sheetName){
-  return zipStore([
-    { name:"[Content_Types].xml", data:
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
-      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
-      '<Default Extension="xml" ContentType="application/xml"/>' +
-      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
-      '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
-      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
-      "</Types>" },
-    { name:"_rels/.rels", data:
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
-      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
-      "</Relationships>" },
-    { name:"xl/workbook.xml", data:
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ' +
-      'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
-      '<sheets><sheet name="' + xmlEsc(sheetName).slice(0, 31) + '" sheetId="1" r:id="rId1"/></sheets>' +
-      "</workbook>" },
-    { name:"xl/_rels/workbook.xml.rels", data:
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
-      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' +
-      '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
-      "</Relationships>" },
-    { name:"xl/styles.xml", data:xlsxStyles() },
-    { name:"xl/worksheets/sheet1.xml", data:sheetXml(rows) }
-  ]);
-}
-
-/* =========================================================================
    CSV of the whole book
 
    A copy to read, not a backup: it holds what each entry is, not the setup
@@ -20278,62 +19872,6 @@ function saveBlob(blob, name){
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
-/** The rows as the spreadsheet wants them: a title block, then the table. */
-/** What the export should say the account filter was, transfers included. */
-function repAcctsText(){
-  if (!repAccts.length) return "All accounts — transfers counted as neither";
-  if (repAccts.length === 1)
-    return acctName(repAccts[0]) + " — transfers counted from its side";
-  return repAccts.map(acctName).join(", ") +
-         " — transfers counted as neither, a transfer having no one side once " +
-         "more than one account is asked about";
-}
-
-function repExportRows(){
-  const r = repDates();
-  const rows = repRows();
-  const tot = repTotals(rows);
-  const out = [
-    [{ v:"பணப்பை — report", h:1 }],
-    [{ v:"Range" }, { v:prettyDate(r.from) + " to " + prettyDate(r.to) }],
-    [{ v:"Counted by" }, { v:repBasis === "calendar" ? "Calendar" : "15th–14th periods" }],
-    [{ v:"Accounts" }, { v:repAcctsText() }],
-    [{ v:"Categories" }, { v:repCats.length
-                             ? repCats.map(id => catOf(id).n).join(", ")
-                             : "All categories" }],
-    [{ v:"Generated" }, { v:prettyDate(todayISO()) }],
-    [],
-    ["Date", "Type", "Category", "Note", "Account", "Income", "Expense", "Status"]
-      .map(h => ({ v:h, h:1 }))
-  ];
-
-  rows.forEach(t => {
-    const side = repSideOf(t);
-    out.push([
-      { v:t.date, t:"d" },
-      { v:t.type === "transfer" ? "Transfer" : (t.type === "income" ? "Income" : "Expense") },
-      { v:repCatOf(t).n },
-      { v:t.note || "" },
-      { v:t.type === "transfer"
-          ? (acctName(t.fromAccount) || "?") + " → " + (acctName(t.account) || "?")
-          : (acctName(t.account) || "") },
-      { v:side === "income" ? t.amount : "", t:"m" },
-      { v:side === "expense" ? t.amount : "", t:"m" },
-      { v:t.status === "planned" ? "Planned" : "Paid" }
-    ]);
-  });
-
-  out.push([]);
-  out.push([{ v:"Settled", h:1 }, null, null, null, null,
-            { v:tot.settledIn, t:"m" }, { v:tot.settledOut, t:"m" }]);
-  out.push([{ v:"Planned", h:1 }, null, null, null, null,
-            { v:tot.plannedIn, t:"m" }, { v:tot.plannedOut, t:"m" }]);
-  out.push([{ v:"Totals", h:1 }, null, null, null, null,
-            { v:tot.inc, t:"m" }, { v:tot.out, t:"m" }]);
-  out.push([{ v:"Net", h:1 }, null, null, null, null, { v:tot.net, t:"m" }]);
-  return out;
-}
-
 $("#csvOut").addEventListener("click", () => {
   if (amountsHidden){ toast("Tap the eye to show amounts before exporting"); return; }
   if (!state.txns.length){ toast("Nothing to export yet"); return; }
@@ -20344,44 +19882,6 @@ $("#csvOut").addEventListener("click", () => {
   }catch(e){
     toast("Couldn't build the file — " + (e && e.message ? e.message : "unknown"));
   }
-});
-
-$("#repXlsx").addEventListener("click", () => {
-  if (amountsHidden){
-    toast("Tap the eye to show amounts before exporting");
-    return;
-  }
-  try{
-    const r = repDates();
-    const blob = buildXlsx(repExportRows(), "Report");
-    saveBlob(blob, "panappai-" + r.from + "-to-" + r.to + ".xlsx");
-    toast("Excel file saved");
-  }catch(e){
-    toast("Couldn't build the file — " + (e && e.message ? e.message : "unknown"));
-  }
-});
-
-$("#repPdf").addEventListener("click", () => {
-  if (amountsHidden){
-    toast("Tap the eye to show amounts before exporting");
-    return;
-  }
-  /* the print sheet shows both tabs and none of the controls, so the page
-     needs a heading of its own that the screen never shows */
-  const r = repDates();
-  let head = $("#repPrintHead");
-  if (!head){
-    head = el("div", "rp-print-only");
-    head.id = "repPrintHead";
-    $("#repBody").insertBefore(head, $("#repBody").firstChild);
-  }
-  head.innerHTML =
-    '<div style="font-size:15px;font-weight:700;margin-bottom:2px">பணப்பை — report</div>' +
-    '<div style="font-size:11px;color:#444">' +
-    esc(prettyDate(r.from)) + " to " + esc(prettyDate(r.to)) +
-    "  ·  counted by " + (repBasis === "calendar" ? "calendar" : "15th–14th periods") +
-    "  ·  generated " + esc(prettyDate(todayISO())) + "</div>";
-  window.print();
 });
 
 /* =========================================================================
