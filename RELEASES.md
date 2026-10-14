@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.0.5 — 2026-10-14
+- new: Your profile takes a date of birth and a location; the birth-date calendar opens on a year grid so decades back is one tap.
+
 ## 3.0.4 — 2026-10-14
 - better: Line charts are drawn as smooth curves now, the Reports lines and the balance line both, rounding the corners without ever passing a real figure.
 
