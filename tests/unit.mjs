@@ -93,6 +93,43 @@ export default [
                          "2026-07-31", "2026-08-31", "2026-09-30", "2026-10-14"]);
   }},
 
+  { name: "monoSegs: smooth, through every point, never past a point's value", async run(pg){
+    const r = await pg.fn(() => {
+      const at = (c, t) => { const u = 1 - t;
+        return u*u*u*c.y0 + 3*u*u*t*c.c1y + 3*u*t*t*c.c2y + t*t*t*c.y1; };
+      const sets = [
+        [0, 1, 0],                     /* a peak: the top is the point itself */
+        [5, 5, 5, 9],                  /* a flat run stays flat */
+        [10, 2, 30, 31, 0, 0, 40],     /* steep turns and a zero floor */
+        [3, 7],                        /* two points: a straight line */
+        [-20, 60, -5, 80, 80, 10]
+      ];
+      const out = { through:true, overshoot:[], flat:null, straight:null, curved:false };
+      sets.forEach((ys, si) => {
+        const segs = monoSegs(ys.map((y, i) => ({ x:i * 10, y })));
+        segs.forEach((c, i) => {
+          if (c.y0 !== ys[i] || c.y1 !== ys[i + 1]) out.through = false;
+          if (c.c1y !== c.y0 + (c.y1 - c.y0) / 3 || c.c2y !== c.y1 - (c.y1 - c.y0) / 3) out.curved = true;
+          const lo = Math.min(c.y0, c.y1) - 1e-9, hi = Math.max(c.y0, c.y1) + 1e-9;
+          for (let t = 0; t <= 1; t += 0.02){
+            const y = at(c, t);
+            if (y < lo || y > hi) { out.overshoot.push(si + ":" + i + "@" + t.toFixed(2)); break; }
+          }
+        });
+        /* both handles of the flat gap, and the first handle leaving it */
+        if (si === 1) out.flat = [segs[0].c1y, segs[0].c2y, segs[1].c1y];
+        if (si === 3) out.straight = [segs[0].c1y, segs[0].c2y];
+      });
+      return out;
+    });
+    assert.equal(r.through, true);
+    assert.deepEqual(r.overshoot, []);
+    assert.deepEqual(r.flat, [5, 5, 5]);
+    assert.ok(Math.abs(r.straight[0] - (3 + 4 / 3)) < 1e-9 && Math.abs(r.straight[1] - (7 - 4 / 3)) < 1e-9,
+              "two points make a straight line: " + r.straight);
+    assert.equal(r.curved, true, "the corners are rounded, not straight lines");
+  }},
+
   { name: "repTotals keeps planned apart and transfers out of the totals", async run(pg){
     const r = await pg.fn(() => {
       const keep = repAccts; repAccts = [];

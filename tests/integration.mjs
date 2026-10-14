@@ -79,7 +79,9 @@ export default [
         .dispatchEvent(new MouseEvent("click", { bubbles:true }));
       const out = { read: document.querySelector("#balLineVal").textContent,
                     note: !document.querySelector("#balLineNote").hidden,
-                    dashed: document.querySelectorAll("#balLineChart .bl-back").length };
+                    dashed: document.querySelectorAll("#balLineChart .bl-back").length,
+                    curved: [...document.querySelectorAll("#balLineChart .bl-path, #balLineChart .bl-back")]
+                      .every(p => /^M[^L]*C/.test(p.getAttribute("d"))) };
       __T.restore();
       return out;
     });
@@ -87,6 +89,7 @@ export default [
     assert.equal(cents(r.read.replace(/^.*2026/, "")), 500640);
     assert.equal(r.note, true);
     assert.ok(r.dashed > 0);
+    assert.equal(r.curved, true, "the balance line is drawn as curves");
   }},
 
   { name: "adding an entry through the sheet moves the balance by exactly its amount", async run(pg){
@@ -148,6 +151,7 @@ export default [
       const shape = () => ({ bars: document.querySelectorAll("#repBarsChart rect:not(.bx-hit)").length,
                              lines: document.querySelectorAll("#repBarsChart .bx-ln").length,
                              areas: document.querySelectorAll("#repBarsChart .bx-area").length,
+                             curved: [...document.querySelectorAll("#repBarsChart .bx-ln")].every(p => /C/.test(p.getAttribute("d")) && !/L/.test(p.getAttribute("d"))),
                              hits: document.querySelectorAll("#repBarsChart .bx-hit").length,
                              label: document.querySelector("#repBarsMode").getAttribute("aria-label"),
                              read: document.querySelector("#repBarsVal").textContent });
@@ -171,6 +175,7 @@ export default [
     assert.equal(r.asBars.label, "Show as a line chart");
     assert.equal(r.asLines.bars, 0); assert.equal(r.asLines.lines, 2);
     assert.equal(r.asLines.areas, 2, "each line shades the area below it");
+    assert.equal(r.asLines.curved, true, "the lines are curves, not straight segments");
     assert.equal(r.asBars.areas, 0);
     assert.equal(r.asLines.hits, r.asBars.hits);
     assert.equal(r.asLines.read, r.asBars.read);

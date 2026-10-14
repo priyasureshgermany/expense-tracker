@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.0.4 — 2026-10-14
+- better: Line charts are drawn as smooth curves now, the Reports lines and the balance line both, rounding the corners without ever passing a real figure.
+
 ## 3.0.3 — 2026-10-14
 - new: The Reports chart has a small switch beside its key to show income and expenses as shaded lines instead of bars; the choice is remembered on this device.
 
