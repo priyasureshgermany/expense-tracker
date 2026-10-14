@@ -139,6 +139,47 @@ export default [
     assert.equal(r.out, r.tOut);
   }},
 
+  { name: "report chart: the switch turns bars into lines and back, reading the same figures", async run(pg){
+    const r = await pg.fn(async () => {
+      __T.useBook();
+      try{ localStorage.removeItem("panappai.repBarsLine"); }catch(e){}
+      repBarsLine = false;
+      openReport(); await new Promise(r => setTimeout(r, 300));
+      const shape = () => ({ bars: document.querySelectorAll("#repBarsChart rect:not(.bx-hit)").length,
+                             lines: document.querySelectorAll("#repBarsChart .bx-ln").length,
+                             areas: document.querySelectorAll("#repBarsChart .bx-area").length,
+                             hits: document.querySelectorAll("#repBarsChart .bx-hit").length,
+                             label: document.querySelector("#repBarsMode").getAttribute("aria-label"),
+                             read: document.querySelector("#repBarsVal").textContent });
+      const asBars = shape();
+      document.querySelector("#repBarsMode").click();
+      const asLines = shape();
+      const kept = localStorage.getItem("panappai.repBarsLine");
+      /* a tapped column reads out the same in either shape */
+      document.querySelectorAll("#repBarsChart .bx-hit")[1].dispatchEvent(new MouseEvent("click", { bubbles:true }));
+      const lineRead = document.querySelector("#repBarsVal").textContent;
+      document.querySelector("#repBarsMode").click();
+      const barRead = document.querySelector("#repBarsVal").textContent;
+      const back = shape();
+      sheetClose();
+      try{ localStorage.removeItem("panappai.repBarsLine"); }catch(e){}
+      repBarsLine = false;
+      __T.restore();
+      return { asBars, asLines, kept, lineRead, barRead, back };
+    });
+    assert.ok(r.asBars.bars > 0); assert.equal(r.asBars.lines, 0);
+    assert.equal(r.asBars.label, "Show as a line chart");
+    assert.equal(r.asLines.bars, 0); assert.equal(r.asLines.lines, 2);
+    assert.equal(r.asLines.areas, 2, "each line shades the area below it");
+    assert.equal(r.asBars.areas, 0);
+    assert.equal(r.asLines.hits, r.asBars.hits);
+    assert.equal(r.asLines.read, r.asBars.read);
+    assert.equal(r.asLines.label, "Show as bars");
+    assert.equal(r.kept, "1");
+    assert.equal(r.lineRead, r.barRead);
+    assert.equal(r.back.bars, r.asBars.bars); assert.equal(r.back.lines, 0);
+  }},
+
   { name: "report: the Details table lists every counted row", async run(pg){
     const r = await pg.fn(async () => {
       __T.useBook();
@@ -222,11 +263,13 @@ export default [
       await new Promise(r => setTimeout(r, 400));     /* the dictionary swaps on the next tick */
       openSettings(); await new Promise(r => setTimeout(r, 400));
       const row = document.querySelector("#cfgBalLine").closest(".cfgrow");
+      repDrawBars(); await new Promise(r => setTimeout(r, 100));
+      const sw = document.querySelector("#repBarsMode").getAttribute("aria-label");
       const out = { val: document.querySelector("#balLineVal").innerText,
                     note: document.querySelector("#balLineNote").innerText,
                     k: document.querySelector(".bal-k").innerText,
                     cfg: row.querySelector(".cf-t b").innerText,
-                    btns: [...row.querySelectorAll("button")].map(b => b.innerText) };
+                    btns: [...row.querySelectorAll("button")].map(b => b.innerText), sw };
       sheetClose();
       __T.restore();
       return out;
@@ -238,5 +281,6 @@ export default [
     assert.doesNotMatch(r.k, /account now/i);
     assert.equal(r.cfg, "Saldoverlauf");
     assert.deepEqual(r.btns, ["Aus", "An"]);
+    assert.equal(r.sw, "Als Liniendiagramm zeigen");
   }}
 ];
