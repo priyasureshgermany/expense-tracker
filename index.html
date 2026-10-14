@@ -7151,7 +7151,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.0.3";
+const APP_VERSION = "3.0.4";
 const APP_BUILT = "2026-10-14";
 
 const KEY = "panappai.v1";
@@ -9790,6 +9790,63 @@ function balanceLinePoints(){
   return out;
 }
 
+/**
+ * A smooth curve through points, one cubic per gap, as [{x0,y0,c1x,c1y,c2x,c2y,x1,y1}].
+ *
+ * Monotone (Fritsch–Carlson, as d3's curveMonotoneX): between two points the
+ * curve never rises above the higher or dips below the lower. An ordinary
+ * spline overshoots, which on a money chart draws a month below zero or a
+ * peak no month ever reached; this one only rounds the corners.
+ */
+function monoSegs(pts){
+  const n = pts.length;
+  if (n < 2) return [];
+  const h = [], sl = [];
+  for (let i = 0; i < n - 1; i++){
+    h[i] = pts[i + 1].x - pts[i].x;
+    sl[i] = h[i] ? (pts[i + 1].y - pts[i].y) / h[i] : 0;
+  }
+  const sign = v => v < 0 ? -1 : 1;
+  const m = new Array(n);
+  for (let i = 1; i < n - 1; i++){
+    const p = (sl[i - 1] * h[i] + sl[i] * h[i - 1]) / (h[i - 1] + h[i]);
+    m[i] = (sign(sl[i - 1]) + sign(sl[i])) *
+           Math.min(Math.abs(sl[i - 1]), Math.abs(sl[i]), 0.5 * Math.abs(p)) || 0;
+  }
+  /* the ends lean the way the next tangent does, kept to the slope's own side
+     and within three times it, which is what keeps an end gap from overshooting */
+  const end = (s, t) => {
+    const v = (3 * s - t) / 2;
+    return !s || v * s <= 0 ? 0 : sign(v) * Math.min(Math.abs(v), 3 * Math.abs(s));
+  };
+  if (n === 2){ m[0] = m[1] = sl[0]; }
+  else {
+    m[0] = end(sl[0], m[1]);
+    m[n - 1] = end(sl[n - 2], m[n - 2]);
+  }
+  const out = [];
+  for (let i = 0; i < n - 1; i++){
+    const d = h[i] / 3;
+    out.push({ x0:pts[i].x, y0:pts[i].y,
+               c1x:pts[i].x + d, c1y:pts[i].y + m[i] * d,
+               c2x:pts[i + 1].x - d, c2y:pts[i + 1].y - m[i + 1] * d,
+               x1:pts[i + 1].x, y1:pts[i + 1].y });
+  }
+  return out;
+}
+/** One segment of it as path commands, starting with a move unless joined on. */
+function monoSegD(c, move){
+  const f = v => v.toFixed(1);
+  return (move ? "M" + f(c.x0) + " " + f(c.y0) : "") +
+         "C" + f(c.c1x) + " " + f(c.c1y) + " " + f(c.c2x) + " " + f(c.c2y) + " " + f(c.x1) + " " + f(c.y1);
+}
+/** The whole curve as one path. */
+function monoPath(pts){
+  const segs = monoSegs(pts);
+  if (!segs.length) return pts.length ? "M" + pts[0].x.toFixed(1) + " " + pts[0].y.toFixed(1) : "";
+  return segs.map((c, i) => monoSegD(c, i === 0)).join("");
+}
+
 const BLINE = { w:320, h:78, padX:10, padT:8, base:60 };
 let balLinePick = null;     /* which month is being read, by index */
 let balLineLen = 0;         /* how many months it was picked among */
@@ -9813,12 +9870,11 @@ function renderBalanceLine(){
   const Y = v => base - (v - lo) / (hi - lo) * (base - padT);
 
   let g = "";
-  /* solid where every account is counted forward, dashed where any is worked back */
-  for (let i = 1; i < pts.length; i++){
-    g += '<path class="' + (pts[i - 1].back ? "bl-back" : "bl-path") + '" d="M' +
-         X(i - 1).toFixed(1) + " " + Y(pts[i - 1].v).toFixed(1) + "L" +
-         X(i).toFixed(1) + " " + Y(pts[i].v).toFixed(1) + '"/>';
-  }
+  /* solid where every account is counted forward, dashed where any is worked
+     back — one smooth curve, cut into its gaps so each can be either */
+  monoSegs(pts.map((p, i) => ({ x:X(i), y:Y(p.v) }))).forEach((c, i) => {
+    g += '<path class="' + (pts[i].back ? "bl-back" : "bl-path") + '" d="' + monoSegD(c, true) + '"/>';
+  });
   pts.forEach((p, i) => {
     const on = i === balLinePick;
     g += '<circle class="bl-dot' + (on ? " on" : "") + '" cx="' + X(i).toFixed(1) +
@@ -19440,7 +19496,7 @@ function repDrawBars(){
   if (repBarsLine){
     const cx = i => padL + slot * i + slot / 2;
     const y = v => base - (v / max) * span;
-    const line = k => b.map((x, i) => (i ? "L" : "M") + cx(i).toFixed(1) + " " + y(x[k]).toFixed(1)).join("");
+    const line = k => monoPath(b.map((x, i) => ({ x:cx(i), y:y(x[k]) })));
     /* each line shades the ground beneath it down to the baseline, fading as
        it goes, so where the two cross reads as one colour over the other */
     let areas = "", fades = "";

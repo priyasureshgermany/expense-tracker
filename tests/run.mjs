@@ -192,7 +192,7 @@ for (const level of levels){
       pass++; console.log("  \u2713 " + t.name);
     }catch(e){
       fail++; failures.push(level + " › " + t.name + "\n      " + String(e.message || e).split("\n")[0]);
-      console.log("  \u2717 " + t.name + "\n      " + String(e.message || e).split("\n").slice(0, 3).join("\n      "));
+      console.log("  \u2717 " + t.name + "\n      " + String(e.message || e).split("\n").slice(0, 12).join("\n      "));
       /* leave the next test a clean page */
       try{ await page.goto("/?test=" + Date.now()); }catch(e2){}
     }
