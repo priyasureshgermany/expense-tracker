@@ -518,6 +518,39 @@ grid, Monday-first, with the selected day filled, today outlined, and a
 **Today** shortcut. It looks the same on every device, which the native control
 does not.
 
+## Testing
+
+Three levels, all run against the real page in a fresh headless Chrome (or
+Edge), with no dependencies to install:
+
+```bash
+node tests/run.mjs
+```
+
+| Level | File | What it asks |
+|---|---|---|
+| Smoke | `tests/smoke.mjs` | Does it load without an error, do its three version numbers agree, does every screen open, and is the single-file script free of duplicate functions and stray control bytes? |
+| Unit | `tests/unit.mjs` | One function at a time: amounts, dates, ISO weeks, periods, account deltas, the ledger, the balance on a date, report totals, CSV cells, backup parsing. |
+| Integration | `tests/integration.mjs` | Pieces together: the figure on screen against the function behind it, adding an entry through the sheet, report bars against the rows in them, a backup round trip, German over a new screen. |
+
+`node tests/run.mjs smoke` (or `unit`, `integration`) runs one level, and
+`--headed` shows the browser.
+
+The tests use one known book (`tests/fixture.js`): three accounts over eight
+months, plus the cases that must not count, which are a planned entry, a
+settled entry dated ahead and an entry naming no account. "Today" is pinned to
+14 Oct 2026 so every expected figure can be worked out by hand once. Nothing is
+saved: the book lives in memory and `save()` is held off while a test runs.
+
+Expected values are worked by hand or taken from an outside reference, never
+copied from what the code returned. A test that would pass with the code
+removed proves nothing, so a new test should be checked by breaking the code it
+covers and watching it fail.
+
+**The pre-commit hook runs all three levels** on any commit that touches more
+than markdown or `data/`, and refuses the commit if one fails. Reinstall the
+hook after pulling a change to it: `sh tools/install-hooks.sh`.
+
 ## Versioning
 
 **Settings → About** shows the deployed version, when it was deployed, and

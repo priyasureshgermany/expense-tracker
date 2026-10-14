@@ -14,8 +14,9 @@
 #
 #   node tools/bump-version.mjs --amend --note "And this too"
 #
-# Skipped for rebases and merges (replays, not releases) and for commits that
-# only touch data/, tools/ or the release files themselves.
+# Skipped for rebases and merges (replays, not releases). The version check is
+# skipped for commits that only touch data/, tools/, tests/ or the release
+# files themselves; the tests are skipped only for markdown and data/.
 
 if [ -d "$(git rev-parse --git-path rebase-merge 2>/dev/null)" ] ||
    [ -d "$(git rev-parse --git-path rebase-apply 2>/dev/null)" ] ||
@@ -26,9 +27,21 @@ fi
 staged=$(git diff --cached --name-only)
 [ -z "$staged" ] && exit 0
 
+# Every change to code runs all three test levels — smoke, unit, integration —
+# against the staged page in a fresh headless Chrome, and a failure stops the
+# commit. Markdown and data alone are not code, so they skip it.
+if echo "$staged" | grep -qvE '^data/|\.md$'; then
+  echo "pre-commit: running smoke, unit and integration tests…" >&2
+  if ! node tests/run.mjs >&2; then
+    echo "pre-commit: tests failed — fix them before committing (node tests/run.mjs)" >&2
+    exit 1
+  fi
+fi
+
 # Markdown is documentation, not shipped code — README, RELEASES and FEEDBACK
 # all change without the app changing, so none of them should force a release.
-if ! echo "$staged" | grep -qvE '^(data/|tools/|version\.json$)|\.md$'; then
+# Nor do the tests or the tools around the app.
+if ! echo "$staged" | grep -qvE '^(data/|tools/|tests/|version\.json$)|\.md$'; then
   exit 0
 fi
 
