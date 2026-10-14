@@ -36,7 +36,8 @@ window.__T = (() => {
         { id:"a2", n:"Cash",   kind:"cash", start:{ amount:20000,  date:"2026-08-01" } },
         { id:"a3", n:"PayPal", kind:"card" }
       ],
-      profile: { first:"Test" }
+      profile: { first:"Test" },
+      balLine: true          /* the balance line is off by default; the book shows it */
     });
   }
 
