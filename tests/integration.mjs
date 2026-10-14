@@ -243,6 +243,63 @@ export default [
     assert.equal(r.again.picked, 0);
   }},
 
+  { name: "profile: birth date picked by year, location typed, saved and read back after a backup", async run(pg){
+    const r = await pg.fn(async () => {
+      __T.useBook();
+      state.profile = null;
+      openSettings(); await new Promise(r => setTimeout(r, 250));
+      document.querySelector('.setrow[data-pane="profile"]').click(); await new Promise(r => setTimeout(r, 250));
+      renderProfileSettings();
+      const host = document.querySelector("#pfDob").closest(".cal-host");
+      const label0 = host.querySelector(".pk-lab").textContent;
+      host.querySelector(".pk-btn").click(); await new Promise(r => setTimeout(r, 50));
+      /* empty, so it opens on the years; the newest is this year */
+      const years = [...host.querySelectorAll(".cal-y")].map(b => b.textContent);
+      /* the whole calendar is inside the pane, not cut off at its foot */
+      const box = host.closest(".sheet-body").getBoundingClientRect(), pop = host.querySelector(".cal").getBoundingClientRect();
+      const inside = pop.bottom <= box.bottom + 1 && pop.top >= box.top - 1;
+      host.querySelectorAll(".cal-y").forEach(b => { if (b.textContent === "1990") b.click(); });
+      const title = host.querySelector(".cal-title").textContent;
+      const day17 = [...host.querySelectorAll(".cal-d:not(.out)")].find(b => b.textContent === "17");
+      day17.click();
+      document.querySelector("#pfFirst").value = "Suresh";
+      document.querySelector("#pfLoc").value = "  Frankfurt am Main  ";
+      document.querySelector("#pfSave").click();
+      const saved = JSON.parse(JSON.stringify(state.profile));
+      const back = stateFromPayload(JSON.parse(JSON.stringify(state))).profile;
+      /* future dates cannot be picked, and Clear empties the field */
+      host.querySelector(".pk-btn").click(); await new Promise(r => setTimeout(r, 50));
+      const real = __T.realToday();
+      const [ry, rm, rd] = real.split("-").map(Number);
+      /* a saved date reopens on its month; the title opens the years */
+      host.querySelector(".cal-title.cal-yr").click();
+      host.querySelectorAll(".cal-y").forEach(b => { if (b.textContent === String(ry)) b.click(); });
+      /* from the birth month across to this one */
+      for (let k = +saved.dob.slice(5, 7); k < rm; k++) host.querySelector('.cal-nav[aria-label="Next month"]').click();
+      for (let k = +saved.dob.slice(5, 7); k > rm; k--) host.querySelector('.cal-nav[aria-label="Previous month"]').click();
+      const off = host.querySelectorAll(".cal-d.off").length;
+      const offWant = new Date(ry, rm, 0).getDate() - rd;
+      const foot = host.querySelector(".cal-foot").innerText;
+      [...host.querySelectorAll(".cal-foot button")].find(b => b.textContent === "Clear").click();
+      const cleared = document.querySelector("#pfDob").value;
+      sheetClose();
+      __T.restore();
+      return { inside, label0, firstYear: years[0], thisYear: String(ry), oldest: years[years.length - 1], title, saved, back,
+               label1: host.querySelector(".pk-lab").textContent, off, offWant, foot, cleared };
+    });
+    assert.equal(r.label0, "Date of birth");
+    assert.equal(r.inside, true, "the calendar fits inside the short profile pane");
+    assert.equal(r.firstYear, r.thisYear);
+    assert.equal(+r.oldest, +r.thisYear - 110);
+    assert.match(r.title, /1990$/);
+    assert.deepEqual(r.saved, { first:"Suresh", last:"", email:"", dob:"1990-" + r.saved.dob.slice(5, 7) + "-17", location:"Frankfurt am Main" });
+    assert.deepEqual(r.back, r.saved);
+    assert.equal(r.off, r.offWant, "every day after today, and only those, is disabled");
+    assert.match(r.foot, /Clear/); assert.doesNotMatch(r.foot, /Today/);
+    assert.equal(r.cleared, "");
+    assert.equal(r.label1, "Date of birth");
+  }},
+
   { name: "backup round trip: out as JSON, back through restore, nothing lost", async run(pg){
     const r = await pg.fn(() => {
       __T.useBook();

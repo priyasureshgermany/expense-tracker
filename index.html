@@ -2454,6 +2454,23 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .pop-up{top:auto !important;bottom:calc(100% + 6px)}
 .cal-head{display:flex;align-items:center;gap:4px;margin-bottom:9px}
 .cal-title{flex:1;text-align:center;font-size:13.5px;font-weight:600;letter-spacing:-.005em}
+/* a title that opens the year grid looks like what it is: something to tap */
+.cal-yr{height:32px;border-radius:10px;color:var(--ink);text-decoration:underline dotted;text-underline-offset:4px}
+.cal-yr:hover{background:var(--surface-2)}
+.cal-years{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
+  max-height:232px;overflow-y:auto;overscroll-behavior:contain;
+}
+.cal-y{
+  height:38px;border-radius:11px;font-size:13px;font-weight:500;color:var(--ink-2);
+  font-family:var(--mono);
+}
+.cal-y:hover{background:var(--surface-2);color:var(--ink)}
+.cal-y.sel{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.cal-d.off{opacity:.25;pointer-events:none}
+/* the profile pane is short, and the birth-date calendar opens below its
+   fields: tall enough that it opens inside rather than off the foot */
+#setPane_profile:not([hidden]){min-height:min(600px, 74vh)}
 .cal-nav{
   width:32px;height:32px;border-radius:10px;flex:none;
   display:grid;place-items:center;color:var(--ink-2);
@@ -4796,7 +4813,7 @@ html.locked #lockScreen::before{
   <div class="sheet-body" id="setMenu">
     <button class="setrow" type="button" data-pane="profile">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0115 0"/></svg></span>
-      <span class="sr-t"><b>Your profile</b><span>Name and email</span></span>
+      <span class="sr-t"><b>Your profile</b><span>Name, birth date, location, email</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow" type="button" data-pane="data">
@@ -4854,6 +4871,11 @@ html.locked #lockScreen::before{
       </div>
       <input class="inp" id="pfEmail" type="email" placeholder="Email address" autocomplete="email"
              autocapitalize="none" spellcheck="false" style="margin-top:8px">
+      <div class="pf-dob" style="margin-top:8px">
+        <input id="pfDob" type="date">
+      </div>
+      <input class="inp" id="pfLoc" type="text" placeholder="Location — city, country" autocomplete="address-level2"
+             style="margin-top:8px">
       <button class="btn ghost sm" id="pfSave" style="margin-top:8px">Save profile</button>
       <div class="note" style="margin-top:6px">Your first name greets you under the title.</div>
     </div>
@@ -5283,6 +5305,10 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Date of birth": "Geburtsdatum",
+"Location — city, country": "Wohnort — Stadt, Land",
+"Pick a year": "Jahr wählen",
+"A date of birth can't be in the future": "Ein Geburtsdatum kann nicht in der Zukunft liegen",
 "Show as a line chart": "Als Liniendiagramm zeigen",
 "Show as bars": "Als Balken zeigen",
 "Balance line": "Saldoverlauf",
@@ -5991,7 +6017,7 @@ const I18N_DE = {
 "Move to another period": "Zu einem anderen Zeitraum wechseln",
 "Moved back to planned": "Zurück auf geplant",
 "Name": "Name",
-"Name and email": "Name und E-Mail",
+"Name, birth date, location, email": "Name, Geburtsdatum, Wohnort, E-Mail",
 "Name it and tap Add — it is picked straight away, and it is there for every trip after this.": "Gib ihr einen Namen und tippe auf Hinzufügen — sie ist sofort gewählt und ab dann bei jeder Reise da.",
 "Narrow it with the kind chips, the category and account rows, or the search box.": "Grenze ihn mit den Art-Chips, den Kategorie- und Kontozeilen oder dem Suchfeld ein.",
 "Net": "Netto",
@@ -7151,7 +7177,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.0.4";
+const APP_VERSION = "3.0.5";
 const APP_BUILT = "2026-10-14";
 
 const KEY = "panappai.v1";
@@ -7720,8 +7746,16 @@ function earliestStart(){
 function normaliseProfile(pr){
   if (!pr || typeof pr !== "object") return null;
   const t = v => (typeof v === "string" ? v.trim() : "");
-  const out = { first:t(pr.first), last:t(pr.last), email:t(pr.email) };
-  return (out.first || out.last || out.email) ? out : null;
+  /* a birth date is a real calendar date or nothing */
+  const real = s => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+    const [y, m, d] = s.split("-").map(Number);
+    const x = new Date(Date.UTC(y, m - 1, d));    /* 31 Feb comes back as 3 Mar */
+    return x.getUTCMonth() === m - 1 && x.getUTCDate() === d;
+  };
+  const dob = real(t(pr.dob)) ? t(pr.dob) : "";
+  const out = { first:t(pr.first), last:t(pr.last), email:t(pr.email), dob:dob, location:t(pr.location) };
+  return (out.first || out.last || out.email || out.dob || out.location) ? out : null;
 }
 /** வணக்கம் — a Tamil hello, shown under the title once a name is saved. */
 function renderGreeting(){
@@ -10027,18 +10061,23 @@ $("#balClear").addEventListener("click", async () => {
   toast("Balances cleared");
 });
 function renderProfileSettings(){
-  const pr = state.profile || { first:"", last:"", email:"" };
+  const pr = state.profile || { first:"", last:"", email:"", dob:"", location:"" };
   $("#pfFirst").value = pr.first || "";
   $("#pfLast").value = pr.last || "";
   $("#pfEmail").value = pr.email || "";
+  setDateVal("#pfDob", pr.dob || "");
+  $("#pfLoc").value = pr.location || "";
 }
 $("#pfSave").addEventListener("click", () => {
   const email = $("#pfEmail").value.trim();
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
     toast("That email doesn't look right"); $("#pfEmail").focus(); return;
   }
+  const dob = $("#pfDob").value;
+  if (dob && dob > todayISO()){ toast("A date of birth can't be in the future"); return; }
   state.profile = normaliseProfile({
-    first: $("#pfFirst").value, last: $("#pfLast").value, email: email
+    first: $("#pfFirst").value, last: $("#pfLast").value, email: email,
+    dob: dob, location: $("#pfLoc").value
   });
   save(); renderGreeting();
   toast(state.profile ? "Profile saved" : "Profile cleared");
@@ -11093,8 +11132,15 @@ function prettyDate(iso){
  * Turns an <input type="date"> into a themed button plus month grid. The input
  * is kept (hidden) so every existing .value read and write still works; call
  * setDateVal() when writing one from code so the button label follows.
+ *
+ * `opt` is for a date far from today, which is what a birth date is:
+ *   years        the title opens a grid of years, and an empty field starts there
+ *   max          nothing after this date can be picked
+ *   clearable    the foot offers Clear in place of Today
+ *   placeholder  what the button says while empty
  */
-function attachCalendar(input){
+function attachCalendar(input, opt){
+  opt = opt || {};
   const host = el("div", "pick cal-host");
   input.parentNode.insertBefore(host, input);
   host.appendChild(input);
@@ -11110,7 +11156,7 @@ function attachCalendar(input){
   const lab = btn.querySelector(".pk-lab");
   function refresh(){
     const v = input.value;
-    lab.textContent = v ? prettyDate(v) : "Pick a date";
+    lab.textContent = v ? prettyDate(v) : (opt.placeholder || "Pick a date");
     lab.classList.toggle("pk-empty", !v);
   }
   input._refresh = refresh;
@@ -11124,19 +11170,45 @@ function attachCalendar(input){
 
     const start = (input.value || todayISO()).split("-").map(Number);
     let vy = start[0], vm = start[1] - 1;
+    /* a year decades back is one tap in the year grid, not hundreds of months */
+    let yearsView = !!(opt.years && !input.value);
 
     const cal = el("div", "cal");
     host.appendChild(cal);
     openPop = { host: host, node: cal };
 
     function choose(iso){
+      if (opt.max && iso > opt.max) return;
       input.value = iso;
       refresh();
       closePop();
       input.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
+    function paintYears(){
+      cal.innerHTML = "";
+      const head = el("div", "cal-head");
+      const title = el("button", "cal-title cal-yr", "Pick a year");
+      title.type = "button";
+      title.addEventListener("click", ev => { ev.stopPropagation(); yearsView = false; paint(); });
+      head.appendChild(title);
+      cal.appendChild(head);
+      const grid = el("div", "cal-years");
+      const top = +(opt.max || todayISO()).slice(0, 4);
+      for (let y = top; y >= top - 110; y--){
+        const b = el("button", "cal-y" + (y === vy ? " sel" : ""), String(y));
+        b.type = "button";
+        b.addEventListener("click", ev => { ev.stopPropagation(); vy = y; yearsView = false; paint(); });
+        grid.appendChild(b);
+      }
+      cal.appendChild(grid);
+      const sel = grid.querySelector(".sel");
+      if (sel) grid.scrollTop = sel.offsetTop - grid.clientHeight / 2 + sel.offsetHeight / 2;
+      placePop(host, cal);
+    }
+
     function paint(){
+      if (yearsView){ paintYears(); return; }
       cal.innerHTML = "";
       const head = el("div", "cal-head");
       const prev = el("button", "cal-nav");
@@ -11144,7 +11216,13 @@ function attachCalendar(input){
       prev.setAttribute("aria-label", "Previous month");
       prev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
       prev.addEventListener("click", ev => { ev.stopPropagation(); vm--; if (vm < 0){ vm = 11; vy--; } paint(); });
-      const title = el("div", "cal-title", CAL_MONTHS[vm] + " " + vy);
+      const title = el(opt.years ? "button" : "div", "cal-title" + (opt.years ? " cal-yr" : ""),
+                       CAL_MONTHS[vm] + " " + vy);
+      if (opt.years){
+        title.type = "button";
+        title.setAttribute("aria-label", "Pick a year");
+        title.addEventListener("click", ev => { ev.stopPropagation(); yearsView = true; paint(); });
+      }
       const next = el("button", "cal-nav");
       next.type = "button";
       next.setAttribute("aria-label", "Next month");
@@ -11174,9 +11252,11 @@ function attachCalendar(input){
       }
       for (let d = 1; d <= days; d++){
         const iso = isoOf(vy, vm + 1, d);
-        const cls = "cal-d" + (iso === input.value ? " sel" : (iso === today ? " today" : ""));
+        const cls = "cal-d" + (iso === input.value ? " sel" : (iso === today ? " today" : "")) +
+                    (opt.max && iso > opt.max ? " off" : "");
         const b = el("button", cls, String(d));
         b.type = "button";
+        if (opt.max && iso > opt.max) b.disabled = true;
         b.addEventListener("click", ev => { ev.stopPropagation(); choose(iso); });
         grid.appendChild(b);
       }
@@ -11191,10 +11271,21 @@ function attachCalendar(input){
       cal.appendChild(grid);
 
       const foot = el("div", "cal-foot");
-      const tBtn = el("button", null, "Today");
-      tBtn.type = "button";
-      tBtn.addEventListener("click", ev => { ev.stopPropagation(); choose(today); });
-      foot.appendChild(tBtn);
+      if (opt.clearable){
+        const cBtn = el("button", null, "Clear");
+        cBtn.type = "button";
+        cBtn.addEventListener("click", ev => {
+          ev.stopPropagation();
+          input.value = ""; refresh(); closePop();
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        foot.appendChild(cBtn);
+      } else {
+        const tBtn = el("button", null, "Today");
+        tBtn.type = "button";
+        tBtn.addEventListener("click", ev => { ev.stopPropagation(); choose(today); });
+        foot.appendChild(tBtn);
+      }
       cal.appendChild(foot);
       placePop(host, cal);
     }
@@ -16745,6 +16836,7 @@ document.addEventListener("keydown", e => {
     renderShop();
     ["#eDate", "#balDate", "#shopDate", "#rDate", "#repFrom", "#repTo", "#trFrom", "#trTo", "#teDate"]
       .forEach(sel => attachCalendar($(sel)));
+    attachCalendar($("#pfDob"), { years:true, max:todayISO(), clearable:true, placeholder:"Date of birth" });
     syncEyeBtn();
     syncThemeColorMeta();
     /* so the tile carries the badge without Settings having been opened */

@@ -202,6 +202,21 @@ export default [
     assert.deepEqual(r, [false, true, false]);
   }},
 
+  { name: "normaliseProfile keeps birth date and location, rejects impossible dates", async run(pg){
+    const r = await pg.fn(() => [
+      normaliseProfile({ first:" Suresh ", dob:"1990-05-17", location:" Frankfurt am Main, Germany " }),
+      normaliseProfile({ dob:"2026-02-31" }),            /* no such day */
+      normaliseProfile({ dob:"17.05.1990", location:"" }),
+      normaliseProfile({ location:"Chennai" }),
+      normaliseProfile({ dob:"2028-02-29" })             /* a real leap day */
+    ]);
+    assert.deepEqual(r[0], { first:"Suresh", last:"", email:"", dob:"1990-05-17", location:"Frankfurt am Main, Germany" });
+    assert.equal(r[1], null);
+    assert.equal(r[2], null);
+    assert.deepEqual(r[3], { first:"", last:"", email:"", dob:"", location:"Chennai" });
+    assert.equal(r[4].dob, "2028-02-29");
+  }},
+
   { name: "stateFromPayload keeps every field it is given", async run(pg){
     /* a field dropped here is a field erased by the next pull or restore */
     const r = await pg.fn(() => {

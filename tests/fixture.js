@@ -56,5 +56,6 @@ window.__T = (() => {
   }
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
-  return { book, useBook, restore, sleep };
+  /* the real date, for things fixed when the page loaded (a calendar's limit) */
+  return { book, useBook, restore, sleep, realToday };
 })();
