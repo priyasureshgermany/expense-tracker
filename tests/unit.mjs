@@ -217,6 +217,36 @@ export default [
     assert.equal(r[4].dob, "2028-02-29");
   }},
 
+  { name: "password login: salted slow hash, exact password, any-case username", async run(pg){
+    const r = await pg.fn(async () => {
+      const snap = __T.lockSnapshot();
+      await pwStore("  Suresh ", "Kaffee&Kuchen1");
+      const rec1 = localStorage.getItem(LOCK_PW_KEY), user = localStorage.getItem(LOCK_USER_KEY);
+      const out = {
+        user, iter: JSON.parse(rec1).i,
+        plain: Object.keys(localStorage).some(k => (localStorage.getItem(k) || "").includes("Kaffee")),
+        ok:        await pwCheck("suresh", "Kaffee&Kuchen1"),
+        okCase:    await pwCheck("SURESH  ", "Kaffee&Kuchen1"),
+        wrongPw:   await pwCheck("suresh", "kaffee&kuchen1"),
+        wrongUser: await pwCheck("priya", "Kaffee&Kuchen1"),
+        empty:     await pwCheck("suresh", "")
+      };
+      await pwStore("Suresh", "Kaffee&Kuchen1");
+      out.saltChanges = JSON.parse(localStorage.getItem(LOCK_PW_KEY)).h !== JSON.parse(rec1).h;
+      __T.lockRestore(snap);
+      out.kindDefault = lockKind();
+      return out;
+    });
+    assert.equal(r.user, "suresh");
+    assert.ok(r.iter >= 100000, "PBKDF2 rounds: " + r.iter);
+    assert.equal(r.plain, false, "the password is nowhere in storage as typed");
+    assert.equal(r.ok, true); assert.equal(r.okCase, true);
+    assert.equal(r.wrongPw, false, "passwords are compared exactly");
+    assert.equal(r.wrongUser, false); assert.equal(r.empty, false);
+    assert.equal(r.saltChanges, true, "a fresh salt each time it is set");
+    assert.equal(r.kindDefault, "pin", "the PIN is the default");
+  }},
+
   { name: "stateFromPayload keeps every field it is given", async run(pg){
     /* a field dropped here is a field erased by the next pull or restore */
     const r = await pg.fn(() => {

@@ -300,6 +300,119 @@ export default [
     assert.equal(r.label1, "Date of birth");
   }},
 
+  { name: "app lock: PIN by default; switch to username & password, log in, confirm, reset, switch back", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const $q = s => document.querySelector(s);
+      const snap = __T.lockSnapshot();
+      Object.keys(snap).forEach(k => localStorage.removeItem(k));
+      const out = {};
+      const login = async (user, pw, pw2) => {
+        $q("#lockUser").value = user; $q("#lockPw").value = pw;
+        if (pw2 !== undefined) $q("#lockPw2").value = pw2;
+        await lockLoginGo();
+      };
+      const locked = () => document.documentElement.classList.contains("locked");
+      const face = () => ({ login: !$q("#lockLoginWrap").hidden, pad: !$q("#lockPad").hidden,
+                            user: !$q("#lockUser").hidden, again: !$q("#lockPw2").hidden });
+
+      /* 1. the default, in Settings */
+      openSettings(); await wait(200);
+      renderLockSettings();
+      out.defaultPressed = $q('#lockKindTog [aria-pressed="true"]').dataset.v;
+      out.defaultBtn = $q("#lockSetPin").textContent;
+
+      /* 2. with the lock off, choosing password only changes what Set sets up */
+      $q('#lockKindTog [data-v="password"]').click(); await wait(50);
+      out.offBtn = $q("#lockSetPin").textContent;
+      out.offEnabled = lockEnabled();
+      $q("#lockSetPin").click(); await wait(150);
+      out.setupFace = face();
+      await login("Suresh", "secret1", "secret2");
+      out.mismatchLocked = locked();
+      out.mismatchMsg = $q("#lockMsg").textContent;
+      await login("Suresh", "secret1", "secret1");
+      out.afterSetup = { locked: locked(), enabled: lockEnabled(), kind: lockKind() };
+      out.plain = Object.keys(localStorage).some(k => (localStorage.getItem(k) || "").includes("secret1"));
+
+      /* 3. the lock screen asks for both, and only both open it */
+      lockNow(); await wait(100);
+      out.unlockFace = face();
+      await login("Suresh", "wrong-one");
+      out.wrongLocked = locked();
+      out.wrongMsg = $q("#lockMsg").textContent;
+      await login("  SURESH ", "secret1");
+      out.rightLocked = locked();
+
+      /* 4. a destructive action asks for the password alone; Cancel says no */
+      let p = lockConfirm("Delete everything?"); await wait(100);
+      out.confirmFace = face();
+      out.confirmSub = $q("#lockSub").textContent;
+      $q("#lockCancel").click();
+      out.cancelled = await p;
+      p = lockConfirm("Delete everything?"); await wait(100);
+      $q("#lockPw").value = "secret1"; await lockLoginGo();
+      out.confirmed = await p;
+
+      /* 5. forgotten: the security question leads to a new password */
+      localStorage.setItem(LOCK_Q_KEY, "First school?");
+      localStorage.setItem(LOCK_A_KEY, await answerHash("St Marys"));
+      lockNow(); await wait(100);
+      $q("#lockForgot").click(); await wait(100);
+      out.recoverSub = $q("#lockSub").textContent;
+      $q("#lockAnswer").value = "st marys"; await lockTryAnswer(); await wait(150);
+      out.resetFace = face();
+      out.resetCancel = !$q("#lockCancel").hidden;
+      await login("Suresh", "newpass9", "newpass9");
+      out.resetUnlocked = !locked();
+      out.oldGone = await pwCheck("suresh", "secret1");
+      out.newWorks = await pwCheck("suresh", "newpass9");
+
+      /* 6. switching back to the PIN asks for the password, then sets a PIN */
+      openSettings(); await wait(200);
+      $q('#lockKindTog [data-v="pin"]').click(); await wait(120);
+      out.switchAsks = $q("#lockSub").textContent;
+      $q("#lockPw").value = "newpass9"; await lockLoginGo(); await wait(200);
+      out.pinSetupSub = $q("#lockSub").textContent;
+      for (const d of "12341234"){ $q('#lockPad [data-k="' + d + '"]').click(); await wait(40); }
+      await wait(250);
+      out.afterPin = { locked: locked(), kind: lockKind() };
+      lockNow(); await wait(80);
+      out.pinFace = face();
+
+      sheetClose();
+      __T.lockRestore(snap);
+      return out;
+    });
+    assert.equal(r.defaultPressed, "pin");
+    assert.equal(r.defaultBtn, "Set a 4-digit PIN");
+    assert.equal(r.offBtn, "Set username & password");
+    assert.equal(r.offEnabled, false, "choosing alone does not lock anything");
+    assert.deepEqual(r.setupFace, { login:true, pad:false, user:true, again:true });
+    assert.equal(r.mismatchLocked, true);
+    assert.match(r.mismatchMsg, /did not match/);
+    assert.deepEqual(r.afterSetup, { locked:false, enabled:true, kind:"password" });
+    assert.equal(r.plain, false, "the password is not stored as typed");
+    assert.deepEqual(r.unlockFace, { login:true, pad:false, user:true, again:false });
+    assert.equal(r.wrongLocked, true);
+    assert.equal(r.wrongMsg, "That username and password don't match.");
+    assert.equal(r.rightLocked, false, "username matches whatever its case");
+    assert.deepEqual(r.confirmFace, { login:true, pad:false, user:false, again:false });
+    assert.equal(r.confirmSub, "Delete everything?");
+    assert.equal(r.cancelled, false);
+    assert.equal(r.confirmed, true);
+    assert.equal(r.recoverSub, "Answer to reset your password");
+    assert.deepEqual(r.resetFace, { login:true, pad:false, user:true, again:true });
+    assert.equal(r.resetCancel, false, "a forced reset cannot be backed out of");
+    assert.equal(r.resetUnlocked, true);
+    assert.equal(r.oldGone, false); assert.equal(r.newWorks, true);
+    assert.equal(r.switchAsks, "Enter your password to change how you log in");
+    assert.equal(r.pinSetupSub, "Choose a 4-digit PIN");
+    assert.deepEqual(r.afterPin, { locked:false, kind:"pin" });
+    assert.equal(r.pinFace.login, false, "back on the PIN, the password form is away");
+    assert.equal(r.pinFace.pad, true);
+  }},
+
   { name: "backup round trip: out as JSON, back through restore, nothing lost", async run(pg){
     const r = await pg.fn(() => {
       __T.useBook();

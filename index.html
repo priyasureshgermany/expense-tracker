@@ -3447,7 +3447,7 @@ html.locked #lockScreen::before{
   border:1.5px solid rgba(255,255,255,.42);transition:background .12s,border-color .12s,transform .12s;
 }
 .lock-dots span.filled{background:#fff;border-color:#fff}
-.lock-dots.shake{animation:lockshake .4s}
+.lock-dots.shake, .lock-recover.shake{animation:lockshake .4s}
 @keyframes lockshake{
   0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)}
   60%{transform:translateX(-6px)} 80%{transform:translateX(6px)}
@@ -3462,6 +3462,7 @@ html.locked #lockScreen::before{
 .lock-recover{width:100%;max-width:280px;display:flex;flex-direction:column;gap:10px}
 /* a class-level display would otherwise beat the hidden attribute */
 .lock-recover[hidden]{display:none}
+.lr-in[hidden]{display:none}
 .lock-pad[hidden],.lock-dots[hidden]{display:none}
 .lr-q{font-size:14px;font-weight:600;color:#fff;line-height:1.4;margin-bottom:2px}
 .lr-in{
@@ -3643,11 +3644,18 @@ html.locked #lockScreen::before{
              autocapitalize="none" spellcheck="false" placeholder="Your passphrase">
       <button class="lr-go" id="lockPassGo">Unlock</button>
     </div>
+    <div class="lock-recover" id="lockLoginWrap" hidden>
+      <input class="lr-in" id="lockUser" type="text" autocomplete="username"
+             autocapitalize="none" spellcheck="false" placeholder="Username">
+      <input class="lr-in" id="lockPw" type="password" autocomplete="current-password" placeholder="Password">
+      <input class="lr-in" id="lockPw2" type="password" autocomplete="new-password" placeholder="Password again" hidden>
+      <button class="lr-go" id="lockLoginGo">Log in</button>
+    </div>
     <div class="lock-recover" id="lockRecover" hidden>
       <div class="lr-q" id="lockRecoverQ"></div>
       <input class="lr-in" id="lockAnswer" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Your answer">
       <button class="lr-go" id="lockAnswerGo">Unlock</button>
-      <button class="lr-back" id="lockRecoverBack">Back to PIN</button>
+      <button class="lr-back" id="lockRecoverBack">Back</button>
     </div>
     <div class="lock-pad" id="lockPad">
       <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
@@ -4973,6 +4981,13 @@ html.locked #lockScreen::before{
           not the end of the book — forgetting both is.
         </div>
       </div>
+      <div class="cfgrow cfg-stack" style="margin-top:14px">
+        <div class="cf-t"><b>Log in with</b><span>What the lock screen asks for</span></div>
+        <div class="toggle2 cfg-tog" id="lockKindTog" style="grid-template-columns:1fr 1fr">
+          <button class="a" type="button" data-v="pin" aria-pressed="true">4-digit PIN</button>
+          <button class="a" type="button" data-v="password" aria-pressed="false">Username &amp; password</button>
+        </div>
+      </div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
         <button class="btn ghost sm" id="lockSetPin">Set a 4-digit PIN</button>
         <button class="btn danger sm" id="lockTurnOff" hidden>Turn off app lock</button>
@@ -5305,6 +5320,38 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Username": "Benutzername",
+"Password": "Passwort",
+"Password again": "Passwort wiederholen",
+"Password — at least 6 characters": "Passwort — mindestens 6 Zeichen",
+"Log in": "Anmelden",
+"Log in with": "Anmelden mit",
+"What the lock screen asks for": "Was die Sperre abfragt",
+"4-digit PIN": "4-stellige PIN",
+"Username & password": "Benutzername & Passwort",
+"Set username & password": "Benutzername & Passwort festlegen",
+"Change password": "Passwort ändern",
+"Choose a username and password": "Wähle Benutzername und Passwort",
+"Choose a new password": "Wähle ein neues Passwort",
+"Choose a username.": "Wähle einen Benutzernamen.",
+"Use at least 6 characters for the password.": "Das Passwort braucht mindestens 6 Zeichen.",
+"Those passwords did not match — type them again.": "Die Passwörter stimmen nicht überein — gib sie noch einmal ein.",
+"That username and password don't match.": "Benutzername und Passwort passen nicht zusammen.",
+"Forgot your password?": "Passwort vergessen?",
+"Answer to reset your password": "Antworte, um dein Passwort zurückzusetzen",
+"Answer accepted — choose a new password": "Antwort akzeptiert — wähle ein neues Passwort",
+"New password set": "Neues Passwort festgelegt",
+"Username and password set — app lock is on": "Benutzername und Passwort festgelegt — die App-Sperre ist an",
+"Enter your password to change how you log in": "Gib dein Passwort ein, um die Anmeldung zu ändern",
+"Enter your PIN to change how you log in": "Gib deine PIN ein, um die Anmeldung zu ändern",
+"You'll log in with your username and password": "Du meldest dich mit Benutzername und Passwort an",
+"You'll unlock with your PIN": "Du entsperrst mit deiner PIN",
+"On — your username and password are asked for after 5 minutes idle, or when the app is reopened.": "An — Benutzername und Passwort werden nach 5 Minuten Inaktivität oder beim erneuten Öffnen abgefragt.",
+"On — your passphrase on opening, then your username and password after 5 minutes idle.": "An — beim Öffnen deine Passphrase, nach 5 Minuten Inaktivität Benutzername und Passwort.",
+"A security question is set — it's the only way back in if you forget the password.": "Eine Sicherheitsfrage ist gesetzt — sie ist der einzige Weg zurück, falls du das Passwort vergisst.",
+"No security question yet. Without one, a forgotten password can't be reset on this device.": "Noch keine Sicherheitsfrage. Ohne sie lässt sich ein vergessenes Passwort auf diesem Gerät nicht zurücksetzen.",
+"The PIN, the username and password, and the recovery question are all forgotten, and the app opens straight to your book.": "PIN, Benutzername und Passwort sowie die Sicherheitsfrage werden vergessen, und die App öffnet direkt dein Buch.",
+"Both are on: the lock hides the screen, and what is stored is unreadable": "Beides ist an: Die Sperre verbirgt den Bildschirm, und das Gespeicherte ist unlesbar",
 "Date of birth": "Geburtsdatum",
 "Location — city, country": "Wohnort — Stadt, Land",
 "Pick a year": "Jahr wählen",
@@ -7177,7 +7224,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.0.5";
+const APP_VERSION = "3.0.6";
 const APP_BUILT = "2026-10-14";
 
 const KEY = "panappai.v1";
@@ -15238,6 +15285,56 @@ const LOCK_HASH_KEY = "panappai.lock.pinHash";
 const LOCK_SALT_KEY = "panappai.lock.salt";
 const LOCK_Q_KEY = "panappai.lock.question";
 const LOCK_A_KEY = "panappai.lock.answerHash";
+/* What the lock screen asks for: the PIN unless username and password were
+   chosen instead. Like the PIN, all of it stays on this device. */
+const LOCK_KIND_KEY = "panappai.lock.kind";      /* "pin" (default) | "password" */
+const LOCK_USER_KEY = "panappai.lock.user";
+const LOCK_PW_KEY   = "panappai.lock.password";  /* { s: salt, i: rounds, h: hash } */
+const LOCK_PW_ITER  = 150000;
+
+/**
+ * Which login the lock uses. It only becomes "password" once a username and
+ * password exist, so an app that is locked always has the thing it asks for.
+ */
+function lockKind(){
+  try{ return localStorage.getItem(LOCK_KIND_KEY) === "password" ? "password" : "pin"; }
+  catch(e){ return "pin"; }
+}
+/** The word for it in a sentence: "your PIN", "your password". */
+function lockWord(){ return lockKind() === "password" ? "password" : "PIN"; }
+function lockHasPassword(){
+  try{
+    const p = JSON.parse(localStorage.getItem(LOCK_PW_KEY) || "null");
+    return !!(p && p.h && p.s && localStorage.getItem(LOCK_USER_KEY));
+  }catch(e){ return false; }
+}
+/** A username matches whatever its capitals and the spaces around it. */
+function lockUserNorm(u){ return String(u || "").trim().toLowerCase(); }
+
+/**
+ * A password is kept only as a slow, salted hash — PBKDF2-SHA256, the way the
+ * encryption's passphrase is guarded — so the stored value cannot be read back
+ * and each guess costs real time. Passwords are compared exactly as typed.
+ */
+async function pwHash(pw, salt, iter){
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name:"PBKDF2", salt:salt, iterations:iter, hash:"SHA-256" }, base, 256);
+  return Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+async function pwStore(user, pw){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const rec = { s: encB64(salt), i: LOCK_PW_ITER, h: await pwHash(pw, salt, LOCK_PW_ITER) };
+  localStorage.setItem(LOCK_USER_KEY, lockUserNorm(user));
+  localStorage.setItem(LOCK_PW_KEY, JSON.stringify(rec));
+}
+/** Both have to match; which one did not is never said. */
+async function pwCheck(user, pw){
+  let rec = null;
+  try{ rec = JSON.parse(localStorage.getItem(LOCK_PW_KEY) || "null"); }catch(e){}
+  if (!rec || !rec.h || !rec.s) return false;
+  const h = await pwHash(String(pw || ""), encUnB64(rec.s), rec.i || LOCK_PW_ITER);
+  return h === rec.h && lockUserNorm(user) === localStorage.getItem(LOCK_USER_KEY);
+}
 
 function lockSalt(){
   let s = localStorage.getItem(LOCK_SALT_KEY);
@@ -15271,7 +15368,81 @@ function lockShake(){
   const d = $("#lockDots");
   d.classList.remove("shake"); void d.offsetWidth; d.classList.add("shake");
 }
+/* ---------- the login form: username and password in place of the keypad ---------- */
+let loginFlow = null;        /* "unlock" | "confirm" | "setup" | "reset" */
+function lockHideLogin(){
+  const w = $("#lockLoginWrap");
+  if (w) w.hidden = true;
+  loginFlow = null;
+}
+function lockOpenLogin(flow, sub){
+  document.documentElement.classList.add("locked");
+  loginFlow = flow;
+  lockSay("");
+  $("#lockPad").hidden = true;
+  $("#lockDots").hidden = true;
+  $("#lockRecover").hidden = true;
+  $("#lockPassWrap").hidden = true;
+  $("#lockLoginWrap").hidden = false;
+  const setting = flow === "setup" || flow === "reset";
+  $("#lockSub").textContent = sub || (setting ? "Choose a username and password" : "Log in");
+  /* a confirmation already knows who you are; a new login asks for it twice */
+  $("#lockUser").hidden = flow === "confirm";
+  $("#lockUser").value = setting ? (localStorage.getItem(LOCK_USER_KEY) || "") : "";
+  $("#lockPw").value = "";
+  $("#lockPw2").value = "";
+  $("#lockPw2").hidden = !setting;
+  $("#lockPw").setAttribute("autocomplete", setting ? "new-password" : "current-password");
+  $("#lockPw").placeholder = setting ? "Password — at least 6 characters" : "Password";
+  $("#lockLoginGo").textContent = flow === "unlock" ? "Log in" : flow === "confirm" ? "Confirm" : "Save";
+  $("#lockForgot").hidden = flow !== "unlock";
+  $("#lockForgot").textContent = "Forgot your password?";
+  /* setting one up from Settings can be backed out of; one forced by a reset cannot */
+  $("#lockCancel").hidden = !(flow === "confirm" || flow === "setup");
+  setTimeout(() => ($("#lockUser").hidden ? $("#lockPw") : $("#lockUser")).focus(), 80);
+}
+function lockLoginShake(msg){
+  const w = $("#lockLoginWrap");
+  w.classList.remove("shake"); void w.offsetWidth; w.classList.add("shake");
+  $("#lockPw").value = "";
+  $("#lockPw2").value = "";
+  lockSay(msg);
+}
+async function lockLoginGo(){
+  const user = $("#lockUser").value, pw = $("#lockPw").value;
+  const btn = $("#lockLoginGo");
+  if (loginFlow === "setup" || loginFlow === "reset"){
+    if (!lockUserNorm(user)){ lockSay("Choose a username."); return; }
+    if (pw.length < 6){ lockSay("Use at least 6 characters for the password."); return; }
+    if (pw !== $("#lockPw2").value){ lockLoginShake("Those passwords did not match — type them again."); return; }
+    btn.disabled = true;
+    await pwStore(user, pw);
+    btn.disabled = false;
+    localStorage.setItem(LOCK_KIND_KEY, "password");
+    localStorage.setItem(LOCK_ENABLED_KEY, "1");
+    const reset = loginFlow === "reset";
+    lockHideLogin();
+    $("#lockCancel").hidden = true;
+    unlockApp();
+    toast(reset ? "New password set" : "Username and password set — app lock is on");
+    renderLockSettings();
+    return;
+  }
+  if (!pw) return;
+  btn.disabled = true;
+  const ok = await pwCheck(loginFlow === "confirm" ? localStorage.getItem(LOCK_USER_KEY) : user, pw);
+  btn.disabled = false;
+  if (!ok){ lockLoginShake("That username and password don't match."); return; }
+  if (loginFlow === "confirm"){ lockHideLogin(); lockConfirmEnd(true); return; }
+  lockHideLogin();
+  unlockApp();
+}
+$("#lockLoginGo").addEventListener("click", lockLoginGo);
+["#lockUser", "#lockPw", "#lockPw2"].forEach(sel =>
+  $(sel).addEventListener("keydown", e => { if (e.key === "Enter") lockLoginGo(); }));
+
 function unlockApp(){
+  lockHideLogin();
   document.documentElement.classList.remove("locked");
   lockHiddenAt = 0;
   lockResetIdle();
@@ -15285,6 +15456,11 @@ function unlockApp(){
 let lockConfirmResolve = null;
 function lockConfirm(what){
   if (!lockEnabled()) return Promise.resolve(true);   /* no PIN set, nothing to check */
+  if (lockKind() === "password"){
+    lockOpenLogin("confirm", what);
+    return new Promise(res => { lockConfirmResolve = res; });
+  }
+  lockHideLogin();
   document.documentElement.classList.add("locked");
   lockMode = "confirm"; lockBuf = ""; lockFirstPin = "";
   lockSay("");
@@ -15298,6 +15474,7 @@ function lockConfirm(what){
   return new Promise(res => { lockConfirmResolve = res; });
 }
 function lockConfirmEnd(ok){
+  lockHideLogin();
   $("#lockCancel").hidden = true;
   document.documentElement.classList.remove("locked");
   const r = lockConfirmResolve;
@@ -15314,6 +15491,7 @@ let encBooted = false;
 let encBootWithData = function(){};   /* filled in by the boot sequence below */
 
 function encOpenUnlock(){
+  lockHideLogin();
   document.documentElement.classList.add("locked");
   lockSay("");
   $("#lockSub").textContent = "Enter your passphrase";
@@ -15355,7 +15533,7 @@ async function encTryUnlock(){
             "backup from Settings once you are in.");
   }
   if (!encBooted){ encBooted = true; encBootWithData(); }
-  $("#lockForgot").textContent = "Forgot your PIN?";
+  $("#lockForgot").textContent = "Forgot your " + lockWord() + "?";
   unlockApp();
 }
 
@@ -15368,7 +15546,9 @@ function lockOpenUnlock(){
      opened and is merely idle — the PIN is enough, because there is nothing
      left to decrypt. */
   if (encOn() && !encUnlocked()){ encOpenUnlock(); return; }
+  if (lockKind() === "password"){ lockOpenLogin("unlock"); return; }
 
+  lockHideLogin();
   document.documentElement.classList.add("locked");
   lockMode = "unlock"; lockBuf = ""; lockFirstPin = "";
   lockSay("");
@@ -15382,6 +15562,7 @@ function lockOpenUnlock(){
   lockRenderDots();
 }
 function lockOpenSetup(){
+  lockHideLogin();
   document.documentElement.classList.add("locked");
   lockMode = "setup1"; lockBuf = ""; lockFirstPin = "";
   lockSay("");
@@ -15416,6 +15597,7 @@ async function lockDigit(k){
     if (lockBuf === lockFirstPin){
       localStorage.setItem(LOCK_HASH_KEY, await pinHash(lockBuf));
       localStorage.setItem(LOCK_ENABLED_KEY, "1");
+      localStorage.setItem(LOCK_KIND_KEY, "pin");
       unlockApp();
       toast("PIN set — app lock is on");
       renderLockSettings();
@@ -15449,14 +15631,15 @@ function lockShowRecovery(){
        tapping Forgot PIN looked like it did nothing at all. It also offered no
        way out. There is one: the PIN only guards this browser, and your book
        lives in the repo. */
-    lockSay("No security question was set on this device, so the PIN cannot be " +
+    lockSay("No security question was set on this device, so the " + lockWord() + " cannot be " +
             "reset here. Your book is safe — it is in your GitHub backup. Open " +
             "the app in another browser, set up GitHub sync there and pull it, " +
             "or clear this site's data and pull it back afterwards.");
     return;
   }
   lockSay("");
-  $("#lockSub").textContent = "Answer to reset your PIN";
+  $("#lockLoginWrap").hidden = true;
+  $("#lockSub").textContent = "Answer to reset your " + lockWord();
   $("#lockRecoverQ").textContent = localStorage.getItem(LOCK_Q_KEY) || "Your security question";
   $("#lockAnswer").value = "";
   $("#lockPad").hidden = true;
@@ -15465,7 +15648,16 @@ function lockShowRecovery(){
   $("#lockRecover").hidden = false;
   setTimeout(() => $("#lockAnswer").focus(), 80);
 }
-$("#lockCancel").addEventListener("click", () => lockConfirmEnd(false));
+$("#lockCancel").addEventListener("click", () => {
+  /* backing out of setting up a login leaves the app as it was */
+  if (loginFlow === "setup"){
+    lockHideLogin();
+    $("#lockCancel").hidden = true;
+    document.documentElement.classList.remove("locked");
+    return;
+  }
+  lockConfirmEnd(false);
+});
 $("#lockForgot").addEventListener("click", lockShowRecovery);
 $("#lockRecoverBack").addEventListener("click", lockOpenUnlock);
 
@@ -15473,8 +15665,13 @@ async function lockTryAnswer(){
   const given = await answerHash($("#lockAnswer").value);
   if (given === localStorage.getItem(LOCK_A_KEY)){
     $("#lockRecover").hidden = true;
-    lockOpenSetup();
-    toast("Answer accepted — choose a new PIN");
+    if (lockKind() === "password"){
+      lockOpenLogin("reset", "Choose a new password");
+      toast("Answer accepted — choose a new password");
+    } else {
+      lockOpenSetup();
+      toast("Answer accepted — choose a new PIN");
+    }
   } else {
     lockShake();
     $("#lockAnswer").value = "";
@@ -15616,14 +15813,20 @@ function renderLockSettings(){
      open the encrypted book, so it is asked for when the app starts. Once it
      has, the key is in memory and the PIN is enough to come back from an idle
      screen — which is the frequent case, and the one worth keeping quick. */
+  const pw = lockKind() === "password";
   $("#lockStatus").textContent = enc && on
-    ? "On — your passphrase on opening, then the PIN after 5 minutes idle."
+    ? (pw ? "On — your passphrase on opening, then your username and password after 5 minutes idle."
+          : "On — your passphrase on opening, then the PIN after 5 minutes idle.")
     : enc
       ? "On — your passphrase is asked for when the app opens."
       : on
-        ? "On — a PIN is required after 5 minutes idle, or when the app is reopened."
+        ? (pw ? "On — your username and password are asked for after 5 minutes idle, or when the app is reopened."
+              : "On — a PIN is required after 5 minutes idle, or when the app is reopened.")
         : "Off — anyone with this device can open the app.";
-  $("#lockSetPin").textContent = on ? "Change PIN" : "Set a 4-digit PIN";
+  $$("#lockKindTog button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === lockKind())));
+  $("#lockSetPin").textContent = pw
+    ? (on ? "Change password" : "Set username & password")
+    : (on ? "Change PIN" : "Set a 4-digit PIN");
   $("#lockTurnOff").hidden = !on;
   $("#lockQWrap").hidden = !on;
   $("#lockQ").value = localStorage.getItem(LOCK_Q_KEY) || "";
@@ -15634,15 +15837,51 @@ function renderLockSettings(){
       "passphrase is forgotten. Changing it here does not change that; re-enter " +
       "the passphrase from Change passphrase to rewrap it."
     : lockHasQuestion()
-      ? "A security question is set — it's the only way back in if you forget the PIN."
-      : "No security question yet. Without one, a forgotten PIN can't be reset on this device.";
+      ? (pw ? "A security question is set — it's the only way back in if you forget the password."
+            : "A security question is set — it's the only way back in if you forget the PIN.")
+      : (pw ? "No security question yet. Without one, a forgotten password can't be reset on this device."
+            : "No security question yet. Without one, a forgotten PIN can't be reset on this device.");
   const foot = $("#lockFootNote");
   if (foot) foot.textContent = enc
-    ? "Both are on: the PIN hides the screen, and what is stored is unreadable " +
+    ? "Both are on: the lock hides the screen, and what is stored is unreadable " +
       "without the passphrase. Either can be turned off on its own."
     : "Locks the screen only — it does not encrypt the data stored on this device.";
 }
-$("#lockSetPin").addEventListener("click", () => { sheetClose(); lockOpenSetup(); });
+$("#lockSetPin").addEventListener("click", () => {
+  sheetClose();
+  if (lockKind() === "password") lockOpenLogin("setup");
+  else lockOpenSetup();
+});
+/* Switching login. With the lock off it only chooses what Set will set up.
+   With it on, the current one is asked for first — otherwise anyone holding
+   the unlocked phone could swap the lock for one they know — and the switch
+   happens only once the new login exists. */
+$$("#lockKindTog button").forEach(b => b.addEventListener("click", async () => {
+  const want = b.dataset.v;
+  if (want === lockKind()) return;
+  if (!lockEnabled()){
+    localStorage.setItem(LOCK_KIND_KEY, want);
+    renderLockSettings();
+    return;
+  }
+  const ok = await lockConfirm(lockKind() === "password"
+    ? "Enter your password to change how you log in"
+    : "Enter your PIN to change how you log in");
+  if (!ok) return;
+  if (want === "password"){
+    if (lockHasPassword()){
+      localStorage.setItem(LOCK_KIND_KEY, "password");
+      renderLockSettings();
+      toast("You'll log in with your username and password");
+    } else { sheetClose(); lockOpenLogin("setup"); }
+  } else {
+    if (localStorage.getItem(LOCK_HASH_KEY)){
+      localStorage.setItem(LOCK_KIND_KEY, "pin");
+      renderLockSettings();
+      toast("You'll unlock with your PIN");
+    } else { sheetClose(); lockOpenSetup(); }
+  }
+}));
 $("#lockQSave").addEventListener("click", async () => {
   const q = $("#lockQ").value.trim();
   const a = $("#lockA").value.trim();
@@ -15656,13 +15895,16 @@ $("#lockQSave").addEventListener("click", async () => {
 $("#lockTurnOff").addEventListener("click", async () => {
   if (!(await askConfirm({
     title: "Turn off the app lock?",
-    message: "The PIN and its recovery question are forgotten, and the app opens straight to your book.",
+    message: "The PIN, the username and password, and the recovery question are all forgotten, and the app opens straight to your book.",
     confirm: "Turn off"
   }))) return;
   localStorage.removeItem(LOCK_ENABLED_KEY);
   localStorage.removeItem(LOCK_HASH_KEY);
   localStorage.removeItem(LOCK_Q_KEY);
   localStorage.removeItem(LOCK_A_KEY);
+  localStorage.removeItem(LOCK_USER_KEY);
+  localStorage.removeItem(LOCK_PW_KEY);
+  localStorage.removeItem(LOCK_KIND_KEY);
   toast("App lock turned off");
   renderLockSettings();
 });
