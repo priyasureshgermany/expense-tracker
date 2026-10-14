@@ -56,6 +56,21 @@ window.__T = (() => {
   }
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  /* App lock lives in this device's storage, not the book: a test that touches
+     it puts every lock key back as it found it. */
+  const lockKeys = () => Object.keys(localStorage).filter(k => k.indexOf("panappai.lock.") === 0);
+  function lockSnapshot(){
+    const snap = {};
+    lockKeys().forEach(k => { snap[k] = localStorage.getItem(k); });
+    return snap;
+  }
+  function lockRestore(snap){
+    lockKeys().forEach(k => localStorage.removeItem(k));
+    Object.keys(snap).forEach(k => localStorage.setItem(k, snap[k]));
+    document.documentElement.classList.remove("locked");
+    lockHideLogin();
+  }
   /* the real date, for things fixed when the page loaded (a calendar's limit) */
-  return { book, useBook, restore, sleep, realToday };
+  return { book, useBook, restore, sleep, realToday, lockSnapshot, lockRestore };
 })();
