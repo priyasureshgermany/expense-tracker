@@ -262,6 +262,8 @@ export default [
       const title = host.querySelector(".cal-title").textContent;
       const day17 = [...host.querySelectorAll(".cal-d:not(.out)")].find(b => b.textContent === "17");
       day17.click();
+      /* the age follows the pick at once, before anything is saved */
+      const ageShown = document.querySelector("#pfAge").hidden ? null : document.querySelector("#pfAge").textContent;
       document.querySelector("#pfFirst").value = "Suresh";
       document.querySelector("#pfLoc").value = "  Frankfurt am Main  ";
       document.querySelector("#pfSave").click();
@@ -282,12 +284,17 @@ export default [
       const foot = host.querySelector(".cal-foot").innerText;
       [...host.querySelectorAll(".cal-foot button")].find(b => b.textContent === "Clear").click();
       const cleared = document.querySelector("#pfDob").value;
+      const ageAfterClear = document.querySelector("#pfAge").hidden;
       sheetClose();
       __T.restore();
-      return { inside, label0, firstYear: years[0], thisYear: String(ry), oldest: years[years.length - 1], title, saved, back,
+      return { ageShown, ageAfterClear, inside, label0, firstYear: years[0], thisYear: String(ry), oldest: years[years.length - 1], title, saved, back,
                label1: host.querySelector(".pk-lab").textContent, off, offWant, foot, cleared };
     });
     assert.equal(r.label0, "Date of birth");
+    /* born 17 Oct 1990, and today is pinned to 14 Oct 2026: three days short of 36 */
+    assert.equal(r.saved.dob, "1990-10-17");
+    assert.equal(r.ageShown, "35 years old");
+    assert.equal(r.ageAfterClear, true, "no date, no age");
     assert.equal(r.inside, true, "the calendar fits inside the short profile pane");
     assert.equal(r.firstYear, r.thisYear);
     assert.equal(+r.oldest, +r.thisYear - 110);
@@ -437,6 +444,9 @@ export default [
         .dispatchEvent(new MouseEvent("click", { bubbles:true }));
       await new Promise(r => setTimeout(r, 400));     /* the dictionary swaps on the next tick */
       openSettings(); await new Promise(r => setTimeout(r, 400));
+      setDateVal("#pfDob", "1990-05-17"); renderProfileAge();
+      await new Promise(r => setTimeout(r, 100));
+      const age = document.querySelector("#pfAge").textContent;
       const row = document.querySelector("#cfgBalLine").closest(".cfgrow");
       repDrawBars(); await new Promise(r => setTimeout(r, 100));
       const sw = document.querySelector("#repBarsMode").getAttribute("aria-label");
@@ -444,7 +454,7 @@ export default [
                     note: document.querySelector("#balLineNote").innerText,
                     k: document.querySelector(".bal-k").innerText,
                     cfg: row.querySelector(".cf-t b").innerText,
-                    btns: [...row.querySelectorAll("button")].map(b => b.innerText), sw };
+                    btns: [...row.querySelectorAll("button")].map(b => b.innerText), sw, age };
       sheetClose();
       __T.restore();
       return out;
@@ -457,5 +467,6 @@ export default [
     assert.equal(r.cfg, "Saldoverlauf");
     assert.deepEqual(r.btns, ["Aus", "An"]);
     assert.equal(r.sw, "Als Liniendiagramm zeigen");
+    assert.equal(r.age, "36 Jahre alt");
   }}
 ];

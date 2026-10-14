@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.0.7 — 2026-10-14
+- new: Your profile shows your age under the date of birth, worked out fresh each day.
+
 ## 3.0.6 — 2026-10-14
 - new: App lock can ask for a username and password instead of the 4-digit PIN; the PIN stays the default, and Settings › App lock › Log in with switches between them.
 

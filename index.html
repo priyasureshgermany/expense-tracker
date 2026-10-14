@@ -4882,6 +4882,7 @@ html.locked #lockScreen::before{
       <div class="pf-dob" style="margin-top:8px">
         <input id="pfDob" type="date">
       </div>
+      <div class="note" id="pfAge" style="margin-top:6px" hidden></div>
       <input class="inp" id="pfLoc" type="text" placeholder="Location — city, country" autocomplete="address-level2"
              style="margin-top:8px">
       <button class="btn ghost sm" id="pfSave" style="margin-top:8px">Save profile</button>
@@ -5320,6 +5321,7 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Under a year old": "Jünger als ein Jahr",
 "Username": "Benutzername",
 "Password": "Passwort",
 "Password again": "Passwort wiederholen",
@@ -7084,6 +7086,8 @@ const I18N_PAT = [
 ];
 /* Worked inside any line, after the phrases: counts and "x of y" between amounts. */
 const I18N_INLINE = [
+  [/^1 year old$/, "1 Jahr alt"],
+  [/^(\d+) years old$/, "$1 Jahre alt"],
   [/\b1 entry\b/g, "1 Eintrag"],
   [/\b(\d+) entries\b/g, "$1 Einträge"],
   [/\b(\d+) days\b/g, "$1 Tage"],
@@ -7224,7 +7228,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.0.6";
+const APP_VERSION = "3.0.7";
 const APP_BUILT = "2026-10-14";
 
 const KEY = "panappai.v1";
@@ -7804,6 +7808,32 @@ function normaliseProfile(pr){
   const out = { first:t(pr.first), last:t(pr.last), email:t(pr.email), dob:dob, location:t(pr.location) };
   return (out.first || out.last || out.email || out.dob || out.location) ? out : null;
 }
+/**
+ * Whole years from a birth date to a day, the way a birthday counts them: the
+ * year ticks over on the birthday itself, not the day after. Someone born on
+ * 29 February turns a year older on 1 March in a year without one.
+ */
+function ageOn(dob, day){
+  if (!dob || !day || dob > day) return null;
+  const [by, bm, bd] = dob.split("-").map(Number);
+  const [ty, tm, td] = day.split("-").map(Number);
+  let age = ty - by;
+  if (tm < bm || (tm === bm && td < bd)) age--;
+  return age;
+}
+function ageText(age){
+  if (age === null) return "";
+  if (age === 0) return "Under a year old";
+  return age + (age === 1 ? " year old" : " years old");
+}
+/** The age under the date, from whatever the field holds right now. */
+function renderProfileAge(){
+  const n = $("#pfAge");
+  const a = ageOn($("#pfDob").value, todayISO());
+  n.textContent = ageText(a);
+  n.hidden = a === null;
+}
+
 /** வணக்கம் — a Tamil hello, shown under the title once a name is saved. */
 function renderGreeting(){
   const el = document.getElementById("brandHi");
@@ -10113,8 +10143,10 @@ function renderProfileSettings(){
   $("#pfLast").value = pr.last || "";
   $("#pfEmail").value = pr.email || "";
   setDateVal("#pfDob", pr.dob || "");
+  renderProfileAge();
   $("#pfLoc").value = pr.location || "";
 }
+$("#pfDob").addEventListener("change", renderProfileAge);
 $("#pfSave").addEventListener("click", () => {
   const email = $("#pfEmail").value.trim();
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){

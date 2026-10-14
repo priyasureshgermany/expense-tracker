@@ -247,6 +247,23 @@ export default [
     assert.equal(r.kindDefault, "pin", "the PIN is the default");
   }},
 
+  { name: "ageOn counts whole years, ticking over on the birthday itself", async run(pg){
+    const r = await pg.fn(() => [
+      ageOn("1990-05-17", "2026-10-14"),   /* birthday already past this year */
+      ageOn("1990-10-14", "2026-10-14"),   /* it is today */
+      ageOn("1990-10-15", "2026-10-14"),   /* tomorrow */
+      ageOn("2000-02-29", "2025-02-28"),   /* leap-day birth, common year: not yet */
+      ageOn("2000-02-29", "2025-03-01"),   /* ...but by 1 March */
+      ageOn("2000-02-29", "2028-02-29"),   /* and on the day itself in a leap year */
+      ageOn("2026-01-01", "2026-10-14"),   /* under a year */
+      ageOn("2027-01-01", "2026-10-14"),   /* not born yet */
+      ageOn("", "2026-10-14"),
+      ageText(1), ageText(36), ageText(0), ageText(null)
+    ]);
+    assert.deepEqual(r, [36, 36, 35, 24, 25, 28, 0, null, null,
+                         "1 year old", "36 years old", "Under a year old", ""]);
+  }},
+
   { name: "stateFromPayload keeps every field it is given", async run(pg){
     /* a field dropped here is a field erased by the next pull or restore */
     const r = await pg.fn(() => {
