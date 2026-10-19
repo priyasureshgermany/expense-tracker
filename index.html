@@ -1458,8 +1458,11 @@ div.rp-rem:hover{background:none}
   padding:0 16px 0 2px;color:#fff;font-weight:700;font-size:12.5px}
 /* what a paid row says where the tick used to be */
 .amtcol{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none}
-.paidl{font-size:10px;font-weight:600;color:var(--pos);white-space:nowrap;letter-spacing:.01em}
-.paidl.rx{color:var(--ink-3)}
+/* settled: a badge in the pills' own style, a tick inside it, no date — the
+   day is already the heading the row sits under */
+.pill.paid{display:inline-flex;align-items:center;gap:3px;background:var(--pos-soft);color:var(--pos)}
+.pill.paid.rx{background:var(--surface-2);color:var(--ink-3)}
+.pill.paid svg{width:9px;height:9px;flex:none}
 .swipehint{font-size:11.5px;color:var(--ink-3);text-align:center;margin:-6px 0 -4px}
 .row.planned:hover{background:var(--surface-2)}
 
@@ -4283,8 +4286,8 @@ html.locked #lockScreen::before{
       <input id="rDate" type="date">
       <div class="note" style="margin-top:6px">
         Sets the day of the cycle — a monthly entry starting on the 3rd falls due
-        on the 3rd of every month. Occurrences appear as <b>Planned</b>; tick them
-        off as you pay.
+        on the 3rd of every month. Occurrences appear as <b>Planned</b>; mark them
+        paid as you go — swipe the row left.
       </div>
     </div>
 
@@ -4909,7 +4912,10 @@ html.locked #lockScreen::before{
       <input class="inp" id="pfLoc" type="text" placeholder="Location — city, country" autocomplete="address-level2"
              style="margin-top:8px">
       <button class="btn ghost sm" id="pfSave" style="margin-top:8px">Save profile</button>
-      <div class="note" style="margin-top:6px">Your first name greets you under the title.</div>
+      <div class="lbl-i" style="margin-top:6px">
+        <div class="note" style="margin:0">Your first name greets you under the title.</div>
+        <button class="ibtn" id="pfInfo" type="button" aria-label="About your profile" title="About your profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8h.01"/></svg></button>
+      </div>
     </div>
   </div>
   <div class="sheet-body setpane" id="setPane_accounts" hidden>
@@ -5006,7 +5012,7 @@ html.locked #lockScreen::before{
         </div>
       </div>
       <div class="cfgrow cfg-stack" style="margin-top:14px">
-        <div class="cf-t"><b>Log in with</b><span>What the lock screen asks for</span></div>
+        <div class="cf-t"><b style="display:flex;align-items:center;gap:7px"><span>Log in with</span><button class="ibtn" id="lockKindInfo" type="button" aria-label="About logging in" title="About logging in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8h.01"/></svg></button></b><span>What the lock screen asks for</span></div>
         <div class="toggle2 cfg-tog" id="lockKindTog" style="grid-template-columns:1fr 1fr">
           <button class="a" type="button" data-v="pin" aria-pressed="true">4-digit PIN</button>
           <button class="a" type="button" data-v="password" aria-pressed="false">Username &amp; password</button>
@@ -5193,7 +5199,7 @@ html.locked #lockScreen::before{
             </div>
           </div>
           <div class="cfgrow cfg-stack">
-            <div class="cf-t"><b>Balance line</b><span>Month by month on the balance card</span></div>
+            <div class="cf-t"><b style="display:flex;align-items:center;gap:7px"><span>Balance line</span><button class="ibtn" id="balLineInfo" type="button" aria-label="About the balance line" title="About the balance line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8h.01"/></svg></button></b><span>Month by month on the balance card</span></div>
             <div class="toggle2 cfg-tog" id="cfgBalLine" style="grid-template-columns:1fr 1fr">
               <button class="a" type="button" data-v="off" aria-pressed="true">Off</button>
               <button class="a" type="button" data-v="on" aria-pressed="false">On</button>
@@ -5344,6 +5350,72 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"; mark them paid as you go — swipe the row left.": "; markiere sie beim Bezahlen als bezahlt — Zeile nach links wischen.",
+". Mark it received once it arrives.": ". Markiere es als erhalten, sobald es eingeht.",
+"Mark it received once it arrives.": "Markiere es als erhalten, sobald es eingeht.",
+"Only entries marked paid, up to today.": "Nur als bezahlt markierte Einträge, bis heute.",
+"Only entries marked paid count, and nothing dated after today — a bill settled early has not moved the money yet.": "Nur als bezahlt markierte Einträge zählen, und nichts mit Datum nach heute – eine früh beglichene Rechnung hat das Geld noch nicht bewegt.",
+"The bar fills with what has gone out; the rest of it is what you have entered but not yet marked paid.": "Der Balken füllt sich mit dem, was abgeflossen ist; der Rest ist, was du erfasst, aber noch nicht als bezahlt markiert hast.",
+"It is dated in the past and still not marked paid, so it is counted as late rather than as next month's.": "Es ist in der Vergangenheit datiert und noch nicht als bezahlt markiert, zählt also als verspätet und nicht als der nächste Monat.",
+"An entry counts as received once it is marked received. Money moved between your own accounts is a transfer, not income, so it is left out.": "Ein Eintrag zählt als erhalten, sobald er als erhalten markiert ist. Geld zwischen deinen eigenen Konten ist eine Umbuchung, keine Einnahme, und bleibt darum außen vor.",
+"has been marked paid.": "ist als bezahlt markiert.",
+"not marked paid yet, soonest first:": "noch nicht als bezahlt markiert, die nächsten zuerst:",
+"Swipe its row left in வரவு செலவு once it has gone out.": "Wische seine Zeile in வரவு செலவு nach links, sobald es abgeflossen ist.",
+"dated in the past and still not marked paid — worth a look in வரவு செலவு under Planned.": "in der Vergangenheit datiert und noch nicht als bezahlt markiert – ein Blick in வரவு செலவு unter Geplant lohnt sich.",
+") not yet marked paid.": ") noch nicht als bezahlt markiert.",
+"A Planned entry counts in the period's totals but not in the account balance until you mark it paid — swipe its row left.": "Ein geplanter Eintrag zählt in den Summen der Periode, aber erst im Kontostand, wenn du ihn als bezahlt markierst — wische seine Zeile nach links.",
+"For a quick delete without opening it, swipe the row to the right and tap Delete.": "Zum schnellen Löschen, ohne den Eintrag zu öffnen, wische die Zeile nach rechts und tippe auf Löschen.",
+"வரவு செலவு › swipe a row left": "வரவு செலவு › Zeile nach links wischen",
+"வரவு செலவு › swipe a row right": "வரவு செலவு › Zeile nach rechts wischen",
+"Open the வரவு செலவு tab — the Planned tab lists everything still to pay.": "Öffne den Tab வரவு செலவு — der Tab Geplant listet alles, was noch zu zahlen ist.",
+"Swipe the entry's row to the left until it turns green, and let go.": "Wische die Zeile des Eintrags nach links, bis sie grün wird, und lass los.",
+"A repeating bill asks when it was paid: today, or the day it was due.": "Eine wiederkehrende Rechnung fragt, wann sie bezahlt wurde: heute oder am Fälligkeitstag.",
+"The row then carries a green Paid badge — Received for income, Moved for a transfer — where the tick used to be.": "Die Zeile trägt dann ein grünes Bezahlt-Abzeichen — Erhalten bei Einnahmen, Umgebucht bei Umbuchungen — dort, wo früher das Häkchen war.",
+"Swiped by mistake? Swipe the paid row left again: it turns amber and goes back to Planned.": "Aus Versehen gewischt? Wische die bezahlte Zeile noch einmal nach links: Sie wird orange und geht zurück zu Geplant.",
+"Only paid entries move “In the account now”.": "Nur bezahlte Einträge verändern „Jetzt auf dem Konto“.",
+"Delete an entry with a swipe": "Einen Eintrag per Wischen löschen",
+"Open the வரவு செலவு tab and find the entry.": "Öffne den Tab வரவு செலவு und suche den Eintrag.",
+"Swipe its row to the right — a red Delete appears and stays.": "Wische seine Zeile nach rechts — ein rotes Löschen erscheint und bleibt stehen.",
+"Tap Delete, then confirm.": "Tippe auf Löschen und bestätige.",
+"Changed your mind? Tap the row, or anywhere else, and it slides back.": "Doch nicht? Tippe auf die Zeile oder irgendwo anders, und sie gleitet zurück.",
+"A planned entry made by a recurring entry is skipped, not remade: the schedule remembers it was deleted.": "Ein geplanter Eintrag aus einem wiederkehrenden Eintrag wird übersprungen, nicht neu erzeugt: Der Plan merkt sich, dass er gelöscht wurde.",
+"Deleting asks first and says how many planned occurrences go with it. Entries already marked paid stay.": "Das Löschen fragt erst nach und sagt, wie viele geplante Termine mitgehen. Bereits bezahlte Einträge bleiben.",
+"Show the balance month by month": "Den Kontostand Monat für Monat zeigen",
+"More › Settings › Config › Balance line": "Mehr › Einstellungen › Konfiguration › Saldoverlauf",
+"Under Balance line, tap On.": "Tippe unter Saldoverlauf auf An.",
+"On the dashboard, tap a month on the line to read what your accounts held at its end.": "Tippe auf der Übersicht auf einen Monat der Linie, um zu sehen, was deine Konten an seinem Ende hatten.",
+"It is off unless you switch it on, and its last point is always “In the account now”.": "Sie ist aus, bis du sie einschaltest, und ihr letzter Punkt ist immer „Jetzt auf dem Konto“.",
+"A dashed stretch is worked back from a balance you saved later — right only if your entries before that are complete.": "Ein gestrichelter Abschnitt ist aus einem später gespeicherten Kontostand zurückgerechnet — er stimmt nur, wenn deine Einträge davor vollständig sind.",
+"Show the report chart as lines": "Das Berichtsdiagramm als Linien zeigen",
+"Reports › the button beside Income · Expense": "Berichte › die Taste neben Einnahmen · Ausgaben",
+"Open More › Reports and stay on Chart.": "Öffne Mehr › Berichte und bleib bei Diagramm.",
+"Tap the small chart button beside the Income · Expense key.": "Tippe auf die kleine Diagramm-Taste neben der Legende Einnahmen · Ausgaben.",
+"Tap it again to go back to bars.": "Tippe noch einmal, um zu den Balken zurückzukehren.",
+"Both show the same five days, weeks or months, and a tapped point reads out just as a bar does.": "Beide zeigen dieselben fünf Tage, Wochen oder Monate, und ein angetippter Punkt zeigt dieselben Werte wie ein Balken.",
+"Your choice is remembered on this device.": "Deine Wahl wird auf diesem Gerät gemerkt.",
+"Fill in your profile": "Dein Profil ausfüllen",
+"Type your first and last name, and your email.": "Gib Vor- und Nachnamen und deine E-Mail ein.",
+"Tap Date of birth, pick the year from the grid, then the month and the day.": "Tippe auf Geburtsdatum, wähle das Jahr aus dem Raster, dann Monat und Tag.",
+"Type your location — city and country — and tap Save profile.": "Gib deinen Wohnort ein — Stadt und Land — und tippe auf Profil speichern.",
+"Your age shows under the date, and goes up on your birthday by itself.": "Dein Alter steht unter dem Datum und steigt an deinem Geburtstag von selbst.",
+"Lock the app": "Die App sperren",
+"Under Log in with, choose 4-digit PIN or Username & password.": "Wähle unter Anmelden mit 4-stellige PIN oder Benutzername & Passwort.",
+"Tap Set a 4-digit PIN or Set username & password, and follow the lock screen.": "Tippe auf 4-stellige PIN festlegen oder Benutzername & Passwort festlegen und folge dem Sperrbildschirm.",
+"Set a security question too — it is the only way back if you forget.": "Lege auch eine Sicherheitsfrage fest — sie ist der einzige Weg zurück, falls du etwas vergisst.",
+"The lock asks after 5 minutes away, when the app is reopened, and before anything is deleted for good.": "Die Sperre fragt nach 5 Minuten Abwesenheit, beim erneuten Öffnen und bevor etwas endgültig gelöscht wird.",
+"Switching between PIN and password asks for the current one first.": "Der Wechsel zwischen PIN und Passwort fragt zuerst nach dem aktuellen.",
+"It all stays on this device; the password is kept only as a scrambled hash that cannot be read back.": "Alles bleibt auf diesem Gerät; das Passwort wird nur als verschlüsselter Hash gespeichert, der sich nicht zurücklesen lässt.",
+"Forgot my PIN or password": "PIN oder Passwort vergessen",
+"The lock screen › Forgot?": "Sperrbildschirm › Vergessen?",
+"On the lock screen, tap Forgot your PIN? or Forgot your password?": "Tippe auf dem Sperrbildschirm auf PIN vergessen? oder Passwort vergessen?",
+"Answer your security question — capitals and spaces do not matter.": "Beantworte deine Sicherheitsfrage — Groß- und Kleinschreibung und Leerzeichen sind egal.",
+"Choose a new PIN or password.": "Wähle eine neue PIN oder ein neues Passwort.",
+"Without a security question it cannot be reset on this device — your book is still safe in your GitHub backup.": "Ohne Sicherheitsfrage lässt es sich auf diesem Gerät nicht zurücksetzen — dein Buch ist in deinem GitHub-Backup trotzdem sicher.",
+"About logging in": "Über die Anmeldung",
+"About the balance line": "Über den Saldoverlauf",
+"About your profile": "Über dein Profil",
+"Logging in": "Anmelden",
+"The balance line": "Der Saldoverlauf",
 "Moved": "Umgebucht",
 "Swipe left to mark paid · right to delete": "Nach links wischen: bezahlt · nach rechts: löschen",
 "Under a year old": "Jünger als ein Jahr",
@@ -7253,7 +7325,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.1.0";
+const APP_VERSION = "3.1.1";
 const APP_BUILT = "2026-10-19";
 
 const KEY = "panappai.v1";
@@ -10826,15 +10898,16 @@ function txnRow(t, dark){
 
   const amt = amtNode("div", "amt " + (xfer ? "xf" : (t.type === "income" ? "in" : "out")),
     xfer ? "" : (t.type === "income" ? "+" : "−"), t);
-  /* No tick. A planned row is swiped to be paid; a settled one says so, and
-     when, in the place the tick used to take. */
+  /* No tick. A planned row is swiped to be paid; a settled one carries a
+     badge saying so, under its amount where the tick used to be. */
   if (t.status === "done"){
     const col = el("div", "amtcol");
     col.appendChild(amt);
-    const lab = el("span", "paidl" + (xfer ? " rx" : ""));
+    const lab = el("span", "pill paid" + (xfer ? " rx" : ""));
+    lab.innerHTML = xfer
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4M3 7h18M7 21l-4-4 4-4M21 17H3"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
     lab.appendChild(el("span", null, xfer ? "Moved" : t.type === "income" ? "Received" : "Paid"));
-    lab.appendChild(document.createTextNode(" · "));
-    lab.appendChild(el("span", null, paidDay(t.date)));
     col.appendChild(lab);
     row.appendChild(col);
   } else {
@@ -10842,13 +10915,6 @@ function txnRow(t, dark){
   }
 
   return attachSwipe(row, t, open);
-}
-
-/** "14 Oct" — the day it settled, short enough for under an amount. */
-function paidDay(iso){
-  const [, m, d] = iso.split("-").map(Number);
-  const mon = CAL_MONTHS[m - 1].slice(0, 3);
-  return APP_LANG === "de" ? d + ". " + mon : d + " " + mon;
 }
 
 /* =========================================================================
@@ -12537,7 +12603,7 @@ const HEART_LEGEND =
 $("#notifInfo").addEventListener("click", () => showInfo("Reminders",
   "<p><b>Recurring payment reminders</b> put anything due in the next three days " +
   "on the bell in the top bar, with a count of how many. The count stays for as " +
-  "long as they are due — ticking one off as paid is what takes it away.</p>" +
+  "long as they are due — marking one paid (swipe its row left) is what takes it away.</p>" +
   "<p><b>Notify this device</b> also raises a notification on the phone or laptop " +
   "you are reading this on, for anything due <b>tomorrow or today</b> — once per " +
   "entry per day, so the same bill does not ask twice.</p>" +
@@ -12546,6 +12612,69 @@ $("#notifInfo").addEventListener("click", () => showInfo("Reminders",
   "limit: <b>it can only fire while the app is open</b>, or when you next open it " +
   "that day. It will not wake a closed phone the way a bank app does.</p>" +
   HEART_LEGEND));
+
+/* The newer bubbles carry their German with them: their text is whole
+   paragraphs with emphasis inside, which the line-by-line dictionary cannot match. */
+const infoText = (en, de) => APP_LANG === "de" ? de : en;
+
+$("#lockKindInfo").addEventListener("click", () => showInfo("Logging in", infoText(
+  "<p><b>4-digit PIN</b> is quick: four taps on the keypad. It is the default.</p>" +
+  "<p><b>Username &amp; password</b> asks for both on the lock screen instead — " +
+  "slower to type, much harder to guess. The username ignores capitals; the " +
+  "password does not.</p>" +
+  "<p>Whichever you choose is asked for <b>after 5 minutes away</b>, when the app " +
+  "is reopened, and before anything is deleted for good. Switching from one to the " +
+  "other asks for the current one first.</p>" +
+  "<p>Both stay <b>on this device only</b> — not in your backup or GitHub sync. " +
+  "The password is kept as a scrambled hash that cannot be turned back into it, so " +
+  "set a <b>security question</b>: it is the only way to choose a new one if you forget.</p>",
+  "<p><b>4-stellige PIN</b> geht schnell: vier Tipps auf dem Tastenfeld. Sie ist die Voreinstellung.</p>" +
+  "<p><b>Benutzername &amp; Passwort</b> fragt stattdessen beides auf dem Sperrbildschirm ab — " +
+  "langsamer zu tippen, viel schwerer zu erraten. Beim Benutzernamen ist Groß- und " +
+  "Kleinschreibung egal, beim Passwort nicht.</p>" +
+  "<p>Was du wählst, wird <b>nach 5 Minuten Abwesenheit</b>, beim erneuten Öffnen und vor " +
+  "jedem endgültigen Löschen abgefragt. Ein Wechsel fragt zuerst nach dem aktuellen.</p>" +
+  "<p>Beides bleibt <b>nur auf diesem Gerät</b> — nicht im Backup und nicht im GitHub-Sync. " +
+  "Das Passwort wird als Hash gespeichert, der sich nicht zurückverwandeln lässt; lege darum eine " +
+  "<b>Sicherheitsfrage</b> fest: Sie ist der einzige Weg zu einem neuen, falls du es vergisst.</p>")));
+
+$("#balLineInfo").addEventListener("click", () => showInfo("The balance line", infoText(
+  "<p>A line under <b>In the account now</b> through what your accounts held at " +
+  "the <b>end of each month</b>, for up to twelve months, with today as the last point. " +
+  "Tap a month to read it.</p>" +
+  "<p>It is counted exactly as the figure above it — each account from its own " +
+  "snapshot, only paid entries, nothing dated after today — so its last point is " +
+  "always that figure.</p>" +
+  "<p>A <b>dashed</b> stretch is a month before a balance you saved later, worked " +
+  "back from it. It is right only if your entries before that snapshot are " +
+  "complete.</p>" +
+  "<p>Off unless you switch it on; the choice travels with your book.</p>",
+  "<p>Eine Linie unter <b>Jetzt auf dem Konto</b> durch das, was deine Konten am " +
+  "<b>Ende jedes Monats</b> hatten — bis zu zwölf Monate, mit heute als letztem Punkt. " +
+  "Tippe auf einen Monat, um ihn abzulesen.</p>" +
+  "<p>Sie wird genau wie die Zahl darüber gezählt — jedes Konto ab seinem eigenen " +
+  "Stand, nur bezahlte Einträge, nichts nach heute —, also ist ihr letzter Punkt " +
+  "immer diese Zahl.</p>" +
+  "<p>Ein <b>gestrichelter</b> Abschnitt ist ein Monat vor einem später gespeicherten " +
+  "Kontostand, aus ihm zurückgerechnet. Er stimmt nur, wenn deine Einträge davor " +
+  "vollständig sind.</p>" +
+  "<p>Aus, bis du sie einschaltest; die Wahl reist mit deinem Buch.</p>")));
+
+$("#pfInfo").addEventListener("click", () => showInfo("Your profile", infoText(
+  "<p>Your <b>first name</b> greets you under the title. Your <b>date of birth</b> " +
+  "shows your age underneath it, worked out fresh each day, so it goes up on your " +
+  "birthday without you doing anything.</p>" +
+  "<p>To reach a year long ago quickly, the calendar opens on a <b>grid of years</b>; " +
+  "once a date is set, tap the month and year at its top to get the grid back. " +
+  "<b>Clear</b> at its foot removes the date.</p>" +
+  "<p>Everything here is kept <b>in your book</b>, so it goes with your backup and " +
+  "GitHub sync.</p>",
+  "<p>Dein <b>Vorname</b> begrüßt dich unter dem Titel. Dein <b>Geburtsdatum</b> zeigt " +
+  "darunter dein Alter, jeden Tag neu berechnet — es steigt an deinem Geburtstag von selbst.</p>" +
+  "<p>Damit ein lange zurückliegendes Jahr schnell erreichbar ist, öffnet der Kalender mit " +
+  "einem <b>Jahresraster</b>; ist ein Datum gesetzt, holt ein Tipp auf Monat und Jahr oben " +
+  "das Raster zurück. <b>Leeren</b> unten entfernt das Datum.</p>" +
+  "<p>Alles hier wird <b>in deinem Buch</b> gespeichert und reist mit Backup und GitHub-Sync.</p>")));
 
 $("#hideInfo").addEventListener("click", () => showInfo("Hiding a category",
   "<p>The eye in the top bar hides <b>every</b> amount at once. These take one " +
@@ -17172,7 +17301,7 @@ function payWelcomeOpen(auto){
     : fmt(p.amount, p.category) + " on " + prettyDate(p.date);
   $("#pwSub").textContent =
     w.state === "late"
-      ? p.name + " was due " + prettyDate(p.date) + ". Tick it off once it arrives."
+      ? p.name + " was due " + prettyDate(p.date) + ". Mark it received once it arrives."
       : p.name + (w.state === "today" ? "" : " · " + Math.round(p.pct * 100) + "% of the wait done");
 
   payWelcomeStats();
@@ -17426,7 +17555,7 @@ function askAcctBreakdown(id){
   if (!l) return;
   askPopup({
     title: l.account.n,
-    sub: l.from ? "Counted forward from its snapshot of " + prettyDate(l.from) + ". Only entries ticked off, up to today."
+    sub: l.from ? "Counted forward from its snapshot of " + prettyDate(l.from) + ". Only entries marked paid, up to today."
                 : "No snapshot yet, so it is counted from zero.",
     base: [l.from ? "Snapshot · " + dayTitle(l.from) : "Start", fmt(l.start)],
     empty: "Nothing has moved it since.",
@@ -17512,7 +17641,7 @@ function askBalance(){
     after: ["Snapshots come to " + fmt(t.base) + ". Since each one's date, " +
             fmt(t.inc) + " has come in and " + fmt(t.exp) + " has gone out." +
             (t.dates.length > 1 ? " Your accounts were snapshotted on different days, so each is counted from its own." : ""),
-            "Only entries you have ticked off count, and nothing dated after today — a bill settled early has not moved the money yet.",
+            "Only entries marked paid count, and nothing dated after today — a bill settled early has not moved the money yet.",
             "Tap an account to see its snapshot and every entry since that made its figure."],
     acts: [["See the entries", () => { sheetClose(); setPanel("entries"); render(); }]]
   };
@@ -17567,7 +17696,7 @@ function askPaidSoFar(){
     body: ["Of everything entered as an expense for " + periodTitle(view) + ":"],
     figs: [askFig("Paid", fmt(done)), askFig("Entered altogether", fmt(total))],
     sum: ["Still to pay", fmt(total - done)],
-    after: ["The bar fills with what has gone out; the rest of it is what you have entered but not yet ticked off."],
+    after: ["The bar fills with what has gone out; the rest of it is what you have entered but not yet marked paid."],
     acts: []
   };
 }
@@ -17694,7 +17823,7 @@ function askPayday(){
     body: [p.name + " · " + fmt(p.amount, p.category) + " on " + prettyDate(p.date) + "."],
     figs: [],
     after: [w.state === "late"
-      ? "It is dated in the past and still not ticked off, so it is counted as late rather than as next month's."
+      ? "It is dated in the past and still not marked paid, so it is counted as late rather than as next month's."
       : Math.round(p.pct * 100) + "% of the wait is behind you.",
       "It is read from your repeating income rather than from a date you have to keep up to date."],
     acts: []
@@ -17770,7 +17899,7 @@ function askIncomeTile(){
     body: ["Everything entered as income for " + periodTitle(view) + ", arrived or not:"],
     figs: [askFig("Received", fmt(done)), askFig("Still expected", fmt(plan))],
     sum: ["Income", fmt(done + plan)],
-    after: ["An entry counts as received once it is ticked off. Money moved between your own accounts is a transfer, not income, so it is left out."],
+    after: ["An entry counts as received once it is marked received. Money moved between your own accounts is a transfer, not income, so it is left out."],
     acts: [["See the income", () => { sheetClose(); showEntriesOfType("income"); }]]
   };
 }
@@ -17817,17 +17946,17 @@ function askStillToPay(){
   const rows = periodTxns(view).filter(t => t.type === "expense" && t.status !== "done")
     .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
   if (!rows.length){
-    return { title:"Nothing left to pay", body:["Every expense entered for " + periodTitle(view) + " has been ticked off."], figs:[], acts:[] };
+    return { title:"Nothing left to pay", body:["Every expense entered for " + periodTitle(view) + " has been marked paid."], figs:[], acts:[] };
   }
   let total = 0;
   rows.forEach(t => { total += t.amount; });
   return {
     title: "Still to pay — " + fmt(total),
-    body: [rows.length + (rows.length === 1 ? " expense" : " expenses") + " in " + periodTitle(view) + " not ticked off yet, soonest first:"],
+    body: [rows.length + (rows.length === 1 ? " expense" : " expenses") + " in " + periodTitle(view) + " not marked paid yet, soonest first:"],
     figs: rows.slice(0, 8).map(t => askFig(dayTitle(t.date) + " · " + (t.note || T(catOf(t.category).n)) + askBadge(t), fmtTxn(t).main)),
     sum: ["Still to pay", fmt(total)],
     after: [rows.length > 8 ? "And " + (rows.length - 8) + " more." : "",
-            "Tick the circle on a row in வரவு செலவு once it has gone out."],
+            "Swipe its row left in வரவு செலவு once it has gone out."],
     acts: [["See them", () => { sheetClose(); typeFilter = null; filter = "planned"; setPanel("entries"); render(); }]]
   };
 }
@@ -17847,7 +17976,7 @@ function askComing(){
                                             (t.type === "income" ? "+" : "−") + fmtTxn(t).main)),
     sum: soon.length ? ["Coming in / going out", fmt(inn) + " / " + fmt(out)] : null,
     after: [late.length ? late.length + (late.length === 1 ? " planned entry is" : " planned entries are") +
-                          " dated in the past and still not ticked off — worth a look in வரவு செலவு under Planned." : ""],
+                          " dated in the past and still not marked paid — worth a look in வரவு செலவு under Planned." : ""],
     acts: [["Planned entries", () => { sheetClose(); typeFilter = null; filter = "planned"; setPanel("entries"); render(); }]]
   };
 }
@@ -18020,7 +18149,7 @@ const ASK_TOPICS = [
       "Pick a category, and the account it was paid from.",
       "Set the date. Leave Status on Paid if the money has gone, or pick Planned if it is still to come.",
       "Tap Save entry."],
-      ["A Planned entry counts in the period's totals but not in the account balance until you tick it off."],
+      ["A Planned entry counts in the period's totals but not in the account balance until you mark it paid — swipe its row left."],
       [["New expense", ASK_GO.entry("expense")]]) },
   { g:"howto", q:"Add income", words:["add income", "new income", "log income", "record salary", "enter income"],
     build:howTo("Add income", "+ › Income", [
@@ -18042,14 +18171,27 @@ const ASK_TOPICS = [
       "Open the வரவு செலவு tab and find the entry (◀ ▶ at the top moves between periods).",
       "Tap the entry to open it.",
       "Change what needs changing and tap Save entry — or tap Delete this entry at the bottom."],
-      ["Deleting asks first and names the entry, its amount and date."],
+      ["Deleting asks first and names the entry, its amount and date.",
+       "For a quick delete without opening it, swipe the row to the right and tap Delete."],
       [["Open வரவு செலவு", ASK_GO.panel("entries")]]) },
-  { g:"howto", q:"Mark an entry as paid", words:["mark as paid", "tick off", "mark paid", "paid it", "tick an entry", "mark as planned"],
-    build:howTo("Mark an entry as paid", "வரவு செலவு › the circle on a row", [
-      "Open the வரவு செலவு tab.",
-      "Tap the circle at the right-hand end of the entry's row — it fills green.",
-      "Tapped by mistake? Tap it again and it goes back to Planned."],
-      ["Only ticked-off entries move “In the account now”. The Planned tab at the top lists everything not ticked yet."],
+  { g:"howto", q:"Mark an entry as paid", words:["mark as paid", "tick off", "mark paid", "paid it", "tick an entry", "mark as planned",
+            "swipe", "swipe left", "checkbox", "tick", "where is the tick", "back to planned", "bezahlt markieren", "wischen"],
+    build:howTo("Mark an entry as paid", "வரவு செலவு › swipe a row left", [
+      "Open the வரவு செலவு tab — the Planned tab lists everything still to pay.",
+      "Swipe the entry's row to the left until it turns green, and let go.",
+      "A repeating bill asks when it was paid: today, or the day it was due."],
+      ["The row then carries a green Paid badge — Received for income, Moved for a transfer — where the tick used to be.",
+       "Swiped by mistake? Swipe the paid row left again: it turns amber and goes back to Planned.",
+       "Only paid entries move “In the account now”."],
+      [["Open வரவு செலவு", ASK_GO.panel("entries")]]) },
+  { g:"howto", q:"Delete an entry with a swipe", words:["swipe right", "swipe to delete", "delete by swiping", "red delete", "quick delete",
+            "wischen zum löschen"],
+    build:howTo("Delete an entry with a swipe", "வரவு செலவு › swipe a row right", [
+      "Open the வரவு செலவு tab and find the entry.",
+      "Swipe its row to the right — a red Delete appears and stays.",
+      "Tap Delete, then confirm."],
+      ["Changed your mind? Tap the row, or anywhere else, and it slides back.",
+       "A planned entry made by a recurring entry is skipped, not remade: the schedule remembers it was deleted."],
       [["Open வரவு செலவு", ASK_GO.panel("entries")]]) },
   { g:"howto", q:"See only planned or paid entries", words:["only planned", "only paid", "filled entries", "filter entries", "planned tab"],
     build:howTo("See only planned or paid entries", "வரவு செலவு › All · Planned · Filled · Transfers", [
@@ -18071,7 +18213,7 @@ const ASK_TOPICS = [
       "Open More › Settings › Recurring entries.",
       "Tap the one you want.",
       "Tap Pause this entry to stop it for now, or Delete this recurring entry to remove it."],
-      ["Deleting asks first and says how many planned occurrences go with it. Entries already ticked off stay."],
+      ["Deleting asks first and says how many planned occurrences go with it. Entries already marked paid stay."],
       [["Recurring entries", ASK_GO.rules]]) },
   { g:"howto", q:"Make a bill Automatic or Manual", words:["make it automatic", "make it manual", "change to automatic", "taken how", "direct debit"],
     build:howTo("Make a bill Automatic or Manual", "Recurring entries › the entry › Taken how", [
@@ -18291,6 +18433,52 @@ const ASK_TOPICS = [
       "Amounts have to be showing: tap the eye first if they are hidden."],
       ["It opens in Excel as it is. It is a copy to read: to move your book to another device use the backup box, or GitHub sync."],
       [["Open Data & backup", ASK_GO.settings("data")]]) },
+  { g:"howto", q:"Show the balance month by month", words:["balance line", "balance chart", "balance over time", "month by month",
+            "line on the balance", "saldoverlauf", "dashed line"],
+    build:howTo("Show the balance month by month", "More › Settings › Config › Balance line", [
+      "Open More › Settings › Config.",
+      "Under Balance line, tap On.",
+      "On the dashboard, tap a month on the line to read what your accounts held at its end."],
+      ["It is off unless you switch it on, and its last point is always “In the account now”.",
+       "A dashed stretch is worked back from a balance you saved later — right only if your entries before that are complete."],
+      [["Open Config", ASK_GO.settings("config")]]) },
+  { g:"howto", q:"Show the report chart as lines", words:["line chart", "as lines", "lines instead of bars", "switch to lines",
+            "bars or lines", "liniendiagramm"],
+    build:howTo("Show the report chart as lines", "Reports › the button beside Income · Expense", [
+      "Open More › Reports and stay on Chart.",
+      "Tap the small chart button beside the Income · Expense key.",
+      "Tap it again to go back to bars."],
+      ["Both show the same five days, weeks or months, and a tapped point reads out just as a bar does.",
+       "Your choice is remembered on this device."],
+      [["Open Reports", ASK_GO.report]]) },
+  { g:"howto", q:"Fill in your profile", words:["profile", "my profile", "date of birth", "birthday", "my age", "location",
+            "where i live", "geburtsdatum", "wohnort", "profil"],
+    build:howTo("Fill in your profile", "More › Settings › Your profile", [
+      "Open More › Settings › Your profile.",
+      "Type your first and last name, and your email.",
+      "Tap Date of birth, pick the year from the grid, then the month and the day.",
+      "Type your location — city and country — and tap Save profile."],
+      ["Your age shows under the date, and goes up on your birthday by itself.",
+       "Your first name greets you under the title."],
+      [["Open profile", ASK_GO.settings("profile")]]) },
+  { g:"howto", q:"Lock the app", words:["lock the app", "app lock", "pin", "password", "username", "log in", "login",
+            "change pin", "change password", "sperre", "passwort", "benutzername", "anmelden"],
+    build:howTo("Lock the app", "More › Settings › App lock", [
+      "Open More › Settings › App lock.",
+      "Under Log in with, choose 4-digit PIN or Username & password.",
+      "Tap Set a 4-digit PIN or Set username & password, and follow the lock screen.",
+      "Set a security question too — it is the only way back if you forget."],
+      ["The lock asks after 5 minutes away, when the app is reopened, and before anything is deleted for good.",
+       "Switching between PIN and password asks for the current one first.",
+       "It all stays on this device; the password is kept only as a scrambled hash that cannot be read back."],
+      [["Open App lock", ASK_GO.settings("lock")]]) },
+  { g:"howto", q:"Forgot my PIN or password", words:["forgot my pin", "forgot my password", "forgot password", "reset password",
+            "reset pin", "locked out", "passwort vergessen"],
+    build:howTo("Forgot my PIN or password", "The lock screen › Forgot?", [
+      "On the lock screen, tap Forgot your PIN? or Forgot your password?",
+      "Answer your security question — capitals and spaces do not matter.",
+      "Choose a new PIN or password."],
+      ["Without a security question it cannot be reset on this device — your book is still safe in your GitHub backup."]) },
   { g:"howto", q:"Use the calculator", words:["calculator", "calculate", "add up", "work out", "sum", "split the bill", "maths", "math", "percentage", "per cent",
             "rechner", "rechnen", "ausrechnen", "prozent", "summe"],
     build:howTo("Use the calculator", "The Calculator tab", [
@@ -18610,7 +18798,7 @@ function askQueryAnswer(p){
     const range = p.when.range;
     const leftOut = skipped.length
       ? "Leaves out " + skipped.length + " planned " + (skipped.length === 1 ? "entry" : "entries") +
-        " (" + fmt(skippedSum) + ") not yet ticked off."
+        " (" + fmt(skippedSum) + ") not yet marked paid."
       : "";
     if (!rows.length){
       return {

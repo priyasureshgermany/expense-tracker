@@ -264,11 +264,6 @@ export default [
                          "1 year old", "36 years old", "Under a year old", ""]);
   }},
 
-  { name: "paidDay gives a short day and month", async run(pg){
-    const r = await pg.fn(() => [paidDay("2026-10-14"), paidDay("2026-01-03"), paidDay("2027-12-31")]);
-    assert.deepEqual(r, ["14 Oct", "3 Jan", "31 Dec"]);
-  }},
-
   { name: "stateFromPayload keeps every field it is given", async run(pg){
     /* a field dropped here is a field erased by the next pull or restore */
     const r = await pg.fn(() => {
