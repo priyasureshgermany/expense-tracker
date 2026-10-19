@@ -420,6 +420,122 @@ export default [
     assert.equal(r.pinFace.pad, true);
   }},
 
+  { name: "ledger swipes: left pays or un-pays, right uncovers Delete, scrolling and tapping untouched", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const $q = s => document.querySelector(s);
+      __T.useBook();
+      /* two planned ones of our own beside the book's: a plain one, and one a schedule made */
+      state.txns.push({ id:"pl1", type:"expense", amount:4200, category:"groceries", status:"planned",
+                        date:"2026-10-12", account:"a1", fromAccount:null, note:"Plain plan" });
+      state.txns.push({ id:"pl2", type:"expense", amount:9900, category:"groceries", status:"planned",
+                        date:"2026-10-11", account:"a1", fromAccount:null, note:"Ruled plan", ruleId:"r-x" });
+      view = periodOf("2026-10-14");
+      document.querySelector('#viewTog [data-view="entries"]').click();
+      filter = "planned"; render(); await wait(50);
+
+      const wrapOf = id => $('#list .swipe[data-id="' + id + '"]');
+      const drag = async (id, dx, dy) => {
+        const w = wrapOf(id), r = w.getBoundingClientRect();
+        const x = r.left + r.width / 2, y = r.top + r.height / 2;
+        const ev = (type, cx, cy) => w.dispatchEvent(new PointerEvent(type, {
+          bubbles:true, cancelable:true, pointerId:7, button:0, isPrimary:true, clientX:cx, clientY:cy }));
+        ev("pointerdown", x, y);
+        for (let k = 1; k <= 6; k++){ ev("pointermove", x + dx * k / 6, y + dy * k / 6); await wait(10); }
+        ev("pointerup", x + dx, y + dy);
+        await wait(60);
+      };
+      const out = {};
+      out.ticks = document.querySelectorAll("#list .tick").length;
+      out.hint = !!$("#list .swipehint");
+      out.rows = document.querySelectorAll("#list .swipe").length;
+
+      /* a vertical drag is a scroll, not a swipe */
+      await drag("pl1", 4, 70);
+      out.afterScroll = { status: state.txns.find(t => t.id === "pl1").status, open: wrapOf("pl1").classList.contains("open") };
+
+      /* a short right swipe springs back; a long one stands open on Delete */
+      await drag("pl1", 30, 0);
+      out.shortOpen = wrapOf("pl1").classList.contains("open");
+      await drag("pl1", 130, 0);
+      out.longOpen = wrapOf("pl1").classList.contains("open");
+      out.delShown = getComputedStyle(wrapOf("pl1").querySelector(".sw-left")).opacity;
+      /* tapping the row while open only closes it (a finger lifts and taps again, not at once) */
+      await wait(400);
+      wrapOf("pl1").querySelector(".row > button").click(); await wait(50);
+      out.tapClosed = !wrapOf("pl1").classList.contains("open");
+      out.editorOpened = !$("#shEntry").hidden && $("#shEntry").classList.contains("open");
+
+      /* Delete asks, and No keeps it */
+      await drag("pl1", 130, 0);
+      wrapOf("pl1").querySelector(".sw-del").click(); await wait(80);
+      out.askTitle = $("#cfTitle").textContent;
+      $("#cfNo").click(); await wait(80);
+      out.keptOnNo = !!state.txns.find(t => t.id === "pl1");
+
+      /* a long left swipe pays it, with no tick in sight */
+      await drag("pl1", -260, 0); await wait(120);
+      out.paid = state.txns.find(t => t.id === "pl1").status;
+
+      /* a scheduled one asks when; Cancel leaves it planned and the row back in place */
+      await drag("pl2", -260, 0); await wait(120);
+      out.whenTitle = $("#cfTitle").textContent;
+      $("#cfNo").click(); await wait(300);
+      out.ruledStill = state.txns.find(t => t.id === "pl2").status;
+      out.ruledBack = wrapOf("pl2").querySelector(".row").style.transform;
+
+      /* on the Filled tab the paid one says so, where the tick was */
+      filter = "done"; render(); await wait(50);
+      out.label = wrapOf("pl1").querySelector(".paidl").textContent;
+      out.incomeLabel = [...document.querySelectorAll("#list .paidl")].map(n => n.textContent).find(t => /^Received/.test(t));
+      out.doneTicks = document.querySelectorAll("#list .tick").length;
+      out.noHint = !$("#list .swipehint");
+
+      /* left on a paid one puts it back to planned */
+      await drag("pl1", -260, 0); await wait(120);
+      out.unpaid = state.txns.find(t => t.id === "pl1").status;
+
+      /* and Delete, confirmed, removes it */
+      filter = "all"; render(); await wait(50);
+      await drag("pl1", 130, 0);
+      wrapOf("pl1").querySelector(".sw-del").click(); await wait(80);
+      $("#cfYes").click(); await wait(120);
+      out.deleted = !state.txns.find(t => t.id === "pl1");
+
+      /* a plain tap still opens the entry */
+      const any = document.querySelector("#list .swipe .row > button");
+      any.click(); await wait(200);
+      out.tapOpens = $("#shEntry").classList.contains("open") || !$("#shEntry").hidden;
+      sheetClose();
+      filter = "all";
+      document.querySelector('#viewTog [data-view="dash"]').click();
+      __T.restore();
+      return out;
+    });
+    assert.equal(r.ticks, 0, "no tick on planned rows");
+    assert.equal(r.hint, true);
+    assert.ok(r.rows >= 3);
+    assert.deepEqual(r.afterScroll, { status:"planned", open:false });
+    assert.equal(r.shortOpen, false);
+    assert.equal(r.longOpen, true);
+    assert.equal(r.delShown, "1");
+    assert.equal(r.tapClosed, true);
+    assert.equal(r.editorOpened, false, "the tap closed the row instead of opening the entry");
+    assert.equal(r.askTitle, "Delete this entry?");
+    assert.equal(r.keptOnNo, true);
+    assert.equal(r.paid, "done");
+    assert.equal(r.whenTitle, "When was it paid?");
+    assert.equal(r.ruledStill, "planned");
+    assert.equal(r.ruledBack, "");
+    assert.equal(r.label, "Paid · 12 Oct");
+    assert.match(r.incomeLabel || "", /^Received · /);
+    assert.equal(r.doneTicks, 0);
+    assert.equal(r.noHint, true);
+    assert.equal(r.unpaid, "planned");
+    assert.equal(r.deleted, true);
+    assert.equal(r.tapOpens, true);
+  }},
+
   { name: "backup round trip: out as JSON, back through restore, nothing lost", async run(pg){
     const r = await pg.fn(() => {
       __T.useBook();

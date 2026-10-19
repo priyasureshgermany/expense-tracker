@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.1.0 — 2026-10-19
+- new: Ledger rows swipe: left marks a planned entry paid (or a paid one back to planned), right uncovers Delete. The tick is gone; paid rows say Paid, Received or Moved with the day.
+
 ## 3.0.7 — 2026-10-14
 - new: Your profile shows your age under the date of birth, worked out fresh each day.
 
