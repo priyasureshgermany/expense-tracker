@@ -1450,8 +1450,10 @@ div.rp-rem:hover{background:none}
 .sw-bg{position:absolute;inset:0;display:flex;align-items:center;pointer-events:none;
   font-size:12px;font-weight:700;letter-spacing:.02em;color:#fff;opacity:0}
 .sw-bg svg{width:18px;height:18px;flex:none}
-.sw-left{justify-content:flex-start;padding-left:14px;background:var(--neg)}
-.sw-right{justify-content:flex-end;gap:7px;padding-right:18px;background:var(--pos)}
+/* fixed, deep colours in both themes: the dark theme's --neg and --pos are
+   pale enough to read as text on a dark card, and too pale as a background */
+.sw-left{justify-content:flex-start;padding-left:14px;background:#A3201A}
+.sw-right{justify-content:flex-end;gap:7px;padding-right:18px;background:#0E6B42}
 .sw-right.back{background:var(--warn)}
 .swipe.go-right .sw-left, .swipe.go-left .sw-right{opacity:1}
 .sw-del{pointer-events:auto;display:flex;align-items:center;gap:6px;height:100%;
@@ -7325,7 +7327,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.1.1";
+const APP_VERSION = "3.1.2";
 const APP_BUILT = "2026-10-19";
 
 const KEY = "panappai.v1";
