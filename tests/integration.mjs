@@ -486,8 +486,11 @@ export default [
 
       /* on the Filled tab the paid one says so, where the tick was */
       filter = "done"; render(); await wait(50);
-      out.label = wrapOf("pl1").querySelector(".paidl").textContent;
-      out.incomeLabel = [...document.querySelectorAll("#list .paidl")].map(n => n.textContent).find(t => /^Received/.test(t));
+      const badge = wrapOf("pl1").querySelector(".pill.paid");
+      out.label = badge.textContent;
+      out.badgeTick = !!badge.querySelector("svg");
+      out.incomeLabel = [...document.querySelectorAll("#list .pill.paid")].map(n => n.textContent).find(t => t === "Received");
+      out.xferLabel = document.querySelector("#list .pill.paid.rx") ? document.querySelector("#list .pill.paid.rx").textContent : "none";
       out.doneTicks = document.querySelectorAll("#list .tick").length;
       out.noHint = !$("#list .swipehint");
 
@@ -527,13 +530,60 @@ export default [
     assert.equal(r.whenTitle, "When was it paid?");
     assert.equal(r.ruledStill, "planned");
     assert.equal(r.ruledBack, "");
-    assert.equal(r.label, "Paid · 12 Oct");
-    assert.match(r.incomeLabel || "", /^Received · /);
+    assert.equal(r.label, "Paid", "a badge, and no date in it");
+    assert.equal(r.badgeTick, true);
+    assert.equal(r.incomeLabel, "Received");
     assert.equal(r.doneTicks, 0);
     assert.equal(r.noHint, true);
     assert.equal(r.unpaid, "planned");
     assert.equal(r.deleted, true);
     assert.equal(r.tapOpens, true);
+  }},
+
+  { name: "help: questions find the new answers, nothing still speaks of the tick, every info bubble opens", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const out = {};
+      askOpen(); await wait(150);
+      /* typed the way a person would ask, matched to the topic that answers it */
+      const asks = {
+        "where is the tick": "Swipe the entry's row to the left",
+        "how do I swipe to delete": "a red Delete appears",
+        "show the balance line": "Under Balance line, tap On.",
+        "line chart in reports": "Tap the small chart button",
+        "add my date of birth": "pick the year from the grid",
+        "set a username and password": "Under Log in with",
+        "I forgot my password": "Answer your security question"
+      };
+      out.found = {};
+      for (const q of Object.keys(asks)){
+        askAnswer(q); await wait(30);
+        out.found[q] = document.querySelector("#askOut").textContent.includes(asks[q]);
+      }
+      /* every answer, built: none may still send anyone to a tick or a circle */
+      out.stale = ASK_TOPICS.filter(t => {
+        let a; try{ a = t.build(); }catch(e){ return false; }
+        const text = [a.title, a.where].concat(a.steps || [], a.after || [], a.body || []).join(" ");
+        return /tick it off|ticked off|ticked-off|the circle|tap the circle|tick an entry/i.test(text);
+      }).map(t => t.q);
+      sheetClose();
+      /* the info bubbles: each opens with its title and something to read */
+      out.bubbles = {};
+      for (const id of ["lockKindInfo", "balLineInfo", "pfInfo", "notifInfo"]){
+        document.getElementById(id).click(); await wait(30);
+        out.bubbles[id] = { title: document.querySelector("#ifTitle").textContent,
+                            long: document.querySelector("#ifBody").textContent.length > 200,
+                            tick: /ticking/i.test(document.querySelector("#ifBody").textContent) };
+        hideInfoSheet();
+      }
+      return out;
+    });
+    Object.entries(r.found).forEach(([q, ok]) => assert.equal(ok, true, "no answer for: " + q));
+    assert.deepEqual(r.stale, [], "help still speaks of ticking");
+    assert.deepEqual(r.bubbles.lockKindInfo, { title:"Logging in", long:true, tick:false });
+    assert.deepEqual(r.bubbles.balLineInfo, { title:"The balance line", long:true, tick:false });
+    assert.deepEqual(r.bubbles.pfInfo, { title:"Your profile", long:true, tick:false });
+    assert.equal(r.bubbles.notifInfo.tick, false, "the reminders bubble no longer says ticking");
   }},
 
   { name: "backup round trip: out as JSON, back through restore, nothing lost", async run(pg){
@@ -559,6 +609,15 @@ export default [
       document.querySelectorAll("#balLineChart .bl-hit")[2]
         .dispatchEvent(new MouseEvent("click", { bubbles:true }));
       await new Promise(r => setTimeout(r, 400));     /* the dictionary swaps on the next tick */
+      document.getElementById("balLineInfo").click();
+      await new Promise(r => setTimeout(r, 100));
+      const infoDe = document.querySelector("#ifTitle").innerText + " | " + document.querySelector("#ifBody").innerText;
+      hideInfoSheet();
+      askOpen(); await new Promise(r => setTimeout(r, 150));
+      askAnswer("swipe left");
+      await new Promise(r => setTimeout(r, 300));
+      const askDe = document.querySelector("#askOut").innerText;
+      sheetClose();
       openSettings(); await new Promise(r => setTimeout(r, 400));
       setDateVal("#pfDob", "1990-05-17"); renderProfileAge();
       await new Promise(r => setTimeout(r, 100));
@@ -570,7 +629,7 @@ export default [
                     note: document.querySelector("#balLineNote").innerText,
                     k: document.querySelector(".bal-k").innerText,
                     cfg: row.querySelector(".cf-t b").innerText,
-                    btns: [...row.querySelectorAll("button")].map(b => b.innerText), sw, age };
+                    btns: [...row.querySelectorAll(".toggle2 button")].map(b => b.innerText), sw, age, infoDe, askDe };
       sheetClose();
       __T.restore();
       return out;
@@ -584,5 +643,8 @@ export default [
     assert.deepEqual(r.btns, ["Aus", "An"]);
     assert.equal(r.sw, "Als Liniendiagramm zeigen");
     assert.equal(r.age, "36 Jahre alt");
+    assert.match(r.infoDe, /^Der Saldoverlauf \| Eine Linie unter/);
+    assert.match(r.askDe, /Wische die Zeile des Eintrags nach links/);
+    assert.doesNotMatch(r.askDe, /Swipe the entry/);
   }}
 ];

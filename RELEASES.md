@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.1.1 — 2026-10-19
+- better: Paid rows carry a ✓ Paid badge (Received, Moved) instead of a date, and the helper explains swiping, the balance line, the line chart, your profile and the username & password lock, with ⓘ notes beside them in Settings.
+
 ## 3.1.0 — 2026-10-19
 - new: Ledger rows swipe: left marks a planned entry paid (or a paid one back to planned), right uncovers Delete. The tick is gone; paid rows say Paid, Received or Moved with the day.
 
