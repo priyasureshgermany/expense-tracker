@@ -460,6 +460,8 @@ export default [
       await drag("pl1", 130, 0);
       out.longOpen = wrapOf("pl1").classList.contains("open");
       out.delShown = getComputedStyle(wrapOf("pl1").querySelector(".sw-left")).opacity;
+      out.delColour = getComputedStyle(wrapOf("pl1").querySelector(".sw-left")).backgroundColor;
+      out.paidColour = getComputedStyle(wrapOf("pl1").querySelector(".sw-right")).backgroundColor;
       /* tapping the row while open only closes it (a finger lifts and taps again, not at once) */
       await wait(400);
       wrapOf("pl1").querySelector(".row > button").click(); await wait(50);
@@ -522,6 +524,8 @@ export default [
     assert.equal(r.shortOpen, false);
     assert.equal(r.longOpen, true);
     assert.equal(r.delShown, "1");
+    assert.equal(r.delColour, "rgb(163, 32, 26)", "Delete sits on a deep red");
+    assert.equal(r.paidColour, "rgb(14, 107, 66)", "Paid sits on a deep green");
     assert.equal(r.tapClosed, true);
     assert.equal(r.editorOpened, false, "the tap closed the row instead of opening the entry");
     assert.equal(r.askTitle, "Delete this entry?");

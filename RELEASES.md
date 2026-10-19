@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.1.2 — 2026-10-19
+- better: The swipe colours are deeper: a dark red behind Delete and a dark green behind Paid, the same in light and dark mode.
+
 ## 3.1.1 — 2026-10-19
 - better: Paid rows carry a ✓ Paid badge (Received, Moved) instead of a date, and the helper explains swiping, the balance line, the line chart, your profile and the username & password lock, with ⓘ notes beside them in Settings.
 
