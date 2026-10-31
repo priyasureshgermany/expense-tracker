@@ -93,7 +93,20 @@ Open `index.html` in any browser, or host the file anywhere static.
   happens unpredictably. The catch-all is the exception: as the cushion, only
   what's actually been spent from it counts.
 - **Planned vs. filled** — every entry is either *planned* (still to come) or
-  *filled* (settled). Tap the circle on a row to flip it.
+  *filled* (settled). Swipe a row left to mark it paid (or a paid one back to
+  planned); swipe right for Delete. A paid row carries a ✓ Paid badge
+  (Received, Moved) where the tick used to be. Both swipes, and a delete from
+  inside the entry, can be taken back with **Undo** in the message that
+  follows, for about six seconds.
+- **Expected at the end of the period.** Under *In the account now*: what the
+  accounts should hold on the 14th — the balance now, plus income still planned
+  this period, less bills still to pay, less what is left in the budgets (not
+  the catch-all, which is the cushion). Tap it for the breakdown; the line is
+  exactly the sum of its parts.
+- **Bills & subscriptions** (More) — every repeating expense with its rhythm,
+  next date and A/M, and what it comes to per month and per year; a quarterly
+  bill counts as a third of itself a month. Totals on top, paused ones listed
+  but not counted.
 - **Recurring entries** at weekly / monthly / every-2-months / quarterly /
   every-6-months / yearly intervals. Future occurrences appear automatically as
   planned entries, 12 months ahead.
@@ -115,11 +128,12 @@ Open `index.html` in any browser, or host the file anywhere static.
   balance from settled income minus settled expenses. Optionally set what the
   account holds today in **Settings** and it counts forward from there instead.
   Planned entries are excluded either way — they haven't touched the bank yet.
-- **App lock** — a 4-digit PIN, set from **Settings → App lock**. It asks again
-  after 5 minutes idle and whenever the app is reopened, not only on a cold
-  start. Pair it with a **security question**: the PIN is stored only as a
-  salted hash and can never be shown back, so answering the question leads to
-  setting a new PIN. The lock screen is a branded full-bleed gradient with the
+- **App lock** — a 4-digit PIN (the default) or a **username and password**,
+  chosen under **Settings → App lock → Log in with**. It asks again after 5
+  minutes idle and whenever the app is reopened, not only on a cold start.
+  Pair it with a **security question**: the PIN is stored only as a salted hash,
+  the password as a slow salted hash (PBKDF2), and neither can be shown back,
+  so answering the question leads to setting a new one. The lock screen is a branded full-bleed gradient with the
   app name and a fan of euro notes. This locks the *screen* only; it does not
   encrypt the data itself, so it's a deterrent for a shared device, not real
   cryptographic security.

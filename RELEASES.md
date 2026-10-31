@@ -8,6 +8,11 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.2.0 — 2026-10-31
+- new: Undo after a swipe or a delete, for about six seconds.
+- new: Expected on the 14th: what the accounts should hold at the end of the period, with the breakdown one tap away.
+- new: More › Bills & subscriptions: every repeating expense with what it costs per month and per year.
+
 ## 3.1.2 — 2026-10-19
 - better: The swipe colours are deeper: a dark red behind Delete and a dark green behind Paid, the same in light and dark mode.
 
