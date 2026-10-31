@@ -1392,6 +1392,15 @@ div.rp-rem:hover{background:none}
 
 /* ---------- Segmented ---------- */
 .segwrap{padding:14px 14px 0;background:var(--ground)}
+/* a search across every period, under the tabs */
+.lsearch{display:flex;align-items:center;gap:8px;margin-top:10px;padding:0 10px;height:38px;
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;color:var(--ink-3)}
+.lsearch:focus-within{border-color:var(--accent)}
+.lsearch svg{width:16px;height:16px;flex:none}
+.lsearch input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font:inherit;font-size:14px}
+.lsearch button{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;color:var(--ink-3)}
+.lsearch button[hidden]{display:none}
+.lsres{font-size:12px;color:var(--ink-3);margin:-6px 2px -4px}
 /* One row whatever the count: the columns follow the buttons rather than being
    fixed at three, which is what sent a fourth tab onto a line of its own. */
 .seg{
@@ -3859,6 +3868,13 @@ html.locked #lockScreen::before{
         <button role="tab" data-f="done" aria-selected="false">Filled <span class="n" id="cDone">0</span></button>
         <button role="tab" data-f="transfer" aria-selected="false">Transfers <span class="n" id="cXfer">0</span></button>
       </div>
+      <div class="lsearch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="ledQ" type="text" inputmode="search" enterkeyhint="search" placeholder="Search all periods" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Search all periods">
+        <button id="ledQx" type="button" aria-label="Clear search" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
     </div>
 
     <div class="filterpill" id="typePill" hidden>
@@ -4146,6 +4162,7 @@ html.locked #lockScreen::before{
   <div class="sheet-foot">
     <button class="btn" id="eSave">Save entry</button>
     <div id="eDeleteWrap" style="display:none;margin-top:9px">
+      <button class="btn ghost sm" id="eCopy" style="margin-bottom:8px">Copy as a new entry</button>
       <button class="btn danger sm" id="eDelete">Delete this entry</button>
     </div>
   </div>
@@ -5403,6 +5420,25 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Search all periods": "In allen Perioden suchen",
+"Clear search": "Suche leeren",
+"Nothing found": "Nichts gefunden",
+"Try a shorter word, or part of the amount.": "Versuch ein kürzeres Wort oder einen Teil des Betrags.",
+"Copy as a new entry": "Als neuen Eintrag kopieren",
+"Copy of an entry": "Kopie eines Eintrags",
+"Find an entry": "Einen Eintrag finden",
+"வரவு செலவு › Search all periods": "வரவு செலவு › In allen Perioden suchen",
+"Type in the search box under the tabs: a word from the note, a category, an account, or an amount like 12,99.": "Tippe ins Suchfeld unter den Tabs: ein Wort aus der Notiz, eine Kategorie, ein Konto oder einen Betrag wie 12,99.",
+"Everything that matches, from every period, is listed — newest first, with the year.": "Alles Passende aus allen Perioden wird aufgelistet — das Neueste zuerst, mit Jahr.",
+"Several words must all match: “rewe 2026” finds REWE entries from 2026.": "Mehrere Wörter müssen alle passen: „rewe 2026“ findet REWE-Einträge aus 2026.",
+"Amounts are only searched while they are showing, so the eye keeps them private.": "Beträge werden nur durchsucht, solange sie sichtbar sind — das Auge hält sie privat.",
+"The × in the box, or Escape, clears it and you are back on this period.": "Das × im Feld oder Escape leert es, und du bist wieder in dieser Periode.",
+"Copy an entry": "Einen Eintrag kopieren",
+"வரவு செலவு › the entry › Copy as a new entry": "வரவு செலவு › der Eintrag › Als neuen Eintrag kopieren",
+"Open the entry you want again.": "Öffne den Eintrag, den du noch einmal brauchst.",
+"Tap Copy as a new entry.": "Tippe auf Als neuen Eintrag kopieren.",
+"Everything is filled in and dated today — change what is different and tap Save entry.": "Alles ist ausgefüllt und auf heute datiert — ändere, was anders ist, und tippe auf Eintrag speichern.",
+"Nothing is added until you save; the original entry stays as it is.": "Nichts wird hinzugefügt, bis du speicherst; der ursprüngliche Eintrag bleibt, wie er ist.",
 "Undo": "Rückgängig",
 "Entry restored": "Eintrag wiederhergestellt",
 "Undone": "Rückgängig gemacht",
@@ -7271,6 +7307,7 @@ const I18N_PAT = [
 ];
 /* Worked inside any line, after the phrases: counts and "x of y" between amounts. */
 const I18N_INLINE = [
+  [/^(\d+) found in all periods$/, "$1 gefunden in allen Perioden"],
   [/^1 year old$/, "1 Jahr alt"],
   [/^(\d+) years old$/, "$1 Jahre alt"],
   [/\b1 entry\b/g, "1 Eintrag"],
@@ -7413,7 +7450,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.2.0";
+const APP_VERSION = "3.2.1";
 const APP_BUILT = "2026-10-31";
 
 const KEY = "panappai.v1";
@@ -9165,10 +9202,18 @@ function render(){
   $("#meterK").textContent = outPlan > 0 ? "Expenses paid so far" : "Expenses paid";
 
   /* --- counts --- (scoped to the type filter, or the tabs would contradict the list) */
-  const counted = all.filter(t => !typeFilter || t.type === typeFilter);
+  /* A search looks through every period; the tabs then count what it found. */
+  const terms = ledTerms();
+  const base = terms.length
+    ? state.txns.filter(t => !isTransfer(t) && txnShown(t) && ledMatch(t, terms)).sort((a, b) =>
+        a.date === b.date ? (a.status === b.status ? 0 : a.status === "planned" ? -1 : 1) : (a.date < b.date ? 1 : -1))
+    : all;
+  const counted = base.filter(t => !typeFilter || t.type === typeFilter);
   const nPlan = counted.filter(t => t.status === "planned").length;
   const nDone = counted.length - nPlan;
-  const xfers = periodTransfers(view).slice().sort((a, b) => a.date < b.date ? 1 : -1);
+  const xfers = (terms.length
+    ? state.txns.filter(t => isTransfer(t) && txnShown(t) && ledMatch(t, terms))
+    : periodTransfers(view).slice()).sort((a, b) => a.date < b.date ? 1 : -1);
   $("#cAll").textContent = counted.length;
   $("#cPlan").textContent = nPlan;
   $("#cDone").textContent = nDone;
@@ -9177,7 +9222,7 @@ function render(){
   /* --- list --- */
   const shown = filter === "transfer"
     ? xfers
-    : all.filter(t => filter === "all" || t.status === filter)
+    : base.filter(t => filter === "all" || t.status === filter)
          .filter(t => !typeFilter || t.type === typeFilter);
 
   const pill = $("#typePill");
@@ -9191,7 +9236,14 @@ function render(){
   list.innerHTML = "";
 
   swipeOpen = null;
-  if (!shown.length){
+  if (terms.length)
+    list.appendChild(el("div", "lsres", shown.length + " found in all periods"));
+  if (!shown.length && terms.length){
+    const e = el("div", "empty");
+    e.appendChild(el("h4", null, "Nothing found"));
+    e.appendChild(el("p", null, "Try a shorter word, or part of the amount."));
+    list.appendChild(e);
+  } else if (!shown.length){
     list.appendChild(emptyState(all.length));
   } else {
     if (filter === "planned")
@@ -9204,7 +9256,8 @@ function render(){
     groups.forEach((items, date) => {
       const g = el("section", "daygroup");
       const head = el("div", "dayhead");
-      head.appendChild(el("span", "d", dayTitle(date)));
+      /* results cross periods and years, so they carry the year */
+      head.appendChild(el("span", "d", terms.length ? prettyDate(date) : dayTitle(date)));
       /* transfers net to nothing, so they leave the day's figure alone */
       const dayNet = items.reduce((s, t) =>
         isTransfer(t) ? s : s + (t.type === "income" ? t.amount : -t.amount), 0);
@@ -11062,6 +11115,53 @@ function txnRow(t, dark){
 }
 
 /* =========================================================================
+   SEARCHING THE LEDGER
+
+   Every word typed has to be found somewhere in the entry: its note, its
+   category (in English and in German), the accounts it moved through, its
+   date, or its amount written the ways people type one — 12,99 · 12.99 ·
+   1.180,00. Amounts are not searched while the eye has them hidden, so a
+   search cannot be used to find out what one is.
+   ========================================================================= */
+let ledQuery = "";
+const ledNorm = x => String(x || "").toLowerCase().replace(/\s+/g, " ").trim();
+function ledTerms(){ return ledNorm(ledQuery).split(" ").filter(Boolean); }
+function ledHay(t){
+  const xfer = isTransfer(t);
+  const c = xfer ? null : catOf(t.category);
+  const parts = [t.note, c && c.n, c && T(c.n), xfer && "Self transfer", xfer && T("Self transfer"),
+                 accountName(t.account), accountName(t.fromAccount), prettyDate(t.date), t.date];
+  if (!amountsHidden){
+    const v = toDisp(t.amount) / 100;
+    parts.push(v.toFixed(2), v.toFixed(2).replace(".", ","),
+               v.toLocaleString("de-DE", { minimumFractionDigits:2, maximumFractionDigits:2 }));
+  }
+  return ledNorm(parts.filter(Boolean).join(" · "));
+}
+function ledMatch(t, terms){
+  const hay = ledHay(t);
+  return terms.every(w => hay.includes(w));
+}
+let ledQT = null;
+$("#ledQ").addEventListener("input", e => {
+  ledQuery = e.target.value;
+  $("#ledQx").hidden = !ledQuery;
+  clearTimeout(ledQT);
+  ledQT = setTimeout(render, 120);
+});
+$("#ledQ").addEventListener("keydown", e => {
+  if (e.key === "Escape"){ ledClear(); e.target.blur(); }
+  if (e.key === "Enter") e.target.blur();
+});
+function ledClear(){
+  ledQuery = "";
+  $("#ledQ").value = "";
+  $("#ledQx").hidden = true;
+  render();
+}
+$("#ledQx").addEventListener("click", ledClear);
+
+/* =========================================================================
    SWIPING A LEDGER ROW
 
    Left does what the tick did: a planned entry is paid (asking when, for a
@@ -12044,6 +12144,28 @@ $("#eSave").addEventListener("click", () => {
   render(); sheetClose();
   toast(draft.status === "done" ? "Entry saved" : "Planned entry added");
 });
+
+/**
+ * The same again, today: a new entry with this one's kind, category, accounts,
+ * amount and note, dated today and marked paid, open for any change before it
+ * is saved. Nothing is added until Save is pressed.
+ */
+function copyEntry(t){
+  const kind = isTransfer(t) ? "transfer" : t.type;
+  openEntry(null, kind);
+  if (kind !== "transfer" && t.category) draft.category = t.category;
+  draft.account = t.account || defaultAccountId();
+  draft.fromAccount = t.fromAccount || (kind === "transfer" ? defaultAccountId() : null);
+  draft.status = "done";
+  $("#eAmt").value = amtForInput(t.amount, t.orig);
+  $("#eNote").value = t.note || "";
+  setDateVal("#eDate", todayISO());
+  syncEntryUI();
+  renderAccountFields();
+  /* after syncEntryUI, which titles every unsaved entry "New entry" */
+  $("#entryTitle").textContent = "Copy of an entry";
+}
+$("#eCopy").addEventListener("click", () => { if (editing) copyEntry(editing); });
 
 $("#eDelete").addEventListener("click", async () => {
   if (!editing) return;
@@ -18478,6 +18600,24 @@ const ASK_TOPICS = [
       ["A quarterly or yearly bill is spread over the months, so you see what it really costs you each month.",
        "Tap one to change or pause it. Paused ones are listed at the bottom and not counted."],
       [["Open the list", () => { sheetClose(); openSubs(); }]]) },
+  { g:"howto", q:"Find an entry", words:["find an entry", "search", "search entries", "where is", "look for",
+            "find netflix", "suchen", "eintrag finden"],
+    build:howTo("Find an entry", "வரவு செலவு › Search all periods", [
+      "Open the வரவு செலவு tab.",
+      "Type in the search box under the tabs: a word from the note, a category, an account, or an amount like 12,99.",
+      "Everything that matches, from every period, is listed — newest first, with the year."],
+      ["Several words must all match: “rewe 2026” finds REWE entries from 2026.",
+       "Amounts are only searched while they are showing, so the eye keeps them private.",
+       "The × in the box, or Escape, clears it and you are back on this period."],
+      [["Open வரவு செலவு", ASK_GO.panel("entries")]]) },
+  { g:"howto", q:"Copy an entry", words:["copy an entry", "copy", "duplicate", "same again", "repeat an entry", "again",
+            "kopieren", "nochmal"],
+    build:howTo("Copy an entry", "வரவு செலவு › the entry › Copy as a new entry", [
+      "Open the entry you want again.",
+      "Tap Copy as a new entry.",
+      "Everything is filled in and dated today — change what is different and tap Save entry."],
+      ["Nothing is added until you save; the original entry stays as it is."],
+      [["Open வரவு செலவு", ASK_GO.panel("entries")]]) },
   { g:"howto", q:"Undo a swipe", words:["undo", "undo delete", "deleted by mistake", "paid by mistake", "take it back", "rückgängig"],
     build:howTo("Undo a swipe", "The message at the bottom › Undo", [
       "Right after you delete an entry, or mark one paid or planned, a message appears at the bottom.",
