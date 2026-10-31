@@ -110,7 +110,7 @@ Open `index.html` in any browser, or host the file anywhere static.
 - **Copy as a new entry** (inside an entry) — the same kind, category,
   accounts, amount and note, dated today, open for changes; nothing is added
   until Save.
-- **Year summary** (More) — one calendar year, 1 January to 31 December, for
+- **Year summary** (Reports › Year) — one calendar year, 1 January to 31 December, for
   the Steuererklärung: settled income and expenses (no planned entries, no
   transfers) by category, the lines adding up to the totals. Categories that
   often matter carry a hint naming the form (Werbungskosten, Anlage KAP, §35a
@@ -382,18 +382,21 @@ put there, not the app's to distribute.
 **Shopping cart**: store tabs, **Add items**, the item list, **Scan receipt**,
 the save block, **Recent purchases**.
 
-**Sheets** (the panels that slide up): New entry, Recurring entries, Settings,
+**Sheets** (the panels that slide up): New entry, Bills & subscriptions, Settings,
 Budgets, Add items, Scan receipt, Purchase, What’s new, New category.
 
 **Settings** opens on a grid of tiles rather than one long scroll — Your
-profile, Accounts, Recurring entries, Starting balance, App lock, Notifications
+profile, Accounts, Bills & subscriptions, Starting balance, App lock, Notifications
 & appearance, GitHub sync, Data & backup, About. Tapping one opens that pane; ‹
-goes back. **Recurring entries** is the exception: it has no settings of its own,
-so its tile opens the list itself.
+goes back. **Bills & subscriptions** is the exception: it has no settings of its
+own, so its tile opens the list itself.
 
-**Recurring entries** are created and changed on their own page, reached from
-Settings. Tap one to edit it, pause it or delete it; the **+** at the bottom
-right adds a new one. Editing rewrites only the occurrences still ahead of you —
+**Everything that repeats** — bills, salary, transfers — is created and changed
+on one page, **Bills & subscriptions** (More, or the Settings tile; it replaced
+the old *Recurring entries* page). Bills come first with what they cost a month
+and a year, then *Repeating income* and *Repeating transfers*, then anything
+paused. Tap one to edit it, pause it or delete it; the **+** at the bottom right
+adds a new one. Editing rewrites only the occurrences still ahead of you —
 anything already ticked off as paid stays exactly as it was. Because cadence
 lives here, the entry sheet has no Repeat field.
 

@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.2.4 — 2026-10-31
+- better: Bills & subscriptions replaces Recurring entries: every bill, repeating income and transfer in one place, with + to add.
+- better: Year summary moved under Reports, as the Year tab.
+
 ## 3.2.3 — 2026-10-31
 - new: More › Year summary: a calendar year for the Steuererklärung — settled income and expenses by category, hints where a category often matters, and the year as CSV.
 

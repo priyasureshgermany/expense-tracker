@@ -821,7 +821,7 @@ export default [
     assert.equal(r.back, "Trip to India");
   }},
 
-  { name: "year summary: More opens it on last year, a chip switches, the figures are yearSummary's, the CSV is that year", async run(pg){
+  { name: "year summary: Reports › Year opens on last year, a chip switches, the figures are yearSummary's, the CSV is that year", async run(pg){
     const r = await pg.fn(async () => {
       const wait = ms => new Promise(r => setTimeout(r, ms));
       const $q = s => document.querySelector(s);
@@ -829,30 +829,39 @@ export default [
       state.txns.push({ id:"y1", type:"expense", amount:1000, date:"2025-12-31", category:"education", status:"done", account:"a1", fromAccount:null, note:"" });
       state.txns.push({ id:"y2", type:"income", amount:500, date:"2026-01-01", category:"interest", status:"done", account:"a1", fromAccount:null, note:"" });
       taxYear = null;
-      openMore(); await wait(200);
-      $q('#moreMenu [data-more="taxyear"]').click(); await wait(300);
-      const pressed = () => $q('#taxBody .tx-years [aria-pressed="true"]').textContent;
-      const out = { opened: pressed(), want: String(new Date().getFullYear() - 1) };
-      [...document.querySelectorAll("#taxBody .tx-years button")].find(b => b.textContent === "2026").click(); await wait(100);
+      let out0;
+      openReport(); await wait(300);
+      out0 = { more: !!$q('#moreMenu [data-more="taxyear"]'), tabs: [...document.querySelectorAll("#repTabs button")].map(b => b.textContent) };
+      $q('#repTabs [data-rtab="year"]').click(); await wait(200);
+      out0.hidesRanges = getComputedStyle($q("#repRanges")).display === "none";
+      out0.hidesBasis = getComputedStyle($q("#repBasisWrap")).display === "none";
+      const pressed = () => $q('#repPane_year .tx-years [aria-pressed="true"]').textContent;
+      const out = Object.assign(out0, { opened: pressed(), want: String(new Date().getFullYear() - 1) });
+      [...document.querySelectorAll("#repPane_year .tx-years button")].find(b => b.textContent === "2026").click(); await wait(100);
       const ys = yearSummary(2026);
       out.now = pressed();
-      out.tot = [...document.querySelectorAll("#taxBody .tx-tot .v")].map(n => n.textContent);
+      out.tot = [...document.querySelectorAll("#repPane_year .tx-tot .v")].map(n => n.textContent);
       out.wantTot = [fmt(ys.inc), fmt(ys.out), fmt(ys.net)];
-      out.rows = document.querySelectorAll("#taxBody .txrow").length;
+      out.rows = document.querySelectorAll("#repPane_year .txrow").length;
       out.wantRows = ys.income.length + ys.expense.length;
-      out.hint = [...document.querySelectorAll("#taxBody .txrow")].find(r => /Interest/.test(r.textContent)).querySelector("small.hint").textContent;
+      out.hint = [...document.querySelectorAll("#repPane_year .txrow")].find(r => /Interest/.test(r.textContent)).querySelector("small.hint").textContent;
       /* the download: catch what would be saved */
       const real = saveBlob; let got = null;
       saveBlob = (blob, name) => { got = { name, size: blob.size }; };
       const csvBlobText = buildEntriesCsv(state.txns.filter(t => t.date.slice(0, 4) === "2026"));
-      [...document.querySelectorAll("#taxBody button")].find(b => /as CSV$/.test(b.textContent)).click(); await wait(100);
+      [...document.querySelectorAll("#repPane_year button")].find(b => /as CSV$/.test(b.textContent)).click(); await wait(100);
       saveBlob = real;
       out.file = got && got.name;
       out.size = got && got.size === new Blob([csvBlobText]).size;
+      repSetTab("chart");
       sheetClose();
       __T.restore();
       return out;
     });
+    assert.equal(r.more, false, "no longer under More");
+    assert.deepEqual(r.tabs, ["Chart", "Details", "Year"]);
+    assert.equal(r.hidesRanges, true, "the stretch chips step aside: a year is 1 Jan – 31 Dec");
+    assert.equal(r.hidesBasis, true);
     assert.equal(r.opened, r.want, "opens on last year, the one you file for");
     assert.equal(r.now, "2026");
     assert.deepEqual(r.tot, r.wantTot);
@@ -860,6 +869,43 @@ export default [
     assert.equal(r.hint, "Kapitalerträge: Anlage KAP");
     assert.equal(r.file, "panappai-2026.csv");
     assert.equal(r.size, true, "the file is exactly that year's entries");
+  }},
+
+  { name: "bills & subscriptions replaces recurring entries: Settings opens it, income and transfers have sections, + adds, back returns", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const $q = s => document.querySelector(s);
+      __T.useBook();
+      state.rules = [
+        { id:"b1", type:"expense",  amount:118000, category:"rent",   freq:"monthly", active:true,  note:"Miete", anchor:"2026-10-01", account:"a1" },
+        { id:"b2", type:"income",   amount:320000, category:"salary", freq:"monthly", active:true,  note:"Gehalt", anchor:"2026-10-01", account:"a1" },
+        { id:"b3", type:"transfer", amount:20000,  category:null,     freq:"monthly", active:true,  note:"", anchor:"2026-10-20", account:"a2", fromAccount:"a1" },
+        { id:"b4", type:"income",   amount:25000,  category:"kindergeld", freq:"monthly", active:false, note:"Kindergeld", anchor:"2026-10-05", account:"a1" }];
+      const out = { oldSheet: !!$q("#shRules") };
+      openSettings(); await wait(250);
+      const row = $q('#setMenu .setrow[data-pane="rules"]');
+      out.rowTitle = row.querySelector("b").textContent;
+      row.click(); await wait(300);
+      out.open = $q("#shSubs").classList.contains("open");
+      out.heads = [...document.querySelectorAll("#subsBody .subs-h")].map(n => n.textContent);
+      out.names = [...document.querySelectorAll("#subsBody .subrow .s1")].map(n => n.textContent);
+      out.income = $q("#subsBody .subrow .sa.in") && $q("#subsBody .subrow .sa.in").textContent;
+      $q("#subsAdd").click(); await wait(300);
+      out.editor = $q("#shRule").classList.contains("open");
+      $q("#ruleBack").click(); await wait(300);
+      out.back = $q("#shSubs").classList.contains("open");
+      sheetClose();
+      __T.restore();
+      return out;
+    });
+    assert.equal(r.oldSheet, false, "the Recurring entries sheet is gone");
+    assert.equal(r.rowTitle, "Bills & subscriptions");
+    assert.equal(r.open, true);
+    assert.deepEqual(r.heads, ["Running", "Repeating income", "Repeating transfers", "Paused — not counted"]);
+    assert.deepEqual(r.names, ["Miete", "Gehalt", "Giro → Cash", "Kindergeld"]);
+    assert.match(String(r.income).replace(/\s/g, " "), /^\+3\.200,00 €$/);
+    assert.equal(r.editor, true, "+ opens the editor");
+    assert.equal(r.back, true, "the editor's back arrow returns here");
   }},
 
   { name: "backup round trip: out as JSON, back through restore, nothing lost", async run(pg){
