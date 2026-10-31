@@ -1757,7 +1757,6 @@ div.rp-rem:hover{background:none}
 .morerow{border-left:3px solid hsl(var(--tile-h, 210) 82% var(--tile-l, 32%))}
 .morerow[data-more="report"]  { --tile-h:6;   --tile-l:30% }   /* dark red */
 .morerow[data-more="settings"]{ --tile-h:152; --tile-l:26% }   /* dark green */
-.morerow[data-more="subs"]    { --tile-h:268; --tile-l:34% }   /* violet */
 /* no hue: white on a dark card, the ink the type is set in on a light one */
 .morerow[data-more="about"]{border-left-color:var(--tile-plain)}
 
@@ -4943,11 +4942,6 @@ html.locked #lockScreen::before{
       <b>Reports</b>
       <span class="ms" id="moreReportSub">Where the money went</span>
     </button>
-    <button class="morerow" type="button" data-more="subs">
-      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 013-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 01-3 3H3"/></svg></span>
-      <b>Bills &amp; subscriptions</b>
-      <span class="ms" id="moreSubsSub">What repeats, per month and per year</span>
-    </button>
     <button class="morerow" type="button" data-more="about">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3.5l1.9 5.1 5.1 1.9-5.1 1.9L11 17.5l-1.9-5.1L4 10.5l5.1-1.9z"/><path d="M18.4 15.1l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"/></svg></span>
       <b>What&rsquo;s new</b>
@@ -5493,6 +5487,12 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Settings › Bills & subscriptions": "Einstellungen › Rechnungen & Abos",
+"Settings › Bills & subscriptions › +": "Einstellungen › Rechnungen & Abos › +",
+"Open More › Settings › Bills & subscriptions.": "Öffne Mehr › Einstellungen › Rechnungen & Abos.",
+"Open More › Settings › Bills & subscriptions and tap +.": "Öffne Mehr › Einstellungen › Rechnungen & Abos und tippe auf +.",
+"Open More › Settings › Bills & subscriptions and tap the bill.": "Öffne Mehr › Einstellungen › Rechnungen & Abos und tippe auf die Rechnung.",
+"Open More › Settings › Bills & subscriptions and tap it under Repeating income.": "Öffne Mehr › Einstellungen › Rechnungen & Abos und tippe sie unter Wiederkehrende Einnahmen an.",
 "Settings › Savings goals › + New goal": "Einstellungen › Sparziele › + Neues Ziel",
 "Open More › Settings › Savings goals and tap + New goal.": "Öffne Mehr › Einstellungen › Sparziele und tippe auf + Neues Ziel.",
 "Year": "Jahr",
@@ -7606,7 +7606,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.2.5";
+const APP_VERSION = "3.2.6";
 const APP_BUILT = "2026-10-31";
 
 const KEY = "panappai.v1";
@@ -14560,7 +14560,6 @@ $$("#moreMenu .morerow").forEach(b => b.addEventListener("click", () => {
   const k = b.dataset.more;
   sheetClose();
   if (k === "report"){ openReport(); return; }
-  if (k === "subs"){ openSubs(); return; }
   /* What's new is the notes themselves now, not the About panel they used to
      hang off — the version and update button stay in Settings › About. */
   if (k === "about"){ openNotes(); return; }
@@ -18695,7 +18694,7 @@ function askBudgets(){
 function askPayday(){
   const p = paydayInfo();
   if (!p){
-    return { title:"No payday to count to", body:["Payday comes from a repeating income entry. Add one under More › Bills & subscriptions and it will be counted from there."], figs:[], acts:[] };
+    return { title:"No payday to count to", body:["Payday comes from a repeating income entry. Add one under Settings › Bills & subscriptions and it will be counted from there."], figs:[], acts:[] };
   }
   const w = payWords(p.days);
   return {
@@ -19085,8 +19084,8 @@ const ASK_TOPICS = [
       [], [["Open வரவு செலவு", ASK_GO.panel("entries")]]) },
   { g:"howto", q:"See all my bills and subscriptions", words:["subscriptions", "abos", "fixed costs", "how much do my bills cost",
             "per year", "yearly cost", "all my bills", "fixkosten", "rechnungen und abos"],
-    build:howTo("See all my bills and subscriptions", "More › Bills & subscriptions", [
-      "Open More › Bills & subscriptions.",
+    build:howTo("See all my bills and subscriptions", "Settings › Bills & subscriptions", [
+      "Open More › Settings › Bills & subscriptions.",
       "At the top: what all running ones cost per month and per year.",
       "Below, biggest first: each bill with its rhythm, next date, A or M, and what it comes to a month and a year."],
       ["A quarterly or yearly bill is spread over the months, so you see what it really costs you each month.",
@@ -19137,8 +19136,8 @@ const ASK_TOPICS = [
       "The entry is back exactly as it was."],
       ["It works the same for a delete from inside the entry."]) },
   { g:"howto", q:"Add a recurring entry", words:["recurring entry", "repeating entry", "add rent", "add salary", "monthly bill", "subscription", "standing order"],
-    build:howTo("Add a recurring entry", "More › Bills & subscriptions › +", [
-      "Open More › Bills & subscriptions and tap +.",
+    build:howTo("Add a recurring entry", "Settings › Bills & subscriptions › +", [
+      "Open More › Settings › Bills & subscriptions and tap +.",
       "Pick Expense, Income or Transfer, then the amount, description and category.",
       "Choose the account under Paid from, and how often it Repeats.",
       "Under Taken how, pick Automatic if the bank takes it by itself, or Manual if you pay it yourself.",
@@ -19146,23 +19145,23 @@ const ASK_TOPICS = [
       ["Its occurrences appear as planned entries twelve months ahead, marked A or M. A repeating income is also where the payday countdown comes from."],
       [["Bills & subscriptions", ASK_GO.rules]]) },
   { g:"howto", q:"Pause or delete a recurring entry", words:["pause a recurring", "stop a recurring", "delete a recurring", "cancel subscription", "end a bill"],
-    build:howTo("Pause or delete a recurring entry", "More › Bills & subscriptions", [
-      "Open More › Bills & subscriptions.",
+    build:howTo("Pause or delete a recurring entry", "Settings › Bills & subscriptions", [
+      "Open More › Settings › Bills & subscriptions.",
       "Tap the one you want.",
       "Tap Pause this entry to stop it for now, or Delete this recurring entry to remove it."],
       ["Deleting asks first and says how many planned occurrences go with it. Entries already marked paid stay."],
       [["Bills & subscriptions", ASK_GO.rules]]) },
   { g:"howto", q:"Make a bill Automatic or Manual", words:["make it automatic", "make it manual", "change to automatic", "taken how", "direct debit"],
     build:howTo("Make a bill Automatic or Manual", "Bills & subscriptions › the bill › Taken how", [
-      "Open More › Bills & subscriptions and tap the bill.",
+      "Open More › Settings › Bills & subscriptions and tap the bill.",
       "Under Taken how, choose Automatic (the bank takes it) or Manual (you pay it).",
       "Tap Save recurring entry."],
       ["Its entries then carry a green A or an amber M, and Reports › Planned can show either on its own."],
       [["Bills & subscriptions", ASK_GO.rules]]) },
   { g:"howto", q:"Change the payday countdown", words:["payday countdown", "change payday", "welcome screen", "salary date"],
-    build:howTo("Change the payday countdown", "More › Bills & subscriptions", [
+    build:howTo("Change the payday countdown", "Settings › Bills & subscriptions", [
       "The countdown reads your repeating income — usually Salary.",
-      "Open More › Bills & subscriptions and tap it under Repeating income.",
+      "Open More › Settings › Bills & subscriptions and tap it under Repeating income.",
       "Correct the amount, Repeats or Starting from, and tap Save recurring entry."],
       ["No repeating income means no countdown. It shows once each time the app is opened."],
       [["Bills & subscriptions", ASK_GO.rules]]) },

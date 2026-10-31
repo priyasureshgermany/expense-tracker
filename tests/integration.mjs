@@ -665,8 +665,9 @@ export default [
     assert.ok(r.ask.includes(r.want), "the helper's sum is the card's figure");
   }},
 
-  { name: "bills & subscriptions: More opens the list, totals match subsTotals, a tap opens the bill", async run(pg){
+  { name: "bills & subscriptions: Settings opens the list, totals match subsTotals, a tap opens the bill; More keeps three", async run(pg){
     const r = await pg.fn(async () => {
+      let out0;
       const wait = ms => new Promise(r => setTimeout(r, ms));
       __T.useBook();
       state.rules = [
@@ -674,10 +675,13 @@ export default [
         { id:"s2", type:"expense", amount:21400, category:"insurance", freq:"quarterly", active:true, auto:true, note:"Haftpflicht", anchor:"2026-10-22" },
         { id:"s3", type:"expense", amount:999,   category:"subs",      freq:"monthly",   active:false, note:"Spotify", anchor:"2026-10-05" }];
       openMore(); await wait(200);
-      document.querySelector('#moreMenu [data-more="subs"]').click(); await wait(300);
+      out0 = [...document.querySelectorAll("#moreMenu .morerow")].map(b => b.dataset.more);
+      sheetClose(); await wait(200);
+      openSettings(); await wait(250);
+      document.querySelector('#setMenu .setrow[data-pane="rules"]').click(); await wait(300);
       const t = subsTotals();
       const vals = [...document.querySelectorAll("#subsBody .subs-tot .v")].map(n => n.textContent);
-      const out = { vals, want:[fmt(t.month), fmt(t.year)], rows:[...document.querySelectorAll("#subsBody .subrow .s1")].map(n => n.textContent),
+      const out = { more: out0, vals, want:[fmt(t.month), fmt(t.year)], rows:[...document.querySelectorAll("#subsBody .subrow .s1")].map(n => n.textContent),
                     paused: document.querySelectorAll("#subsBody .subrow.off").length,
                     /* the amounts are drawn, not just present: a clash with the .sr class once hid them */
                     amtW: document.querySelector("#subsBody .subrow .sv").getBoundingClientRect().width };
@@ -687,6 +691,7 @@ export default [
       __T.restore();
       return out;
     });
+    assert.deepEqual(r.more, ["report", "about", "settings"], "More keeps three: Reports, What's new, Settings");
     assert.deepEqual(r.vals, r.want);
     assert.deepEqual(r.rows, ["Haftpflicht", "Netflix", "Spotify"], "biggest first, paused last");
     assert.equal(r.paused, 1);

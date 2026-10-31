@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.2.6 — 2026-10-31
+- better: More keeps three: Reports, What's new and Settings — Bills & subscriptions lives in Settings, beside Savings goals.
+
 ## 3.2.5 — 2026-10-31
 - better: Savings goals moved into Settings, beside Bills & subscriptions; the dashboard card stays.
 
