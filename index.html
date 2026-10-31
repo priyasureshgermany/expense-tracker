@@ -1753,6 +1753,7 @@ div.rp-rem:hover{background:none}
 .morerow[data-more="report"]  { --tile-h:6;   --tile-l:30% }   /* dark red */
 .morerow[data-more="settings"]{ --tile-h:152; --tile-l:26% }   /* dark green */
 .morerow[data-more="subs"]    { --tile-h:268; --tile-l:34% }   /* violet */
+.morerow[data-more="goals"]   { --tile-h:42;  --tile-l:36% }   /* amber */
 /* no hue: white on a dark card, the ink the type is set in on a light one */
 .morerow[data-more="about"]{border-left-color:var(--tile-plain)}
 
@@ -3096,6 +3097,36 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
+/* ---------- Savings goals ---------- */
+.goalrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:9px 2px;border-bottom:1px solid var(--line)}
+.goalrow:last-child{border-bottom:none}
+.goalrow .gr-m{flex:1;min-width:0}
+.goalrow .gr-n{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.goalrow .gr-s{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.goalrow .gr-p{font-size:12px;color:var(--ink-2);margin-top:1px}
+.goalrow .gr-p.done{color:var(--pos);font-weight:600}
+.goalrow .gr-p.late{color:var(--warn)}
+.gring{flex:none;display:block}
+.gring .tr{stroke:var(--surface-sunk)}
+.gring .ar{stroke:var(--accent);transition:stroke-dashoffset .5s cubic-bezier(.2,.7,.3,1)}
+.gring.done .ar{stroke:var(--pos)}
+.gring text{font-size:9.5px;font-weight:700;fill:var(--ink);font-family:var(--mono)}
+.goal-hero{display:flex;align-items:center;gap:16px;margin-bottom:12px}
+.goal-hero .gh-v{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.goal-hero .gh-s{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.goal-add{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin:6px 0 14px}
+.goal-add .btn{width:auto;margin:0;padding:0 14px}
+.goal-h{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:14px 2px 4px}
+.gadd{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
+.gadd:last-child{border-bottom:none}
+.gadd .ga-d{flex:1;color:var(--ink-2)}
+.gadd .ga-a{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.gadd .ga-a.in{color:var(--pos)} .gadd .ga-a.out{color:var(--neg)}
+.gadd .ga-x{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:var(--ink-3)}
+.gadd .ga-x svg{width:14px;height:14px}
+.goal-foot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.goal-foot .btn{margin:0}
+
 /* ---------- Bills & subscriptions ---------- */
 .subs-tot{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
 .subs-tot > div{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px}
@@ -3850,6 +3881,15 @@ html.locked #lockScreen::before{
       <button class="eb-b" id="budgetStart">Set budgets</button>
     </div>
 
+    <section class="budgetcard goalcard" id="goalsCard" hidden>
+      <div class="bc-head">
+        <div class="bc-t">Savings goals</div>
+        <div class="bc-n" id="goalsNote"></div>
+      </div>
+      <div id="goalRows"></div>
+      <button class="bc-edit" id="goalNew" type="button">+ New goal</button>
+    </section>
+
     <section class="monthstrip-wrap">
       <div class="ms-head">
         <div class="monthstrip-t">Period health</div>
@@ -4233,6 +4273,35 @@ html.locked #lockScreen::before{
   <button class="fab sheetfab" id="ruleAdd" type="button" aria-label="Add a recurring entry">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
   </button>
+</section>
+
+<!-- SAVINGS GOALS -->
+<section class="sheet" id="shGoals" role="dialog" aria-modal="true" aria-labelledby="goalsTitle">
+  <div class="sheet-head"><h2 id="goalsTitle">Savings goals</h2><button class="iconbtn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+  <div class="sheet-body" id="goalsBody"></div>
+</section>
+<section class="sheet" id="shGoal" role="dialog" aria-modal="true" aria-labelledby="goalTitle">
+  <div class="sheet-head"><h2 id="goalTitle">Goal</h2><button class="iconbtn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+  <div class="sheet-body" id="goalBody"></div>
+</section>
+<section class="sheet" id="shGoalEdit" role="dialog" aria-modal="true" aria-labelledby="goalEditTitle">
+  <div class="sheet-head"><h2 id="goalEditTitle">New goal</h2><button class="iconbtn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+  <div class="sheet-body">
+    <div class="field">
+      <label for="gName">What for?</label>
+      <input class="inp" id="gName" type="text" placeholder="e.g. Trip to India, new laptop, emergency fund" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="gTarget">How much?</label>
+      <input class="inp" id="gTarget" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>By when?</label>
+      <input id="gDue" type="date">
+      <div class="note" style="margin-top:6px">Optional. With a date, the goal says how much to put aside each month.</div>
+    </div>
+    <button class="btn" id="gSave" type="button">Save goal</button>
+  </div>
 </section>
 
 <!-- BILLS & SUBSCRIPTIONS -->
@@ -4880,6 +4949,11 @@ html.locked #lockScreen::before{
       <b>Bills &amp; subscriptions</b>
       <span class="ms" id="moreSubsSub">What repeats, per month and per year</span>
     </button>
+    <button class="morerow" type="button" data-more="goals">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></span>
+      <b>Savings goals</b>
+      <span class="ms" id="moreGoalsSub">Save up for something</span>
+    </button>
     <button class="morerow" type="button" data-more="about">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3.5l1.9 5.1 5.1 1.9-5.1 1.9L11 17.5l-1.9-5.1L4 10.5l5.1-1.9z"/><path d="M18.4 15.1l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"/></svg></span>
       <b>What&rsquo;s new</b>
@@ -5420,6 +5494,40 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Savings goals": "Sparziele",
+"Save up for something": "Auf etwas sparen",
+"+ New goal": "+ Neues Ziel",
+"New goal": "Neues Ziel",
+"Edit goal": "Ziel bearbeiten",
+"Delete goal": "Ziel löschen",
+"Save goal": "Ziel speichern",
+"What for?": "Wofür?",
+"How much?": "Wie viel?",
+"By when?": "Bis wann?",
+"No date": "Kein Datum",
+"e.g. Trip to India, new laptop, emergency fund": "z. B. Reise nach Indien, neuer Laptop, Notgroschen",
+"Optional. With a date, the goal says how much to put aside each month.": "Optional. Mit Datum sagt das Ziel, wie viel du jeden Monat zurücklegen solltest.",
+"No goals yet": "Noch keine Ziele",
+"A trip home, a new laptop, an emergency fund: give it an amount and, if you like, a date — the goal tells you what to put aside each month.": "Eine Reise nach Hause, ein neuer Laptop, ein Notgroschen: Gib einen Betrag und, wenn du magst, ein Datum an — das Ziel sagt dir, was du jeden Monat zurücklegen solltest.",
+"Take out": "Entnehmen",
+"Put in and taken out": "Eingezahlt und entnommen",
+"Reached — well done!": "Erreicht — gut gemacht!",
+"Goal reached — well done!": "Ziel erreicht — gut gemacht!",
+"Goal deleted": "Ziel gelöscht",
+"Goal saved": "Ziel gespeichert",
+"Goal created": "Ziel angelegt",
+"Delete this goal?": "Dieses Ziel löschen?",
+"Give the goal a name": "Gib dem Ziel einen Namen",
+"Pick a date that is still to come": "Wähle ein Datum in der Zukunft",
+"Save for a goal": "Für ein Ziel sparen",
+"More › Savings goals › + New goal": "Mehr › Sparziele › + Neues Ziel",
+"Open More › Savings goals and tap + New goal.": "Öffne Mehr › Sparziele und tippe auf + Neues Ziel.",
+"Say what it is for, how much, and — if you like — by when.": "Gib an, wofür, wie viel und — wenn du magst — bis wann.",
+"Open the goal and use Add whenever you put money aside; Take out if you use some.": "Öffne das Ziel und tippe auf Hinzufügen, wenn du Geld zurücklegst; Entnehmen, wenn du etwas davon brauchst.",
+"With a date, the goal says how much to put aside each month to make it.": "Mit Datum sagt das Ziel, wie viel du jeden Monat zurücklegen musst, um es zu schaffen.",
+"Goals are your own record of money set aside: they do not change “In the account now”.": "Ziele sind deine eigene Aufstellung über zurückgelegtes Geld: Sie ändern „Jetzt auf dem Konto“ nicht.",
+"They show on the dashboard as soon as you have one; tap one to open it.": "Sie erscheinen auf der Übersicht, sobald du eines hast; tippe eines an, um es zu öffnen.",
+"Open goals": "Ziele öffnen",
 "Search all periods": "In allen Perioden suchen",
 "Clear search": "Suche leeren",
 "Nothing found": "Nichts gefunden",
@@ -7307,6 +7415,13 @@ const I18N_PAT = [
 ];
 /* Worked inside any line, after the phrases: counts and "x of y" between amounts. */
 const I18N_INLINE = [
+  [/^(.+) of (.+ €|.+ ₹|••••)$/, "$1 von $2"],
+  [/^≈ (.+) a month until (\S+) (\d{4})$/, "≈ $1 im Monat bis $2 $3"],
+  [/^(.+) still missing$/, "$1 fehlen noch"],
+  [/^Date passed · (.+) still missing$/, "Datum vorbei · $1 fehlen noch"],
+  [/^Added to (.+)$/, "Zu $1 hinzugefügt"],
+  [/^Taken out of (.+)$/, "Aus $1 entnommen"],
+  [/^By (\d.+)$/, "Bis $1"],
   [/^(\d+) found in all periods$/, "$1 gefunden in allen Perioden"],
   [/^1 year old$/, "1 Jahr alt"],
   [/^(\d+) years old$/, "$1 Jahre alt"],
@@ -7450,7 +7565,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.2.1";
+const APP_VERSION = "3.2.2";
 const APP_BUILT = "2026-10-31";
 
 const KEY = "panappai.v1";
@@ -7906,7 +8021,7 @@ function parseDateCell(raw){
 }
 
 /* ---------- state ---------- */
-let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop", catPicker:"grid", welcomeSpan:"yesterday", balLine:false, calcLog:[] };
+let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop", catPicker:"grid", welcomeSpan:"yesterday", balLine:false, goals:[], calcLog:[] };
 let view = periodOf(todayISO());
 let filter = "all";
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
@@ -8292,6 +8407,8 @@ function stateFromPayload(p){
     welcomeSpan: p.welcomeSpan === "week" ? "week" : "yesterday",
     /* the balance month by month on the dashboard: off unless switched on */
     balLine: p.balLine === true,
+    /* savings goals: a target, an optional date, and what has been put in */
+    goals: normaliseGoals(p.goals),
     calcLog: normaliseCalcLog(p.calcLog)
   };
   if (p.demo) st.demo = true;
@@ -8328,6 +8445,8 @@ function stateCleared(){
     balLine: state.balLine === true,
     /* the sums are notes to yourself, not entries, so clearing the book leaves
        them where they are */
+    /* a goal is a plan and money set aside, not an entry: it stays */
+    goals: normaliseGoals(state.goals),
     calcLog: calcLogOf()
   };
 }
@@ -8406,6 +8525,7 @@ function load(){
   if (state.welcomeSpan !== "week") state.welcomeSpan = "yesterday";
   state.balLine = state.balLine === true;
   state.calcLog = normaliseCalcLog(state.calcLog);
+  state.goals = normaliseGoals(state.goals);
   /* v2.3.4 kept the history on the device; move it into the book once, so the
      sums worked out before this release are not lost to the change. */
   try{
@@ -9275,6 +9395,7 @@ function render(){
   renderBreakdown(all, dark);
   renderCharts(all, budgetLeft);
   renderBudgets();
+  renderGoals();
   renderBalance();
   renderMonthStrip();
   /* These two are in the markup rather than rebuilt, so this only does anything
@@ -10790,6 +10911,7 @@ function periodStats(txns){
    money going both ways, the envelope budgets are kept in, a pulse for health,
    and the same pie the Reports screen uses for where it went. */
 const PANEL_ICON = {
+  goal:   '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
   flow:   '<path d="M7 3.5v12"/><path d="M3.6 12.1L7 15.5l3.4-3.4"/>' +
           '<path d="M17 20.5v-12"/><path d="M13.6 11.9L17 8.5l3.4 3.4"/>',
   budget: '<rect x="3" y="5.5" width="18" height="13" rx="2"/>' +
@@ -14444,6 +14566,7 @@ $$("#moreMenu .morerow").forEach(b => b.addEventListener("click", () => {
   sheetClose();
   if (k === "report"){ openReport(); return; }
   if (k === "subs"){ openSubs(); return; }
+  if (k === "goals"){ openGoals(); return; }
   /* What's new is the notes themselves now, not the About panel they used to
      hang off — the version and update button stay in Settings › About. */
   if (k === "about"){ openNotes(); return; }
@@ -16594,6 +16717,7 @@ function miscSig(){
   if (state.welcomeSpan === "week") parts.push(state.welcomeSpan);
   if (state.balLine === true) parts.push("balLine");
   if (calcLogOf().length) parts.push(state.calcLog);
+  if (goalsOf().length) parts.push(state.goals);
   return JSON.stringify(parts);
 }
 function ghFingerprint(){
@@ -17688,6 +17812,7 @@ document.addEventListener("keydown", e => {
     ["#eDate", "#balDate", "#shopDate", "#rDate", "#repFrom", "#repTo", "#trFrom", "#trTo", "#teDate"]
       .forEach(sel => attachCalendar($(sel)));
     attachCalendar($("#pfDob"), { years:true, max:todayISO(), clearable:true, placeholder:"Date of birth" });
+    attachCalendar($("#gDue"), { clearable:true, placeholder:"No date" });
     syncEyeBtn();
     syncThemeColorMeta();
     /* so the tile carries the badge without Settings having been opened */
@@ -17945,6 +18070,240 @@ function askForecast(){
     acts: [["See planned entries", () => { sheetClose(); setPanel("entries"); filter = "planned"; render(); }]]
   };
 }
+
+/* =========================================================================
+   SAVINGS GOALS
+
+   A goal is a target, an optional date, and the amounts put in or taken out
+   — set aside by you, not entries in the ledger, so they do not move "In the
+   account now". With a date, it says what to put aside each month: what is
+   still missing over the months left, counting this one.
+   ========================================================================= */
+/* a function, not a const: load() reads goals before this line has run */
+function isoDay(x){ return typeof x === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x); }
+function normaliseGoals(list){
+  if (!Array.isArray(list)) return [];
+  return list
+    .filter(g => g && typeof g.id === "string" && typeof g.n === "string" && g.n.trim() &&
+                 Number.isFinite(g.target) && g.target > 0)
+    .map(g => ({
+      id: g.id, n: g.n.trim(), target: Math.round(g.target),
+      due: isoDay(g.due) ? g.due : null,
+      adds: (Array.isArray(g.adds) ? g.adds : [])
+        .filter(a => a && typeof a.id === "string" && isoDay(a.date) &&
+                     Number.isFinite(a.amount) && a.amount !== 0)
+        .map(a => ({ id: a.id, date: a.date, amount: Math.round(a.amount) }))
+    }));
+}
+function goalsOf(){ return Array.isArray(state.goals) ? state.goals : []; }
+function goalById(id){ return goalsOf().find(g => g.id === id) || null; }
+
+/** Saved, missing, percent, and — with a date — months left and a month's share. */
+function goalStats(g, today){
+  today = today || todayISO();
+  const saved = g.adds.reduce((n, a) => n + a.amount, 0);
+  const left = Math.max(0, g.target - saved);
+  const pct = Math.max(0, Math.min(100, Math.floor(saved * 100 / g.target)));
+  const reached = saved >= g.target;
+  let months = null, perMonth = null, late = false;
+  if (g.due && !reached){
+    if (g.due < today) late = true;
+    else {
+      const [ty, tm] = today.split("-").map(Number), [dy, dm] = g.due.split("-").map(Number);
+      months = Math.max(1, (dy - ty) * 12 + (dm - tm));
+      perMonth = Math.ceil(left / months);
+    }
+  }
+  return { saved, left, pct, reached, months, perMonth, late };
+}
+/** "Jun 2027": a due month, short. */
+function goalMonth(iso){
+  const [y, m] = iso.split("-").map(Number);
+  return CAL_MONTHS[m - 1].slice(0, 3) + " " + y;
+}
+function goalRing(pct, done, size){
+  const r = 15, c = 2 * Math.PI * r, off = c * (1 - pct / 100);
+  return '<svg class="gring' + (done ? " done" : "") + '" width="' + (size || 44) + '" height="' + (size || 44) +
+    '" viewBox="0 0 40 40" aria-hidden="true"><circle class="tr" cx="20" cy="20" r="' + r +
+    '" fill="none" stroke-width="5"/><circle class="ar" cx="20" cy="20" r="' + r +
+    '" fill="none" stroke-width="5" stroke-linecap="round" stroke-dasharray="' + c.toFixed(2) +
+    '" stroke-dashoffset="' + off.toFixed(2) + '" transform="rotate(-90 20 20)"/><text x="20" y="23.4" text-anchor="middle">' +
+    pct + '%</text></svg>';
+}
+/** The line under a goal: where it stands against its date. */
+function goalLine(g, st){
+  if (st.reached) return { cls:"done", text:"Reached — well done!" };
+  if (st.late) return { cls:"late", text:"Date passed · " + fmt(st.left) + " still missing" };
+  if (st.perMonth !== null) return { cls:"", text:"≈ " + fmt(st.perMonth) + " a month until " + goalMonth(g.due) };
+  return { cls:"", text:fmt(st.left) + " still missing" };
+}
+function goalRow(g){
+  const st = goalStats(g);
+  const row = el("button", "goalrow");
+  row.type = "button";
+  row.innerHTML = goalRing(st.pct, st.reached);
+  const m = el("div", "gr-m");
+  m.appendChild(el("div", "gr-n", g.n));
+  m.appendChild(el("div", "gr-s", fmt(st.saved) + " of " + fmt(g.target)));
+  const ln = goalLine(g, st);
+  m.appendChild(el("div", "gr-p " + ln.cls, ln.text));
+  row.appendChild(m);
+  row.addEventListener("click", () => openGoal(g.id));
+  return row;
+}
+function renderGoals(){
+  const card = $("#goalsCard");
+  const list = goalsOf();
+  card.hidden = !list.length;
+  if (!list.length) return;
+  const host = $("#goalRows");
+  host.innerHTML = "";
+  list.forEach(g => host.appendChild(goalRow(g)));
+  const saved = list.reduce((n, g) => n + goalStats(g).saved, 0), target = list.reduce((n, g) => n + g.target, 0);
+  $("#goalsNote").textContent = fmt(saved) + " of " + fmt(target);
+  makeFoldable(card, "goals", card.querySelector(".bc-t"), PANEL_ICON.goal);
+}
+function openGoals(){
+  const host = $("#goalsBody");
+  host.innerHTML = "";
+  const list = goalsOf();
+  if (!list.length){
+    host.innerHTML = '<div class="empty" style="padding:24px 10px"><h4>No goals yet</h4>' +
+      '<p>A trip home, a new laptop, an emergency fund: give it an amount and, if you like, a date — the goal tells you what to put aside each month.</p></div>';
+  } else {
+    const box = el("div", "rows");
+    list.forEach(g => box.appendChild(goalRow(g)));
+    host.appendChild(box);
+  }
+  const b = el("button", "btn", "+ New goal");
+  b.type = "button";
+  b.style.marginTop = "14px";
+  b.addEventListener("click", () => openGoalEdit(null));
+  host.appendChild(b);
+  sheetOpen("#shGoals");
+}
+
+let goalOpen = null;
+function openGoal(id){
+  goalOpen = id;
+  renderGoal();
+  sheetOpen("#shGoal");
+}
+function renderGoal(){
+  const g = goalById(goalOpen);
+  if (!g){ sheetClose(); return; }
+  const st = goalStats(g);
+  $("#goalTitle").textContent = g.n;
+  const host = $("#goalBody");
+  host.innerHTML = "";
+  const hero = el("div", "goal-hero");
+  hero.innerHTML = goalRing(st.pct, st.reached, 76);
+  const hv = el("div");
+  hv.appendChild(el("div", "gh-v", fmt(st.saved) + " of " + fmt(g.target)));
+  const ln = goalLine(g, st);
+  hv.appendChild(el("div", "gh-s", ln.text));
+  if (g.due) hv.appendChild(el("div", "gh-s", "By " + prettyDate(g.due)));
+  hero.appendChild(hv);
+  host.appendChild(hero);
+
+  const add = el("div", "goal-add");
+  const inp = el("input", "inp");
+  inp.id = "gAmt"; inp.type = "text"; inp.inputMode = "decimal"; inp.placeholder = "0,00"; inp.autocomplete = "off";
+  inp.setAttribute("aria-label", "Amount");
+  const bIn = el("button", "btn", "Add"); bIn.type = "button"; bIn.id = "gIn";
+  const bOut = el("button", "btn ghost", "Take out"); bOut.type = "button"; bOut.id = "gOut";
+  bIn.addEventListener("click", () => goalMove(+1, bIn));
+  bOut.addEventListener("click", () => goalMove(-1, bOut));
+  add.appendChild(inp); add.appendChild(bIn); add.appendChild(bOut);
+  host.appendChild(add);
+
+  if (g.adds.length){
+    host.appendChild(el("div", "goal-h", "Put in and taken out"));
+    const box = el("div", "rows");
+    g.adds.slice().sort((a, b) => a.date < b.date ? 1 : -1).forEach(a => {
+      const r = el("div", "gadd");
+      r.appendChild(el("span", "ga-d", dayTitle(a.date)));
+      r.appendChild(el("span", "ga-a " + (a.amount > 0 ? "in" : "out"), (a.amount > 0 ? "+" : "−") + fmt(Math.abs(a.amount))));
+      const x = el("button", "ga-x");
+      x.type = "button";
+      x.setAttribute("aria-label", "Remove");
+      x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+      x.addEventListener("click", () => {
+        const at = g.adds.indexOf(a);
+        g.adds.splice(at, 1);
+        userTouched(); save(); renderGoal(); render();
+        toast("Removed", { label:"Undo", run: () => { g.adds.splice(at, 0, a); save(); renderGoal(); render(); } });
+      });
+      r.appendChild(x);
+      box.appendChild(r);
+    });
+    host.appendChild(box);
+  }
+  const foot = el("div", "goal-foot");
+  const bEdit = el("button", "btn ghost", "Edit goal"); bEdit.type = "button";
+  bEdit.addEventListener("click", () => openGoalEdit(g.id));
+  const bDel = el("button", "btn danger", "Delete goal"); bDel.type = "button";
+  bDel.addEventListener("click", async () => {
+    if (!(await askConfirm({ title:"Delete this goal?",
+      message: g.n + " — " + fmt(st.saved) + " saved so far. Only the goal goes; your entries and accounts are not touched." }))) return;
+    const at = goalsOf().indexOf(g);
+    state.goals.splice(at, 1);
+    userTouched(); save(); sheetClose(); render();
+    toast("Goal deleted", { label:"Undo", run: () => { state.goals.splice(at, 0, g); save(); render(); } });
+  });
+  foot.appendChild(bEdit); foot.appendChild(bDel);
+  host.appendChild(foot);
+}
+/** Put money in (+1) or take it out (−1). */
+function goalMove(sign, fromEl){
+  const g = goalById(goalOpen);
+  if (!g) return;
+  const raw = parseAmount($("#gAmt").value);
+  if (!raw || raw <= 0){ toast("Enter an amount greater than zero"); $("#gAmt").focus(); return; }
+  const cents = fromDisp(raw);
+  const was = goalStats(g).reached;
+  g.adds.push({ id: uid(), date: todayISO(), amount: sign * cents });
+  userTouched(); save(); render();
+  const now = goalStats(g);
+  if (!was && now.reached && fromEl){
+    const r = fromEl.getBoundingClientRect();
+    burstConfetti(r.left + r.width / 2, r.top);
+  }
+  renderGoal();
+  toast(now.reached && !was ? "Goal reached — well done!" : sign > 0 ? "Added to " + g.n : "Taken out of " + g.n);
+}
+
+let goalEditing = null;
+function openGoalEdit(id){
+  goalEditing = id;
+  const g = id ? goalById(id) : null;
+  $("#goalEditTitle").textContent = g ? "Edit goal" : "New goal";
+  $("#gName").value = g ? g.n : "";
+  $("#gTarget").value = g ? amtForInput(g.target) : "";
+  setDateVal("#gDue", g && g.due ? g.due : "");
+  sheetOpen("#shGoalEdit");
+  setTimeout(() => $("#gName").focus(), 300);
+}
+$("#gSave").addEventListener("click", () => {
+  const n = $("#gName").value.trim();
+  if (!n){ toast("Give the goal a name"); $("#gName").focus(); return; }
+  const raw = parseAmount($("#gTarget").value);
+  if (!raw || raw <= 0){ toast("Enter an amount greater than zero"); $("#gTarget").focus(); return; }
+  const due = $("#gDue").value || null;
+  if (due && due < todayISO()){ toast("Pick a date that is still to come"); return; }
+  userTouched();
+  if (!Array.isArray(state.goals)) state.goals = [];
+  let g = goalEditing ? goalById(goalEditing) : null;
+  if (g){ g.n = n; g.target = fromDisp(raw); g.due = due; }
+  else {
+    g = { id: uid(), n, target: fromDisp(raw), due, adds: [] };
+    state.goals.push(g);
+  }
+  save(); render();
+  openGoal(g.id);
+  toast(goalEditing ? "Goal saved" : "Goal created");
+});
+$("#goalNew").addEventListener("click", () => openGoalEdit(null));
 
 /* =========================================================================
    BILLS & SUBSCRIPTIONS
@@ -18600,6 +18959,16 @@ const ASK_TOPICS = [
       ["A quarterly or yearly bill is spread over the months, so you see what it really costs you each month.",
        "Tap one to change or pause it. Paused ones are listed at the bottom and not counted."],
       [["Open the list", () => { sheetClose(); openSubs(); }]]) },
+  { g:"howto", q:"Save for a goal", words:["savings goal", "save for", "save up", "goal", "sparziel", "sparen",
+            "how much to save", "per month to save"],
+    build:howTo("Save for a goal", "More › Savings goals › + New goal", [
+      "Open More › Savings goals and tap + New goal.",
+      "Say what it is for, how much, and — if you like — by when.",
+      "Open the goal and use Add whenever you put money aside; Take out if you use some."],
+      ["With a date, the goal says how much to put aside each month to make it.",
+       "Goals are your own record of money set aside: they do not change “In the account now”.",
+       "They show on the dashboard as soon as you have one; tap one to open it."],
+      [["Open goals", () => { sheetClose(); openGoals(); }]]) },
   { g:"howto", q:"Find an entry", words:["find an entry", "search", "search entries", "where is", "look for",
             "find netflix", "suchen", "eintrag finden"],
     build:howTo("Find an entry", "வரவு செலவு › Search all periods", [
