@@ -365,6 +365,34 @@ export default [
     assert.deepEqual(r.round[0], r.norm[0], "a backup keeps the goal as it was");
   }},
 
+  { name: "year summary: 1 Jan – 31 Dec, settled only, no transfers, categories add up to the totals", async run(pg){
+    const r = await pg.fn(() => {
+      __T.useBook();
+      const add = (id, type, amount, date, category) => state.txns.push({ id, type, amount, date, category, status:"done", account:"a1", fromAccount:null, note:"" });
+      add("y1", "expense", 1000, "2025-12-31", "education");   /* last year, by one day */
+      add("y2", "income",   500, "2026-01-01", "interest");    /* this year, by one day */
+      const a = yearSummary(2026), b = yearSummary(2025);
+      const out = { years: taxYears(),
+        a: { inc:a.inc, out:a.out, net:a.net, income:a.income.map(x => [x.id, x.sum, !!x.hint]), expense:a.expense.map(x => [x.id, x.sum]),
+             sumIn: a.income.reduce((n, x) => n + x.sum, 0), sumOut: a.expense.reduce((n, x) => n + x.sum, 0) },
+        b: { out:b.out, expense:b.expense.map(x => [x.id, x.sum, x.hint]) },
+        csvLines: buildEntriesCsv(state.txns.filter(t => t.date.slice(0, 4) === "2025")).trim().split("\r\n").length };
+      __T.restore();
+      return out;
+    });
+    /* by hand: 8 salaries of 3 200 + 5 € interest; out: Giro 8×1 180, Cash 45,67×(3+…+10), PayPal 8×19,99,
+       the loose 8×33,33, and the 999 € paid ahead on 30 Oct (settled, dated this year). Planned and transfers: no. */
+    assert.deepEqual(r.years, [2026, 2025]);
+    assert.equal(r.a.inc, 2560500);
+    assert.equal(r.a.out, 944000 + 237484 + 15992 + 26664 + 99900);
+    assert.equal(r.a.net, r.a.inc - r.a.out);
+    assert.deepEqual(r.a.income, [["salary", 2560000, false], ["interest", 500, true]]);
+    assert.equal(r.a.sumIn, r.a.inc); assert.equal(r.a.sumOut, r.a.out);
+    assert.deepEqual(r.b.out, 1000);
+    assert.equal(r.b.expense[0][0], "education"); assert.match(r.b.expense[0][2], /Werbungskosten/);
+    assert.equal(r.csvLines, 2, "the year's CSV: a header and its one entry");
+  }},
+
   { name: "stateFromPayload keeps every field it is given", async run(pg){
     /* a field dropped here is a field erased by the next pull or restore */
     const r = await pg.fn(() => {

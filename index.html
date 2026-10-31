@@ -1754,6 +1754,7 @@ div.rp-rem:hover{background:none}
 .morerow[data-more="settings"]{ --tile-h:152; --tile-l:26% }   /* dark green */
 .morerow[data-more="subs"]    { --tile-h:268; --tile-l:34% }   /* violet */
 .morerow[data-more="goals"]   { --tile-h:42;  --tile-l:36% }   /* amber */
+.morerow[data-more="taxyear"] { --tile-h:200; --tile-l:32% }   /* steel blue */
 /* no hue: white on a dark card, the ink the type is set in on a light one */
 .morerow[data-more="about"]{border-left-color:var(--tile-plain)}
 
@@ -3097,6 +3098,24 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
+/* ---------- Year summary ---------- */
+.tx-years{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tx-years button{padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:13px;color:var(--ink-2)}
+.tx-years button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tx-tot{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tx-tot > div{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-lg);padding:10px 10px}
+.tx-tot .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.tx-tot .v{font-size:15px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.tx-tot .v.in{color:var(--pos)} .tx-tot .v.out{color:var(--neg)}
+.tx-h{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:16px 2px 4px}
+.txrow{display:flex;align-items:flex-start;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.txrow:last-child{border-bottom:none}
+.txrow .tn{flex:1;min-width:0;font-size:14px}
+.txrow .tn small{display:block;font-size:11.5px;color:var(--ink-3);margin-top:2px;line-height:1.35}
+.txrow .tn small.hint{color:var(--accent)}
+.txrow .tv{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tx-note{font-size:12px;color:var(--ink-3);margin:14px 2px 0;line-height:1.45}
+
 /* ---------- Savings goals ---------- */
 .goalrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:9px 2px;border-bottom:1px solid var(--line)}
 .goalrow:last-child{border-bottom:none}
@@ -4275,6 +4294,12 @@ html.locked #lockScreen::before{
   </button>
 </section>
 
+<!-- YEAR SUMMARY -->
+<section class="sheet" id="shTax" role="dialog" aria-modal="true" aria-labelledby="taxTitle">
+  <div class="sheet-head"><h2 id="taxTitle">Year summary</h2><button class="iconbtn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+  <div class="sheet-body" id="taxBody"></div>
+</section>
+
 <!-- SAVINGS GOALS -->
 <section class="sheet" id="shGoals" role="dialog" aria-modal="true" aria-labelledby="goalsTitle">
   <div class="sheet-head"><h2 id="goalsTitle">Savings goals</h2><button class="iconbtn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
@@ -4954,6 +4979,11 @@ html.locked #lockScreen::before{
       <b>Savings goals</b>
       <span class="ms" id="moreGoalsSub">Save up for something</span>
     </button>
+    <button class="morerow" type="button" data-more="taxyear">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
+      <b>Year summary</b>
+      <span class="ms" id="moreTaxSub">A calendar year for the Steuererklärung</span>
+    </button>
     <button class="morerow" type="button" data-more="about">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3.5l1.9 5.1 5.1 1.9-5.1 1.9L11 17.5l-1.9-5.1L4 10.5l5.1-1.9z"/><path d="M18.4 15.1l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"/></svg></span>
       <b>What&rsquo;s new</b>
@@ -5494,6 +5524,31 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Year summary": "Jahresübersicht",
+"A calendar year for the Steuererklärung": "Ein Kalenderjahr für die Steuererklärung",
+"Income by category": "Einnahmen nach Kategorie",
+"Nothing settled yet": "Noch nichts bezahlt",
+"Once entries are marked paid, each calendar year can be summed up here.": "Sobald Einträge als bezahlt markiert sind, lässt sich hier jedes Kalenderjahr zusammenfassen.",
+"1 January to 31 December, settled entries only, transfers between your own accounts left out. The hints say where a category often matters in a Steuererklärung — a starting point, not tax advice: check with ELSTER or a Steuerberater.": "1. Januar bis 31. Dezember, nur bezahlte Einträge, ohne Umbuchungen zwischen deinen eigenen Konten. Die Hinweise zeigen, wo eine Kategorie in der Steuererklärung oft eine Rolle spielt — ein Ausgangspunkt, keine Steuerberatung: Prüfe es mit ELSTER oder einer Steuerberatung.",
+"Fortbildung, Kurse, Fachbücher: Werbungskosten, if for your job": "Fortbildung, Kurse, Fachbücher: Werbungskosten, wenn für den Beruf",
+"Vorsorgeaufwendungen: some insurances count (e.g. Haftpflicht, Berufsunfähigkeit)": "Vorsorgeaufwendungen: manche Versicherungen zählen (z. B. Haftpflicht, Berufsunfähigkeit)",
+"Krankheitskosten: außergewöhnliche Belastungen, above a personal threshold": "Krankheitskosten: außergewöhnliche Belastungen, über einer persönlichen Grenze",
+"Way to work: the Entfernungspauschale counts kilometres, not these receipts": "Weg zur Arbeit: Die Entfernungspauschale zählt Kilometer, nicht diese Belege",
+"Nebenkostenabrechnung: §35a Handwerker and haushaltsnahe Dienstleistungen": "Nebenkostenabrechnung: §35a Handwerker und haushaltsnahe Dienstleistungen",
+"Kinderbetreuung (Kita, Tagesmutter): partly deductible as Sonderausgaben": "Kinderbetreuung (Kita, Tagesmutter): teilweise als Sonderausgaben absetzbar",
+"Kapitalerträge: Anlage KAP": "Kapitalerträge: Anlage KAP",
+"Self-employed income: Anlage S and the EÜR": "Selbstständige Einkünfte: Anlage S und die EÜR",
+"Last year's refund — not income to declare": "Erstattung vom Vorjahr — keine anzugebende Einnahme",
+"Kindergeld: checked against the Kinderfreibetrag by the Finanzamt": "Kindergeld: Das Finanzamt vergleicht es mit dem Kinderfreibetrag",
+"Sum up a year for my tax return": "Ein Jahr für die Steuererklärung zusammenfassen",
+"More › Year summary": "Mehr › Jahresübersicht",
+"Open More › Year summary.": "Öffne Mehr › Jahresübersicht.",
+"Pick the year — it opens on last year, the one you file for.": "Wähle das Jahr — es öffnet mit dem Vorjahr, für das du die Erklärung machst.",
+"Read income and expenses by category; a blue hint marks the ones that often matter for the Steuererklärung.": "Lies Einnahmen und Ausgaben nach Kategorie; ein blauer Hinweis markiert die, die für die Steuererklärung oft wichtig sind.",
+"Tap Download … as CSV to give the year's entries to a Steuerberater or keep them.": "Tippe auf … als CSV herunterladen, um die Einträge des Jahres einer Steuerberatung zu geben oder aufzubewahren.",
+"It counts 1 January to 31 December, settled entries only, without transfers between your own accounts.": "Es zählt 1. Januar bis 31. Dezember, nur bezahlte Einträge, ohne Umbuchungen zwischen deinen eigenen Konten.",
+"The hints point to the form, not to an amount — a starting point, not tax advice.": "Die Hinweise zeigen auf das Formular, nicht auf einen Betrag — ein Ausgangspunkt, keine Steuerberatung.",
+"Open year summary": "Jahresübersicht öffnen",
 "Savings goals": "Sparziele",
 "Save up for something": "Auf etwas sparen",
 "+ New goal": "+ Neues Ziel",
@@ -7415,6 +7470,7 @@ const I18N_PAT = [
 ];
 /* Worked inside any line, after the phrases: counts and "x of y" between amounts. */
 const I18N_INLINE = [
+  [/^Download (\d{4}) as CSV$/, "$1 als CSV herunterladen"],
   [/^(.+) of (.+ €|.+ ₹|••••)$/, "$1 von $2"],
   [/^≈ (.+) a month until (\S+) (\d{4})$/, "≈ $1 im Monat bis $2 $3"],
   [/^(.+) still missing$/, "$1 fehlen noch"],
@@ -7565,7 +7621,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.2.2";
+const APP_VERSION = "3.2.3";
 const APP_BUILT = "2026-10-31";
 
 const KEY = "panappai.v1";
@@ -14567,6 +14623,7 @@ $$("#moreMenu .morerow").forEach(b => b.addEventListener("click", () => {
   if (k === "report"){ openReport(); return; }
   if (k === "subs"){ openSubs(); return; }
   if (k === "goals"){ openGoals(); return; }
+  if (k === "taxyear"){ openTaxYear(); return; }
   /* What's new is the notes themselves now, not the About panel they used to
      hang off — the version and update button stay in Settings › About. */
   if (k === "about"){ openNotes(); return; }
@@ -18072,6 +18129,120 @@ function askForecast(){
 }
 
 /* =========================================================================
+   YEAR SUMMARY
+
+   One calendar year, January to December — the year a German tax return is
+   about, not the app's 15th-to-14th periods. Only what was settled counts,
+   transfers between your own accounts are left out, and the category lines
+   are the totals split, so they always add up to them.
+
+   Some categories carry a hint where they often matter in a Steuererklärung.
+   They point at the form, not at an amount: what is deductible depends on the
+   year and the person, so the sheet says plainly that it is a starting point.
+   ========================================================================= */
+const TAX_HINT = {
+  education: "Fortbildung, Kurse, Fachbücher: Werbungskosten, if for your job",
+  insurance: "Vorsorgeaufwendungen: some insurances count (e.g. Haftpflicht, Berufsunfähigkeit)",
+  health:    "Krankheitskosten: außergewöhnliche Belastungen, above a personal threshold",
+  transport: "Way to work: the Entfernungspauschale counts kilometres, not these receipts",
+  utilities: "Nebenkostenabrechnung: §35a Handwerker and haushaltsnahe Dienstleistungen",
+  rent:      "Nebenkostenabrechnung: §35a Handwerker and haushaltsnahe Dienstleistungen",
+  family:    "Kinderbetreuung (Kita, Tagesmutter): partly deductible as Sonderausgaben",
+  interest:  "Kapitalerträge: Anlage KAP",
+  freelance: "Self-employed income: Anlage S and the EÜR",
+  taxreturn: "Last year's refund — not income to declare",
+  kindergeld:"Kindergeld: checked against the Kinderfreibetrag by the Finanzamt"
+};
+function taxYears(){
+  const ys = new Set(state.txns.filter(t => t.status === "done").map(t => +t.date.slice(0, 4)));
+  return [...ys].sort((a, b) => b - a);
+}
+/** One calendar year: settled income and expenses, by category, and the entries behind them. */
+function yearSummary(y){
+  const from = y + "-01-01", to = y + "-12-31";
+  const rows = state.txns.filter(t => t.status === "done" && !isTransfer(t) && txnShown(t) && t.date >= from && t.date <= to);
+  const by = side => {
+    const m = new Map();
+    rows.filter(t => t.type === side).forEach(t => m.set(t.category, (m.get(t.category) || 0) + t.amount));
+    return [...m.entries()].map(([id, sum]) => ({ id, n: catOf(id).n, sum, hint: TAX_HINT[id] || null }))
+      .sort((a, b) => b.sum - a.sum);
+  };
+  const income = by("income"), expense = by("expense");
+  const inc = income.reduce((n, x) => n + x.sum, 0), out = expense.reduce((n, x) => n + x.sum, 0);
+  return { y, rows, income, expense, inc, out, net: inc - out };
+}
+let taxYear = null;
+function openTaxYear(){
+  const ys = taxYears();
+  const last = new Date().getFullYear() - 1;
+  if (taxYear === null || ys.indexOf(taxYear) < 0) taxYear = ys.indexOf(last) > -1 ? last : (ys[0] || last);
+  renderTaxYear();
+  sheetOpen("#shTax");
+}
+function renderTaxYear(){
+  const host = $("#taxBody");
+  host.innerHTML = "";
+  const ys = taxYears();
+  if (!ys.length){
+    host.innerHTML = '<div class="empty" style="padding:24px 10px"><h4>Nothing settled yet</h4>' +
+      '<p>Once entries are marked paid, each calendar year can be summed up here.</p></div>';
+    return;
+  }
+  const chips = el("div", "tx-years");
+  ys.forEach(y => {
+    const b = el("button", null, String(y));
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(y === taxYear));
+    b.addEventListener("click", () => { taxYear = y; renderTaxYear(); });
+    chips.appendChild(b);
+  });
+  host.appendChild(chips);
+
+  const r = yearSummary(taxYear);
+  const tot = el("div", "tx-tot");
+  [["Income", r.inc, "in"], ["Expenses", r.out, "out"], ["Net", r.net, ""]].forEach(([k, v, c]) => {
+    const d = el("div");
+    d.appendChild(el("div", "k", k));
+    d.appendChild(el("div", "v " + c, fmt(v)));
+    tot.appendChild(d);
+  });
+  host.appendChild(tot);
+
+  const list = (title, items) => {
+    if (!items.length) return;
+    host.appendChild(el("div", "tx-h", title));
+    const box = el("div", "rows");
+    items.forEach(x => {
+      const row = el("div", "txrow");
+      const n = el("div", "tn", x.n);
+      if (x.hint) n.appendChild(el("small", "hint", x.hint));
+      row.appendChild(n);
+      row.appendChild(el("div", "tv", fmt(x.sum)));
+      box.appendChild(row);
+    });
+    host.appendChild(box);
+  };
+  list("Income by category", r.income);
+  list("Expenses by category", r.expense);
+
+  const b = el("button", "btn ghost", "Download " + taxYear + " as CSV");
+  b.type = "button";
+  b.style.marginTop = "16px";
+  b.addEventListener("click", () => {
+    if (amountsHidden){ toast("Tap the eye to show amounts before exporting"); return; }
+    const all = state.txns.filter(t => t.date.slice(0, 4) === String(taxYear));
+    if (!all.length){ toast("Nothing to export yet"); return; }
+    saveBlob(new Blob([buildEntriesCsv(all)], { type:"text/csv;charset=utf-8" }), "panappai-" + taxYear + ".csv");
+    toast(all.length + " entries saved");
+  });
+  host.appendChild(b);
+  host.appendChild(el("div", "tx-note",
+    "1 January to 31 December, settled entries only, transfers between your own accounts left out. " +
+    "The hints say where a category often matters in a Steuererklärung — a starting point, not tax advice: " +
+    "check with ELSTER or a Steuerberater."));
+}
+
+/* =========================================================================
    SAVINGS GOALS
 
    A goal is a target, an optional date, and the amounts put in or taken out
@@ -18959,6 +19130,16 @@ const ASK_TOPICS = [
       ["A quarterly or yearly bill is spread over the months, so you see what it really costs you each month.",
        "Tap one to change or pause it. Paused ones are listed at the bottom and not counted."],
       [["Open the list", () => { sheetClose(); openSubs(); }]]) },
+  { g:"howto", q:"Sum up a year for my tax return", words:["tax", "tax return", "steuer", "steuererklärung", "year summary",
+            "whole year", "calendar year", "elster", "jahresübersicht"],
+    build:howTo("Sum up a year for my tax return", "More › Year summary", [
+      "Open More › Year summary.",
+      "Pick the year — it opens on last year, the one you file for.",
+      "Read income and expenses by category; a blue hint marks the ones that often matter for the Steuererklärung.",
+      "Tap Download … as CSV to give the year's entries to a Steuerberater or keep them."],
+      ["It counts 1 January to 31 December, settled entries only, without transfers between your own accounts.",
+       "The hints point to the form, not to an amount — a starting point, not tax advice."],
+      [["Open year summary", () => { sheetClose(); openTaxYear(); }]]) },
   { g:"howto", q:"Save for a goal", words:["savings goal", "save for", "save up", "goal", "sparziel", "sparen",
             "how much to save", "per month to save"],
     build:howTo("Save for a goal", "More › Savings goals › + New goal", [
@@ -21668,10 +21849,10 @@ function csvCell(v){
 }
 function csvAmount(cents){ return ((cents || 0) / 100).toFixed(2).replace(".", ","); }
 
-function buildEntriesCsv(){
+function buildEntriesCsv(list){
   const rows = [["Date", "Type", "Category", "Note", "Account", "From account",
                  "Income", "Expense", "Status", "Repeats", "Typed", "Currency"]];
-  state.txns.slice()
+  (list || state.txns).slice()
     .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.id < b.id ? -1 : 1))
     .forEach(t => {
       const xfer = isTransfer(t);

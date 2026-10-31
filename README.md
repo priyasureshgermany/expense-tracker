@@ -110,6 +110,12 @@ Open `index.html` in any browser, or host the file anywhere static.
 - **Copy as a new entry** (inside an entry) — the same kind, category,
   accounts, amount and note, dated today, open for changes; nothing is added
   until Save.
+- **Year summary** (More) — one calendar year, 1 January to 31 December, for
+  the Steuererklärung: settled income and expenses (no planned entries, no
+  transfers) by category, the lines adding up to the totals. Categories that
+  often matter carry a hint naming the form (Werbungskosten, Anlage KAP, §35a
+  …) — a starting point, not tax advice. *Download as CSV* gives that year's
+  entries for a Steuerberater.
 - **Savings goals** (More, and on the dashboard once there is one) — a name, a
   target and, if you like, a date. Put money in or take it out; with a date the
   goal says what to put aside each month (what is missing over the months left,
