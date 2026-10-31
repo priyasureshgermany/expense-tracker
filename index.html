@@ -459,6 +459,13 @@ button.tile:hover .tile-go{color:var(--accent)}
   font-variant-numeric:proportional-nums;
 }
 .bal-s{font-size:11.5px;color:rgba(255,255,255,.66);margin-top:4px}
+/* where the period is heading: a line, tappable for how it was worked out */
+.bal-fc{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:8px 10px;
+  border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-size:12.5px;text-align:left}
+.bal-fc[hidden]{display:none}
+.bal-fc .fc-k{flex:1;color:rgba(255,255,255,.8)}
+.bal-fc b{font-variant-numeric:tabular-nums;font-weight:700}
+.bal-fc svg{width:15px;height:15px;opacity:.7;flex:none}
 /* The balance month by month, drawn in white on the card's own gradient so it
    reads as part of the figure above it rather than a second panel. */
 .bal-line{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.16)}
@@ -1736,6 +1743,7 @@ div.rp-rem:hover{background:none}
 .morerow{border-left:3px solid hsl(var(--tile-h, 210) 82% var(--tile-l, 32%))}
 .morerow[data-more="report"]  { --tile-h:6;   --tile-l:30% }   /* dark red */
 .morerow[data-more="settings"]{ --tile-h:152; --tile-l:26% }   /* dark green */
+.morerow[data-more="subs"]    { --tile-h:268; --tile-l:34% }   /* violet */
 /* no hue: white on a dark card, the ink the type is set in on a light one */
 .morerow[data-more="about"]{border-left-color:var(--tile-plain)}
 
@@ -3071,8 +3079,30 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
   transition:opacity .22s,transform .22s;white-space:nowrap;max-width:90vw;
 }
 .toast.show{opacity:1;transform:translate(-50%,0)}
+/* a toast that can take the action back: the one time it is something to tap */
+.toast.act{display:flex;align-items:center;gap:14px;padding-right:8px}
+.toast.act.show{pointer-events:auto}
+.toast-act{font:inherit;font-weight:700;color:var(--ground);background:rgba(127,127,127,.28);
+  border-radius:99px;padding:5px 12px;letter-spacing:.01em}
 
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ---------- Bills & subscriptions ---------- */
+.subs-tot{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.subs-tot > div{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px}
+.subs-tot .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.subs-tot .v{font-size:21px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.subs-note{font-size:12px;color:var(--ink-3);margin:8px 2px 14px}
+.subs-h{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:16px 2px 6px}
+.subrow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px 4px;border-bottom:1px solid var(--line)}
+.subrow:last-child{border-bottom:none}
+.subrow .sm{flex:1;min-width:0}
+.subrow .s1{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.subrow .s2{font-size:11.5px;color:var(--ink-3);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.subrow .sv{text-align:right;flex:none}
+.subrow .sa{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums}
+.subrow .sp{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.subrow.off{opacity:.55}
 
 /* ---------- Payday: the welcome the app opens with ----------
 
@@ -3738,6 +3768,11 @@ html.locked #lockScreen::before{
       <div class="bal-k">In the account now</div>
       <div class="bal-v" id="balNow">€0.00</div>
       <div class="bal-s" id="balSub">—</div>
+      <button class="bal-fc" id="balFc" type="button" hidden>
+        <span class="fc-k"><span>Expected on</span> <span id="balFcDay"></span></span>
+        <b id="balFcVal"></b>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
       <div class="bal-line" id="balLine" hidden>
         <div id="balLineChart"></div>
         <div class="bl-val" id="balLineVal"></div>
@@ -4181,6 +4216,17 @@ html.locked #lockScreen::before{
   <button class="fab sheetfab" id="ruleAdd" type="button" aria-label="Add a recurring entry">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
   </button>
+</section>
+
+<!-- BILLS & SUBSCRIPTIONS -->
+<section class="sheet" id="shSubs" role="dialog" aria-modal="true" aria-labelledby="subsTitle">
+  <div class="sheet-head">
+    <h2 id="subsTitle">Bills &amp; subscriptions</h2>
+    <button class="iconbtn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body" id="subsBody"></div>
 </section>
 
 <!-- WHAT WOULD BE PUSHED -->
@@ -4812,6 +4858,11 @@ html.locked #lockScreen::before{
       <b>Reports</b>
       <span class="ms" id="moreReportSub">Where the money went</span>
     </button>
+    <button class="morerow" type="button" data-more="subs">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 013-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 01-3 3H3"/></svg></span>
+      <b>Bills &amp; subscriptions</b>
+      <span class="ms" id="moreSubsSub">What repeats, per month and per year</span>
+    </button>
     <button class="morerow" type="button" data-more="about">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3.5l1.9 5.1 5.1 1.9-5.1 1.9L11 17.5l-1.9-5.1L4 10.5l5.1-1.9z"/><path d="M18.4 15.1l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"/></svg></span>
       <b>What&rsquo;s new</b>
@@ -4864,7 +4915,7 @@ html.locked #lockScreen::before{
     </button>
     <button class="setrow" type="button" data-pane="lock">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg></span>
-      <span class="sr-t"><b>App lock</b><span>PIN and recovery question</span></span>
+      <span class="sr-t"><b>App lock</b><span>PIN or password, and recovery</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow" type="button" data-pane="prefs">
@@ -5352,6 +5403,41 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Undo": "Rückgängig",
+"Entry restored": "Eintrag wiederhergestellt",
+"Undone": "Rückgängig gemacht",
+"You can undo it straight after.": "Du kannst es direkt danach rückgängig machen.",
+"Expected on": "Erwartet am",
+"What will I have at the end of the period?": "Was habe ich am Ende der Periode?",
+"What your accounts should hold when this period ends, if what is planned happens:": "Was deine Konten am Ende dieser Periode haben sollten, wenn das Geplante eintritt:",
+"+ Income still expected": "+ Noch erwartete Einnahmen",
+"− Bills still to pay": "− Noch zu zahlende Rechnungen",
+"− Still left in your budgets": "− Noch übrig in deinen Budgets",
+"Budget money not yet spent is taken off, because you plan to spend it. The catch-all is the cushion, so only what is spent from it counts.": "Noch nicht ausgegebenes Budget wird abgezogen, weil du es ausgeben willst. Das Auffangbudget ist das Polster, darum zählt nur, was davon ausgegeben ist.",
+"Spending you have not entered or budgeted is not in it: it is what the book knows today.": "Ausgaben, die du nicht eingetragen oder budgetiert hast, sind nicht drin: Es ist das, was das Buch heute weiß.",
+"See planned entries": "Geplante Einträge ansehen",
+"Bills & subscriptions": "Rechnungen & Abos",
+"What repeats, per month and per year": "Was sich wiederholt, pro Monat und pro Jahr",
+"Per month": "Pro Monat",
+"Per year": "Pro Jahr",
+"Paused — not counted": "Pausiert — nicht mitgezählt",
+"Nothing repeats yet": "Noch nichts Wiederkehrendes",
+"Rent, phone, Netflix, insurance — add them under Settings › Recurring entries and they appear here with what they cost a month and a year.": "Miete, Handy, Netflix, Versicherung — trage sie unter Einstellungen › Wiederkehrende Einträge ein, dann stehen sie hier mit ihren Kosten pro Monat und pro Jahr.",
+"See all my bills and subscriptions": "Alle Rechnungen und Abos ansehen",
+"More › Bills & subscriptions": "Mehr › Rechnungen & Abos",
+"Open More › Bills & subscriptions.": "Öffne Mehr › Rechnungen & Abos.",
+"At the top: what all running ones cost per month and per year.": "Oben: was alle laufenden pro Monat und pro Jahr kosten.",
+"Below, biggest first: each bill with its rhythm, next date, A or M, and what it comes to a month and a year.": "Darunter, die größten zuerst: jede Rechnung mit Rhythmus, nächstem Termin, A oder M und was sie pro Monat und Jahr ausmacht.",
+"A quarterly or yearly bill is spread over the months, so you see what it really costs you each month.": "Eine vierteljährliche oder jährliche Rechnung wird auf die Monate verteilt, so siehst du, was sie dich im Monat wirklich kostet.",
+"Tap one to change or pause it. Paused ones are listed at the bottom and not counted.": "Tippe eine an, um sie zu ändern oder zu pausieren. Pausierte stehen unten und zählen nicht mit.",
+"Open the list": "Liste öffnen",
+"Undo a swipe": "Ein Wischen rückgängig machen",
+"The message at the bottom › Undo": "Die Meldung unten › Rückgängig",
+"Right after you delete an entry, or mark one paid or planned, a message appears at the bottom.": "Direkt nachdem du einen Eintrag löschst oder als bezahlt bzw. geplant markierst, erscheint unten eine Meldung.",
+"Tap Undo in it within about six seconds.": "Tippe darin innerhalb von etwa sechs Sekunden auf Rückgängig.",
+"The entry is back exactly as it was.": "Der Eintrag ist genau wie vorher zurück.",
+"It works the same for a delete from inside the entry.": "Das geht genauso beim Löschen aus dem Eintrag heraus.",
+"PIN or password, and recovery": "PIN oder Passwort und Wiederherstellung",
 "; mark them paid as you go — swipe the row left.": "; markiere sie beim Bezahlen als bezahlt — Zeile nach links wischen.",
 ". Mark it received once it arrives.": ". Markiere es als erhalten, sobald es eingeht.",
 "Mark it received once it arrives.": "Markiere es als erhalten, sobald es eingeht.",
@@ -7327,8 +7413,8 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.1.2";
-const APP_BUILT = "2026-10-19";
+const APP_VERSION = "3.2.0";
+const APP_BUILT = "2026-10-31";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -8830,12 +8916,29 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape" && confirmResolve) { e.stopImmediatePropagation(); closeConfirm(false); }
 }, true);
 
-function toast(msg){
+/**
+ * A message at the foot of the screen. Given `act` — { label, run } — it also
+ * carries a button and stays long enough to reach it: that is how a swipe that
+ * deleted or paid the wrong row is taken back.
+ */
+function toast(msg, act){
   const t = $("#toast");
-  t.textContent = msg;
+  t.textContent = "";
+  t.appendChild(el("span", null, msg));
+  t.classList.toggle("act", !!act);
+  if (act){
+    const b = el("button", "toast-act", act.label || "Undo");
+    b.type = "button";
+    b.addEventListener("click", () => {
+      clearTimeout(toastT);
+      t.classList.remove("show");
+      act.run();
+    });
+    t.appendChild(b);
+  }
   t.classList.add("show");
   clearTimeout(toastT);
-  toastT = setTimeout(() => t.classList.remove("show"), 2400);
+  toastT = setTimeout(() => t.classList.remove("show"), act ? 6000 : 2400);
 }
 
 /* ---------- category swatch ----------
@@ -9887,9 +9990,48 @@ function balanceNow(){
            counted: accts.filter(a => a.start).length, dates };
 }
 
+/**
+ * Where this period is heading: what the accounts hold now, plus what is still
+ * planned to come in before the period ends, less what is still planned to go
+ * out, less what is left in the budgets. Each part is its own figure and the
+ * forecast is exactly their sum, so the breakdown always adds up.
+ *
+ * Only this period's planned entries count — an unticked plan from months ago
+ * is not money that will move by the 14th. Transfers net to nothing. The
+ * catch-all is the cushion, so only what is spent from it counts, as in Net.
+ */
+function periodForecast(){
+  const today = todayISO();
+  const p = periodOf(today), from = periodStart(p), to = periodEnd(p);
+  const now = balanceAt(today).v;
+  let inc = 0, bills = 0, nInc = 0, nBills = 0;
+  const planIn = {};
+  state.txns.forEach(t => {
+    if (t.status !== "planned" || isTransfer(t) || !txnShown(t)) return;
+    if (t.date < from || t.date > to) return;
+    if (t.type === "income"){ inc += t.amount; nInc++; }
+    else { bills += t.amount; nBills++; planIn[t.category] = (planIn[t.category] || 0) + t.amount; }
+  });
+  let budgets = 0;
+  budgetList(p).forEach(b => {
+    if (b.cat.id === state.catchAll) return;
+    const spent = envSpends(b.cat.id, p).reduce((n, t) => n + t.amount, 0);
+    budgets += Math.max(0, b.planned - spent - (planIn[b.cat.id] || 0));
+  });
+  return { p, from, to, now, inc, bills, budgets, nInc, nBills, value: now + inc - bills - budgets };
+}
+function renderForecast(){
+  const f = periodForecast();
+  $("#balFc").hidden = false;
+  $("#balFcDay").textContent = prettyDate(f.to);
+  $("#balFcVal").textContent = fmt(f.value);
+}
+$("#balFc").addEventListener("click", () => { askOpen(); askAnswer("Expected at the end of the period", askForecast); });
+
 function renderBalance(){
   $("#balCard").hidden = false;
   renderBalanceLine();
+  renderForecast();
   const el2 = $("#balNow");
 
   /* No per-account baseline anywhere: the one figure the app used to keep, if
@@ -11045,15 +11187,23 @@ async function deleteTxn(t){
   if (!(await askConfirm({
     title: "Delete this entry?",
     message: what + " — " + fmt(t.amount) + " on " + prettyDate(t.date) +
-             ". This cannot be undone."
+             ". You can undo it straight after."
   }))) return false;
   userTouched();
   /* a generated occurrence is remembered as skipped, or the schedule makes it again */
-  if (t.ruleId) state.skips.push(t.ruleId + "|" + t.date);
+  const at = state.txns.indexOf(t);
+  const skip = t.ruleId ? t.ruleId + "|" + t.date : null;
+  if (skip) state.skips.push(skip);
   state.txns = state.txns.filter(x => x.id !== t.id);
   swipeOpen = null;
   save(); render();
-  toast("Entry deleted");
+  toast("Entry deleted", { label:"Undo", run: () => {
+    /* back where it was, and the schedule forgets it was skipped */
+    if (!state.txns.some(x => x.id === t.id)) state.txns.splice(Math.max(0, Math.min(at, state.txns.length)), 0, t);
+    if (skip){ const i = state.skips.lastIndexOf(skip); if (i > -1) state.skips.splice(i, 1); }
+    save(); render();
+    toast("Entry restored");
+  }});
   return true;
 }
 
@@ -11071,6 +11221,13 @@ async function deleteTxn(t){
  */
 async function togglePaid(t, fromEl, after){
   const nowDone = t.status !== "done";
+  /* what it was, so the toast can put it back */
+  const was = { status:t.status, date:t.date };
+  const undo = { label:"Undo", run: () => {
+    t.status = was.status; t.date = was.date;
+    save(); render(); if (after) after();
+    toast("Undone");
+  }};
   const pop = () => {
     if (!fromEl) return;
     const r = fromEl.getBoundingClientRect();
@@ -11092,7 +11249,7 @@ async function togglePaid(t, fromEl, after){
     t.status = "done";
     pop();
     save(); render(); if (after) after();
-    toast("Marked as paid · " + dayTitle(t.date).toLowerCase());
+    toast("Marked as paid · " + dayTitle(t.date).toLowerCase(), undo);
     return true;
   }
 
@@ -11100,7 +11257,7 @@ async function togglePaid(t, fromEl, after){
   t.status = nowDone ? "done" : "planned";
   if (nowDone) pop();
   save(); render(); if (after) after();
-  toast(t.status === "done" ? "Marked as paid" : "Moved back to planned");
+  toast(t.status === "done" ? "Marked as paid" : "Moved back to planned", undo);
   return true;
 }
 
@@ -14164,6 +14321,7 @@ $$("#moreMenu .morerow").forEach(b => b.addEventListener("click", () => {
   const k = b.dataset.more;
   sheetClose();
   if (k === "report"){ openReport(); return; }
+  if (k === "subs"){ openSubs(); return; }
   /* What's new is the notes themselves now, not the About panel they used to
      hang off — the version and update button stay in Settings › About. */
   if (k === "about"){ openNotes(); return; }
@@ -17649,6 +17807,114 @@ function askBalance(){
   };
 }
 
+function askForecast(){
+  const f = periodForecast();
+  return {
+    title: "Expected on " + prettyDate(f.to) + " — " + fmt(f.value),
+    body: ["What your accounts should hold when this period ends, if what is planned happens:"],
+    figs: [askFig("In the account now", fmt(f.now), askBalance),
+           askFig("+ Income still expected" + (f.nInc ? " (" + f.nInc + ")" : ""), fmt(f.inc)),
+           askFig("− Bills still to pay" + (f.nBills ? " (" + f.nBills + ")" : ""), fmt(f.bills)),
+           askFig("− Still left in your budgets", fmt(f.budgets))],
+    sum: ["Expected on " + prettyDate(f.to), fmt(f.value)],
+    after: ["Only planned entries dated in this period, " + prettyDate(f.from) + " to " + prettyDate(f.to) + ", are counted. Mark one paid and it moves out of here and into the balance — the forecast stays the same.",
+            "Budget money not yet spent is taken off, because you plan to spend it. The catch-all is the cushion, so only what is spent from it counts.",
+            "Spending you have not entered or budgeted is not in it: it is what the book knows today."],
+    acts: [["See planned entries", () => { sheetClose(); setPanel("entries"); filter = "planned"; render(); }]]
+  };
+}
+
+/* =========================================================================
+   BILLS & SUBSCRIPTIONS
+
+   Every repeating expense in one list, with what it costs a month and a year
+   whatever its rhythm. The year is the exact figure (amount × times a year);
+   a month is that over twelve, so a quarterly bill reads as a third of itself.
+   ========================================================================= */
+const FREQ_PER_YEAR = { weekly:52, days28:365 / 28, monthly:12, bimonthly:6, quarterly:4, halfyearly:2, yearly:1 };
+
+/** The repeating expenses, each with what it costs a month and a year. */
+function subsList(){
+  const today = todayISO();
+  return state.rules
+    .filter(r => r.type === "expense" && catShown(r.category))
+    .map(r => {
+      const per = FREQ_PER_YEAR[r.freq] || 12;
+      const year = Math.round(r.amount * per);
+      const next = state.txns
+        .filter(t => t.ruleId === r.id && t.status === "planned" && t.date >= today)
+        .map(t => t.date).sort()[0] || null;
+      return { r, on: r.active !== false, year, month: Math.round(r.amount * per / 12), next };
+    })
+    /* running ones first, each group biggest first */
+    .sort((a, b) => (b.on - a.on) || (b.year - a.year));
+}
+function subsTotals(list){
+  const on = (list || subsList()).filter(x => x.on);
+  const year = on.reduce((n, x) => n + x.year, 0);
+  return { year, month: Math.round(year / 12), n: on.length,
+           auto: on.filter(x => ruleAuto(x.r)).length };
+}
+
+function openSubs(){
+  renderSubs();
+  sheetOpen("#shSubs");
+}
+function renderSubs(){
+  const host = $("#subsBody");
+  host.innerHTML = "";
+  const list = subsList();
+  if (!list.length){
+    host.innerHTML = '<div class="empty" style="padding:30px 10px"><h4>Nothing repeats yet</h4>' +
+      '<p>Rent, phone, Netflix, insurance — add them under Settings › Recurring entries and they appear here with what they cost a month and a year.</p></div>';
+    return;
+  }
+  const tot = subsTotals(list);
+  const t = el("div", "subs-tot");
+  t.innerHTML = '<div><div class="k">Per month</div><div class="v"></div></div><div><div class="k">Per year</div><div class="v"></div></div>';
+  t.querySelectorAll(".v")[0].textContent = fmt(tot.month);
+  t.querySelectorAll(".v")[1].textContent = fmt(tot.year);
+  host.appendChild(t);
+  host.appendChild(el("div", "subs-note",
+    tot.n + " running · " + tot.auto + " taken automatically (A), " + (tot.n - tot.auto) + " you pay yourself (M). Biggest first; tap one to change it."));
+
+  const block = (title, rows) => {
+    if (!rows.length) return;
+    host.appendChild(el("div", "subs-h", title));
+    const box = el("div", "rows");
+    rows.forEach(x => {
+      const r = x.r, c = catOf(r.category);
+      const row = el("button", "subrow" + (x.on ? "" : " off"));
+      row.type = "button";
+      const mono = el("div", "mono");
+      mono.innerHTML = iconSvg(c.id, 18);
+      mono.style.background = tint(c, isDark());
+      mono.style.color = tintInk(c, isDark());
+      row.appendChild(mono);
+      const m = el("div", "sm");
+      m.appendChild(el("div", "s1", r.note || c.n));
+      const s2 = el("div", "s2");
+      s2.appendChild(el("span", null, FREQ_LABEL[r.freq] || r.freq));
+      if (x.on && x.next) s2.appendChild(el("span", null, "· next " + dayTitle(x.next)));
+      if (!x.on) s2.appendChild(el("span", null, "· paused"));
+      const am = autoBadge(r.id);
+      if (am) s2.appendChild(am);
+      m.appendChild(s2);
+      row.appendChild(m);
+      const right = el("div", "sv");   /* not "sr": that is the screen-reader-only class */
+      right.appendChild(el("div", "sa", fmt(r.amount)));
+      if (r.freq !== "monthly") right.appendChild(el("div", "sp", "≈ " + fmt(x.month) + " / month"));
+      right.appendChild(el("div", "sp", fmt(x.year) + " / year"));
+      row.appendChild(right);
+      row.addEventListener("click", () => { sheetClose(); openRule(r); });
+      box.appendChild(row);
+    });
+    host.appendChild(box);
+  };
+  block("Running", list.filter(x => x.on));
+  block("Paused — not counted", list.filter(x => !x.on));
+}
+
 function askNet(){
   const s = periodStats(periodTxns(view));
   const net = s.income - s.expTotal;
@@ -18093,6 +18359,8 @@ const ASK_TOPICS = [
   { g:"explain", q:"Explain “In the account now”",
     words:["in the account", "account now", "how much do i have", "how much money", "my balance", "total balance", "bank balance"],
     build:askBalance },
+  { g:"explain", q:"What will I have at the end of the period?", words:["end of the period", "expected on", "forecast",
+            "what will i have", "left at the end", "how much will i have", "prognose", "ende der periode"], build:askForecast },
   { g:"explain", q:"Explain Net this period", words:["net this period", "net", "left over this period", "saved this period"], build:askNet },
   { g:"explain", q:"What's still to pay?", words:["still to pay", "left to pay", "unpaid", "not paid yet", "bills left", "what do i owe"],
     build:askStillToPay },
@@ -18201,6 +18469,21 @@ const ASK_TOPICS = [
       "Use the tabs across the top: All, Planned (still to come), Filled (settled) or Transfers.",
       "On the dashboard, the Income and Expenses tiles open the entries of just that kind — clear the pill to see everything again."],
       [], [["Open வரவு செலவு", ASK_GO.panel("entries")]]) },
+  { g:"howto", q:"See all my bills and subscriptions", words:["subscriptions", "abos", "fixed costs", "how much do my bills cost",
+            "per year", "yearly cost", "all my bills", "fixkosten", "rechnungen und abos"],
+    build:howTo("See all my bills and subscriptions", "More › Bills & subscriptions", [
+      "Open More › Bills & subscriptions.",
+      "At the top: what all running ones cost per month and per year.",
+      "Below, biggest first: each bill with its rhythm, next date, A or M, and what it comes to a month and a year."],
+      ["A quarterly or yearly bill is spread over the months, so you see what it really costs you each month.",
+       "Tap one to change or pause it. Paused ones are listed at the bottom and not counted."],
+      [["Open the list", () => { sheetClose(); openSubs(); }]]) },
+  { g:"howto", q:"Undo a swipe", words:["undo", "undo delete", "deleted by mistake", "paid by mistake", "take it back", "rückgängig"],
+    build:howTo("Undo a swipe", "The message at the bottom › Undo", [
+      "Right after you delete an entry, or mark one paid or planned, a message appears at the bottom.",
+      "Tap Undo in it within about six seconds.",
+      "The entry is back exactly as it was."],
+      ["It works the same for a delete from inside the entry."]) },
   { g:"howto", q:"Add a recurring entry", words:["recurring entry", "repeating entry", "add rent", "add salary", "monthly bill", "subscription", "standing order"],
     build:howTo("Add a recurring entry", "More › Settings › Recurring entries › +", [
       "Open More › Settings › Recurring entries and tap +.",

@@ -264,6 +264,56 @@ export default [
                          "1 year old", "36 years old", "Under a year old", ""]);
   }},
 
+  { name: "subscriptions: a month and a year whatever the rhythm, paused and income left out", async run(pg){
+    const r = await pg.fn(() => {
+      __T.useBook();
+      state.rules = [
+        { id:"r1", type:"expense", amount:1000,  category:"groceries", freq:"monthly",   active:true },
+        { id:"r2", type:"expense", amount:30000, category:"groceries", freq:"quarterly", active:true, auto:true },
+        { id:"r3", type:"expense", amount:12000, category:"groceries", freq:"yearly",    active:true },
+        { id:"r4", type:"expense", amount:1000,  category:"groceries", freq:"weekly",    active:true },
+        { id:"r5", type:"expense", amount:5000,  category:"groceries", freq:"monthly",   active:false },
+        { id:"r6", type:"income",  amount:300000, category:"salary",   freq:"monthly",   active:true }];
+      const list = subsList();
+      const out = { ids: list.map(x => x.r.id), r2: [list.find(x => x.r.id === "r2").month, list.find(x => x.r.id === "r2").year],
+                    tot: subsTotals(list) };
+      __T.restore();
+      return out;
+    });
+    /* by hand: 12 000 + 120 000 + 12 000 + 52 000 a year; the paused one and the income are not bills */
+    assert.deepEqual(r.ids, ["r2", "r4", "r1", "r3", "r5"]);
+    assert.deepEqual(r.r2, [10000, 120000], "a quarterly 300 € is 100 € a month, 1 200 € a year");
+    assert.deepEqual(r.tot, { year:196000, month:16333, n:4, auto:1 });
+  }},
+
+  { name: "periodForecast: now + income to come − bills to pay − budgets left, this period only", async run(pg){
+    const r = await pg.fn(() => {
+      __T.useBook();                                   /* today = 14 Oct 2026: the period is 15 Sep – 14 Oct */
+      const add = (id, type, amount, date, status, extra) => state.txns.push(Object.assign(
+        { id, type, amount, date, status, category: type === "income" ? "salary" : "dining", account:"a1", fromAccount:null, note:"" }, extra || {}));
+      add("f1", "income",   100000, "2026-10-13", "planned");                 /* counts */
+      add("f2", "income",   777700, "2026-10-20", "planned");                 /* next period: no */
+      add("f3", "expense",   88800, "2026-08-01", "planned");                 /* an old plan: no */
+      add("f4", "transfer",  50000, "2026-10-12", "planned", { fromAccount:"a2", category:null });   /* nets to nothing */
+      add("f5", "expense",    5000, "2026-10-01", "done");                    /* spent from the dining budget */
+      state.budgets = { dining:20000 };
+      const f = periodForecast();
+      state.catchAll = "dining";
+      const asCatch = periodForecast().budgets;
+      __T.restore();
+      return { f, asCatch };
+    });
+    const f = r.f;
+    assert.deepEqual([f.from, f.to], ["2026-09-15", "2026-10-14"]);
+    assert.equal(f.now, 1137366 - 5000, "the balance card's own figure, after the dining spend");
+    assert.equal(f.inc, 100000);
+    assert.equal(f.bills, 55500, "the book's planned 555 € on 10 Oct; the old plan is not counted");
+    assert.equal(f.budgets, 15000, "200 € budget less 50 € spent");
+    assert.equal(f.value, f.now + f.inc - f.bills - f.budgets);
+    assert.equal(f.value, 1161866);
+    assert.equal(r.asCatch, 0, "the catch-all is the cushion: its unspent part is not taken off");
+  }},
+
   { name: "stateFromPayload keeps every field it is given", async run(pg){
     /* a field dropped here is a field erased by the next pull or restore */
     const r = await pg.fn(() => {

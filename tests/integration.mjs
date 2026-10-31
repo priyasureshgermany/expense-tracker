@@ -590,6 +590,110 @@ export default [
     assert.equal(r.bubbles.notifInfo.tick, false, "the reminders bubble no longer says ticking");
   }},
 
+  { name: "undo: a swiped delete comes back where it was, a swiped payment goes back to planned", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const $q = s => document.querySelector(s);
+      __T.useBook();
+      state.txns.push({ id:"u1", type:"expense", amount:4200, category:"groceries", status:"planned", date:"2026-10-12",
+                        account:"a1", fromAccount:null, note:"Undo me", ruleId:"r-u" });
+      view = periodOf("2026-10-14");
+      $q('#viewTog [data-view="entries"]').click();
+      filter = "planned"; render(); await wait(50);
+      const wrapOf = id => $('#list .swipe[data-id="' + id + '"]');
+      const drag = async (id, dx) => {
+        const w = wrapOf(id), b = w.getBoundingClientRect(), x = b.left + b.width / 2, y = b.top + b.height / 2;
+        const ev = (type, cx) => w.dispatchEvent(new PointerEvent(type, { bubbles:true, cancelable:true, pointerId:9, button:0, isPrimary:true, clientX:cx, clientY:y }));
+        ev("pointerdown", x);
+        for (let k = 1; k <= 6; k++){ ev("pointermove", x + dx * k / 6); await wait(10); }
+        ev("pointerup", x + dx); await wait(80);
+      };
+      const out = {};
+      const at = state.txns.findIndex(t => t.id === "u1");
+      await drag("u1", 130);
+      wrapOf("u1").querySelector(".sw-del").click(); await wait(80);
+      out.askMsg = $q("#cfMsg").textContent;
+      $q("#cfYes").click(); await wait(120);
+      out.gone = !state.txns.some(t => t.id === "u1");
+      out.skipped = state.skips.includes("r-u|2026-10-12");
+      const undoBtn = $q("#toast .toast-act");
+      out.toast = $q("#toast").textContent;
+      undoBtn.click(); await wait(120);
+      out.back = state.txns.findIndex(t => t.id === "u1") === at;
+      out.unskipped = !state.skips.includes("r-u|2026-10-12");
+      out.restored = $q("#toast").textContent;
+      /* paid with a swipe (it is from a schedule, so it asks when: keep the slot's day), then undone */
+      await drag("u1", -260); await wait(100);
+      $q("#cfAlt").click(); await wait(150);
+      out.paid = state.txns.find(t => t.id === "u1").status;
+      $q("#toast .toast-act").click(); await wait(120);
+      const u = state.txns.find(t => t.id === "u1");
+      out.after = [u.status, u.date];
+      __T.restore();
+      filter = "all";
+      $q('#viewTog [data-view="dash"]').click();
+      return out;
+    });
+    assert.match(r.askMsg, /undo it straight after/);
+    assert.equal(r.gone, true); assert.equal(r.skipped, true);
+    assert.match(r.toast, /^Entry deleted\s*Undo$/);
+    assert.equal(r.back, true, "back at the same place in the book");
+    assert.equal(r.unskipped, true, "and the schedule forgets the skip");
+    assert.match(r.restored, /Entry restored/);
+    assert.equal(r.paid, "done");
+    assert.deepEqual(r.after, ["planned", "2026-10-12"]);
+  }},
+
+  { name: "forecast: the card's line is periodForecast, and the helper's sum says the same", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      __T.useBook();
+      state.budgets = { dining:20000 };
+      render(); await wait(50);
+      const f = periodForecast();
+      const out = { day: document.querySelector("#balFcDay").textContent, val: document.querySelector("#balFcVal").textContent,
+                    want: fmt(f.value), wantDay: prettyDate(f.to) };
+      document.querySelector("#balFc").click(); await wait(250);
+      out.ask = document.querySelector("#askOut").textContent;
+      sheetClose();
+      __T.restore();
+      return out;
+    });
+    assert.equal(r.day, r.wantDay);
+    assert.equal(r.val, r.want);
+    assert.ok(r.ask.includes("Bills still to pay") && r.ask.includes("Still left in your budgets"));
+    assert.ok(r.ask.includes(r.want), "the helper's sum is the card's figure");
+  }},
+
+  { name: "bills & subscriptions: More opens the list, totals match subsTotals, a tap opens the bill", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      __T.useBook();
+      state.rules = [
+        { id:"s1", type:"expense", amount:1299,  category:"subs",      freq:"monthly",   active:true, note:"Netflix", anchor:"2026-10-27" },
+        { id:"s2", type:"expense", amount:21400, category:"insurance", freq:"quarterly", active:true, auto:true, note:"Haftpflicht", anchor:"2026-10-22" },
+        { id:"s3", type:"expense", amount:999,   category:"subs",      freq:"monthly",   active:false, note:"Spotify", anchor:"2026-10-05" }];
+      openMore(); await wait(200);
+      document.querySelector('#moreMenu [data-more="subs"]').click(); await wait(300);
+      const t = subsTotals();
+      const vals = [...document.querySelectorAll("#subsBody .subs-tot .v")].map(n => n.textContent);
+      const out = { vals, want:[fmt(t.month), fmt(t.year)], rows:[...document.querySelectorAll("#subsBody .subrow .s1")].map(n => n.textContent),
+                    paused: document.querySelectorAll("#subsBody .subrow.off").length,
+                    /* the amounts are drawn, not just present: a clash with the .sr class once hid them */
+                    amtW: document.querySelector("#subsBody .subrow .sv").getBoundingClientRect().width };
+      document.querySelectorAll("#subsBody .subrow")[0].click(); await wait(300);
+      out.ruleOpen = document.querySelector("#shRule").classList.contains("open") || !document.querySelector("#shRule").hidden;
+      sheetClose();
+      __T.restore();
+      return out;
+    });
+    assert.deepEqual(r.vals, r.want);
+    assert.deepEqual(r.rows, ["Haftpflicht", "Netflix", "Spotify"], "biggest first, paused last");
+    assert.equal(r.paused, 1);
+    assert.ok(r.amtW > 40, "the amount column is visible, width " + r.amtW);
+    assert.equal(r.ruleOpen, true);
+  }},
+
   { name: "backup round trip: out as JSON, back through restore, nothing lost", async run(pg){
     const r = await pg.fn(() => {
       __T.useBook();
