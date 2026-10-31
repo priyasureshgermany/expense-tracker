@@ -2606,7 +2606,6 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .setrow[data-pane="profile"] { --tile-h:210; --tile-l:34% }
 .setrow[data-pane="accounts"]{ --tile-h:155; --tile-l:30% }
 .setrow[data-pane="rules"]   { --tile-h:275; --tile-l:36% }
-.setrow[data-pane="goals"]   { --tile-h:42;  --tile-l:34% }
 .setrow[data-pane="feedback"]{ --tile-h:30;  --tile-l:32% }
 .setrow[data-pane="lock"]    { --tile-h:340; --tile-l:30% }
 .setrow[data-pane="prefs"]   { --tile-h:188; --tile-l:28% }
@@ -3894,7 +3893,6 @@ html.locked #lockScreen::before{
         <div class="bc-n" id="goalsNote"></div>
       </div>
       <div id="goalRows"></div>
-      <button class="bc-edit" id="goalNew" type="button">+ New goal</button>
     </section>
 
     <section class="monthstrip-wrap">
@@ -4267,10 +4265,6 @@ html.locked #lockScreen::before{
 
 
 <!-- SAVINGS GOALS -->
-<section class="sheet" id="shGoals" role="dialog" aria-modal="true" aria-labelledby="goalsTitle">
-  <div class="sheet-head"><h2 id="goalsTitle">Savings goals</h2><button class="iconbtn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
-  <div class="sheet-body" id="goalsBody"></div>
-</section>
 <section class="sheet" id="shGoal" role="dialog" aria-modal="true" aria-labelledby="goalTitle">
   <div class="sheet-head"><h2 id="goalTitle">Goal</h2><button class="iconbtn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
   <div class="sheet-body" id="goalBody"></div>
@@ -4992,11 +4986,6 @@ html.locked #lockScreen::before{
       <span class="sr-t"><b>Bills &amp; subscriptions</b><span id="setRulesSub">Rent, salary, subscriptions — everything that repeats</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
-    <button class="setrow" type="button" data-pane="goals">
-      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></span>
-      <span class="sr-t"><b>Savings goals</b><span>Save up for something</span></span>
-      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
     <button class="setrow" type="button" data-pane="lock">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg></span>
       <span class="sr-t"><b>App lock</b><span>PIN or password, and recovery</span></span>
@@ -5090,6 +5079,17 @@ html.locked #lockScreen::before{
       </div>
       <div id="balLog" style="margin-top:18px"></div>
     </div>
+    </div>
+
+    <!-- Money set aside for something is a fact about where your money is, so
+         the goals live on the page the accounts are on. -->
+    <div class="panegroup" id="acctGoalsGroup">
+      <h3>Savings goals</h3>
+      <div class="field">
+        <div class="note">Money you put aside for something — a trip, a laptop, a cushion. With a date, each goal says what to set aside a month.</div>
+        <div class="rows" id="acctGoals" style="margin-top:10px"></div>
+        <button class="btn ghost sm" id="acctGoalNew" style="margin-top:8px">+ New goal</button>
+      </div>
     </div>
   </div>
   <div class="sheet-body setpane" id="setPane_feedback" hidden>
@@ -5487,6 +5487,11 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Money you put aside for something — a trip, a laptop, a cushion. With a date, each goal says what to set aside a month.": "Geld, das du für etwas zurücklegst — eine Reise, einen Laptop, ein Polster. Mit Datum sagt jedes Ziel, was du im Monat zurücklegen solltest.",
+"No goals yet.": "Noch keine Ziele.",
+"Settings › Accounts › Savings goals": "Einstellungen › Konten › Sparziele",
+"Open More › Settings › Accounts and, under Savings goals, tap + New goal.": "Öffne Mehr › Einstellungen › Konten und tippe unter Sparziele auf + Neues Ziel.",
+"They show on the dashboard as soon as you have one; tap one there or in Accounts to open it.": "Sie erscheinen auf der Übersicht, sobald du eines hast; tippe eines dort oder unter Konten an, um es zu öffnen.",
 "Settings › Bills & subscriptions": "Einstellungen › Rechnungen & Abos",
 "Settings › Bills & subscriptions › +": "Einstellungen › Rechnungen & Abos › +",
 "Open More › Settings › Bills & subscriptions.": "Öffne Mehr › Einstellungen › Rechnungen & Abos.",
@@ -7606,7 +7611,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.2.6";
+const APP_VERSION = "3.2.7";
 const APP_BUILT = "2026-10-31";
 
 const KEY = "panappai.v1";
@@ -13827,8 +13832,6 @@ function showSetPane(key){
 $$("#setMenu .setrow").forEach(b => b.addEventListener("click", () => {
   /* everything that repeats lives on one page, Bills & subscriptions */
   if (b.dataset.pane === "rules"){ sheetClose(); openSubs(); return; }
-  /* goals are a list too, with no settings of their own */
-  if (b.dataset.pane === "goals"){ sheetClose(); openGoals(); return; }
   /* a half-written note from last time is not what you came back for */
   if (b.dataset.pane === "feedback"){ fbReset(); renderFeedbackList(); }
   showSetPane(b.dataset.pane);
@@ -18266,6 +18269,10 @@ function goalRow(g){
 function renderGoals(){
   const card = $("#goalsCard");
   const list = goalsOf();
+  const inAcct = $("#acctGoals");
+  inAcct.innerHTML = "";
+  if (list.length) list.forEach(g => inAcct.appendChild(goalRow(g)));
+  else inAcct.appendChild(el("div", "note", "No goals yet."));
   card.hidden = !list.length;
   if (!list.length) return;
   const host = $("#goalRows");
@@ -18275,24 +18282,16 @@ function renderGoals(){
   $("#goalsNote").textContent = fmt(saved) + " of " + fmt(target);
   makeFoldable(card, "goals", card.querySelector(".bc-t"), PANEL_ICON.goal);
 }
+/** Settings › Accounts, scrolled to its Savings goals. */
 function openGoals(){
-  const host = $("#goalsBody");
-  host.innerHTML = "";
-  const list = goalsOf();
-  if (!list.length){
-    host.innerHTML = '<div class="empty" style="padding:24px 10px"><h4>No goals yet</h4>' +
-      '<p>A trip home, a new laptop, an emergency fund: give it an amount and, if you like, a date — the goal tells you what to put aside each month.</p></div>';
-  } else {
-    const box = el("div", "rows");
-    list.forEach(g => box.appendChild(goalRow(g)));
-    host.appendChild(box);
-  }
-  const b = el("button", "btn", "+ New goal");
-  b.type = "button";
-  b.style.marginTop = "14px";
-  b.addEventListener("click", () => openGoalEdit(null));
-  host.appendChild(b);
-  sheetOpen("#shGoals");
+  sheetClose();
+  openSettings();
+  showSetPane("accounts");
+  renderGoals();
+  setTimeout(() => {
+    const g = $("#acctGoalsGroup"), box = $("#setPane_accounts");
+    if (g && box) box.scrollTop = g.offsetTop - 12;
+  }, 60);
 }
 
 let goalOpen = null;
@@ -18415,7 +18414,7 @@ $("#gSave").addEventListener("click", () => {
   openGoal(g.id);
   toast(goalEditing ? "Goal saved" : "Goal created");
 });
-$("#goalNew").addEventListener("click", () => openGoalEdit(null));
+$("#acctGoalNew").addEventListener("click", () => openGoalEdit(null));
 
 /* =========================================================================
    BILLS & SUBSCRIPTIONS
@@ -19103,13 +19102,13 @@ const ASK_TOPICS = [
       [["Open year summary", () => { sheetClose(); openTaxYear(); }]]) },
   { g:"howto", q:"Save for a goal", words:["savings goal", "save for", "save up", "goal", "sparziel", "sparen",
             "how much to save", "per month to save"],
-    build:howTo("Save for a goal", "Settings › Savings goals › + New goal", [
-      "Open More › Settings › Savings goals and tap + New goal.",
+    build:howTo("Save for a goal", "Settings › Accounts › Savings goals", [
+      "Open More › Settings › Accounts and, under Savings goals, tap + New goal.",
       "Say what it is for, how much, and — if you like — by when.",
       "Open the goal and use Add whenever you put money aside; Take out if you use some."],
       ["With a date, the goal says how much to put aside each month to make it.",
        "Goals are your own record of money set aside: they do not change “In the account now”.",
-       "They show on the dashboard as soon as you have one; tap one to open it."],
+       "They show on the dashboard as soon as you have one; tap one there or in Accounts to open it."],
       [["Open goals", () => { sheetClose(); openGoals(); }]]) },
   { g:"howto", q:"Find an entry", words:["find an entry", "search", "search entries", "where is", "look for",
             "find netflix", "suchen", "eintrag finden"],

@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.2.7 — 2026-10-31
+- better: Savings goals live in Settings › Accounts, not in a tile of their own; the dashboard card shows progress only.
+
 ## 3.2.6 — 2026-10-31
 - better: More keeps three: Reports, What's new and Settings — Bills & subscriptions lives in Settings, beside Savings goals.
 
