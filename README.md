@@ -122,7 +122,7 @@ Open `index.html` in any browser, or host the file anywhere static.
   this one included). Goals are your own record of money set aside and do not
   move *In the account now*. Stored in the book as `goals`, so they travel with
   backups and sync; *Start over* keeps them.
-- **Bills & subscriptions** (More) — every repeating expense with its rhythm,
+- **Bills & subscriptions** (Settings) — every repeating expense with its rhythm,
   next date and A/M, and what it comes to per month and per year; a quarterly
   bill counts as a third of itself a month. Totals on top, paused ones listed
   but not counted.
@@ -392,7 +392,7 @@ goes back. **Bills & subscriptions** is the exception: it has no settings of its
 own, so its tile opens the list itself.
 
 **Everything that repeats** — bills, salary, transfers — is created and changed
-on one page, **Bills & subscriptions** (More, or the Settings tile; it replaced
+on one page, **Bills & subscriptions** (a Settings tile; it replaced
 the old *Recurring entries* page). Bills come first with what they cost a month
 and a year, then *Repeating income* and *Repeating transfers*, then anything
 paused. Tap one to edit it, pause it or delete it; the **+** at the bottom right
