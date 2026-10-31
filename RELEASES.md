@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.2.2 — 2026-10-31
+- new: Savings goals: a target, an optional date, money put in and taken out, and what to put aside each month — on the dashboard and under More.
+
 ## 3.2.1 — 2026-10-31
 - new: Search across every period in வரவு செலவு: note, category, account, date or amount.
 - new: Copy as a new entry: the same again, dated today, from inside any entry.

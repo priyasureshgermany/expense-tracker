@@ -336,6 +336,35 @@ export default [
                           both:true, wrong:false, other:false, hiddenAmount:false, hiddenNote:true });
   }},
 
+  { name: "savings goals: saved, missing, a month's share to the date; bad data is dropped", async run(pg){
+    const r = await pg.fn(() => {
+      const T = "2026-10-14";
+      const g = { id:"g1", n:"India", target:200000, due:"2027-06-30",
+                  adds:[{ id:"a", date:"2026-09-01", amount:50000 }, { id:"b", date:"2026-10-01", amount:30000 },
+                        { id:"c", date:"2026-10-10", amount:-10000 }] };
+      const out = {
+        st: goalStats(g, T),
+        reached: goalStats(Object.assign({}, g, { target:70000 }), T),
+        late: goalStats(Object.assign({}, g, { due:"2026-09-01" }), T),
+        nodate: goalStats(Object.assign({}, g, { due:null }), T),
+        sameMonth: goalStats(Object.assign({}, g, { due:"2026-10-31" }), T).perMonth,
+        norm: normaliseGoals([g, { id:"x", n:"", target:100 }, { id:"y", n:"Car", target:0 },
+          { id:"z", n:" Bike ", target:50000, due:"soon", adds:[{ id:"q", date:"yesterday", amount:5 }, { id:"w", date:"2026-10-02", amount:0 }] }]),
+        round: stateFromPayload(JSON.parse(JSON.stringify({ goals:[g] }))).goals
+      };
+      return out;
+    });
+    /* 2 000 € by June 2027, 700 € in: 1 300 € over Nov…Jun, 8 months */
+    assert.deepEqual(r.st, { saved:70000, left:130000, pct:35, reached:false, months:8, perMonth:16250, late:false });
+    assert.equal(r.reached.reached, true); assert.equal(r.reached.perMonth, null);
+    assert.equal(r.late.late, true); assert.equal(r.late.perMonth, null);
+    assert.equal(r.nodate.perMonth, null);
+    assert.equal(r.sameMonth, 130000, "due this month: all of it now");
+    assert.deepEqual(r.norm.map(x => x.id), ["g1", "z"]);
+    assert.deepEqual(r.norm[1], { id:"z", n:"Bike", target:50000, due:null, adds:[] });
+    assert.deepEqual(r.round[0], r.norm[0], "a backup keeps the goal as it was");
+  }},
+
   { name: "stateFromPayload keeps every field it is given", async run(pg){
     /* a field dropped here is a field erased by the next pull or restore */
     const r = await pg.fn(() => {

@@ -110,6 +110,12 @@ Open `index.html` in any browser, or host the file anywhere static.
 - **Copy as a new entry** (inside an entry) — the same kind, category,
   accounts, amount and note, dated today, open for changes; nothing is added
   until Save.
+- **Savings goals** (More, and on the dashboard once there is one) — a name, a
+  target and, if you like, a date. Put money in or take it out; with a date the
+  goal says what to put aside each month (what is missing over the months left,
+  this one included). Goals are your own record of money set aside and do not
+  move *In the account now*. Stored in the book as `goals`, so they travel with
+  backups and sync; *Start over* keeps them.
 - **Bills & subscriptions** (More) — every repeating expense with its rhythm,
   next date and A/M, and what it comes to per month and per year; a quarterly
   bill counts as a third of itself a month. Totals on top, paused ones listed

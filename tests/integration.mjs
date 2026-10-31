@@ -760,6 +760,67 @@ export default [
     assert.deepEqual(r.srcSame, ["2026-03-05", 118000, "Wocheneinkauf"], "the original is untouched");
   }},
 
+  { name: "savings goals: create, add, take out, undo a removal, reach it, delete and undo — and the card follows", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const $q = s => document.querySelector(s);
+      __T.useBook();
+      state.goals = [];
+      render(); await wait(50);
+      const out = { cardBefore: $q("#goalsCard").hidden };
+      openMore(); await wait(200);
+      $q('#moreMenu [data-more="goals"]').click(); await wait(300);
+      out.empty = $q("#goalsBody .empty h4").textContent;
+      [...$q("#goalsBody").querySelectorAll("button")].find(b => b.textContent === "+ New goal").click(); await wait(300);
+      $q("#gName").value = "Trip to India"; $q("#gTarget").value = "2.000";
+      setDateVal("#gDue", "2027-06-30");
+      $q("#gSave").click(); await wait(300);
+      out.title = $q("#goalTitle").textContent;
+      const amt = v => { $q("#gAmt").value = v; };
+      amt("500"); $q("#gIn").click(); await wait(100);
+      amt("100"); $q("#gOut").click(); await wait(100);
+      const g = state.goals[0];
+      out.adds = g.adds.map(a => a.amount);
+      out.hero = $q("#goalBody .gh-v").textContent;
+      /* remove the newest line, then undo */
+      $q("#goalBody .ga-x").click(); await wait(100);
+      out.afterRemove = g.adds.length;
+      $q("#toast .toast-act").click(); await wait(100);
+      out.afterUndo = g.adds.map(a => a.amount);
+      /* the card on the dashboard says the same */
+      out.card = { hidden: $q("#goalsCard").hidden, row: $q("#goalRows .gr-s").textContent, line: $q("#goalRows .gr-p").textContent,
+                   note: $q("#goalsNote").textContent };
+      out.wantLine = "≈ " + fmt(Math.ceil(160000 / 8)) + " a month until Jun 2027";
+      /* reach it */
+      amt("1.600"); $q("#gIn").click(); await wait(150);
+      out.reached = $q("#goalBody .gh-s").textContent;
+      /* delete, undo */
+      [...$q("#goalBody").querySelectorAll("button")].find(b => b.textContent === "Delete goal").click(); await wait(150);
+      $q("#cfYes").click(); await wait(200);
+      out.gone = state.goals.length;
+      $q("#toast .toast-act").click(); await wait(150);
+      out.back = state.goals.length && state.goals[0].n;
+      sheetClose();
+      __T.restore();
+      return out;
+    });
+    assert.equal(r.cardBefore, true, "no goals, no card");
+    assert.equal(r.empty, "No goals yet");
+    assert.equal(r.title, "Trip to India");
+    assert.deepEqual(r.adds, [50000, -10000]);
+    const ns = x => String(x).replace(/\s/g, " ");     /* fmt puts a non-breaking space before € */
+    assert.equal(ns(r.hero), "400,00 € of 2.000,00 €");
+    assert.equal(r.afterRemove, 1);
+    assert.deepEqual(r.afterUndo, [50000, -10000]);
+    assert.equal(r.card.hidden, false);
+    assert.equal(ns(r.card.row), "400,00 € of 2.000,00 €");
+    assert.equal(ns(r.card.line), ns(r.wantLine), "1 600 € over 8 months");
+    assert.equal(ns(r.card.note), "400,00 € of 2.000,00 €");
+    assert.equal(r.reached, "Reached — well done!");
+    assert.equal(r.gone, 0);
+    assert.equal(r.back, "Trip to India");
+  }},
+
   { name: "backup round trip: out as JSON, back through restore, nothing lost", async run(pg){
     const r = await pg.fn(() => {
       __T.useBook();
