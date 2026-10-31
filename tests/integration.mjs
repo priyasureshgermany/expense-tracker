@@ -765,7 +765,7 @@ export default [
     assert.deepEqual(r.srcSame, ["2026-03-05", 118000, "Wocheneinkauf"], "the original is untouched");
   }},
 
-  { name: "savings goals: create, add, take out, undo a removal, reach it, delete and undo — and the card follows", async run(pg){
+  { name: "savings goals (in Accounts): create, add, take out, undo a removal, reach it, delete and undo — and the card follows", async run(pg){
     const r = await pg.fn(async () => {
       const wait = ms => new Promise(r => setTimeout(r, ms));
       const $q = s => document.querySelector(s);
@@ -774,12 +774,12 @@ export default [
       render(); await wait(50);
       const out = { cardBefore: $q("#goalsCard").hidden };
       out.inMore = !!$q('#moreMenu [data-more="goals"]');
+      out.tile = !!$q('#setMenu .setrow[data-pane="goals"]');
+      out.cardPlus = !!$q("#goalsCard button.bc-edit");
       openSettings(); await wait(250);
-      const tiles = [...document.querySelectorAll("#setMenu .setrow")].map(b => b.dataset.pane);
-      out.nextToBills = tiles.indexOf("goals") === tiles.indexOf("rules") + 1;
-      $q('#setMenu .setrow[data-pane="goals"]').click(); await wait(300);
-      out.empty = $q("#goalsBody .empty h4").textContent;
-      [...$q("#goalsBody").querySelectorAll("button")].find(b => b.textContent === "+ New goal").click(); await wait(300);
+      $q('#setMenu .setrow[data-pane="accounts"]').click(); await wait(300);
+      out.empty = $q("#acctGoals").textContent;
+      $q("#acctGoalNew").click(); await wait(300);
       $q("#gName").value = "Trip to India"; $q("#gTarget").value = "2.000";
       setDateVal("#gDue", "2027-06-30");
       $q("#gSave").click(); await wait(300);
@@ -799,6 +799,7 @@ export default [
       out.card = { hidden: $q("#goalsCard").hidden, row: $q("#goalRows .gr-s").textContent, line: $q("#goalRows .gr-p").textContent,
                    note: $q("#goalsNote").textContent };
       out.wantLine = "≈ " + fmt(Math.ceil(160000 / 8)) + " a month until Jun 2027";
+      out.inAcct = [...document.querySelectorAll("#acctGoals .goalrow .gr-n")].map(n => n.textContent);
       /* reach it */
       amt("1.600"); $q("#gIn").click(); await wait(150);
       out.reached = $q("#goalBody .gh-s").textContent;
@@ -813,9 +814,10 @@ export default [
       return out;
     });
     assert.equal(r.cardBefore, true, "no goals, no card");
-    assert.equal(r.inMore, false, "goals live under Settings now, not More");
-    assert.equal(r.nextToBills, true, "beside Bills & subscriptions");
-    assert.equal(r.empty, "No goals yet");
+    assert.equal(r.inMore, false, "not in More");
+    assert.equal(r.tile, false, "no Settings tile of their own");
+    assert.equal(r.cardPlus, false, "the dashboard card only shows progress");
+    assert.equal(r.empty, "No goals yet.");
     assert.equal(r.title, "Trip to India");
     assert.deepEqual(r.adds, [50000, -10000]);
     const ns = x => String(x).replace(/\s/g, " ");     /* fmt puts a non-breaking space before € */
@@ -826,6 +828,7 @@ export default [
     assert.equal(ns(r.card.row), "400,00 € of 2.000,00 €");
     assert.equal(ns(r.card.line), ns(r.wantLine), "1 600 € over 8 months");
     assert.equal(ns(r.card.note), "400,00 € of 2.000,00 €");
+    assert.deepEqual(r.inAcct, ["Trip to India"], "listed under Settings › Accounts");
     assert.equal(r.reached, "Reached — well done!");
     assert.equal(r.gone, 0);
     assert.equal(r.back, "Trip to India");
