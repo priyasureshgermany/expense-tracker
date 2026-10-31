@@ -821,6 +821,47 @@ export default [
     assert.equal(r.back, "Trip to India");
   }},
 
+  { name: "year summary: More opens it on last year, a chip switches, the figures are yearSummary's, the CSV is that year", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const $q = s => document.querySelector(s);
+      __T.useBook();
+      state.txns.push({ id:"y1", type:"expense", amount:1000, date:"2025-12-31", category:"education", status:"done", account:"a1", fromAccount:null, note:"" });
+      state.txns.push({ id:"y2", type:"income", amount:500, date:"2026-01-01", category:"interest", status:"done", account:"a1", fromAccount:null, note:"" });
+      taxYear = null;
+      openMore(); await wait(200);
+      $q('#moreMenu [data-more="taxyear"]').click(); await wait(300);
+      const pressed = () => $q('#taxBody .tx-years [aria-pressed="true"]').textContent;
+      const out = { opened: pressed(), want: String(new Date().getFullYear() - 1) };
+      [...document.querySelectorAll("#taxBody .tx-years button")].find(b => b.textContent === "2026").click(); await wait(100);
+      const ys = yearSummary(2026);
+      out.now = pressed();
+      out.tot = [...document.querySelectorAll("#taxBody .tx-tot .v")].map(n => n.textContent);
+      out.wantTot = [fmt(ys.inc), fmt(ys.out), fmt(ys.net)];
+      out.rows = document.querySelectorAll("#taxBody .txrow").length;
+      out.wantRows = ys.income.length + ys.expense.length;
+      out.hint = [...document.querySelectorAll("#taxBody .txrow")].find(r => /Interest/.test(r.textContent)).querySelector("small.hint").textContent;
+      /* the download: catch what would be saved */
+      const real = saveBlob; let got = null;
+      saveBlob = (blob, name) => { got = { name, size: blob.size }; };
+      const csvBlobText = buildEntriesCsv(state.txns.filter(t => t.date.slice(0, 4) === "2026"));
+      [...document.querySelectorAll("#taxBody button")].find(b => /as CSV$/.test(b.textContent)).click(); await wait(100);
+      saveBlob = real;
+      out.file = got && got.name;
+      out.size = got && got.size === new Blob([csvBlobText]).size;
+      sheetClose();
+      __T.restore();
+      return out;
+    });
+    assert.equal(r.opened, r.want, "opens on last year, the one you file for");
+    assert.equal(r.now, "2026");
+    assert.deepEqual(r.tot, r.wantTot);
+    assert.equal(r.rows, r.wantRows);
+    assert.equal(r.hint, "Kapitalerträge: Anlage KAP");
+    assert.equal(r.file, "panappai-2026.csv");
+    assert.equal(r.size, true, "the file is exactly that year's entries");
+  }},
+
   { name: "backup round trip: out as JSON, back through restore, nothing lost", async run(pg){
     const r = await pg.fn(() => {
       __T.useBook();
