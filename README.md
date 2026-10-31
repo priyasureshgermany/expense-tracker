@@ -116,7 +116,7 @@ Open `index.html` in any browser, or host the file anywhere static.
   often matter carry a hint naming the form (Werbungskosten, Anlage KAP, §35a
   …) — a starting point, not tax advice. *Download as CSV* gives that year's
   entries for a Steuerberater.
-- **Savings goals** (More, and on the dashboard once there is one) — a name, a
+- **Savings goals** (Settings, and on the dashboard once there is one) — a name, a
   target and, if you like, a date. Put money in or take it out; with a date the
   goal says what to put aside each month (what is missing over the months left,
   this one included). Goals are your own record of money set aside and do not
