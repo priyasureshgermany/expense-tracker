@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.2.1 — 2026-10-31
+- new: Search across every period in வரவு செலவு: note, category, account, date or amount.
+- new: Copy as a new entry: the same again, dated today, from inside any entry.
+
 ## 3.2.0 — 2026-10-31
 - new: Undo after a swipe or a delete, for about six seconds.
 - new: Expected on the 14th: what the accounts should hold at the end of the period, with the breakdown one tap away.

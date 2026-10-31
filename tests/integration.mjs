@@ -694,6 +694,72 @@ export default [
     assert.equal(r.ruleOpen, true);
   }},
 
+  { name: "ledger search: every period, with the year, the tabs count the results, × brings the period back", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const $q = s => document.querySelector(s);
+      __T.useBook();
+      view = periodOf("2026-10-14");
+      $q('#viewTog [data-view="entries"]').click(); filter = "all"; render(); await wait(50);
+      const before = document.querySelectorAll("#list .swipe").length;
+      const box = $q("#ledQ");
+      box.value = "cash"; box.dispatchEvent(new Event("input", { bubbles:true })); await wait(250);
+      const want = state.txns.filter(t => !isTransfer(t) && txnShown(t) && ledMatch(t, ["cash"])).length;
+      const out = {
+        before, rows: document.querySelectorAll("#list .swipe").length, want,
+        periods: new Set([...document.querySelectorAll("#list .swipe")].map(w => periodOf(state.txns.find(t => t.id === w.dataset.id).date))).size,
+        head: $q("#list .dayhead .d").textContent, res: $q("#list .lsres").textContent,
+        cAll: +$q("#cAll").textContent, x: !$q("#ledQx").hidden };
+      box.value = "nothing-like-this"; box.dispatchEvent(new Event("input", { bubbles:true })); await wait(250);
+      out.none = $q("#list .empty h4").textContent;
+      $q("#ledQx").click(); await wait(50);
+      out.after = document.querySelectorAll("#list .swipe").length;
+      out.cleared = box.value === "" && $q("#ledQx").hidden;
+      $q('#viewTog [data-view="dash"]').click();
+      __T.restore();
+      return out;
+    });
+    assert.ok(r.want >= 8, "the Cash account has entries in many months: " + r.want);
+    assert.equal(r.rows, r.want, "every match from every period is listed");
+    assert.ok(r.periods > 3);
+    assert.match(r.head, /2026$/, "headings carry the year");
+    assert.equal(r.res, r.want + " found in all periods");
+    assert.equal(r.cAll, r.want);
+    assert.equal(r.x, true);
+    assert.equal(r.none, "Nothing found");
+    assert.equal(r.after, r.before, "clearing goes back to this period");
+    assert.equal(r.cleared, true);
+  }},
+
+  { name: "copy an entry: same kind, category, account, amount and note, dated today; saved only on Save", async run(pg){
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const $q = s => document.querySelector(s);
+      __T.useBook();
+      const src = state.txns.find(t => t.id === "t1");          /* 1.180 € groceries from Giro, 5 Mar */
+      src.note = "Wocheneinkauf";
+      const n = state.txns.length;
+      openEntry(src); await wait(350);
+      $q("#eCopy").click(); await wait(350);
+      const out = { title: $q("#entryTitle").textContent, amt: $q("#eAmt").value, note: $q("#eNote").value,
+                    date: $q("#eDate").value, cat: draft.category, acct: draft.account, type: draft.type,
+                    notYet: state.txns.length === n };
+      $q("#eSave").click(); await wait(150);
+      const made = state.txns[state.txns.length - 1];
+      out.added = state.txns.length - n;
+      out.made = [made.type, made.amount, made.category, made.account, made.note, made.date, made.status];
+      out.srcSame = [src.date, src.amount, src.note];
+      __T.restore();
+      return out;
+    });
+    assert.equal(r.title, "Copy of an entry");
+    assert.deepEqual([r.amt, r.note, r.date, r.cat, r.acct, r.type], ["1180,00", "Wocheneinkauf", "2026-10-14", "groceries", "a1", "expense"]);
+    assert.equal(r.notYet, true, "nothing is added before Save");
+    assert.equal(r.added, 1);
+    assert.deepEqual(r.made, ["expense", 118000, "groceries", "a1", "Wocheneinkauf", "2026-10-14", "done"]);
+    assert.deepEqual(r.srcSame, ["2026-03-05", 118000, "Wocheneinkauf"], "the original is untouched");
+  }},
+
   { name: "backup round trip: out as JSON, back through restore, nothing lost", async run(pg){
     const r = await pg.fn(() => {
       __T.useBook();

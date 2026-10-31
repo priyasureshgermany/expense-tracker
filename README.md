@@ -103,6 +103,13 @@ Open `index.html` in any browser, or host the file anywhere static.
   this period, less bills still to pay, less what is left in the budgets (not
   the catch-all, which is the cushion). Tap it for the breakdown; the line is
   exactly the sum of its parts.
+- **Search** (வரவு செலவு) — the box under the tabs searches every period: note,
+  category (English or German), account, date, or amount typed as 12,99 · 12.99
+  · 1.180,00. Every word must match. Amounts are not searched while the eye
+  hides them. × or Escape goes back to the period.
+- **Copy as a new entry** (inside an entry) — the same kind, category,
+  accounts, amount and note, dated today, open for changes; nothing is added
+  until Save.
 - **Bills & subscriptions** (More) — every repeating expense with its rhythm,
   next date and A/M, and what it comes to per month and per year; a quarterly
   bill counts as a third of itself a month. Totals on top, paused ones listed

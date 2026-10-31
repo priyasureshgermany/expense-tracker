@@ -314,6 +314,28 @@ export default [
     assert.equal(r.asCatch, 0, "the catch-all is the cushion: its unspent part is not taken off");
   }},
 
+  { name: "ledger search: note, category, account, date and amount the ways people type it", async run(pg){
+    const r = await pg.fn(() => {
+      __T.useBook();
+      const t = { id:"q1", type:"expense", amount:118000, category:"rent", status:"done", date:"2026-03-05",
+                  account:"a1", fromAccount:null, note:"Miete Wohnung" };
+      const m = q => ledMatch(t, ledNorm(q).split(" ").filter(Boolean));
+      const out = {
+        note: m("wohnung"), cat: m("rent"), acct: m("giro"), date: m("mar 2026"),
+        comma: m("1.180,00"), plain: m("1180"), dot: m("1180.00"),
+        both: m("miete giro"), wrong: m("miete paypal"), other: m("netflix")
+      };
+      amountsHidden = true;
+      out.hiddenAmount = m("1180");
+      out.hiddenNote = m("miete");
+      amountsHidden = false;
+      __T.restore();
+      return out;
+    });
+    assert.deepEqual(r, { note:true, cat:true, acct:true, date:true, comma:true, plain:true, dot:true,
+                          both:true, wrong:false, other:false, hiddenAmount:false, hiddenNote:true });
+  }},
+
   { name: "stateFromPayload keeps every field it is given", async run(pg){
     /* a field dropped here is a field erased by the next pull or restore */
     const r = await pg.fn(() => {
