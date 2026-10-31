@@ -1758,7 +1758,6 @@ div.rp-rem:hover{background:none}
 .morerow[data-more="report"]  { --tile-h:6;   --tile-l:30% }   /* dark red */
 .morerow[data-more="settings"]{ --tile-h:152; --tile-l:26% }   /* dark green */
 .morerow[data-more="subs"]    { --tile-h:268; --tile-l:34% }   /* violet */
-.morerow[data-more="goals"]   { --tile-h:42;  --tile-l:36% }   /* amber */
 /* no hue: white on a dark card, the ink the type is set in on a light one */
 .morerow[data-more="about"]{border-left-color:var(--tile-plain)}
 
@@ -2608,6 +2607,7 @@ textarea.inp{resize:vertical;min-height:76px;font-size:12.5px;font-family:var(--
 .setrow[data-pane="profile"] { --tile-h:210; --tile-l:34% }
 .setrow[data-pane="accounts"]{ --tile-h:155; --tile-l:30% }
 .setrow[data-pane="rules"]   { --tile-h:275; --tile-l:36% }
+.setrow[data-pane="goals"]   { --tile-h:42;  --tile-l:34% }
 .setrow[data-pane="feedback"]{ --tile-h:30;  --tile-l:32% }
 .setrow[data-pane="lock"]    { --tile-h:340; --tile-l:30% }
 .setrow[data-pane="prefs"]   { --tile-h:188; --tile-l:28% }
@@ -4948,11 +4948,6 @@ html.locked #lockScreen::before{
       <b>Bills &amp; subscriptions</b>
       <span class="ms" id="moreSubsSub">What repeats, per month and per year</span>
     </button>
-    <button class="morerow" type="button" data-more="goals">
-      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></span>
-      <b>Savings goals</b>
-      <span class="ms" id="moreGoalsSub">Save up for something</span>
-    </button>
     <button class="morerow" type="button" data-more="about">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3.5l1.9 5.1 5.1 1.9-5.1 1.9L11 17.5l-1.9-5.1L4 10.5l5.1-1.9z"/><path d="M18.4 15.1l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"/></svg></span>
       <b>What&rsquo;s new</b>
@@ -5001,6 +4996,11 @@ html.locked #lockScreen::before{
     <button class="setrow" type="button" data-pane="rules">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg></span>
       <span class="sr-t"><b>Bills &amp; subscriptions</b><span id="setRulesSub">Rent, salary, subscriptions — everything that repeats</span></span>
+      <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="setrow" type="button" data-pane="goals">
+      <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></span>
+      <span class="sr-t"><b>Savings goals</b><span>Save up for something</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow" type="button" data-pane="lock">
@@ -5493,6 +5493,8 @@ const APP_LANG = (() => {
 function LOC(){ return APP_LANG === "de" ? "de-DE" : "en-GB"; }
 
 const I18N_DE = {
+"Settings › Savings goals › + New goal": "Einstellungen › Sparziele › + Neues Ziel",
+"Open More › Settings › Savings goals and tap + New goal.": "Öffne Mehr › Einstellungen › Sparziele und tippe auf + Neues Ziel.",
 "Year": "Jahr",
 "Reports › Year": "Berichte › Jahr",
 "Open More › Reports and tap the Year tab.": "Öffne Mehr › Berichte und tippe auf den Tab Jahr.",
@@ -7604,7 +7606,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.2.4";
+const APP_VERSION = "3.2.5";
 const APP_BUILT = "2026-10-31";
 
 const KEY = "panappai.v1";
@@ -13825,6 +13827,8 @@ function showSetPane(key){
 $$("#setMenu .setrow").forEach(b => b.addEventListener("click", () => {
   /* everything that repeats lives on one page, Bills & subscriptions */
   if (b.dataset.pane === "rules"){ sheetClose(); openSubs(); return; }
+  /* goals are a list too, with no settings of their own */
+  if (b.dataset.pane === "goals"){ sheetClose(); openGoals(); return; }
   /* a half-written note from last time is not what you came back for */
   if (b.dataset.pane === "feedback"){ fbReset(); renderFeedbackList(); }
   showSetPane(b.dataset.pane);
@@ -14557,7 +14561,6 @@ $$("#moreMenu .morerow").forEach(b => b.addEventListener("click", () => {
   sheetClose();
   if (k === "report"){ openReport(); return; }
   if (k === "subs"){ openSubs(); return; }
-  if (k === "goals"){ openGoals(); return; }
   /* What's new is the notes themselves now, not the About panel they used to
      hang off — the version and update button stay in Settings › About. */
   if (k === "about"){ openNotes(); return; }
@@ -19101,8 +19104,8 @@ const ASK_TOPICS = [
       [["Open year summary", () => { sheetClose(); openTaxYear(); }]]) },
   { g:"howto", q:"Save for a goal", words:["savings goal", "save for", "save up", "goal", "sparziel", "sparen",
             "how much to save", "per month to save"],
-    build:howTo("Save for a goal", "More › Savings goals › + New goal", [
-      "Open More › Savings goals and tap + New goal.",
+    build:howTo("Save for a goal", "Settings › Savings goals › + New goal", [
+      "Open More › Settings › Savings goals and tap + New goal.",
       "Say what it is for, how much, and — if you like — by when.",
       "Open the goal and use Add whenever you put money aside; Take out if you use some."],
       ["With a date, the goal says how much to put aside each month to make it.",

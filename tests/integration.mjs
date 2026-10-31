@@ -768,8 +768,11 @@ export default [
       state.goals = [];
       render(); await wait(50);
       const out = { cardBefore: $q("#goalsCard").hidden };
-      openMore(); await wait(200);
-      $q('#moreMenu [data-more="goals"]').click(); await wait(300);
+      out.inMore = !!$q('#moreMenu [data-more="goals"]');
+      openSettings(); await wait(250);
+      const tiles = [...document.querySelectorAll("#setMenu .setrow")].map(b => b.dataset.pane);
+      out.nextToBills = tiles.indexOf("goals") === tiles.indexOf("rules") + 1;
+      $q('#setMenu .setrow[data-pane="goals"]').click(); await wait(300);
       out.empty = $q("#goalsBody .empty h4").textContent;
       [...$q("#goalsBody").querySelectorAll("button")].find(b => b.textContent === "+ New goal").click(); await wait(300);
       $q("#gName").value = "Trip to India"; $q("#gTarget").value = "2.000";
@@ -805,6 +808,8 @@ export default [
       return out;
     });
     assert.equal(r.cardBefore, true, "no goals, no card");
+    assert.equal(r.inMore, false, "goals live under Settings now, not More");
+    assert.equal(r.nextToBills, true, "beside Bills & subscriptions");
     assert.equal(r.empty, "No goals yet");
     assert.equal(r.title, "Trip to India");
     assert.deepEqual(r.adds, [50000, -10000]);

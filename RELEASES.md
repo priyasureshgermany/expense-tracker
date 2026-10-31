@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 3.2.5 — 2026-10-31
+- better: Savings goals moved into Settings, beside Bills & subscriptions; the dashboard card stays.
+
 ## 3.2.4 — 2026-10-31
 - better: Bills & subscriptions replaces Recurring entries: every bill, repeating income and transfer in one place, with + to add.
 - better: Year summary moved under Reports, as the Year tab.
