@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 4.0.0 — 2026-11-11
+- new: Transactions, All tab: a row of cards pinned under the period shows what each bank account held as of the entry at the top of the screen, which is outlined; scrolling down takes the entries above off again.
+
 ## 3.2.7 — 2026-10-31
 - better: Savings goals live in Settings › Accounts, not in a tile of their own; the dashboard card shows progress only.
 

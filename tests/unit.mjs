@@ -82,6 +82,36 @@ export default [
     assert.equal(r[3].v, 1137366);
   }},
 
+  { name: "ledgerBalances: each account as of each ledger row, worked by hand", async run(pg){
+    const r = await pg.fn(() => {
+      __T.useBook();
+      const rows = p => periodTxns(p).slice().sort((a, b) => a.date < b.date ? 1 : -1);
+      const of = p => {
+        const shown = rows(p), out = ledgerBalances(shown, ["a1", "a2"]);
+        return { dates: shown.map(t => t.date.slice(5)), a1: out.map(x => x.bal.a1), a2: out.map(x => x.bal.a2),
+                 moved: out.map(x => x.delta.a1 + x.delta.a2), counted: out.map(x => x.counted) };
+      };
+      const out = [of("2026-09"), of("2026-08")];
+      __T.restore();
+      return out;
+    });
+    /* 15 Sep – 14 Oct, newest first. Giro holds 12.280,00 and Cash −633,09 today. */
+    assert.deepEqual(r[0].dates, ["10-12", "10-10", "10-05", "10-01", "09-28", "09-25"]);
+    /* Giro: unmoved until the 1.180,00 of 5 Oct is taken off again, then the 3.200,00 of 1 Oct */
+    assert.deepEqual(r[0].a1, [1228000, 1228000, 1228000, 1346000, 1026000, 1026000]);
+    /* Cash: the 456,70 of 12 Oct comes back off below it and nothing else touches it */
+    assert.deepEqual(r[0].a2, [-63309, -17639, -17639, -17639, -17639, -17639]);
+    /* the planned 555,00 of 10 Oct moves nothing, and neither does one naming another account */
+    assert.deepEqual(r[0].moved, [-45670, 0, -118000, 320000, 0, 0]);
+    assert.deepEqual(r[0].counted, [true, false, true, true, true, true]);
+    /* 15 Aug – 14 Sep. The 200,00 moved on 20 Sep is not in this list and still counts:
+       Giro 12.280 − 3.200 + 1.180 + 200 = 10.460,00, Cash −176,39 − 200 = −376,39 */
+    assert.deepEqual(r[1].dates, ["09-12", "09-05", "09-01", "08-28", "08-25"]);
+    assert.deepEqual(r[1].a1, [1046000, 1046000, 1164000, 844000, 844000]);
+    /* Cash below 12 Sep is 200 + 200 (20 Aug) − 365,36 (12 Aug) = 34,64 */
+    assert.deepEqual(r[1].a2, [-37639, 3464, 3464, 3464, 3464]);
+  }},
+
   { name: "balanceLinePoints: month-ends, today last, at most twelve", async run(pg){
     const r = await pg.fn(() => {
       __T.useBook();
