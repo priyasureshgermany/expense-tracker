@@ -1428,6 +1428,40 @@ div.rp-rem:hover{background:none}
 }
 .seg button[aria-selected="true"] .n{color:var(--accent)}
 
+/* ---------- The balance beside the ledger ----------
+   What each bank account held as of the entry at the top of the screen. Pinned
+   under the period bar while the rows pass beneath it; the offset is measured
+   in ledBalSync, the bars above it changing height with the greeting. */
+.ledbal{
+  position:sticky;top:calc(var(--topbar-h, 56px) + 44px);z-index:28;
+  background:var(--ground);border-bottom:1px solid var(--line);
+  padding:10px 14px 8px;margin-top:4px;
+}
+.ledbal[hidden]{display:none}
+/* a card per account, side by side, each one line: the name, then what it holds.
+   The name gives way first when there is no room; the figure never does. */
+.lb-accts{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px}
+.lb-accts.many{grid-auto-columns:minmax(170px,1fr);overflow-x:auto;scrollbar-width:none}
+.lb-accts.many::-webkit-scrollbar{display:none}
+.lb-chip{
+  display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0;
+  padding:8px 10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+}
+.lb-n{flex:1;min-width:0;font-size:11.5px;color:var(--ink-3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-v{flex:none;font-family:var(--mono);font-size:13.5px;font-weight:600;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;white-space:nowrap}
+.lb-v.neg{color:var(--neg)}
+.lb-as{margin-top:6px;font-size:11px;color:var(--ink-3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-as .lb-w{font-weight:600;color:var(--ink-2)}
+/* the entry the balances above are read at */
+/* An outline and nothing else. It is drawn inside the row, so it follows the
+   card's rounded corners where the row is the first or last in its day. */
+.swipe.top-row > .row{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.swipe.top-row:first-child > .row{border-top-left-radius:calc(var(--r-lg) - 1px);border-top-right-radius:calc(var(--r-lg) - 1px)}
+.swipe.top-row:last-child > .row{border-bottom-left-radius:calc(var(--r-lg) - 1px);border-bottom-right-radius:calc(var(--r-lg) - 1px)}
+
 /* ---------- List ---------- */
 .list{padding:14px 14px 0;display:flex;flex-direction:column;gap:18px;flex:1}
 .daygroup{display:flex;flex-direction:column;gap:6px}
@@ -3929,6 +3963,11 @@ html.locked #lockScreen::before{
       </button>
     </div>
 
+    <div class="ledbal" id="ledBal" hidden>
+      <div class="lb-accts" id="ledBalAccts"></div>
+      <div class="lb-as" id="ledBalAs"></div>
+    </div>
+
     <main class="list" id="list"></main>
   </div>
 
@@ -5964,6 +6003,8 @@ const I18N_DE = {
 "Backup copied — paste it somewhere safe": "Sicherung kopiert – füge sie an einem sicheren Ort ein",
 "Backup pushed": "Sicherung hochgeladen",
 "Backups will push on their own": "Sicherungen werden automatisch hochgeladen",
+"Balance after": "Kontostand nach",
+"Balance before": "Kontostand vor",
 "Balances are as of": "Stand vom",
 "Balances cleared": "Stände gelöscht",
 "Bank": "Bank",
@@ -7611,8 +7652,8 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "3.2.7";
-const APP_BUILT = "2026-10-31";
+const APP_VERSION = "4.0.0";
+const APP_BUILT = "2026-11-11";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -8070,6 +8111,9 @@ function parseDateCell(raw){
 let state = { v:1, txns:[], rules:[], skips:[], balanceLog:[], shop:null, budgets:{}, budgetPct:{}, budgetBase:["salary"], catchAll:null, balance:null, cats:{ expense:[], income:[] }, accounts:[], profile:null, currency:"EUR", fx:null, trips:[], tripKinds:[], thirdTab:"shop", catPicker:"grid", welcomeSpan:"yesterday", balLine:false, goals:[], calcLog:[] };
 let view = periodOf(todayISO());
 let filter = "all";
+/* the balance beside the ledger: entry id -> what the accounts held with it
+   counted, and the id of the entry it is being read at */
+let ledBalRows = null, ledBalTop = null, ledBalPadDue = false;
 let typeFilter = null;   /* null | "income" | "expense" — set by the dashboard tiles */
 let editing = null;
 let draft = null;
@@ -9437,6 +9481,7 @@ function render(){
       list.appendChild(g);
     });
   }
+  ledBalBuild(filter === "all" && shown.length ? shown : null);
 
   renderBreakdown(all, dark);
   renderCharts(all, budgetLeft);
@@ -11280,6 +11325,152 @@ function txnRow(t, dark){
   }
 
   return attachSwipe(row, t, open);
+}
+
+/* =========================================================================
+   THE BALANCE BESIDE THE LEDGER
+
+   On the All tab, what each bank account held as of the entry at the top of
+   the screen. The top of the list is today's figure; scrolling down takes the
+   entries above off again one at a time, so the balance beside an entry is
+   what the bank showed once that entry had gone through.
+
+   Counted exactly as accountLedger counts — ticked off, showing, not dated
+   after today — and worked back from its total, so the figure at the top is
+   the one in Settings › Accounts to the cent. A planned entry moves nothing:
+   beside one, the balance is what the account holds before it.
+   ========================================================================= */
+
+/** The bank accounts, or every account when none is filed as a bank. */
+function ledBalAccounts(){
+  const all = accountsOf();
+  const banks = all.filter(a => a.kind === "bank");
+  return banks.length ? banks : all;
+}
+/**
+ * For each row of `shown` (newest first, as the ledger lists them): what the
+ * accounts `ids` held with that row counted, and how far the row moved each.
+ *
+ * Entries the list does not show — transfers, another period, anything
+ * filtered out — still moved the money, so they are taken off as the rows go
+ * back past their date. One dated the same day as a row counts as before it.
+ */
+function ledgerBalances(shown, ids){
+  const to = todayISO();
+  const counts = t => t.status === "done" && txnShown(t) && t.date <= to;
+  const listed = new Set(shown.map(t => t.id));
+  const others = state.txns.filter(t => counts(t) && !listed.has(t.id))
+    .sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+  const run = {};
+  ids.forEach(id => { run[id] = accountBalance(id) || 0; });
+  const takeOff = t => ids.forEach(id => { run[id] -= acctDelta(t, id); });
+  let k = 0;
+  return shown.map(t => {
+    while (k < others.length && others[k].date > t.date) takeOff(others[k++]);
+    const counted = counts(t);
+    const delta = {};
+    ids.forEach(id => { delta[id] = counted ? acctDelta(t, id) : 0; });
+    const out = { id:t.id, counted:counted, bal:Object.assign({}, run), delta:delta };
+    if (counted) takeOff(t);
+    return out;
+  });
+}
+/** Draws the bar for the rows on show, or puts it away when there are none. */
+function ledBalBuild(shown){
+  const bar = $("#ledBal");
+  const accts = shown ? ledBalAccounts() : [];
+  const old = $("#list .swipe.top-row");
+  if (old) old.classList.remove("top-row");
+  ledBalTop = null;
+  ledBalPadDue = true;
+  if (!accts.length){
+    ledBalRows = null; bar.hidden = true;
+    $("#list").style.paddingBottom = "";
+    return;
+  }
+  ledBalRows = new Map();
+  ledgerBalances(shown, accts.map(a => a.id)).forEach((r, i) => {
+    r.t = shown[i];
+    ledBalRows.set(r.id, r);
+  });
+  const host = $("#ledBalAccts");
+  host.innerHTML = "";
+  host.classList.toggle("many", accts.length > 2);
+  accts.forEach(a => {
+    const chip = el("div", "lb-chip");
+    chip.dataset.acct = a.id;
+    chip.title = a.n;
+    chip.appendChild(el("span", "lb-n", a.n));
+    chip.appendChild(el("span", "lb-v"));
+    host.appendChild(chip);
+  });
+  bar.hidden = false;
+  ledBalSync();
+}
+/**
+ * Finds the entry at the top of the screen, marks it, and shows the balances
+ * as of it.
+ *
+ * The list is given room beneath it for its last entry to be scrolled up to
+ * the bar. Without that the oldest entries of a period could never be the one
+ * at the top, and a period short enough to fit on the screen could not be
+ * read back at all.
+ */
+function ledBalSync(){
+  const bar = $("#ledBal"), list = $("#list");
+  if (!ledBalRows || bar.hidden || $("#viewEntries").hidden) return;
+  /* under the period bar, wherever that has come to rest: the top bar above it
+     grows and shrinks, so its bottom edge is read rather than added up */
+  const pinned = Math.floor($(".monthbar").getBoundingClientRect().bottom);
+  if (bar.style.top !== pinned + "px") bar.style.top = pinned + "px";
+
+  const rows = $$("#list .swipe");
+  if (ledBalPadDue && rows.length){
+    ledBalPadDue = false;
+    const had = parseFloat(list.style.paddingBottom) || 0;
+    const last = rows[rows.length - 1].getBoundingClientRect().top + window.scrollY;
+    const need = last - (pinned + bar.offsetHeight) + window.innerHeight
+               - (document.documentElement.scrollHeight - had);
+    list.style.paddingBottom = need > 0 ? Math.ceil(need) + "px" : "";
+  }
+
+  const line = bar.getBoundingClientRect().bottom;
+  let pick = rows.length ? rows[rows.length - 1] : null;
+  for (let i = 0; i < rows.length; i++){
+    const r = rows[i].getBoundingClientRect();
+    if (r.top + r.height / 2 > line){ pick = rows[i]; break; }
+  }
+  const id = pick ? pick.dataset.id : null;
+  if (id === ledBalTop) return;
+  const old = $("#list .swipe.top-row");
+  if (old) old.classList.remove("top-row");
+  ledBalTop = id;
+  const at = id ? ledBalRows.get(id) : null;
+  if (!at) return;
+  pick.classList.add("top-row");
+
+  $$("#ledBalAccts .lb-chip").forEach(chip => {
+    const aid = chip.dataset.acct;
+    const bal = at.bal[aid] || 0;
+    const v = chip.querySelector(".lb-v");
+    v.textContent = fmt(bal);
+    v.classList.toggle("neg", bal < 0);
+  });
+  const t = at.t, as = $("#ledBalAs");
+  as.innerHTML = "";
+  as.appendChild(el("span", "lb-k", at.counted ? "Balance after" : "Balance before"));
+  as.appendChild(document.createTextNode(" "));
+  as.appendChild(el("span", "lb-w", (t.note || T(catOf(t.category).n)) + " · " + prettyDate(t.date)));
+}
+{
+  let queued = false;
+  const later = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; ledBalSync(); });
+  };
+  window.addEventListener("scroll", later, { passive:true });
+  window.addEventListener("resize", () => { ledBalPadDue = true; later(); });
 }
 
 /* =========================================================================
@@ -15938,6 +16129,8 @@ function setPanel(p){
   if (p === "shop") renderShop();
   if (p === "trips") renderTrips();
   if (p === "calc") calcRender();
+  /* the bar cannot measure itself while its view is hidden */
+  if (p === "entries"){ ledBalTop = null; ledBalPadDue = true; ledBalSync(); }
 }
 /* More sits in the tab bar but is not a view — it opens a sheet over whichever
    view you were on, so it is bound separately and never takes the selection. */

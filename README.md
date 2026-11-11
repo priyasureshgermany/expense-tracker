@@ -103,6 +103,14 @@ Open `index.html` in any browser, or host the file anywhere static.
   this period, less bills still to pay, less what is left in the budgets (not
   the catch-all, which is the cushion). Tap it for the breakdown; the line is
   exactly the sum of its parts.
+- **The balance beside the ledger** (வரவு செலவு › All) — a row of cards pinned
+  under the period, one per bank account and each a single line of name and
+  amount, shows what each account held as of the entry at the top of the
+  screen, which is marked. At the top of the list that is today's balance;
+  scrolling down takes the entries above off again, so an expense paid from
+  Deutsche Bank changes Deutsche Bank's figure and nothing else. A planned entry moves nothing, and
+  the bar says *Balance before* rather than *Balance after* beside one.
+  Transfers and other periods are not listed but still count.
 - **Search** (வரவு செலவு) — the box under the tabs searches every period: note,
   category (English or German), account, date, or amount typed as 12,99 · 12.99
   · 1.180,00. Every word must match. Amounts are not searched while the eye
