@@ -1441,8 +1441,13 @@ div.rp-rem:hover{background:none}
 /* a card per account, side by side, each one line: the name, then what it holds.
    The name gives way first when there is no room; the figure never does. */
 .lb-accts{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px}
-.lb-accts.many{grid-auto-columns:minmax(170px,1fr);overflow-x:auto;scrollbar-width:none}
+/* More than two: exactly two to a screen, each half the row, and the rest a
+   swipe away. A fixed minimum width used to leave the third one cut in half
+   at the edge of a phone; snapping keeps a card from resting part-way. */
+.lb-accts.many{grid-auto-columns:calc((100% - 8px) / 2);overflow-x:auto;scrollbar-width:none;
+  scroll-snap-type:x mandatory;overscroll-behavior-x:contain}
 .lb-accts.many::-webkit-scrollbar{display:none}
+.lb-accts.many .lb-chip{scroll-snap-align:start}
 .lb-chip{
   display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0;
   padding:8px 10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
@@ -1458,7 +1463,7 @@ div.rp-rem:hover{background:none}
 /* the entry the balances above are read at */
 /* An outline and nothing else. It is drawn inside the row, so it follows the
    card's rounded corners where the row is the first or last in its day. */
-.swipe.top-row > .row{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.swipe.top-row > .row{box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent)}
 .swipe.top-row:first-child > .row{border-top-left-radius:calc(var(--r-lg) - 1px);border-top-right-radius:calc(var(--r-lg) - 1px)}
 .swipe.top-row:last-child > .row{border-bottom-left-radius:calc(var(--r-lg) - 1px);border-bottom-right-radius:calc(var(--r-lg) - 1px)}
 
@@ -7652,7 +7657,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "4.0.0";
+const APP_VERSION = "4.0.1";
 const APP_BUILT = "2026-11-11";
 
 const KEY = "panappai.v1";
@@ -11394,6 +11399,8 @@ function ledBalBuild(shown){
     ledBalRows.set(r.id, r);
   });
   const host = $("#ledBalAccts");
+  /* a redraw must not slide the row back to its first card */
+  const slid = host.scrollLeft;
   host.innerHTML = "";
   host.classList.toggle("many", accts.length > 2);
   accts.forEach(a => {
@@ -11405,6 +11412,7 @@ function ledBalBuild(shown){
     host.appendChild(chip);
   });
   bar.hidden = false;
+  if (slid) host.scrollLeft = slid;
   ledBalSync();
 }
 /**

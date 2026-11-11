@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 4.0.1 — 2026-11-11
+- better: Balance bar on the All tab: two bank cards to a screen with the rest a swipe away, and a thinner, fainter outline on the entry at the top.
+
 ## 4.0.0 — 2026-11-11
 - new: Transactions, All tab: a row of cards pinned under the period shows what each bank account held as of the entry at the top of the screen, which is outlined; scrolling down takes the entries above off again.
 
