@@ -164,6 +164,12 @@ Open `index.html` in any browser, or host the file anywhere static.
   app name and a fan of euro notes. This locks the *screen* only; it does not
   encrypt the data itself, so it's a deterrent for a shared device, not real
   cryptographic security.
+- **From the barcode scanner** — the scanner app on the same site
+  (`/barcode-scanner/`) can put a scanned product on the shopping list (German
+  or Indian stores) or log it as a euro expense. It leaves them in a
+  `panappai.inbox` key in localStorage; this app takes them when it opens or
+  comes back to the front, once unlocked, and offers Undo. Works between two
+  browser tabs; iPhone Home Screen icons each keep their own storage.
 - **Optional GitHub sync** — see below.
 
 ## Shopping lists

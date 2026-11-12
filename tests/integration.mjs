@@ -1051,6 +1051,69 @@ tests.push({ name: "ledger: a sideways swipe off the rows changes tab; rows, scr
   assert.equal(r.otherPanel, "done");
 }});
 
+tests.push({ name: "barcode scanner inbox: list items and euro expenses come in once, the rest is dropped, Undo takes them back", async run(pg){
+  const r = await pg.fn(async () => {
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    __T.useBook();
+    const keep = localStorage.getItem("panappai.inbox");
+    const before = { txns: state.txns.length, de: state.shop.lists.de.length, ins: state.shop.lists.in.length };
+    const put = a => localStorage.setItem("panappai.inbox", JSON.stringify(a));
+    put([
+      { id:"s1", kind:"shop", list:"de", name:"Ritter Sport Nuss", price:149, barcode:"4000417025005" },
+      { id:"s2", kind:"shop", list:"in", name:"Maggi Masala Noodles", price:0 },
+      { id:"e1", kind:"expense", name:"Milch 1 l", price:119, currency:"EUR", date:"2025-01-10", shop:"REWE" },
+      { id:"e2", kind:"expense", name:"Atta 5 kg", price:28500, currency:"INR", date:"2026-11-10" },  /* rupees: not for this book */
+      { id:"b1", kind:"expense", name:"No date", price:100, currency:"EUR", date:"2026-02-31" },        /* no such day */
+      { id:"b2", kind:"shop", list:"fr", name:"Wrong list" },
+      { kind:"shop", list:"de", name:"No id" },
+      "junk"
+    ]);
+    const n = scannerInboxImport();
+    const out = { n };
+    out.de = state.shop.lists.de.length - before.de;
+    out.ins = state.shop.lists.in.length - before.ins;
+    out.txns = state.txns.length - before.txns;
+    const t = state.txns.find(x => x.scanId === "e1");
+    out.txn = t ? { amount:t.amount, note:t.note, date:t.date, status:t.status, type:t.type, cat:t.category } : null;
+    out.inboxGone = localStorage.getItem("panappai.inbox") === null;
+    out.toast = document.querySelector("#toast").textContent;
+
+    /* the same scan offered again is not added twice */
+    put([{ id:"s1", kind:"shop", list:"de", name:"Ritter Sport Nuss", price:149 }]);
+    out.again = scannerInboxImport();
+
+    /* a locked app waits */
+    put([{ id:"s3", kind:"shop", list:"de", name:"Butter", price:0 }]);
+    document.documentElement.classList.add("locked");
+    out.whileLocked = scannerInboxImport();
+    out.keptWhileLocked = scannerInboxRead().length;
+    document.documentElement.classList.remove("locked");
+    out.afterUnlock = scannerInboxImport();
+
+    /* Undo takes back what that import added */
+    document.querySelector("#toast .toast-act").click();
+    await wait(50);
+    out.butterAfterUndo = state.shop.lists.de.some(i => i.scanId === "s3");
+
+    if (keep) localStorage.setItem("panappai.inbox", keep); else localStorage.removeItem("panappai.inbox");
+    __T.restore();
+    return out;
+  });
+  assert.equal(r.n, 3);
+  assert.equal(r.de, 1);
+  assert.equal(r.ins, 1);
+  assert.equal(r.txns, 1);
+  assert.deepEqual(r.txn, { amount:119, note:"Milch 1 l — REWE", date:"2025-01-10", status:"done", type:"expense", cat:r.txn.cat });
+  assert.notEqual(r.txn.cat, "other");
+  assert.equal(r.inboxGone, true);
+  assert.match(r.toast, /^Added from the scanner to your shopping list and expenses/);
+  assert.equal(r.again, 0);
+  assert.equal(r.whileLocked, 0);
+  assert.equal(r.keptWhileLocked, 1);
+  assert.equal(r.afterUnlock, 1);
+  assert.equal(r.butterAfterUndo, false);
+}});
+
 tests.push({ name: "a device that had Face ID on loses it on the next load; the PIN and passphrase stay", async run(pg){
   /* what 4.0.2 – 4.0.6 stored: the credential's record, and a third wrapping of the key */
   await pg.fn(() => {

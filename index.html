@@ -5746,6 +5746,9 @@ const I18N_DE = {
 "Swipe left to mark paid · right to delete": "Nach links wischen: bezahlt · nach rechts: löschen",
 "Under a year old": "Jünger als ein Jahr",
 "Username": "Benutzername",
+"Added from the scanner to your shopping list and expenses": "Vom Scanner zur Einkaufsliste und zu den Ausgaben hinzugefügt",
+"Added from the scanner to your shopping list": "Vom Scanner zur Einkaufsliste hinzugefügt",
+"Added from the scanner as an expense": "Vom Scanner als Ausgabe hinzugefügt",
 "PIN or password, and recovery": "PIN oder Passwort und Wiederherstellung",
 "Password": "Passwort",
 "Password again": "Passwort wiederholen",
@@ -7663,7 +7666,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "4.0.7";
+const APP_VERSION = "4.0.8";
 const APP_BUILT = "2026-11-12";
 
 const KEY = "panappai.v1";
@@ -15316,6 +15319,128 @@ $("#purchSave").addEventListener("click", () => {
 
 $$("#storeTog button").forEach(b => b.addEventListener("click", () => { store = b.dataset.store; renderShop(); }));
 
+/* =========================================================================
+   FROM THE BARCODE SCANNER
+
+   The scanner (priyasureshgermany.github.io/barcode-scanner) lives on the same
+   site as this app, so the two share localStorage when opened in the same
+   browser. It never touches this app's own keys: it appends to an inbox, and
+   this side takes what is there whenever it opens, comes back to the front,
+   or sees the scanner write while both are open.
+
+     localStorage["panappai.inbox"] = [
+       { id, kind:"shop",    list:"de"|"in", name, price (cents, 0 if unknown), ... },
+       { id, kind:"expense", name, price (cents), currency:"EUR", date:"YYYY-MM-DD", shop, barcode, ... }
+     ]
+
+   Each item is checked before it counts — this is another program's data —
+   and an item that cannot be used is dropped rather than left to fail again
+   on every opening. Euros only for expenses: the book keeps euros. Nothing is
+   taken while the book is locked or still encrypted, so it waits for the
+   unlock. What is taken is removed from the inbox; whatever the scanner added
+   in the meantime stays for next time. Each one carries the inbox id as
+   scanId, so the same scan is never added twice.
+
+   On an iPhone, Home Screen web apps each get storage of their own, so this
+   works between two browser tabs, not between two Home Screen icons.
+   ========================================================================= */
+const SCAN_INBOX_KEY = "panappai.inbox";
+
+function scannerInboxRead(){
+  try{
+    const a = JSON.parse(localStorage.getItem(SCAN_INBOX_KEY) || "[]");
+    return Array.isArray(a) ? a : [];
+  }catch(e){ return []; }
+}
+
+/** One inbox item, checked and trimmed; null when it cannot be used. */
+function scannerItemClean(x){
+  if (!x || typeof x !== "object" || !x.id) return null;
+  const name = String(x.name || "").trim().slice(0, 80);
+  const price = Math.round(Number(x.price) || 0);
+  if (x.kind === "shop"){
+    if (!name || (x.list !== "de" && x.list !== "in")) return null;
+    return { kind:"shop", id:String(x.id), list:x.list, name:name, price: price > 0 ? price : 0 };
+  }
+  if (x.kind === "expense"){
+    if ((x.currency || "EUR") !== "EUR") return null;
+    if (!(price > 0) || !validISO(x.date)) return null;
+    return { kind:"expense", id:String(x.id), name: name || "Scanned item", price:price, date:x.date,
+             shop:String(x.shop || "").trim().slice(0, 40) };
+  }
+  return null;
+}
+
+/** Takes what the scanner left. Returns how many entries and list items it added. */
+function scannerInboxImport(){
+  if (!encBooted) return 0;
+  if (encOn() && !encUnlocked()) return 0;
+  if (document.documentElement.classList.contains("locked")) return 0;
+  const raw = scannerInboxRead();
+  if (!raw.length) return 0;
+
+  const seen = new Set();
+  state.shop.lists.de.concat(state.shop.lists.in).forEach(i => { if (i.scanId) seen.add(i.scanId); });
+  state.txns.forEach(t => { if (t.scanId) seen.add(t.scanId); });
+
+  const taken = new Set(), added = [];
+  let shops = 0, exps = 0;
+  raw.forEach(x => {
+    taken.add(x && x.id);
+    const c = scannerItemClean(x);
+    if (!c || seen.has(c.id)) return;
+    seen.add(c.id);
+    if (c.kind === "shop"){
+      const list = state.shop.lists[c.list];
+      /* already on the list: a price it lacked is the only news */
+      const same = list.find(i => !i.done && normName(i.name) === normName(c.name));
+      if (same){ if (c.price && !same.price) same.price = c.price; return; }
+      const item = { id:uid(), name:c.name, qty:"", price:c.price, done:false, scanId:c.id };
+      list.push(item);
+      added.push({ list:c.list, id:item.id });
+      shops++;
+    } else {
+      let cat = guessCat(c.shop + " " + c.name, false);
+      if (cat === "other") cat = "groceries_de";
+      const t = { id:uid(), type:"expense", amount:c.price, category:cat,
+                  note: c.shop ? c.name + " — " + c.shop : c.name, date:c.date,
+                  status: c.date <= todayISO() ? "done" : "planned", account:null, scanId:c.id };
+      state.txns.push(t);
+      added.push({ txn:t.id });
+      exps++;
+    }
+  });
+
+  /* read again just before writing: the scanner may have added since */
+  try{
+    const left = scannerInboxRead().filter(x => !taken.has(x && x.id));
+    if (left.length) localStorage.setItem(SCAN_INBOX_KEY, JSON.stringify(left));
+    else localStorage.removeItem(SCAN_INBOX_KEY);
+  }catch(e){}
+
+  if (!shops && !exps) return 0;
+  save();
+  render();
+  renderShop();
+  toast(shops && exps ? "Added from the scanner to your shopping list and expenses"
+        : shops ? "Added from the scanner to your shopping list"
+        : "Added from the scanner as an expense", { label:"Undo", run: () => {
+    added.forEach(a => {
+      if (a.txn) state.txns = state.txns.filter(t => t.id !== a.txn);
+      else state.shop.lists[a.list] = state.shop.lists[a.list].filter(i => i.id !== a.id);
+    });
+    save();
+    render();
+    renderShop();
+  }});
+  return shops + exps;
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) scannerInboxImport(); });
+/* both open at once: the scanner's write arrives here as a storage event */
+window.addEventListener("storage", e => {
+  if (e.key === SCAN_INBOX_KEY && e.newValue && !document.hidden) scannerInboxImport();
+});
+
 /* ---------- picker: tap a staple to put it on the list ---------- */
 function addShopItem(name){
   const clean = String(name).trim();
@@ -16473,6 +16598,8 @@ function unlockApp(){
   /* held back at boot while the PIN was outstanding, so it fires here instead */
   if (typeof firePushDue === "function") firePushDue();
   if (typeof payWelcomeOpen === "function") payWelcomeOpen(true);
+  /* held back while locked, like the two above */
+  scannerInboxImport();
 }
 
 /* Confirming a destructive action reuses the lock screen: same keypad, same
@@ -18151,6 +18278,8 @@ document.addEventListener("keydown", e => {
     if (!lockEnabled() && !encOn()) payWelcomeOpen(true);
     /* the third trigger: whatever the last session failed to send */
     ghAutoOnOpen();
+    /* whatever the barcode scanner left; waits for the unlock when locked */
+    setTimeout(scannerInboxImport, 0);
   };
 
   if (encOn()){

@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 4.0.8 — 2026-11-12
+- new: Items you send from the barcode scanner — to the shopping list or as an expense — appear here when you open the app, with Undo.
+
 ## 4.0.7 — 2026-11-12
 - better: App lock: Face ID / fingerprint unlock is removed — on iPhone it always needed an extra passkey pop-up, slower than the PIN. Anything it stored on this device is cleared.
 
