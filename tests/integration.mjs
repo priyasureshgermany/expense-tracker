@@ -1166,7 +1166,7 @@ const tests = [
   }}
 ];
 
-tests.push({ name: "on an iPhone the fingerprint is called Face ID, everywhere it is named", async run(pg){
+tests.push({ name: "on an iPhone it is called Face ID, and is asked for only on a tap", async run(pg){
   const IPHONE = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 " +
                  "(KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1";
   await pg.cdp("Emulation.setUserAgentOverride", { userAgent: IPHONE });
@@ -1183,6 +1183,18 @@ tests.push({ name: "on an iPhone the fingerprint is called Face ID, everywhere i
       lockNow(false); await wait(150);
       out.btn = $q("#lockBioBtn").textContent.trim();
       unlockApp();
+
+      /* reopening must not raise Apple's "Use passkey?" sheet on its own: count the asks */
+      const realGet = navigator.credentials.get.bind(navigator.credentials);
+      let asked = 0;
+      navigator.credentials.get = () => { asked++; return Promise.reject(new DOMException("x", "NotAllowedError")); };
+      lockNow(true); await wait(700);
+      out.autoAsks = asked;
+      out.btnStillOffered = !$q("#lockBioBtn").hidden;
+      $q("#lockBioBtn").click(); await wait(200);
+      out.tapAsks = asked;
+      navigator.credentials.get = realGet;
+      unlockApp();
       openSettings(); await wait(150);
       renderLockSettings(); await wait(150);
       out.title = $q("#lockBioTitle").textContent;
@@ -1196,6 +1208,9 @@ tests.push({ name: "on an iPhone the fingerprint is called Face ID, everywhere i
     });
     assert.equal(r.name, "Face ID");
     assert.equal(r.btn, "Use Face ID");
+    assert.equal(r.autoAsks, 0);
+    assert.equal(r.btnStillOffered, true);
+    assert.equal(r.tapAsks, 1);
     assert.equal(r.title, "Face ID");
     assert.equal(r.off, "Stop using Face ID");
     assert.equal(r.subHidden, true);
