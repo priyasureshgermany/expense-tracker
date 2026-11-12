@@ -1469,6 +1469,12 @@ div.rp-rem:hover{background:none}
 
 /* ---------- List ---------- */
 .list{padding:14px 14px 0;display:flex;flex-direction:column;gap:18px;flex:1}
+/* a swipe between the ledger's tabs: the new list comes in from the side */
+.list.slide-l{animation:ledSlideL .22s cubic-bezier(.2,.7,.3,1)}
+.list.slide-r{animation:ledSlideR .22s cubic-bezier(.2,.7,.3,1)}
+@keyframes ledSlideL{from{opacity:.35;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes ledSlideR{from{opacity:.35;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){ .list.slide-l, .list.slide-r{animation:none} }
 .daygroup{display:flex;flex-direction:column;gap:6px}
 .dayhead{
   display:flex;align-items:baseline;justify-content:space-between;gap:10px;
@@ -7739,7 +7745,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "4.0.5";
+const APP_VERSION = "4.0.6";
 const APP_BUILT = "2026-11-12";
 
 const KEY = "panappai.v1";
@@ -11729,6 +11735,97 @@ function swipeTick(t, row){
   if (swipeOpen) swipeClose();
   return togglePaid(t, row);
 }
+
+/* =========================================================================
+   SWIPING BETWEEN THE LEDGER'S TABS
+
+   A row swiped sideways is paid or deleted, above. Swiped anywhere else on the
+   Transactions screen — a day's heading, the gaps, the empty space under the
+   last entry — the screen moves to the next tab along: left for the one to
+   the right (All → Planned → Filled → Transfers), right for the one before.
+   It stops at either end rather than wrapping round.
+
+   Whatever has a sideways gesture of its own keeps it: a row, the bank-balance
+   cards and anything else that scrolls sideways, the search box. So does the
+   browser's own back swipe from the screen's edge.
+
+   Touch events, not pointer ones: a browser that decides a touch is a scroll
+   cancels the pointer, but always finishes the touch, so the swipe is judged
+   on where the finger was lifted.
+   ========================================================================= */
+const LED_TABS = ["all", "planned", "done", "transfer"];
+
+/** The tab a swipe lands on: "left" moves one along, "right" one back; null past either end. */
+function ledTabAfterSwipe(cur, dir){
+  const i = LED_TABS.indexOf(cur);
+  if (i < 0) return null;
+  const j = i + (dir === "left" ? 1 : -1);
+  return j >= 0 && j < LED_TABS.length ? LED_TABS[j] : null;
+}
+
+/** Whether a touch starting on `t` is free to switch tabs, rather than belonging to something. */
+function ledSwipeFree(t){
+  if (panel !== "entries" || openSheet) return false;
+  if (document.documentElement.classList.contains("locked")) return false;
+  if (!t || !t.closest || !t.closest("#viewEntries, .shell")) return false;
+  if (t.closest(".swipe, .topbar, .monthbar, #viewTog, #fabWrap, .ledbal, .sheet, " +
+                "input, textarea, select, [contenteditable]")) return false;
+  for (let n = t; n && n !== document.body; n = n.parentElement){
+    if (n.scrollWidth > n.clientWidth + 1){
+      const ox = getComputedStyle(n).overflowX;
+      if (ox === "auto" || ox === "scroll") return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Decides a finished swipe: far enough, clearly more sideways than up or down,
+ * and quick enough to be a flick rather than a slow drag while reading. True
+ * when it changed the tab.
+ */
+function ledSwipeEnd(dx, dy, ms){
+  if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5 || ms > 800) return false;
+  const next = ledTabAfterSwipe(filter, dx < 0 ? "left" : "right");
+  if (!next) return false;
+  filter = next;
+  render();
+  /* the list comes in from the side it was swiped from */
+  const list = $("#list");
+  list.classList.remove("slide-l", "slide-r");
+  void list.offsetWidth;
+  list.classList.add(dx < 0 ? "slide-l" : "slide-r");
+  return true;
+}
+$("#list").addEventListener("animationend", e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove("slide-l", "slide-r");
+});
+
+let ledSw = null;
+document.addEventListener("touchstart", e => {
+  ledSw = null;
+  if (e.touches.length !== 1) return;
+  const p = e.touches[0];
+  /* the edges are the browser's back and forward */
+  if (p.clientX < 24 || p.clientX > window.innerWidth - 24) return;
+  if (!ledSwipeFree(e.target)) return;
+  ledSw = { x0: p.clientX, y0: p.clientY, x: p.clientX, y: p.clientY, t0: Date.now() };
+}, { passive: true });
+document.addEventListener("touchmove", e => {
+  if (!ledSw) return;
+  if (e.touches.length !== 1){ ledSw = null; return; }
+  ledSw.x = e.touches[0].clientX;
+  ledSw.y = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener("touchend", e => {
+  const s = ledSw;
+  ledSw = null;
+  if (!s) return;
+  const p = e.changedTouches && e.changedTouches[0];
+  if (p){ s.x = p.clientX; s.y = p.clientY; }
+  ledSwipeEnd(s.x - s.x0, s.y - s.y0, Date.now() - s.t0);
+}, { passive: true });
+document.addEventListener("touchcancel", () => { ledSw = null; }, { passive: true });
 
 /** Deleting an entry, from its sheet or from a swipe. Asks first; true once it is gone. */
 async function deleteTxn(t){

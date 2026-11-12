@@ -1238,6 +1238,73 @@ tests.push({ name: "on an iPhone it is called Face ID, and is asked for only on 
   }
 }});
 
+tests.push({ name: "ledger: a sideways swipe off the rows changes tab; rows, scrollers and edges keep theirs", async run(pg){
+  const r = await pg.fn(async () => {
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const $q = s => document.querySelector(s);
+    __T.useBook();
+    setPanel("entries");
+    filter = "all"; typeFilter = null; render();
+    await wait(100);
+
+    /* a finger down at (x0,y0), along to (x1,y1), lifted there */
+    const swipe = async (target, x0, y0, x1, y1) => {
+      const tp = (x, y) => new Touch({ identifier: 1, target, clientX: x, clientY: y });
+      const fire = (type, x, y) => target.dispatchEvent(new TouchEvent(type, {
+        bubbles: true, cancelable: true,
+        touches: type === "touchend" ? [] : [tp(x, y)],
+        targetTouches: type === "touchend" ? [] : [tp(x, y)],
+        changedTouches: [tp(x, y)] }));
+      fire("touchstart", x0, y0);
+      fire("touchmove", (x0 + x1) / 2, (y0 + y1) / 2);
+      fire("touchmove", x1, y1);
+      fire("touchend", x1, y1);
+      await wait(60);
+      return filter;
+    };
+    const tabOn = () => $q('#viewEntries .seg [aria-selected="true"]').dataset.f;
+    const list = $q("#list");
+    const out = {};
+
+    out.left1 = await swipe(list, 300, 400, 140, 410);
+    out.selected = tabOn();
+    out.slid = list.classList.contains("slide-l");
+    out.left2 = await swipe(list, 300, 400, 140, 400);
+    out.left3 = await swipe(list, 300, 400, 140, 400);
+    out.pastEnd = await swipe(list, 300, 400, 140, 400);       /* Transfers is the last */
+    out.right1 = await swipe(list, 120, 400, 300, 400);
+    out.vertical = await swipe(list, 200, 500, 150, 250);      /* a scroll, not a swipe */
+    out.short = await swipe(list, 200, 400, 160, 400);         /* too little to count */
+    out.edge = await swipe(list, 10, 400, 200, 400);           /* the browser's back swipe */
+    const row = $q("#list .swipe");
+    out.onRow = row ? await swipe(row, 300, 400, 140, 400) : "no row";
+    const search = $q("#ledQ");
+    out.onSearch = await swipe(search, 300, 400, 140, 400);
+
+    /* another screen is left alone */
+    setPanel("dash");
+    out.otherPanel = await swipe($q("#viewDash"), 300, 400, 140, 400);
+    setPanel("entries");
+
+    filter = "all"; render();
+    __T.restore();
+    return out;
+  });
+  assert.equal(r.left1, "planned");
+  assert.equal(r.selected, "planned");
+  assert.equal(r.slid, true);
+  assert.equal(r.left2, "done");
+  assert.equal(r.left3, "transfer");
+  assert.equal(r.pastEnd, "transfer");
+  assert.equal(r.right1, "done");
+  assert.equal(r.vertical, "done");
+  assert.equal(r.short, "done");
+  assert.equal(r.edge, "done");
+  assert.equal(r.onRow, "done");
+  assert.equal(r.onSearch, "done");
+  assert.equal(r.otherPanel, "done");
+}});
+
 /* A fingerprint reader that always recognises its owner, in place of a real one. */
 async function withReader(pg){
   await pg.cdp("WebAuthn.enable", { enableUI: false });

@@ -436,6 +436,15 @@ export default [
     assert.deepEqual(r.missing, []);
   }},
 
+  { name: "ledTabAfterSwipe: left one along, right one back, nothing past the ends", async run(pg){
+    const r = await pg.fn(() => [
+      ledTabAfterSwipe("all", "left"), ledTabAfterSwipe("planned", "left"), ledTabAfterSwipe("done", "left"),
+      ledTabAfterSwipe("transfer", "left"), ledTabAfterSwipe("transfer", "right"),
+      ledTabAfterSwipe("planned", "right"), ledTabAfterSwipe("all", "right"), ledTabAfterSwipe("nope", "left")
+    ]);
+    assert.deepEqual(r, ["planned", "done", "transfer", null, "done", "all", null, null]);
+  }},
+
   { name: "bioTextFor: Face ID / Touch ID in the fingerprint's place, every line German has", async run(pg){
     const r = await pg.fn(() => ({
       plain: bioTextFor(null, "Use fingerprint"),
