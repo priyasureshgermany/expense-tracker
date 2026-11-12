@@ -3630,6 +3630,9 @@ html.locked #lockScreen::before{
 .lock-bio svg{width:22px;height:22px;flex:none}
 .lock-bio[hidden]{display:none}
 #lockBioSub[hidden]{display:none}
+/* On the keypad the fingerprint is a key of its own, in the empty place left
+   of 0; its cell is kept even when there is none, so 0 never shifts. */
+.lock-pad .lock-pad-bio svg{width:26px;height:26px}
 .lock-forgot{margin-top:20px;font-size:12px;color:rgba(255,255,255,.62);text-decoration:underline}
 /* Said here rather than only in a toast. The lock screen fills the viewport,
    so a message at the foot of the page is both behind it and nowhere near
@@ -3819,7 +3822,9 @@ html.locked #lockScreen::before{
       <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
       <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
       <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
-      <span></span><button type="button" data-k="0">0</button>
+      <button type="button" class="lock-pad-bio" id="lockPadBio" aria-label="Use fingerprint" title="Use fingerprint" style="visibility:hidden">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11v3a8 8 0 01-1.2 4.2"/><path d="M8.6 7.6A4 4 0 0116 10v1.5a12 12 0 01-.6 3.8"/><path d="M5.3 9.5A7 7 0 0119 10v1"/><path d="M6.2 4.9A9.9 9.9 0 0121.4 9"/><path d="M8 11v1.2a12 12 0 01-1.5 5.8"/><path d="M19 14.5a16 16 0 01-.8 3.5"/><path d="M3 13a12 12 0 00.6-3.3"/></svg>
+      </button><button type="button" data-k="0">0</button>
       <button type="button" data-k="back" aria-label="Backspace">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-6 8 6 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"/><path d="M18 9l-6 6M12 9l6 6"/></svg>
       </button>
@@ -7734,7 +7739,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "4.0.4";
+const APP_VERSION = "4.0.5";
 const APP_BUILT = "2026-11-12";
 
 const KEY = "panappai.v1";
@@ -16365,7 +16370,6 @@ async function answerHash(a){
 }
 
 let lockMode = "unlock"; // "unlock" | "setup1" | "setup2"
-let lockAutoBio = false;  /* whether the screen being opened asks the fingerprint straight away */
 let lockBuf = "";
 let lockFirstPin = "";
 
@@ -16406,7 +16410,7 @@ function lockOpenLogin(flow, sub){
   $("#lockForgot").hidden = flow !== "unlock";
   $("#lockForgot").textContent = "Forgot your password?";
   /* the fingerprint stands in for the password when checking it, never when choosing one */
-  if (flow === "unlock" || flow === "confirm") bioOffer(flow === "confirm" || lockAutoBio);
+  if (flow === "unlock" || flow === "confirm") bioOffer();
   else bioHide();
   /* setting one up from Settings can be backed out of; one forced by a reset cannot */
   $("#lockCancel").hidden = !(flow === "confirm" || flow === "setup");
@@ -16483,7 +16487,7 @@ function lockConfirm(what){
   $("#lockDots").hidden = false;
   $("#lockCancel").hidden = false;
   lockRenderDots();
-  bioOffer(true);
+  bioOffer();
   return new Promise(res => { lockConfirmResolve = res; });
 }
 function lockConfirmEnd(ok){
@@ -16504,7 +16508,7 @@ function lockConfirmEnd(ok){
 let encBooted = false;
 let encBootWithData = function(){};   /* filled in by the boot sequence below */
 
-function encOpenUnlock(auto){
+function encOpenUnlock(){
   lockHideLogin();
   document.documentElement.classList.add("locked");
   lockSay("");
@@ -16517,7 +16521,7 @@ function encOpenUnlock(auto){
   $("#lockPassWrap").hidden = false;
   $("#lockPass").value = "";
   /* only a fingerprint that wraps the data key can stand in for the passphrase */
-  if (bioOpensBook()) bioOffer(!!auto);
+  if (bioOpensBook()) bioOffer();
   else bioHide();
   /* focusing the field raises the keyboard over the fingerprint prompt */
   if (!bioOpensBook()) setTimeout(() => $("#lockPass").focus(), 80);
@@ -16563,20 +16567,13 @@ async function encTryUnlock(){
 $("#lockPassGo").addEventListener("click", encTryUnlock);
 $("#lockPass").addEventListener("keydown", e => { if (e.key === "Enter") encTryUnlock(); });
 
-/**
- * `auto` asks the fingerprint at once, rather than waiting for its button: on
- * opening the app and on coming back to it, when you are holding the phone.
- * Not when the idle timer locks it — the prompt would come up for nobody.
- */
-function lockOpenUnlock(auto){
+function lockOpenUnlock(){
   /* Only the passphrase can open the encrypted book, so while the key is not in
      memory that is the one screen there is. Once it is — the app has been
      opened and is merely idle — the PIN is enough, because there is nothing
      left to decrypt. */
-  if (encOn() && !encUnlocked()){ encOpenUnlock(auto); return; }
-  lockAutoBio = !!auto;
-  if (lockKind() === "password"){ lockOpenLogin("unlock"); lockAutoBio = false; return; }
-  lockAutoBio = false;
+  if (encOn() && !encUnlocked()){ encOpenUnlock(); return; }
+  if (lockKind() === "password"){ lockOpenLogin("unlock"); return; }
 
   lockHideLogin();
   document.documentElement.classList.add("locked");
@@ -16590,7 +16587,7 @@ function lockOpenUnlock(auto){
   $("#lockPad").hidden = false;
   $("#lockDots").hidden = false;
   lockRenderDots();
-  bioOffer(!!auto);
+  bioOffer();
 }
 function lockOpenSetup(){
   lockHideLogin();
@@ -16722,14 +16719,14 @@ const LOCK_IDLE_MS = 5 * 60 * 1000;
 let lockIdleTimer = null;
 let lockHiddenAt = 0;
 
-function lockNow(auto){
+function lockNow(){
   if (!lockEnabled() || document.documentElement.classList.contains("locked")) return;
-  lockOpenUnlock(auto === true);
+  lockOpenUnlock();
 }
 function lockResetIdle(){
   if (lockIdleTimer) clearTimeout(lockIdleTimer);
   if (!lockEnabled()) return;
-  lockIdleTimer = setTimeout(() => lockNow(false), LOCK_IDLE_MS);
+  lockIdleTimer = setTimeout(lockNow, LOCK_IDLE_MS);
 }
 ["pointerdown", "keydown", "touchstart"].forEach(ev =>
   document.addEventListener(ev, lockResetIdle, { passive: true }));
@@ -16738,7 +16735,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden){
     lockHiddenAt = Date.now();
   } else if (lockHiddenAt && Date.now() - lockHiddenAt > LOCK_IDLE_MS){
-    lockNow(true);
+    lockNow();
   } else {
     lockResetIdle();
   }
@@ -17131,40 +17128,51 @@ function bioTextFor(name, s){
 }
 function bioText(s){ return bioTextFor(bioName(), s); }
 
-/**
- * Whether opening the lock screen may ask for the fingerprint unprompted.
- * Not on an iPhone or iPad: there a request the person did not tap for comes
- * up as Apple's "Use passkey?" sheet every time the app opens, before Face ID
- * is even reached — reported as the app nagging, which it was. There the
- * button waits for a tap: Face ID is asked for only when the person asks.
- */
-function bioAutoOk(){
-  const ua = (navigator && navigator.userAgent) || "";
-  if (/iPhone|iPad|iPod/.test(ua)) return false;
-  /* iPadOS asks for the desktop site and says it is a Mac; the touch screen gives it away */
-  if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return false;
-  return true;
-}
-
-/* ---------- on the lock screen ---------- */
+/* ---------- on the lock screen ----------
+   The fingerprint is only ever asked for on a tap. It used to be asked for the
+   moment the lock screen opened, and every browser answers an unprompted
+   request with its own sheet — "Use passkey?" from Safari, "Sign in to
+   github.io with your passkey saved in Chrome?" from Chrome — so the app
+   opened onto a pop-up every single time, whether or not the person wanted
+   it. Keeping it off on iPhones alone did not help: the same sheet comes from
+   Chrome, on any phone. Now the key sits on the keypad and waits. */
 let bioBusy = false;
-function bioHide(){ const b = $("#lockBioBtn"); if (b) b.hidden = true; }
-/** Shows the button when there is a fingerprint, and with `auto` asks for it straight away. */
-function bioOffer(auto){
+/* Two places for the one button: a key beside 0 when the keypad is up, and
+   a pill above the form when the screen asks for a password or passphrase. */
+function bioPadKey(show){
+  const k = $("#lockPadBio");
+  if (k) k.style.visibility = show ? "visible" : "hidden";
+}
+function bioHide(){
   const b = $("#lockBioBtn");
-  if (!b) return;
-  b.querySelector("span").textContent = bioText("Use fingerprint");
-  b.hidden = !lockHasBio();
-  if (!b.hidden && auto && bioAutoOk()) setTimeout(() => { if (!b.hidden) bioUnlockTap(true); }, 250);
+  if (b) b.hidden = true;
+  bioPadKey(false);
+}
+/** Whether the screen on show is offering the fingerprint, in either place. */
+function bioShown(){
+  const b = $("#lockBioBtn"), k = $("#lockPadBio");
+  return !!((b && !b.hidden) || (k && k.style.visibility === "visible"));
+}
+/** Shows the button when there is a fingerprint. It never asks by itself. */
+function bioOffer(){
+  const b = $("#lockBioBtn"), k = $("#lockPadBio");
+  if (!b || !k) return;
+  const label = bioText("Use fingerprint");
+  b.querySelector("span").textContent = label;
+  /* attributes are not reached by the page's translation, so they are said here */
+  k.setAttribute("aria-label", T(label));
+  k.title = T(label);
+  const has = lockHasBio(), pad = !$("#lockPad").hidden;
+  b.hidden = !has || pad;
+  bioPadKey(has && pad);
 }
 
 /**
  * What a recognised fingerprint opens depends on the screen it was asked from:
  * the encrypted book on opening, a confirmation before a deletion, or else
- * the screen lock. `auto` stays quiet when it does not work — the person may
- * simply have chosen to type their PIN.
+ * the screen lock.
  */
-async function bioUnlockTap(auto){
+async function bioUnlockTap(){
   const rec = bioRec();
   if (!rec || bioBusy) return;
   const needBook = encOn() && !encUnlocked();
@@ -17173,9 +17181,9 @@ async function bioUnlockTap(auto){
   let got = null;
   try{ got = await bioAssert(rec, needBook); }finally{ bioBusy = false; }
   /* the screen may have been answered by PIN while the prompt was up */
-  if (!document.documentElement.classList.contains("locked") || $("#lockBioBtn").hidden) return;
+  if (!document.documentElement.classList.contains("locked") || !bioShown()) return;
   if (!got){
-    if (!auto) lockSay(bioText(needBook ? "The fingerprint did not open it. Use your passphrase instead."
+    lockSay(bioText(needBook ? "The fingerprint did not open it. Use your passphrase instead."
                      : lockKind() === "password" ? "The fingerprint did not open it. Use your password instead."
                      : "The fingerprint did not open it. Use your PIN instead."));
     return;
@@ -17191,7 +17199,9 @@ async function bioUnlockTap(auto){
   if (lockConfirmResolve){ lockConfirmEnd(true); return; }
   unlockApp();
 }
-$("#lockBioBtn").addEventListener("click", () => bioUnlockTap(false));
+$("#lockBioBtn").addEventListener("click", () => bioUnlockTap());
+/* stopPropagation: the keypad's own listener would otherwise look for a digit */
+$("#lockPadBio").addEventListener("click", e => { e.stopPropagation(); bioUnlockTap(); });
 
 /* ---------- in Settings › App lock ---------- */
 async function bioRenderSettings(){
@@ -18452,12 +18462,12 @@ document.addEventListener("keydown", e => {
 
   if (encOn()){
     /* No load, no seed, no render — there is nothing readable yet. */
-    encOpenUnlock(true);
+    encOpenUnlock();
   } else {
     load();
     encBooted = true;
     encBootWithData();
-    if (lockEnabled()) lockOpenUnlock(true);
+    if (lockEnabled()) lockOpenUnlock();
     else document.documentElement.classList.remove("locked");
   }
 })();

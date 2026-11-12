@@ -1015,31 +1015,41 @@ const tests = [
         out.offBtn = !$q("#lockBioOff").hidden;
         sheetClose();
 
-        /* coming back to the app asks straight away */
-        lockNow(true);
-        out.autoOpened = await until(() => !locked());
-
-        /* the idle timer does not: the button waits for a tap */
-        lockNow(false); await wait(700);
+        /* the lock screen never asks by itself — every browser shows a passkey
+           sheet for that — so it stays locked until the key is tapped */
+        const realGet = navigator.credentials.get;
+        let asked = 0;
+        navigator.credentials.get = function(){ asked++; return realGet.apply(this, arguments); };
+        lockNow(); await wait(700);
+        out.unasked = asked === 0;
         out.idleStillLocked = locked();
-        out.btnShown = !$q("#lockBioBtn").hidden;
-        $q("#lockBioBtn").click();
+        /* with the keypad up it is the key left of 0, not the pill above */
+        const padKey = () => $q("#lockPadBio").style.visibility === "visible";
+        const keys = [...$q("#lockPad").children];
+        out.keyPlace = keys.indexOf($q("#lockPadBio")) === keys.indexOf($q('#lockPad [data-k="0"]')) - 1;
+        out.btnShown = padKey();
+        out.pillHidden = $q("#lockBioBtn").hidden;
+        $q("#lockPadBio").click();
         out.tapOpened = await until(() => !locked());
-        out.btnGoneAfter = $q("#lockBioBtn").hidden;
+        out.askedOnTap = asked === 1;
+        navigator.credentials.get = realGet;
+        out.btnGoneAfter = !padKey();
 
         /* a deletion's confirmation takes it too */
-        out.confirmed = await Promise.race([lockConfirm("Delete everything?"), wait(4000).then(() => "timeout")]);
+        const pc = lockConfirm("Delete everything?"); await wait(150);
+        $q("#lockPadBio").click();
+        out.confirmed = await Promise.race([pc, wait(4000).then(() => "timeout")]);
 
         /* setting a new PIN never offers it */
         lockOpenSetup(); await wait(400);
-        out.setupHidesBtn = $q("#lockBioBtn").hidden;
+        out.setupHidesBtn = $q("#lockBioBtn").hidden && !padKey();
         unlockApp();
 
         /* a credential this device never made is refused, and says so */
         const real = bioRec();
         localStorage.setItem(LOCK_BIO_KEY, JSON.stringify({ id: encB64(encRandom(32)), salt: null }));
-        lockNow(false); await wait(100);
-        $q("#lockBioBtn").click();
+        lockNow(); await wait(100);
+        $q("#lockPadBio").click();
         await until(() => !$q("#lockMsg").hidden);
         out.strangerLocked = locked();
         out.strangerMsg = $q("#lockMsg").textContent;
@@ -1063,9 +1073,12 @@ const tests = [
       assert.equal(r.hasSalt, true);
       assert.match(r.note, /^On — your fingerprint opens the app, and your PIN still works too/);
       assert.equal(r.offBtn, true);
-      assert.equal(r.autoOpened, true);
+      assert.equal(r.unasked, true);
+      assert.equal(r.askedOnTap, true);
       assert.equal(r.idleStillLocked, true);
       assert.equal(r.btnShown, true);
+      assert.equal(r.keyPlace, true);
+      assert.equal(r.pillHidden, true);
       assert.equal(r.tapOpened, true);
       assert.equal(r.btnGoneAfter, true);
       assert.equal(r.confirmed, true);
@@ -1109,10 +1122,13 @@ const tests = [
         out.opensBook = bioOpensBook();
         out.wrapKeys = Object.keys(encWraps()).sort().join(",");
 
-        /* reopening the app: no key in memory, and the fingerprint is asked at once */
+        /* reopening the app: no key in memory, the passphrase field and the
+           fingerprint pill both offered, and the pill opens it */
         encLock();
-        lockOpenUnlock(true);
+        lockOpenUnlock(); await wait(400);
         out.passFieldShown = !$q("#lockPassWrap").hidden;
+        out.waitsForTap = locked() && !encUnlocked() && !$q("#lockBioBtn").hidden;
+        $q("#lockBioBtn").click();
         out.opened = await until(() => encUnlocked() && !locked());
         out.sameBook = JSON.stringify(state.txns.length) === before;
 
@@ -1120,7 +1136,7 @@ const tests = [
         await encChangePassphrase("a whole new passphrase");
         out.bioKept = bioOpensBook();
         encLock();
-        lockOpenUnlock(false); await wait(100);
+        lockOpenUnlock(); await wait(100);
         $q("#lockBioBtn").click();
         out.openedAfterChange = await until(() => encUnlocked() && !locked());
 
@@ -1129,7 +1145,7 @@ const tests = [
         const bad = encUnB64(good); bad[0] ^= 1; w.bio.ct = encB64(bad);
         localStorage.setItem(ENC_WRAP_KEY, JSON.stringify(w));
         encLock();
-        lockOpenUnlock(false); await wait(100);
+        lockOpenUnlock(); await wait(100);
         $q("#lockBioBtn").click();
         await until(() => !$q("#lockMsg").hidden);
         out.badStillLocked = locked() && !encUnlocked();
@@ -1151,6 +1167,7 @@ const tests = [
       assert.equal(r.opensBook, true);
       assert.equal(r.wrapKeys, "answer,bio,pass");
       assert.equal(r.passFieldShown, true);
+      assert.equal(r.waitsForTap, true);
       assert.equal(r.opened, true);
       assert.equal(r.sameBook, true);
       assert.equal(r.bioKept, true);
@@ -1180,18 +1197,18 @@ tests.push({ name: "on an iPhone it is called Face ID, and is asked for only on 
       localStorage.setItem(LOCK_ENABLED_KEY, "1");
       localStorage.setItem(LOCK_BIO_KEY, JSON.stringify({ id: "AAAA", salt: null }));
       const out = { name: bioName() };
-      lockNow(false); await wait(150);
-      out.btn = $q("#lockBioBtn").textContent.trim();
+      lockNow(); await wait(150);
+      out.btn = $q("#lockPadBio").getAttribute("aria-label");
       unlockApp();
 
       /* reopening must not raise Apple's "Use passkey?" sheet on its own: count the asks */
       const realGet = navigator.credentials.get.bind(navigator.credentials);
       let asked = 0;
       navigator.credentials.get = () => { asked++; return Promise.reject(new DOMException("x", "NotAllowedError")); };
-      lockNow(true); await wait(700);
+      lockNow(); await wait(700);
       out.autoAsks = asked;
-      out.btnStillOffered = !$q("#lockBioBtn").hidden;
-      $q("#lockBioBtn").click(); await wait(200);
+      out.btnStillOffered = $q("#lockPadBio").style.visibility === "visible";
+      $q("#lockPadBio").click(); await wait(200);
       out.tapAsks = asked;
       navigator.credentials.get = realGet;
       unlockApp();

@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 4.0.5 — 2026-11-12
+- fix: App lock: the fingerprint / Face ID is never asked for by itself any more, so no passkey pop-up when the app opens — tap the fingerprint key, now left of 0 on the keypad.
+
 ## 4.0.4 — 2026-11-12
 - fix: App lock on iPhone and iPad: opening the app no longer pops up the Use passkey sheet by itself — tap Use Face ID when you want it.
 
