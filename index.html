@@ -3619,6 +3619,16 @@ html.locked #lockScreen::before{
   background:#fff;color:#0A4364;
 }
 .lr-back{font-size:12px;color:rgba(255,255,255,.62);text-decoration:underline;margin-top:2px}
+/* The fingerprint sits above whatever else the screen asks for: it is the
+   quick way in, and the PIN, password or passphrase below it the fallback. */
+.lock-bio{
+  display:flex;align-items:center;gap:9px;margin:0 auto 16px;padding:10px 18px;
+  border-radius:999px;font-size:14px;font-weight:600;color:#fff;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26);
+}
+.lock-bio:active{background:rgba(255,255,255,.26)}
+.lock-bio svg{width:22px;height:22px;flex:none}
+.lock-bio[hidden]{display:none}
 .lock-forgot{margin-top:20px;font-size:12px;color:rgba(255,255,255,.62);text-decoration:underline}
 /* Said here rather than only in a toast. The lock screen fills the viewport,
    so a message at the foot of the page is both behind it and nowhere near
@@ -3782,6 +3792,10 @@ html.locked #lockScreen::before{
     <div class="lock-sub" id="lockSub">Enter your PIN</div>
     <div class="lock-dots" id="lockDots"><span></span><span></span><span></span><span></span></div>
     <div class="lock-msg" id="lockMsg" hidden></div>
+    <button class="lock-bio" id="lockBioBtn" type="button" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11v3a8 8 0 01-1.2 4.2"/><path d="M8.6 7.6A4 4 0 0116 10v1.5a12 12 0 01-.6 3.8"/><path d="M5.3 9.5A7 7 0 0119 10v1"/><path d="M6.2 4.9A9.9 9.9 0 0121.4 9"/><path d="M8 11v1.2a12 12 0 01-1.5 5.8"/><path d="M19 14.5a16 16 0 01-.8 3.5"/><path d="M3 13a12 12 0 00.6-3.3"/></svg>
+      <span>Use fingerprint</span>
+    </button>
     <div class="lock-recover" id="lockPassWrap" hidden>
       <input class="lr-in" id="lockPass" type="password" autocomplete="current-password"
              autocapitalize="none" spellcheck="false" placeholder="Your passphrase">
@@ -5032,7 +5046,7 @@ html.locked #lockScreen::before{
     </button>
     <button class="setrow" type="button" data-pane="lock">
       <span class="sr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg></span>
-      <span class="sr-t"><b>App lock</b><span>PIN or password, and recovery</span></span>
+      <span class="sr-t"><b>App lock</b><span>PIN, password or fingerprint, and recovery</span></span>
       <svg class="sr-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <button class="setrow" type="button" data-pane="prefs">
@@ -5197,6 +5211,15 @@ html.locked #lockScreen::before{
         <div class="toggle2 cfg-tog" id="lockKindTog" style="grid-template-columns:1fr 1fr">
           <button class="a" type="button" data-v="pin" aria-pressed="true">4-digit PIN</button>
           <button class="a" type="button" data-v="password" aria-pressed="false">Username &amp; password</button>
+        </div>
+      </div>
+      <div class="cfgrow cfg-stack" id="lockBioRow" style="margin-top:14px" hidden>
+        <div class="cf-t"><b>Fingerprint</b><span>Or face — whatever this device unlocks with</span></div>
+        <div class="note" id="lockBioNote">—</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <button class="btn ghost sm" id="lockBioSet" type="button" hidden>Use fingerprint</button>
+          <button class="btn ghost sm" id="lockBioBook" type="button" hidden>Let it open the encrypted book too</button>
+          <button class="btn danger sm" id="lockBioOff" type="button" hidden>Stop using fingerprint</button>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
@@ -5670,7 +5693,6 @@ const I18N_DE = {
 "Tap Undo in it within about six seconds.": "Tippe darin innerhalb von etwa sechs Sekunden auf Rückgängig.",
 "The entry is back exactly as it was.": "Der Eintrag ist genau wie vorher zurück.",
 "It works the same for a delete from inside the entry.": "Das geht genauso beim Löschen aus dem Eintrag heraus.",
-"PIN or password, and recovery": "PIN oder Passwort und Wiederherstellung",
 "; mark them paid as you go — swipe the row left.": "; markiere sie beim Bezahlen als bezahlt — Zeile nach links wischen.",
 ". Mark it received once it arrives.": ". Markiere es als erhalten, sobald es eingeht.",
 "Mark it received once it arrives.": "Markiere es als erhalten, sobald es eingeht.",
@@ -5741,6 +5763,35 @@ const I18N_DE = {
 "Swipe left to mark paid · right to delete": "Nach links wischen: bezahlt · nach rechts: löschen",
 "Under a year old": "Jünger als ein Jahr",
 "Username": "Benutzername",
+"Use fingerprint": "Fingerabdruck verwenden",
+"Fingerprint": "Fingerabdruck",
+"Or face — whatever this device unlocks with": "Oder Gesicht — womit dieses Gerät eben entsperrt",
+"Let it open the encrypted book too": "Damit auch das verschlüsselte Buch öffnen",
+"Stop using fingerprint": "Fingerabdruck nicht mehr verwenden",
+"Stop using fingerprint?": "Fingerabdruck nicht mehr verwenden?",
+"Stop using it": "Nicht mehr verwenden",
+"This app forgets it. Your PIN, password and passphrase are not touched.": "Die App vergisst ihn. PIN, Passwort und Passphrase bleiben unberührt.",
+"Fingerprint off": "Fingerabdruck aus",
+"Fingerprint on": "Fingerabdruck an",
+"Fingerprint on — it opens the encrypted book too": "Fingerabdruck an — er öffnet auch das verschlüsselte Buch",
+"Fingerprint was not set up — nothing has changed": "Fingerabdruck wurde nicht eingerichtet — nichts hat sich geändert",
+"Set a PIN or password first — it stays as the way in": "Lege zuerst eine PIN oder ein Passwort fest — das bleibt der Weg hinein",
+"The fingerprint opens the encrypted book now": "Der Fingerabdruck öffnet jetzt das verschlüsselte Buch",
+"Could not link it — the passphrase is still needed when the app opens": "Verknüpfen hat nicht geklappt — beim Öffnen wird weiter die Passphrase gebraucht",
+"The fingerprint did not open it. Use your passphrase instead.": "Der Fingerabdruck hat nicht geöffnet. Nimm stattdessen deine Passphrase.",
+"The fingerprint did not open it. Use your password instead.": "Der Fingerabdruck hat nicht geöffnet. Nimm stattdessen dein Passwort.",
+"The fingerprint did not open it. Use your PIN instead.": "Der Fingerabdruck hat nicht geöffnet. Nimm stattdessen deine PIN.",
+"Your fingerprint was recognised, but it could not open the encrypted book. Use your passphrase.": "Dein Fingerabdruck wurde erkannt, konnte das verschlüsselte Buch aber nicht öffnen. Nimm deine Passphrase.",
+"This device or browser has no fingerprint or face unlock the app can use.": "Dieses Gerät oder dieser Browser hat keine Fingerabdruck- oder Gesichtsentsperrung, die die App nutzen kann.",
+"Needs the app opened from its https:// address — not from a file on this device.": "Dafür muss die App über ihre https://-Adresse geöffnet sein — nicht als Datei auf diesem Gerät.",
+"Unlock with the fingerprint or face this device already knows. Your PIN stays as the way in when it cannot be read.": "Entsperre mit dem Fingerabdruck oder Gesicht, das dieses Gerät schon kennt. Deine PIN bleibt der Weg hinein, wenn er nicht gelesen werden kann.",
+"Unlock with the fingerprint or face this device already knows. Your password stays as the way in when it cannot be read.": "Entsperre mit dem Fingerabdruck oder Gesicht, das dieses Gerät schon kennt. Dein Passwort bleibt der Weg hinein, wenn er nicht gelesen werden kann.",
+"On — it opens the encrypted book too, so the passphrase is only needed if the fingerprint fails.": "An — er öffnet auch das verschlüsselte Buch, die Passphrase brauchst du nur, wenn der Fingerabdruck versagt.",
+"On for the screen lock. Tap below so it can open the encrypted book as well.": "An für die Bildschirmsperre. Tippe unten, damit er auch das verschlüsselte Buch öffnet.",
+"On for the screen lock. This device cannot use it to open the encrypted book, so the passphrase is still asked for when the app opens.": "An für die Bildschirmsperre. Dieses Gerät kann damit das verschlüsselte Buch nicht öffnen, daher wird beim Öffnen weiter die Passphrase abgefragt.",
+"On — your fingerprint opens the app, and your PIN still works too.": "An — dein Fingerabdruck öffnet die App, und deine PIN funktioniert weiterhin.",
+"On — your fingerprint opens the app, and your password still works too.": "An — dein Fingerabdruck öffnet die App, und dein Passwort funktioniert weiterhin.",
+"PIN, password or fingerprint, and recovery": "PIN, Passwort oder Fingerabdruck und Wiederherstellung",
 "Password": "Passwort",
 "Password again": "Passwort wiederholen",
 "Password — at least 6 characters": "Passwort — mindestens 6 Zeichen",
@@ -5770,7 +5821,7 @@ const I18N_DE = {
 "On — your passphrase on opening, then your username and password after 5 minutes idle.": "An — beim Öffnen deine Passphrase, nach 5 Minuten Inaktivität Benutzername und Passwort.",
 "A security question is set — it's the only way back in if you forget the password.": "Eine Sicherheitsfrage ist gesetzt — sie ist der einzige Weg zurück, falls du das Passwort vergisst.",
 "No security question yet. Without one, a forgotten password can't be reset on this device.": "Noch keine Sicherheitsfrage. Ohne sie lässt sich ein vergessenes Passwort auf diesem Gerät nicht zurücksetzen.",
-"The PIN, the username and password, and the recovery question are all forgotten, and the app opens straight to your book.": "PIN, Benutzername und Passwort sowie die Sicherheitsfrage werden vergessen, und die App öffnet direkt dein Buch.",
+"The PIN, the username and password, the fingerprint and the recovery question are all forgotten, and the app opens straight to your book.": "PIN, Benutzername und Passwort, Fingerabdruck sowie die Sicherheitsfrage werden vergessen, und die App öffnet direkt dein Buch.",
 "Both are on: the lock hides the screen, and what is stored is unreadable": "Beides ist an: Die Sperre verbirgt den Bildschirm, und das Gespeicherte ist unlesbar",
 "Date of birth": "Geburtsdatum",
 "Location — city, country": "Wohnort — Stadt, Land",
@@ -7657,8 +7708,8 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "4.0.1";
-const APP_BUILT = "2026-11-11";
+const APP_VERSION = "4.0.2";
+const APP_BUILT = "2026-11-12";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -8838,11 +8889,11 @@ async function encChangePassphrase(next, answer){
   if (!next || next.length < 8) throw new Error("Use at least 8 characters.");
   const raw = await crypto.subtle.exportKey("raw", dataKey);
   const wraps = { pass: await encWrap(raw, next) };
+  const old = encWraps();
   if (answer) wraps.answer = await encWrap(raw, encNormAnswer(answer));
-  else {
-    const old = encWraps();
-    if (old && old.answer) wraps.answer = old.answer;
-  }
+  else if (old && old.answer) wraps.answer = old.answer;
+  /* the fingerprint's wrapping is of the same key, which has not changed */
+  if (old && old.bio) wraps.bio = old.bio;
   localStorage.setItem(ENC_WRAP_KEY, JSON.stringify(wraps));
   return true;
 }
@@ -16206,8 +16257,9 @@ function seed(){
 }
 
 /* =========================================================================
-   APP LOCK — PIN, with optional Face/Touch ID / Windows Hello
-   Locks the screen only; it does not encrypt the data in localStorage.
+   APP LOCK — PIN or username & password, with an optional fingerprint
+   (see FINGERPRINT below). Locks the screen only; encrypting what is stored
+   is the separate ENCRYPTION AT REST.
    ========================================================================= */
 const LOCK_ENABLED_KEY = "panappai.lock.enabled";
 const LOCK_HASH_KEY = "panappai.lock.pinHash";
@@ -16287,6 +16339,7 @@ async function answerHash(a){
 }
 
 let lockMode = "unlock"; // "unlock" | "setup1" | "setup2"
+let lockAutoBio = false;  /* whether the screen being opened asks the fingerprint straight away */
 let lockBuf = "";
 let lockFirstPin = "";
 
@@ -16326,6 +16379,9 @@ function lockOpenLogin(flow, sub){
   $("#lockLoginGo").textContent = flow === "unlock" ? "Log in" : flow === "confirm" ? "Confirm" : "Save";
   $("#lockForgot").hidden = flow !== "unlock";
   $("#lockForgot").textContent = "Forgot your password?";
+  /* the fingerprint stands in for the password when checking it, never when choosing one */
+  if (flow === "unlock" || flow === "confirm") bioOffer(flow === "confirm" || lockAutoBio);
+  else bioHide();
   /* setting one up from Settings can be backed out of; one forced by a reset cannot */
   $("#lockCancel").hidden = !(flow === "confirm" || flow === "setup");
   setTimeout(() => ($("#lockUser").hidden ? $("#lockPw") : $("#lockUser")).focus(), 80);
@@ -16372,6 +16428,7 @@ $("#lockLoginGo").addEventListener("click", lockLoginGo);
 
 function unlockApp(){
   lockHideLogin();
+  bioHide();
   document.documentElement.classList.remove("locked");
   lockHiddenAt = 0;
   lockResetIdle();
@@ -16400,10 +16457,12 @@ function lockConfirm(what){
   $("#lockDots").hidden = false;
   $("#lockCancel").hidden = false;
   lockRenderDots();
+  bioOffer(true);
   return new Promise(res => { lockConfirmResolve = res; });
 }
 function lockConfirmEnd(ok){
   lockHideLogin();
+  bioHide();
   $("#lockCancel").hidden = true;
   document.documentElement.classList.remove("locked");
   const r = lockConfirmResolve;
@@ -16419,7 +16478,7 @@ function lockConfirmEnd(ok){
 let encBooted = false;
 let encBootWithData = function(){};   /* filled in by the boot sequence below */
 
-function encOpenUnlock(){
+function encOpenUnlock(auto){
   lockHideLogin();
   document.documentElement.classList.add("locked");
   lockSay("");
@@ -16431,7 +16490,25 @@ function encOpenUnlock(){
   $("#lockForgot").textContent = "Forgotten it?";
   $("#lockPassWrap").hidden = false;
   $("#lockPass").value = "";
-  setTimeout(() => $("#lockPass").focus(), 80);
+  /* only a fingerprint that wraps the data key can stand in for the passphrase */
+  if (bioOpensBook()) bioOffer(!!auto);
+  else bioHide();
+  /* focusing the field raises the keyboard over the fingerprint prompt */
+  if (!bioOpensBook()) setTimeout(() => $("#lockPass").focus(), 80);
+}
+
+/** The key is in memory: read the book, start the app if it has not, let it show. */
+async function encAfterUnlock(){
+  $("#lockPassWrap").hidden = true;
+  try{
+    await encLoad();
+  }catch(e){
+    lockSay("The book could not be read. Nothing has been changed — restore a " +
+            "backup from Settings once you are in.");
+  }
+  if (!encBooted){ encBooted = true; encBootWithData(); }
+  $("#lockForgot").textContent = "Forgot your " + lockWord() + "?";
+  unlockApp();
 }
 
 async function encTryUnlock(){
@@ -16454,28 +16531,26 @@ async function encTryUnlock(){
             "if the passphrase has gone.");
     return;
   }
-  $("#lockPassWrap").hidden = true;
-  try{
-    await encLoad();
-  }catch(e){
-    lockSay("The book could not be read. Nothing has been changed — restore a " +
-            "backup from Settings once you are in.");
-  }
-  if (!encBooted){ encBooted = true; encBootWithData(); }
-  $("#lockForgot").textContent = "Forgot your " + lockWord() + "?";
-  unlockApp();
+  await encAfterUnlock();
 }
 
 $("#lockPassGo").addEventListener("click", encTryUnlock);
 $("#lockPass").addEventListener("keydown", e => { if (e.key === "Enter") encTryUnlock(); });
 
-function lockOpenUnlock(){
+/**
+ * `auto` asks the fingerprint at once, rather than waiting for its button: on
+ * opening the app and on coming back to it, when you are holding the phone.
+ * Not when the idle timer locks it — the prompt would come up for nobody.
+ */
+function lockOpenUnlock(auto){
   /* Only the passphrase can open the encrypted book, so while the key is not in
      memory that is the one screen there is. Once it is — the app has been
      opened and is merely idle — the PIN is enough, because there is nothing
      left to decrypt. */
-  if (encOn() && !encUnlocked()){ encOpenUnlock(); return; }
-  if (lockKind() === "password"){ lockOpenLogin("unlock"); return; }
+  if (encOn() && !encUnlocked()){ encOpenUnlock(auto); return; }
+  lockAutoBio = !!auto;
+  if (lockKind() === "password"){ lockOpenLogin("unlock"); lockAutoBio = false; return; }
+  lockAutoBio = false;
 
   lockHideLogin();
   document.documentElement.classList.add("locked");
@@ -16489,9 +16564,11 @@ function lockOpenUnlock(){
   $("#lockPad").hidden = false;
   $("#lockDots").hidden = false;
   lockRenderDots();
+  bioOffer(!!auto);
 }
 function lockOpenSetup(){
   lockHideLogin();
+  bioHide();
   document.documentElement.classList.add("locked");
   lockMode = "setup1"; lockBuf = ""; lockFirstPin = "";
   lockSay("");
@@ -16567,6 +16644,7 @@ function lockShowRecovery(){
     return;
   }
   lockSay("");
+  bioHide();
   $("#lockLoginWrap").hidden = true;
   $("#lockSub").textContent = "Answer to reset your " + lockWord();
   $("#lockRecoverQ").textContent = localStorage.getItem(LOCK_Q_KEY) || "Your security question";
@@ -16618,14 +16696,14 @@ const LOCK_IDLE_MS = 5 * 60 * 1000;
 let lockIdleTimer = null;
 let lockHiddenAt = 0;
 
-function lockNow(){
+function lockNow(auto){
   if (!lockEnabled() || document.documentElement.classList.contains("locked")) return;
-  lockOpenUnlock();
+  lockOpenUnlock(auto === true);
 }
 function lockResetIdle(){
   if (lockIdleTimer) clearTimeout(lockIdleTimer);
   if (!lockEnabled()) return;
-  lockIdleTimer = setTimeout(lockNow, LOCK_IDLE_MS);
+  lockIdleTimer = setTimeout(() => lockNow(false), LOCK_IDLE_MS);
 }
 ["pointerdown", "keydown", "touchstart"].forEach(ev =>
   document.addEventListener(ev, lockResetIdle, { passive: true }));
@@ -16634,7 +16712,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden){
     lockHiddenAt = Date.now();
   } else if (lockHiddenAt && Date.now() - lockHiddenAt > LOCK_IDLE_MS){
-    lockNow();
+    lockNow(true);
   } else {
     lockResetIdle();
   }
@@ -16775,6 +16853,7 @@ function renderLockSettings(){
     ? "Both are on: the lock hides the screen, and what is stored is unreadable " +
       "without the passphrase. Either can be turned off on its own."
     : "Locks the screen only — it does not encrypt the data stored on this device.";
+  bioRenderSettings();
 }
 $("#lockSetPin").addEventListener("click", () => {
   sheetClose();
@@ -16824,9 +16903,10 @@ $("#lockQSave").addEventListener("click", async () => {
 $("#lockTurnOff").addEventListener("click", async () => {
   if (!(await askConfirm({
     title: "Turn off the app lock?",
-    message: "The PIN, the username and password, and the recovery question are all forgotten, and the app opens straight to your book.",
+    message: "The PIN, the username and password, the fingerprint and the recovery question are all forgotten, and the app opens straight to your book.",
     confirm: "Turn off"
   }))) return;
+  bioForget();
   localStorage.removeItem(LOCK_ENABLED_KEY);
   localStorage.removeItem(LOCK_HASH_KEY);
   localStorage.removeItem(LOCK_Q_KEY);
@@ -16836,6 +16916,283 @@ $("#lockTurnOff").addEventListener("click", async () => {
   localStorage.removeItem(LOCK_KIND_KEY);
   toast("App lock turned off");
   renderLockSettings();
+});
+
+/* =========================================================================
+   FINGERPRINT — the device's own unlock, through WebAuthn
+
+   The browser asks the phone's fingerprint reader (or face, or Windows Hello —
+   whatever the device unlocks with) and the app only ever hears "yes, that
+   was the owner". No fingerprint reaches the app, and nothing leaves the
+   device: there is no server, so the credential is used purely as a local
+   gate, and it is good on this one browser only.
+
+   Two jobs, matching the two locks:
+
+     · The screen lock. A verified assertion from this credential stands in
+       for the PIN or password — on the lock screen and before anything is
+       deleted. The PIN or password is never removed: a wet finger, a cut, a
+       new phone, and that is the way in.
+
+     · The encrypted book. A yes/no cannot decrypt anything, so here the
+       fingerprint has to produce a secret. WebAuthn's PRF extension does: the
+       authenticator turns a fixed salt into 32 bytes that only it, after the
+       fingerprint, can produce. Those bytes (through HKDF) wrap the data key
+       a third time, beside the passphrase and the security answer. Changing
+       the passphrase rewraps only its own copy, so this one stays good.
+       Devices without PRF still get the screen lock; the passphrase is then
+       asked for on opening as before, and Settings says so.
+
+   It needs a secure context — https, or localhost — so a copy opened straight
+   from a file shows why the option is not there rather than hiding it.
+
+   An earlier Face/Touch ID option was removed (see git history) as part of
+   reworking the lock; this one is opt-in, keeps the PIN as the fallback, and
+   is the only form that also opens the encrypted book.
+   ========================================================================= */
+const LOCK_BIO_KEY = "panappai.lock.bio";  /* { id: credential id, salt: PRF salt or null }, base64 */
+
+function bioRec(){
+  try{
+    const r = JSON.parse(localStorage.getItem(LOCK_BIO_KEY) || "null");
+    return r && r.id ? r : null;
+  }catch(e){ return null; }
+}
+function lockHasBio(){ return !!bioRec(); }
+/** Whether the fingerprint can open the encrypted book, not only the screen. */
+function bioOpensBook(){
+  const w = encOn() ? encWraps() : null;
+  return !!(lockHasBio() && w && w.bio);
+}
+
+/** Is there a reader the browser can use. Asked fresh each time: a finger may be enrolled since. */
+async function bioAvailable(){
+  if (!window.isSecureContext || !window.PublicKeyCredential || !navigator.credentials) return false;
+  try{ return !!(await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); }
+  catch(e){ return false; }
+}
+
+/**
+ * Makes a credential on this device's own reader, asking for the PRF secret
+ * at the same time. Some devices hand the secret back here and some only on
+ * the first use; `first` is it when it came, null when not.
+ */
+async function bioRegister(){
+  const salt = encRandom(32);
+  const cred = await navigator.credentials.create({ publicKey: {
+    challenge: encRandom(32),
+    rp: { name: "Panappai" },
+    user: { id: encRandom(16), name: "panappai", displayName: "Panappai" },
+    pubKeyCredParams: [{ type:"public-key", alg:-7 }, { type:"public-key", alg:-257 }],
+    authenticatorSelection: { authenticatorAttachment:"platform", userVerification:"required",
+                              residentKey:"discouraged", requireResidentKey:false },
+    attestation: "none",
+    timeout: 60000,
+    extensions: { prf: { eval: { first: salt } } }
+  }});
+  if (!cred) return null;
+  const ext = (cred.getClientExtensionResults && cred.getClientExtensionResults()) || {};
+  const prf = ext.prf || {};
+  const first = prf.results && prf.results.first;
+  return { id: encB64(cred.rawId),
+           salt: (prf.enabled || first) ? encB64(salt) : null,
+           first: first ? new Uint8Array(first) : null };
+}
+
+/**
+ * Asks for the fingerprint. Null unless the device says this credential was
+ * used *and* the person was verified — the flag in authenticatorData, not
+ * merely that a dialog was dismissed. With `wantPrf`, the PRF secret comes
+ * back too when the device gives one.
+ */
+async function bioAssert(rec, wantPrf){
+  const pk = {
+    challenge: encRandom(32),
+    allowCredentials: [{ type:"public-key", id: encUnB64(rec.id), transports:["internal"] }],
+    userVerification: "required",
+    timeout: 60000
+  };
+  if (wantPrf && rec.salt) pk.extensions = { prf: { eval: { first: encUnB64(rec.salt) } } };
+  let a;
+  try{ a = await navigator.credentials.get({ publicKey: pk }); }catch(e){ return null; }
+  if (!a || encB64(a.rawId) !== rec.id) return null;
+  const ad = new Uint8Array(a.response.authenticatorData);
+  if (ad.length < 33 || !(ad[32] & 0x04)) return null;   /* UV: user verified */
+  const ext = (a.getClientExtensionResults && a.getClientExtensionResults()) || {};
+  const first = ext.prf && ext.prf.results && ext.prf.results.first;
+  return { prf: first ? new Uint8Array(first) : null };
+}
+
+/** The key that wraps the data key, from the PRF secret. Bound to the credential. */
+async function bioKek(prfOut, rec){
+  const base = await crypto.subtle.importKey("raw", prfOut, "HKDF", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name:"HKDF", hash:"SHA-256", salt: encUnB64(rec.id),
+      info: new TextEncoder().encode("panappai:bio:" + ENC_VER) },
+    base, { name:"AES-GCM", length:256 }, false, ["encrypt", "decrypt"]);
+}
+/** Adds the fingerprint's wrapping of the data key. Needs the book open. */
+async function bioWrapBook(prfOut, rec){
+  if (!encUnlocked()) return false;
+  const w = encWraps();
+  if (!w) return false;
+  const raw = await crypto.subtle.exportKey("raw", dataKey);
+  const iv = encRandom(12);
+  const ct = await crypto.subtle.encrypt({ name:"AES-GCM", iv: iv }, await bioKek(prfOut, rec), raw);
+  w.bio = { iv: encB64(iv), ct: encB64(ct) };
+  localStorage.setItem(ENC_WRAP_KEY, JSON.stringify(w));
+  return true;
+}
+/** Opens the data key with the PRF secret. False, never a throw, when it does not. */
+async function bioUnwrapBook(prfOut, rec){
+  const w = encWraps();
+  if (!w || !w.bio) return false;
+  try{
+    const raw = await crypto.subtle.decrypt({ name:"AES-GCM", iv: encUnB64(w.bio.iv) },
+                                           await bioKek(prfOut, rec), encUnB64(w.bio.ct));
+    dataKey = await crypto.subtle.importKey("raw", raw, "AES-GCM", true, ["encrypt", "decrypt"]);
+    return true;
+  }catch(e){ return false; }
+}
+function bioDropWrap(){
+  const w = encWraps();
+  if (w && w.bio){ delete w.bio; localStorage.setItem(ENC_WRAP_KEY, JSON.stringify(w)); }
+}
+
+/** Gets the PRF secret (asking once more when registering did not give it) and wraps. */
+async function bioLinkBook(first){
+  const rec = bioRec();
+  if (!rec || !rec.salt || !encOn() || !encUnlocked()) return false;
+  let out = first;
+  if (!out){
+    const got = await bioAssert(rec, true);
+    out = got && got.prf;
+  }
+  if (!out) return false;
+  try{ return await bioWrapBook(out, rec); }catch(e){ return false; }
+}
+
+/** Forgets the fingerprint here, and asks the device to drop the credential where it can. */
+function bioForget(){
+  const rec = bioRec();
+  try{ localStorage.removeItem(LOCK_BIO_KEY); }catch(e){}
+  try{ bioDropWrap(); }catch(e){}
+  if (rec && window.PublicKeyCredential && PublicKeyCredential.signalUnknownCredential){
+    const url = rec.id.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    PublicKeyCredential.signalUnknownCredential({ rpId: location.hostname, credentialId: url })
+      .catch(() => {});
+  }
+}
+
+/* ---------- on the lock screen ---------- */
+let bioBusy = false;
+function bioHide(){ const b = $("#lockBioBtn"); if (b) b.hidden = true; }
+/** Shows the button when there is a fingerprint, and with `auto` asks for it straight away. */
+function bioOffer(auto){
+  const b = $("#lockBioBtn");
+  if (!b) return;
+  b.hidden = !lockHasBio();
+  if (!b.hidden && auto) setTimeout(() => { if (!b.hidden) bioUnlockTap(true); }, 250);
+}
+
+/**
+ * What a recognised fingerprint opens depends on the screen it was asked from:
+ * the encrypted book on opening, a confirmation before a deletion, or else
+ * the screen lock. `auto` stays quiet when it does not work — the person may
+ * simply have chosen to type their PIN.
+ */
+async function bioUnlockTap(auto){
+  const rec = bioRec();
+  if (!rec || bioBusy) return;
+  const needBook = encOn() && !encUnlocked();
+  if (needBook && !bioOpensBook()) return;
+  bioBusy = true;
+  let got = null;
+  try{ got = await bioAssert(rec, needBook); }finally{ bioBusy = false; }
+  /* the screen may have been answered by PIN while the prompt was up */
+  if (!document.documentElement.classList.contains("locked") || $("#lockBioBtn").hidden) return;
+  if (!got){
+    if (!auto) lockSay(needBook ? "The fingerprint did not open it. Use your passphrase instead."
+                     : lockKind() === "password" ? "The fingerprint did not open it. Use your password instead."
+                     : "The fingerprint did not open it. Use your PIN instead.");
+    return;
+  }
+  if (needBook){
+    if (!got.prf || !(await bioUnwrapBook(got.prf, rec))){
+      lockSay("Your fingerprint was recognised, but it could not open the encrypted book. Use your passphrase.");
+      return;
+    }
+    await encAfterUnlock();
+    return;
+  }
+  if (lockConfirmResolve){ lockConfirmEnd(true); return; }
+  unlockApp();
+}
+$("#lockBioBtn").addEventListener("click", () => bioUnlockTap(false));
+
+/* ---------- in Settings › App lock ---------- */
+async function bioRenderSettings(){
+  const row = $("#lockBioRow");
+  if (!row) return;
+  const avail = await bioAvailable();
+  const rec = bioRec(), enc = encOn();
+  /* a fallback has to exist before the fingerprint can be added */
+  row.hidden = !(lockEnabled() || enc || rec);
+  $("#lockBioSet").hidden = !!rec || !avail;
+  $("#lockBioOff").hidden = !rec;
+  $("#lockBioBook").hidden = !(rec && rec.salt && enc && encUnlocked() && !bioOpensBook() && avail);
+  const pw = lockKind() === "password";
+  $("#lockBioNote").textContent = !avail && !rec
+    ? (window.isSecureContext
+        ? "This device or browser has no fingerprint or face unlock the app can use."
+        : "Needs the app opened from its https:// address — not from a file on this device.")
+    : !rec
+      ? (pw ? "Unlock with the fingerprint or face this device already knows. Your password stays as the way in when it cannot be read."
+            : "Unlock with the fingerprint or face this device already knows. Your PIN stays as the way in when it cannot be read.")
+      : enc
+        ? (bioOpensBook()
+            ? "On — it opens the encrypted book too, so the passphrase is only needed if the fingerprint fails."
+            : rec.salt
+              ? "On for the screen lock. Tap below so it can open the encrypted book as well."
+              : "On for the screen lock. This device cannot use it to open the encrypted book, so the passphrase is still asked for when the app opens.")
+        : (pw ? "On — your fingerprint opens the app, and your password still works too."
+              : "On — your fingerprint opens the app, and your PIN still works too.");
+}
+
+$("#lockBioSet").addEventListener("click", async () => {
+  if (!lockEnabled() && !encOn()){
+    toast("Set a PIN or password first — it stays as the way in");
+    return;
+  }
+  /* Straight from the tap: Safari only lets a page ask for a new credential
+     inside the user's own gesture. Adding one needs no PIN first — it can
+     only ever enrol fingers the device itself already trusts. */
+  let reg = null;
+  try{ reg = await bioRegister(); }catch(e){ reg = null; }
+  if (!reg){ toast("Fingerprint was not set up — nothing has changed"); return; }
+  localStorage.setItem(LOCK_BIO_KEY, JSON.stringify({ id: reg.id, salt: reg.salt }));
+  let linked = false;
+  if (encOn() && encUnlocked() && reg.salt && reg.first) linked = await bioLinkBook(reg.first);
+  renderLockSettings();
+  toast(linked ? "Fingerprint on — it opens the encrypted book too" : "Fingerprint on");
+});
+
+$("#lockBioBook").addEventListener("click", async () => {
+  const ok = await bioLinkBook(null);
+  renderLockSettings();
+  toast(ok ? "The fingerprint opens the encrypted book now"
+           : "Could not link it — the passphrase is still needed when the app opens");
+});
+
+$("#lockBioOff").addEventListener("click", async () => {
+  if (!(await askConfirm({
+    title: "Stop using fingerprint?",
+    message: "This app forgets it. Your PIN, password and passphrase are not touched.",
+    confirm: "Stop using it"
+  }))) return;
+  bioForget();
+  renderLockSettings();
+  toast("Fingerprint off");
 });
 
 /* =========================================================================
@@ -18027,12 +18384,12 @@ document.addEventListener("keydown", e => {
 
   if (encOn()){
     /* No load, no seed, no render — there is nothing readable yet. */
-    encOpenUnlock();
+    encOpenUnlock(true);
   } else {
     load();
     encBooted = true;
     encBootWithData();
-    if (lockEnabled()) lockOpenUnlock();
+    if (lockEnabled()) lockOpenUnlock(true);
     else document.documentElement.classList.remove("locked");
   }
 })();

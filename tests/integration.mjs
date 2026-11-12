@@ -981,5 +981,202 @@ export default [
     assert.match(r.infoDe, /^Der Saldoverlauf \| Eine Linie unter/);
     assert.match(r.askDe, /Wische die Zeile des Eintrags nach links/);
     assert.doesNotMatch(r.askDe, /Swipe the entry/);
+  }},
+
+  { name: "fingerprint: set up, opens the lock and confirmations, a stranger's credential does not", async run(pg){
+    const auth = await withReader(pg);
+    try{
+      const r = await pg.fn(async () => {
+        const wait = ms => new Promise(r => setTimeout(r, ms));
+        const until = async (f, ms = 4000) => { for (const t = Date.now(); Date.now() - t < ms; await wait(50)) if (f()) return true; return false; };
+        const $q = s => document.querySelector(s);
+        const locked = () => document.documentElement.classList.contains("locked");
+        const all = Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)]));
+        Object.keys(localStorage).filter(k => k.startsWith("panappai.lock.")).forEach(k => localStorage.removeItem(k));
+        const out = {};
+
+        /* with no lock at all there is nothing to fall back on, so no row */
+        openSettings(); await wait(150);
+        renderLockSettings(); await wait(100);
+        out.rowWithoutLock = !$q("#lockBioRow").hidden;
+
+        localStorage.setItem(LOCK_HASH_KEY, await pinHash("1234"));
+        localStorage.setItem(LOCK_ENABLED_KEY, "1");
+        out.avail = await bioAvailable();
+        renderLockSettings(); await wait(100);
+        out.row = !$q("#lockBioRow").hidden;
+        out.setBtn = !$q("#lockBioSet").hidden;
+
+        $q("#lockBioSet").click();
+        out.registered = await until(() => lockHasBio());
+        await wait(100);
+        out.hasSalt = !!bioRec().salt;
+        out.note = $q("#lockBioNote").textContent;
+        out.offBtn = !$q("#lockBioOff").hidden;
+        sheetClose();
+
+        /* coming back to the app asks straight away */
+        lockNow(true);
+        out.autoOpened = await until(() => !locked());
+
+        /* the idle timer does not: the button waits for a tap */
+        lockNow(false); await wait(700);
+        out.idleStillLocked = locked();
+        out.btnShown = !$q("#lockBioBtn").hidden;
+        $q("#lockBioBtn").click();
+        out.tapOpened = await until(() => !locked());
+        out.btnGoneAfter = $q("#lockBioBtn").hidden;
+
+        /* a deletion's confirmation takes it too */
+        out.confirmed = await Promise.race([lockConfirm("Delete everything?"), wait(4000).then(() => "timeout")]);
+
+        /* setting a new PIN never offers it */
+        lockOpenSetup(); await wait(400);
+        out.setupHidesBtn = $q("#lockBioBtn").hidden;
+        unlockApp();
+
+        /* a credential this device never made is refused, and says so */
+        const real = bioRec();
+        localStorage.setItem(LOCK_BIO_KEY, JSON.stringify({ id: encB64(encRandom(32)), salt: null }));
+        lockNow(false); await wait(100);
+        $q("#lockBioBtn").click();
+        await until(() => !$q("#lockMsg").hidden);
+        out.strangerLocked = locked();
+        out.strangerMsg = $q("#lockMsg").textContent;
+        localStorage.setItem(LOCK_BIO_KEY, JSON.stringify(real));
+        unlockApp();
+
+        /* turning it off forgets it */
+        bioForget();
+        out.forgotten = !lockHasBio();
+
+        Object.keys(localStorage).forEach(k => localStorage.removeItem(k));
+        Object.keys(all).forEach(k => localStorage.setItem(k, all[k]));
+        document.documentElement.classList.remove("locked");
+        return out;
+      });
+      assert.equal(r.rowWithoutLock, false);
+      assert.equal(r.avail, true);
+      assert.equal(r.row, true);
+      assert.equal(r.setBtn, true);
+      assert.equal(r.registered, true);
+      assert.equal(r.hasSalt, true);
+      assert.match(r.note, /^On — your fingerprint opens the app, and your PIN still works too/);
+      assert.equal(r.offBtn, true);
+      assert.equal(r.autoOpened, true);
+      assert.equal(r.idleStillLocked, true);
+      assert.equal(r.btnShown, true);
+      assert.equal(r.tapOpened, true);
+      assert.equal(r.btnGoneAfter, true);
+      assert.equal(r.confirmed, true);
+      assert.equal(r.setupHidesBtn, true);
+      assert.equal(r.strangerLocked, true);
+      assert.match(r.strangerMsg, /did not open it\. Use your PIN/);
+      assert.equal(r.forgotten, true);
+    } finally {
+      await dropReader(pg, auth);
+      await pg.goto("/?test=" + Date.now());
+    }
+  }},
+
+  { name: "fingerprint opens the encrypted book, survives a passphrase change, and a wrong secret fails safe", async run(pg){
+    const auth = await withReader(pg);
+    try{
+      const r = await pg.fn(async () => {
+        const wait = ms => new Promise(r => setTimeout(r, ms));
+        const until = async (f, ms = 6000) => { for (const t = Date.now(); Date.now() - t < ms; await wait(50)) if (f()) return true; return false; };
+        const $q = s => document.querySelector(s);
+        const locked = () => document.documentElement.classList.contains("locked");
+        const all = Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)]));
+        const before = JSON.stringify(state.txns.length);
+        const out = {};
+
+        localStorage.setItem(LOCK_HASH_KEY, await pinHash("1234"));
+        localStorage.setItem(LOCK_ENABLED_KEY, "1");
+        localStorage.setItem(LOCK_Q_KEY, "First school?");
+        localStorage.setItem(LOCK_A_KEY, await answerHash("St Marys"));
+        await encEnable("correct horse battery", "St Marys");
+
+        $q("#lockBioSet").click();
+        await until(() => lockHasBio());
+        /* some readers hand the secret over on creation, the rest on first use */
+        if (!(await until(() => bioOpensBook(), 800))){
+          renderLockSettings(); await wait(100);
+          out.linkBtn = !$q("#lockBioBook").hidden;
+          $q("#lockBioBook").click();
+          await until(() => bioOpensBook());
+        } else out.linkBtn = "not needed";
+        out.opensBook = bioOpensBook();
+        out.wrapKeys = Object.keys(encWraps()).sort().join(",");
+
+        /* reopening the app: no key in memory, and the fingerprint is asked at once */
+        encLock();
+        lockOpenUnlock(true);
+        out.passFieldShown = !$q("#lockPassWrap").hidden;
+        out.opened = await until(() => encUnlocked() && !locked());
+        out.sameBook = JSON.stringify(state.txns.length) === before;
+
+        /* changing the passphrase rewraps only its own copy */
+        await encChangePassphrase("a whole new passphrase");
+        out.bioKept = bioOpensBook();
+        encLock();
+        lockOpenUnlock(false); await wait(100);
+        $q("#lockBioBtn").click();
+        out.openedAfterChange = await until(() => encUnlocked() && !locked());
+
+        /* a wrapping the secret cannot open leaves it locked, with the passphrase to hand */
+        const w = encWraps(), good = w.bio.ct;
+        const bad = encUnB64(good); bad[0] ^= 1; w.bio.ct = encB64(bad);
+        localStorage.setItem(ENC_WRAP_KEY, JSON.stringify(w));
+        encLock();
+        lockOpenUnlock(false); await wait(100);
+        $q("#lockBioBtn").click();
+        await until(() => !$q("#lockMsg").hidden);
+        out.badStillLocked = locked() && !encUnlocked();
+        out.badMsg = $q("#lockMsg").textContent;
+        out.passStillThere = !$q("#lockPassWrap").hidden;
+
+        /* and the passphrase still works */
+        $q("#lockPass").value = "a whole new passphrase";
+        await encTryUnlock();
+        out.passOpened = encUnlocked() && !locked();
+
+        await encDisable();
+        Object.keys(localStorage).forEach(k => localStorage.removeItem(k));
+        Object.keys(all).forEach(k => localStorage.setItem(k, all[k]));
+        document.documentElement.classList.remove("locked");
+        return out;
+      });
+      assert.notEqual(r.linkBtn, false);
+      assert.equal(r.opensBook, true);
+      assert.equal(r.wrapKeys, "answer,bio,pass");
+      assert.equal(r.passFieldShown, true);
+      assert.equal(r.opened, true);
+      assert.equal(r.sameBook, true);
+      assert.equal(r.bioKept, true);
+      assert.equal(r.openedAfterChange, true);
+      assert.equal(r.badStillLocked, true);
+      assert.match(r.badMsg, /recognised, but it could not open the encrypted book/);
+      assert.equal(r.passStillThere, true);
+      assert.equal(r.passOpened, true);
+    } finally {
+      await dropReader(pg, auth);
+      await pg.goto("/?test=" + Date.now());
+    }
   }}
 ];
+
+/* A fingerprint reader that always recognises its owner, in place of a real one. */
+async function withReader(pg){
+  await pg.cdp("WebAuthn.enable", { enableUI: false });
+  const { authenticatorId } = await pg.cdp("WebAuthn.addVirtualAuthenticator", { options: {
+    protocol: "ctap2", ctap2Version: "ctap2_1", transport: "internal",
+    hasResidentKey: true, hasUserVerification: true, isUserVerified: true,
+    hasPrf: true, automaticPresenceSimulation: true
+  }});
+  return authenticatorId;
+}
+async function dropReader(pg, id){
+  try{ await pg.cdp("WebAuthn.removeVirtualAuthenticator", { authenticatorId: id }); }catch(e){}
+  try{ await pg.cdp("WebAuthn.disable"); }catch(e){}
+}

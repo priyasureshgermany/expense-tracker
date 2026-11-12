@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 4.0.2 — 2026-11-12
+- new: App lock: unlock with your fingerprint, Face ID / Touch ID or Windows Hello — on the lock screen, before deletions, and (iOS 18+, recent Android) to open the encrypted book. Your PIN or password stays as the fallback.
+
 ## 4.0.1 — 2026-11-11
 - better: Balance bar on the All tab: two bank cards to a screen with the rest a swipe away, and a thinner, fainter outline on the entry at the top.
 

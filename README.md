@@ -164,6 +164,14 @@ Open `index.html` in any browser, or host the file anywhere static.
   app name and a fan of euro notes. This locks the *screen* only; it does not
   encrypt the data itself, so it's a deterrent for a shared device, not real
   cryptographic security.
+- **Fingerprint** — with a PIN or password set, **Settings → App lock →
+  Fingerprint** adds the device's own unlock (fingerprint, Face ID / Touch ID,
+  Windows Hello) through WebAuthn. It opens the lock screen and confirms
+  deletions; the PIN or password stays as the fallback. With *Encrypt this
+  device* on, and on devices that support WebAuthn's PRF extension (recent
+  Android Chrome, iOS 18+), it also wraps the data key, so it opens the
+  encrypted book without the passphrase. Needs https (or localhost), and is
+  per device and browser: nothing about it is in backups or GitHub sync.
 - **Optional GitHub sync** — see below.
 
 ## Shopping lists
