@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 4.0.9 — 2026-11-12
+- fix: Update now and the offline copy no longer clear the barcode scanner's offline copy — the two apps share a website.
+
 ## 4.0.8 — 2026-11-12
 - new: Items you send from the barcode scanner — to the shopping list or as an expense — appear here when you open the app, with Undo.
 

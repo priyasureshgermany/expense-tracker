@@ -7666,7 +7666,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "4.0.8";
+const APP_VERSION = "4.0.9";
 const APP_BUILT = "2026-11-12";
 
 const KEY = "panappai.v1";
@@ -10066,13 +10066,16 @@ $("#abUpdate").addEventListener("click", async function(){
   this.disabled = true;
   $("#abUpdateLabel").textContent = "Updating…";
   try{
+    /* This app's caches and this app's worker only: the barcode scanner shares
+       the site, its cache storage and its list of workers, and clearing all of
+       them updated the scanner out of its offline copy as well. */
     if ("caches" in window){
       const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
+      await Promise.all(keys.filter(k => k.indexOf("panappai-") === 0).map(k => caches.delete(k)));
     }
     if (navigator.serviceWorker){
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.update().catch(() => r.unregister())));
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) await reg.update().catch(() => reg.unregister());
     }
   }catch(e){ /* a reload from the network is still worth trying */ }
   location.reload();

@@ -1114,6 +1114,26 @@ tests.push({ name: "barcode scanner inbox: list items and euro expenses come in 
   assert.equal(r.butterAfterUndo, false);
 }});
 
+tests.push({ name: "the barcode scanner's caches survive: Update now and the worker clear panappai-* only", async run(pg){
+  /* the worker's clean-up, run against a cache store holding both apps */
+  const sw = pg.readFile("sw.js");
+  const m = /keys\.filter\(([\s\S]*?)\)\s*\.map\(\(k\) => caches\.delete/.exec(sw);
+  assert.ok(m, "sw.js activate filter not found");
+  const doomed = await pg.fn((src) => {
+    const ASSETS = "panappai-9.9.9", SHELL = "panappai-shell";
+    const willDelete = eval("(" + src + ")");
+    return ["panappai-4.0.1", ASSETS, SHELL, "barcode-scanner-1.1.5", "barcode-scanner-shell"].filter(willDelete);
+  }, m[1]);
+  assert.deepEqual(doomed, ["panappai-4.0.1"]);
+
+  /* Update now reloads the page, so its clean-up is read rather than run */
+  const page = pg.readFile("index.html");
+  const at = page.indexOf('$("#abUpdate").addEventListener');
+  const upd = page.slice(at, at + 1200);
+  assert.match(upd, /k\.indexOf\("panappai-"\) === 0/);
+  assert.doesNotMatch(upd, /getRegistrations\(\)/);
+}});
+
 tests.push({ name: "a device that had Face ID on loses it on the next load; the PIN and passphrase stay", async run(pg){
   /* what 4.0.2 – 4.0.6 stored: the credential's record, and a third wrapping of the key */
   await pg.fn(() => {

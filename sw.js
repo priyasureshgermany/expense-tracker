@@ -15,7 +15,7 @@
    The check that raises the Update badge is unaffected: it asks the network
    directly with a cache-busting query, so it still sees a newer version even
    while this worker keeps serving the old one. */
-const VERSION = "4.0.8";
+const VERSION = "4.0.9";
 const ASSETS = "panappai-" + VERSION;   /* icons, manifest — versioned, purged */
 const SHELL = "panappai-shell";         /* the page itself — replaced only on request */
 
@@ -55,7 +55,11 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(
-        keys.filter((k) => k !== ASSETS && k !== SHELL).map((k) => caches.delete(k))))
+        /* Only this app's own caches. The barcode scanner is on the same site
+           and so shares this cache storage; deleting every other name took
+           its offline copy with it. */
+        keys.filter((k) => k.startsWith("panappai-") && k !== ASSETS && k !== SHELL)
+            .map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
