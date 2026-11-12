@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 4.0.3 — 2026-11-12
+- better: App lock: on an iPhone the fingerprint button and settings say Face ID (or Touch ID on iPhones with a home button).
+
 ## 4.0.2 — 2026-11-12
 - new: App lock: unlock with your fingerprint, Face ID / Touch ID or Windows Hello — on the lock screen, before deletions, and (iOS 18+, recent Android) to open the encrypted book. Your PIN or password stays as the fallback.
 

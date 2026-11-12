@@ -33,7 +33,7 @@ const DEUTSCHE = `"Umsatzübersicht"
 "11.08.2026";"11.08.2026";"SEPA-Lastschrift";"DEUTSCHE BAHN AG";"DEUTSCHLANDTICKET AUGUST";"DE33";"XXX";"-58,00";"";"EUR"
 "Kontostand";"";"";"";"";"";"";"";"2.410,55";"EUR"`;
 
-export default [
+const tests = [
   { name: "balance card, balanceNow and the line's last point agree", async run(pg){
     const r = await pg.fn(async () => {
       __T.useBook();
@@ -1166,6 +1166,46 @@ export default [
   }}
 ];
 
+tests.push({ name: "on an iPhone the fingerprint is called Face ID, everywhere it is named", async run(pg){
+  const IPHONE = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 " +
+                 "(KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1";
+  await pg.cdp("Emulation.setUserAgentOverride", { userAgent: IPHONE });
+  try{
+    await pg.goto("/?iphone=" + Date.now());
+    const r = await pg.fn(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const $q = s => document.querySelector(s);
+      const all = Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)]));
+      localStorage.setItem(LOCK_HASH_KEY, await pinHash("1234"));
+      localStorage.setItem(LOCK_ENABLED_KEY, "1");
+      localStorage.setItem(LOCK_BIO_KEY, JSON.stringify({ id: "AAAA", salt: null }));
+      const out = { name: bioName() };
+      lockNow(false); await wait(150);
+      out.btn = $q("#lockBioBtn").textContent.trim();
+      unlockApp();
+      openSettings(); await wait(150);
+      renderLockSettings(); await wait(150);
+      out.title = $q("#lockBioTitle").textContent;
+      out.off = $q("#lockBioOff").textContent;
+      out.subHidden = $q("#lockBioSub").hidden;
+      out.note = $q("#lockBioNote").textContent;
+      sheetClose();
+      Object.keys(localStorage).forEach(k => localStorage.removeItem(k));
+      Object.keys(all).forEach(k => localStorage.setItem(k, all[k]));
+      return out;
+    });
+    assert.equal(r.name, "Face ID");
+    assert.equal(r.btn, "Use Face ID");
+    assert.equal(r.title, "Face ID");
+    assert.equal(r.off, "Stop using Face ID");
+    assert.equal(r.subHidden, true);
+    assert.match(r.note, /^On — Face ID opens the app/);
+  } finally {
+    await pg.cdp("Emulation.setUserAgentOverride", { userAgent: "" });
+    await pg.goto("/?test=" + Date.now());
+  }
+}});
+
 /* A fingerprint reader that always recognises its owner, in place of a real one. */
 async function withReader(pg){
   await pg.cdp("WebAuthn.enable", { enableUI: false });
@@ -1180,3 +1220,5 @@ async function dropReader(pg, id){
   try{ await pg.cdp("WebAuthn.removeVirtualAuthenticator", { authenticatorId: id }); }catch(e){}
   try{ await pg.cdp("WebAuthn.disable"); }catch(e){}
 }
+
+export default tests;

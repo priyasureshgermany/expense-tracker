@@ -3629,6 +3629,7 @@ html.locked #lockScreen::before{
 .lock-bio:active{background:rgba(255,255,255,.26)}
 .lock-bio svg{width:22px;height:22px;flex:none}
 .lock-bio[hidden]{display:none}
+#lockBioSub[hidden]{display:none}
 .lock-forgot{margin-top:20px;font-size:12px;color:rgba(255,255,255,.62);text-decoration:underline}
 /* Said here rather than only in a toast. The lock screen fills the viewport,
    so a message at the foot of the page is both behind it and nowhere near
@@ -5214,7 +5215,7 @@ html.locked #lockScreen::before{
         </div>
       </div>
       <div class="cfgrow cfg-stack" id="lockBioRow" style="margin-top:14px" hidden>
-        <div class="cf-t"><b>Fingerprint</b><span>Or face — whatever this device unlocks with</span></div>
+        <div class="cf-t"><b id="lockBioTitle">Fingerprint</b><span id="lockBioSub">Or face — whatever this device unlocks with</span></div>
         <div class="note" id="lockBioNote">—</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
           <button class="btn ghost sm" id="lockBioSet" type="button" hidden>Use fingerprint</button>
@@ -7521,6 +7522,31 @@ const I18N_DE = {
 "₹ Rupee": "₹ Rupie",
 "◀ ▶ beside the period's name": "◀ ▶ neben dem Namen des Zeitraums"
 };
+/* The fingerprint's lines as an iPhone says them — Face ID or Touch ID in its
+   place. The English keys are made by the same bioTextFor() the screen uses,
+   so the two cannot drift apart; only the German is written out. */
+[
+  ["Use fingerprint", "{n} verwenden"],
+  ["Fingerprint", "{n}"],
+  ["Stop using fingerprint", "{n} nicht mehr verwenden"],
+  ["Stop using fingerprint?", "{n} nicht mehr verwenden?"],
+  ["Fingerprint on", "{n} an"],
+  ["Fingerprint off", "{n} aus"],
+  ["Fingerprint on — it opens the encrypted book too", "{n} an — damit öffnet sich auch das verschlüsselte Buch"],
+  ["Fingerprint was not set up — nothing has changed", "{n} wurde nicht eingerichtet — nichts hat sich geändert"],
+  ["The fingerprint opens the encrypted book now", "{n} öffnet jetzt das verschlüsselte Buch"],
+  ["The fingerprint did not open it. Use your passphrase instead.", "{n} hat nicht geöffnet. Nimm stattdessen deine Passphrase."],
+  ["The fingerprint did not open it. Use your password instead.", "{n} hat nicht geöffnet. Nimm stattdessen dein Passwort."],
+  ["The fingerprint did not open it. Use your PIN instead.", "{n} hat nicht geöffnet. Nimm stattdessen deine PIN."],
+  ["Your fingerprint was recognised, but it could not open the encrypted book. Use your passphrase.", "{n} hat dich erkannt, konnte das verschlüsselte Buch aber nicht öffnen. Nimm deine Passphrase."],
+  ["Unlock with the fingerprint or face this device already knows. Your PIN stays as the way in when it cannot be read.", "Entsperre mit {n}. Deine PIN bleibt der Weg hinein, wenn das nicht klappt."],
+  ["Unlock with the fingerprint or face this device already knows. Your password stays as the way in when it cannot be read.", "Entsperre mit {n}. Dein Passwort bleibt der Weg hinein, wenn das nicht klappt."],
+  ["On — it opens the encrypted book too, so the passphrase is only needed if the fingerprint fails.", "An — damit öffnet sich auch das verschlüsselte Buch, die Passphrase brauchst du nur, wenn {n} versagt."],
+  ["On — your fingerprint opens the app, and your PIN still works too.", "An — {n} öffnet die App, und deine PIN funktioniert weiterhin."],
+  ["On — your fingerprint opens the app, and your password still works too.", "An — {n} öffnet die App, und dein Passwort funktioniert weiterhin."]
+].forEach(([en, de]) => ["Face ID", "Touch ID"].forEach(n => {
+  I18N_DE[bioTextFor(n, en)] = de.split("{n}").join(n);
+}));
 const I18N_MAP = new Map();
 /** Spacing collapsed, so a line that breaks across the markup still matches. */
 function i18nKey(s){ return String(s).replace(/\s+/g, " ").trim(); }
@@ -7708,7 +7734,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "4.0.2";
+const APP_VERSION = "4.0.3";
 const APP_BUILT = "2026-11-12";
 
 const KEY = "panappai.v1";
@@ -17084,6 +17110,27 @@ function bioForget(){
   }
 }
 
+/* ---------- what to call it ----------
+   "Use fingerprint" is wrong on an iPhone, which has Face ID — or, on the
+   ones with a home button, Touch ID. The browser will not say which reader
+   there is, but the screen does: every Face ID iPhone is at least 812 points
+   tall, and every Touch ID one at most 736. Anywhere else it stays
+   "fingerprint", which also reads fine beside Windows Hello or Android's face. */
+function bioName(){
+  const ua = (navigator && navigator.userAgent) || "";
+  if (!/iPhone|iPod/.test(ua)) return null;
+  const tall = Math.max(screen.width || 0, screen.height || 0);
+  return tall >= 812 ? "Face ID" : "Touch ID";
+}
+/** An English line about the fingerprint, said with `name` in its place. */
+function bioTextFor(name, s){
+  if (!name) return s;
+  return s.replace(/with the fingerprint or face this device already knows/g, "with " + name)
+          .replace(/\b(The|the|Your|your) fingerprint\b/g, name)
+          .replace(/\b[Ff]ingerprint\b/g, name);
+}
+function bioText(s){ return bioTextFor(bioName(), s); }
+
 /* ---------- on the lock screen ---------- */
 let bioBusy = false;
 function bioHide(){ const b = $("#lockBioBtn"); if (b) b.hidden = true; }
@@ -17091,6 +17138,7 @@ function bioHide(){ const b = $("#lockBioBtn"); if (b) b.hidden = true; }
 function bioOffer(auto){
   const b = $("#lockBioBtn");
   if (!b) return;
+  b.querySelector("span").textContent = bioText("Use fingerprint");
   b.hidden = !lockHasBio();
   if (!b.hidden && auto) setTimeout(() => { if (!b.hidden) bioUnlockTap(true); }, 250);
 }
@@ -17112,14 +17160,14 @@ async function bioUnlockTap(auto){
   /* the screen may have been answered by PIN while the prompt was up */
   if (!document.documentElement.classList.contains("locked") || $("#lockBioBtn").hidden) return;
   if (!got){
-    if (!auto) lockSay(needBook ? "The fingerprint did not open it. Use your passphrase instead."
+    if (!auto) lockSay(bioText(needBook ? "The fingerprint did not open it. Use your passphrase instead."
                      : lockKind() === "password" ? "The fingerprint did not open it. Use your password instead."
-                     : "The fingerprint did not open it. Use your PIN instead.");
+                     : "The fingerprint did not open it. Use your PIN instead."));
     return;
   }
   if (needBook){
     if (!got.prf || !(await bioUnwrapBook(got.prf, rec))){
-      lockSay("Your fingerprint was recognised, but it could not open the encrypted book. Use your passphrase.");
+      lockSay(bioText("Your fingerprint was recognised, but it could not open the encrypted book. Use your passphrase."));
       return;
     }
     await encAfterUnlock();
@@ -17142,7 +17190,12 @@ async function bioRenderSettings(){
   $("#lockBioOff").hidden = !rec;
   $("#lockBioBook").hidden = !(rec && rec.salt && enc && encUnlocked() && !bioOpensBook() && avail);
   const pw = lockKind() === "password";
-  $("#lockBioNote").textContent = !avail && !rec
+  $("#lockBioTitle").textContent = bioText("Fingerprint");
+  $("#lockBioSet").textContent = bioText("Use fingerprint");
+  $("#lockBioOff").textContent = bioText("Stop using fingerprint");
+  /* "Or face" is the point of the line elsewhere; on an iPhone the name already says it */
+  $("#lockBioSub").hidden = !!bioName();
+  $("#lockBioNote").textContent = bioText(!avail && !rec
     ? (window.isSecureContext
         ? "This device or browser has no fingerprint or face unlock the app can use."
         : "Needs the app opened from its https:// address — not from a file on this device.")
@@ -17156,7 +17209,7 @@ async function bioRenderSettings(){
               ? "On for the screen lock. Tap below so it can open the encrypted book as well."
               : "On for the screen lock. This device cannot use it to open the encrypted book, so the passphrase is still asked for when the app opens.")
         : (pw ? "On — your fingerprint opens the app, and your password still works too."
-              : "On — your fingerprint opens the app, and your PIN still works too.");
+              : "On — your fingerprint opens the app, and your PIN still works too."));
 }
 
 $("#lockBioSet").addEventListener("click", async () => {
@@ -17169,30 +17222,30 @@ $("#lockBioSet").addEventListener("click", async () => {
      only ever enrol fingers the device itself already trusts. */
   let reg = null;
   try{ reg = await bioRegister(); }catch(e){ reg = null; }
-  if (!reg){ toast("Fingerprint was not set up — nothing has changed"); return; }
+  if (!reg){ toast(bioText("Fingerprint was not set up — nothing has changed")); return; }
   localStorage.setItem(LOCK_BIO_KEY, JSON.stringify({ id: reg.id, salt: reg.salt }));
   let linked = false;
   if (encOn() && encUnlocked() && reg.salt && reg.first) linked = await bioLinkBook(reg.first);
   renderLockSettings();
-  toast(linked ? "Fingerprint on — it opens the encrypted book too" : "Fingerprint on");
+  toast(bioText(linked ? "Fingerprint on — it opens the encrypted book too" : "Fingerprint on"));
 });
 
 $("#lockBioBook").addEventListener("click", async () => {
   const ok = await bioLinkBook(null);
   renderLockSettings();
-  toast(ok ? "The fingerprint opens the encrypted book now"
+  toast(ok ? bioText("The fingerprint opens the encrypted book now")
            : "Could not link it — the passphrase is still needed when the app opens");
 });
 
 $("#lockBioOff").addEventListener("click", async () => {
   if (!(await askConfirm({
-    title: "Stop using fingerprint?",
+    title: bioText("Stop using fingerprint?"),
     message: "This app forgets it. Your PIN, password and passphrase are not touched.",
     confirm: "Stop using it"
   }))) return;
   bioForget();
   renderLockSettings();
-  toast("Fingerprint off");
+  toast(bioText("Fingerprint off"));
 });
 
 /* =========================================================================
