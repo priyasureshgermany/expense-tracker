@@ -443,26 +443,5 @@ export default [
       ledTabAfterSwipe("planned", "right"), ledTabAfterSwipe("all", "right"), ledTabAfterSwipe("nope", "left")
     ]);
     assert.deepEqual(r, ["planned", "done", "transfer", null, "done", "all", null, null]);
-  }},
-
-  { name: "bioTextFor: Face ID / Touch ID in the fingerprint's place, every line German has", async run(pg){
-    const r = await pg.fn(() => ({
-      plain: bioTextFor(null, "Use fingerprint"),
-      use: bioTextFor("Face ID", "Use fingerprint"),
-      title: bioTextFor("Touch ID", "Fingerprint"),
-      fail: bioTextFor("Face ID", "The fingerprint did not open it. Use your PIN instead."),
-      seen: bioTextFor("Face ID", "Your fingerprint was recognised, but it could not open the encrypted book. Use your passphrase."),
-      setup: bioTextFor("Face ID", "Unlock with the fingerprint or face this device already knows. Your PIN stays as the way in when it cannot be read."),
-      on: bioTextFor("Touch ID", "On — your fingerprint opens the app, and your PIN still works too."),
-      de: [I18N_DE["Use Face ID"], I18N_DE["Touch ID did not open it. Use your password instead."]]
-    }));
-    assert.equal(r.plain, "Use fingerprint");
-    assert.equal(r.use, "Use Face ID");
-    assert.equal(r.title, "Touch ID");
-    assert.equal(r.fail, "Face ID did not open it. Use your PIN instead.");
-    assert.equal(r.seen, "Face ID was recognised, but it could not open the encrypted book. Use your passphrase.");
-    assert.equal(r.setup, "Unlock with Face ID. Your PIN stays as the way in when it cannot be read.");
-    assert.equal(r.on, "On — Touch ID opens the app, and your PIN still works too.");
-    assert.deepEqual(r.de, ["Face ID verwenden", "Touch ID hat nicht geöffnet. Nimm stattdessen dein Passwort."]);
   }}
 ];

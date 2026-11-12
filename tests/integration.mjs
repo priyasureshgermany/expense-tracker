@@ -981,262 +981,8 @@ const tests = [
     assert.match(r.infoDe, /^Der Saldoverlauf \| Eine Linie unter/);
     assert.match(r.askDe, /Wische die Zeile des Eintrags nach links/);
     assert.doesNotMatch(r.askDe, /Swipe the entry/);
-  }},
-
-  { name: "fingerprint: set up, opens the lock and confirmations, a stranger's credential does not", async run(pg){
-    const auth = await withReader(pg);
-    try{
-      const r = await pg.fn(async () => {
-        const wait = ms => new Promise(r => setTimeout(r, ms));
-        const until = async (f, ms = 4000) => { for (const t = Date.now(); Date.now() - t < ms; await wait(50)) if (f()) return true; return false; };
-        const $q = s => document.querySelector(s);
-        const locked = () => document.documentElement.classList.contains("locked");
-        const all = Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)]));
-        Object.keys(localStorage).filter(k => k.startsWith("panappai.lock.")).forEach(k => localStorage.removeItem(k));
-        const out = {};
-
-        /* with no lock at all there is nothing to fall back on, so no row */
-        openSettings(); await wait(150);
-        renderLockSettings(); await wait(100);
-        out.rowWithoutLock = !$q("#lockBioRow").hidden;
-
-        localStorage.setItem(LOCK_HASH_KEY, await pinHash("1234"));
-        localStorage.setItem(LOCK_ENABLED_KEY, "1");
-        out.avail = await bioAvailable();
-        renderLockSettings(); await wait(100);
-        out.row = !$q("#lockBioRow").hidden;
-        out.setBtn = !$q("#lockBioSet").hidden;
-
-        $q("#lockBioSet").click();
-        out.registered = await until(() => lockHasBio());
-        await wait(100);
-        out.hasSalt = !!bioRec().salt;
-        out.note = $q("#lockBioNote").textContent;
-        out.offBtn = !$q("#lockBioOff").hidden;
-        sheetClose();
-
-        /* the lock screen never asks by itself — every browser shows a passkey
-           sheet for that — so it stays locked until the key is tapped */
-        const realGet = navigator.credentials.get;
-        let asked = 0;
-        navigator.credentials.get = function(){ asked++; return realGet.apply(this, arguments); };
-        lockNow(); await wait(700);
-        out.unasked = asked === 0;
-        out.idleStillLocked = locked();
-        /* with the keypad up it is the key left of 0, not the pill above */
-        const padKey = () => $q("#lockPadBio").style.visibility === "visible";
-        const keys = [...$q("#lockPad").children];
-        out.keyPlace = keys.indexOf($q("#lockPadBio")) === keys.indexOf($q('#lockPad [data-k="0"]')) - 1;
-        out.btnShown = padKey();
-        out.pillHidden = $q("#lockBioBtn").hidden;
-        $q("#lockPadBio").click();
-        out.tapOpened = await until(() => !locked());
-        out.askedOnTap = asked === 1;
-        navigator.credentials.get = realGet;
-        out.btnGoneAfter = !padKey();
-
-        /* a deletion's confirmation takes it too */
-        const pc = lockConfirm("Delete everything?"); await wait(150);
-        $q("#lockPadBio").click();
-        out.confirmed = await Promise.race([pc, wait(4000).then(() => "timeout")]);
-
-        /* setting a new PIN never offers it */
-        lockOpenSetup(); await wait(400);
-        out.setupHidesBtn = $q("#lockBioBtn").hidden && !padKey();
-        unlockApp();
-
-        /* a credential this device never made is refused, and says so */
-        const real = bioRec();
-        localStorage.setItem(LOCK_BIO_KEY, JSON.stringify({ id: encB64(encRandom(32)), salt: null }));
-        lockNow(); await wait(100);
-        $q("#lockPadBio").click();
-        await until(() => !$q("#lockMsg").hidden);
-        out.strangerLocked = locked();
-        out.strangerMsg = $q("#lockMsg").textContent;
-        localStorage.setItem(LOCK_BIO_KEY, JSON.stringify(real));
-        unlockApp();
-
-        /* turning it off forgets it */
-        bioForget();
-        out.forgotten = !lockHasBio();
-
-        Object.keys(localStorage).forEach(k => localStorage.removeItem(k));
-        Object.keys(all).forEach(k => localStorage.setItem(k, all[k]));
-        document.documentElement.classList.remove("locked");
-        return out;
-      });
-      assert.equal(r.rowWithoutLock, false);
-      assert.equal(r.avail, true);
-      assert.equal(r.row, true);
-      assert.equal(r.setBtn, true);
-      assert.equal(r.registered, true);
-      assert.equal(r.hasSalt, true);
-      assert.match(r.note, /^On — your fingerprint opens the app, and your PIN still works too/);
-      assert.equal(r.offBtn, true);
-      assert.equal(r.unasked, true);
-      assert.equal(r.askedOnTap, true);
-      assert.equal(r.idleStillLocked, true);
-      assert.equal(r.btnShown, true);
-      assert.equal(r.keyPlace, true);
-      assert.equal(r.pillHidden, true);
-      assert.equal(r.tapOpened, true);
-      assert.equal(r.btnGoneAfter, true);
-      assert.equal(r.confirmed, true);
-      assert.equal(r.setupHidesBtn, true);
-      assert.equal(r.strangerLocked, true);
-      assert.match(r.strangerMsg, /did not open it\. Use your PIN/);
-      assert.equal(r.forgotten, true);
-    } finally {
-      await dropReader(pg, auth);
-      await pg.goto("/?test=" + Date.now());
-    }
-  }},
-
-  { name: "fingerprint opens the encrypted book, survives a passphrase change, and a wrong secret fails safe", async run(pg){
-    const auth = await withReader(pg);
-    try{
-      const r = await pg.fn(async () => {
-        const wait = ms => new Promise(r => setTimeout(r, ms));
-        const until = async (f, ms = 6000) => { for (const t = Date.now(); Date.now() - t < ms; await wait(50)) if (f()) return true; return false; };
-        const $q = s => document.querySelector(s);
-        const locked = () => document.documentElement.classList.contains("locked");
-        const all = Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)]));
-        const before = JSON.stringify(state.txns.length);
-        const out = {};
-
-        localStorage.setItem(LOCK_HASH_KEY, await pinHash("1234"));
-        localStorage.setItem(LOCK_ENABLED_KEY, "1");
-        localStorage.setItem(LOCK_Q_KEY, "First school?");
-        localStorage.setItem(LOCK_A_KEY, await answerHash("St Marys"));
-        await encEnable("correct horse battery", "St Marys");
-
-        $q("#lockBioSet").click();
-        await until(() => lockHasBio());
-        /* some readers hand the secret over on creation, the rest on first use */
-        if (!(await until(() => bioOpensBook(), 800))){
-          renderLockSettings(); await wait(100);
-          out.linkBtn = !$q("#lockBioBook").hidden;
-          $q("#lockBioBook").click();
-          await until(() => bioOpensBook());
-        } else out.linkBtn = "not needed";
-        out.opensBook = bioOpensBook();
-        out.wrapKeys = Object.keys(encWraps()).sort().join(",");
-
-        /* reopening the app: no key in memory, the passphrase field and the
-           fingerprint pill both offered, and the pill opens it */
-        encLock();
-        lockOpenUnlock(); await wait(400);
-        out.passFieldShown = !$q("#lockPassWrap").hidden;
-        out.waitsForTap = locked() && !encUnlocked() && !$q("#lockBioBtn").hidden;
-        $q("#lockBioBtn").click();
-        out.opened = await until(() => encUnlocked() && !locked());
-        out.sameBook = JSON.stringify(state.txns.length) === before;
-
-        /* changing the passphrase rewraps only its own copy */
-        await encChangePassphrase("a whole new passphrase");
-        out.bioKept = bioOpensBook();
-        encLock();
-        lockOpenUnlock(); await wait(100);
-        $q("#lockBioBtn").click();
-        out.openedAfterChange = await until(() => encUnlocked() && !locked());
-
-        /* a wrapping the secret cannot open leaves it locked, with the passphrase to hand */
-        const w = encWraps(), good = w.bio.ct;
-        const bad = encUnB64(good); bad[0] ^= 1; w.bio.ct = encB64(bad);
-        localStorage.setItem(ENC_WRAP_KEY, JSON.stringify(w));
-        encLock();
-        lockOpenUnlock(); await wait(100);
-        $q("#lockBioBtn").click();
-        await until(() => !$q("#lockMsg").hidden);
-        out.badStillLocked = locked() && !encUnlocked();
-        out.badMsg = $q("#lockMsg").textContent;
-        out.passStillThere = !$q("#lockPassWrap").hidden;
-
-        /* and the passphrase still works */
-        $q("#lockPass").value = "a whole new passphrase";
-        await encTryUnlock();
-        out.passOpened = encUnlocked() && !locked();
-
-        await encDisable();
-        Object.keys(localStorage).forEach(k => localStorage.removeItem(k));
-        Object.keys(all).forEach(k => localStorage.setItem(k, all[k]));
-        document.documentElement.classList.remove("locked");
-        return out;
-      });
-      assert.notEqual(r.linkBtn, false);
-      assert.equal(r.opensBook, true);
-      assert.equal(r.wrapKeys, "answer,bio,pass");
-      assert.equal(r.passFieldShown, true);
-      assert.equal(r.waitsForTap, true);
-      assert.equal(r.opened, true);
-      assert.equal(r.sameBook, true);
-      assert.equal(r.bioKept, true);
-      assert.equal(r.openedAfterChange, true);
-      assert.equal(r.badStillLocked, true);
-      assert.match(r.badMsg, /recognised, but it could not open the encrypted book/);
-      assert.equal(r.passStillThere, true);
-      assert.equal(r.passOpened, true);
-    } finally {
-      await dropReader(pg, auth);
-      await pg.goto("/?test=" + Date.now());
-    }
   }}
 ];
-
-tests.push({ name: "on an iPhone it is called Face ID, and is asked for only on a tap", async run(pg){
-  const IPHONE = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 " +
-                 "(KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1";
-  await pg.cdp("Emulation.setUserAgentOverride", { userAgent: IPHONE });
-  try{
-    await pg.goto("/?iphone=" + Date.now());
-    const r = await pg.fn(async () => {
-      const wait = ms => new Promise(r => setTimeout(r, ms));
-      const $q = s => document.querySelector(s);
-      const all = Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)]));
-      localStorage.setItem(LOCK_HASH_KEY, await pinHash("1234"));
-      localStorage.setItem(LOCK_ENABLED_KEY, "1");
-      localStorage.setItem(LOCK_BIO_KEY, JSON.stringify({ id: "AAAA", salt: null }));
-      const out = { name: bioName() };
-      lockNow(); await wait(150);
-      out.btn = $q("#lockPadBio").getAttribute("aria-label");
-      unlockApp();
-
-      /* reopening must not raise Apple's "Use passkey?" sheet on its own: count the asks */
-      const realGet = navigator.credentials.get.bind(navigator.credentials);
-      let asked = 0;
-      navigator.credentials.get = () => { asked++; return Promise.reject(new DOMException("x", "NotAllowedError")); };
-      lockNow(); await wait(700);
-      out.autoAsks = asked;
-      out.btnStillOffered = $q("#lockPadBio").style.visibility === "visible";
-      $q("#lockPadBio").click(); await wait(200);
-      out.tapAsks = asked;
-      navigator.credentials.get = realGet;
-      unlockApp();
-      openSettings(); await wait(150);
-      renderLockSettings(); await wait(150);
-      out.title = $q("#lockBioTitle").textContent;
-      out.off = $q("#lockBioOff").textContent;
-      out.subHidden = $q("#lockBioSub").hidden;
-      out.note = $q("#lockBioNote").textContent;
-      sheetClose();
-      Object.keys(localStorage).forEach(k => localStorage.removeItem(k));
-      Object.keys(all).forEach(k => localStorage.setItem(k, all[k]));
-      return out;
-    });
-    assert.equal(r.name, "Face ID");
-    assert.equal(r.btn, "Use Face ID");
-    assert.equal(r.autoAsks, 0);
-    assert.equal(r.btnStillOffered, true);
-    assert.equal(r.tapAsks, 1);
-    assert.equal(r.title, "Face ID");
-    assert.equal(r.off, "Stop using Face ID");
-    assert.equal(r.subHidden, true);
-    assert.match(r.note, /^On — Face ID opens the app/);
-  } finally {
-    await pg.cdp("Emulation.setUserAgentOverride", { userAgent: "" });
-    await pg.goto("/?test=" + Date.now());
-  }
-}});
 
 tests.push({ name: "ledger: a sideways swipe off the rows changes tab; rows, scrollers and edges keep theirs", async run(pg){
   const r = await pg.fn(async () => {
@@ -1305,19 +1051,25 @@ tests.push({ name: "ledger: a sideways swipe off the rows changes tab; rows, scr
   assert.equal(r.otherPanel, "done");
 }});
 
-/* A fingerprint reader that always recognises its owner, in place of a real one. */
-async function withReader(pg){
-  await pg.cdp("WebAuthn.enable", { enableUI: false });
-  const { authenticatorId } = await pg.cdp("WebAuthn.addVirtualAuthenticator", { options: {
-    protocol: "ctap2", ctap2Version: "ctap2_1", transport: "internal",
-    hasResidentKey: true, hasUserVerification: true, isUserVerified: true,
-    hasPrf: true, automaticPresenceSimulation: true
-  }});
-  return authenticatorId;
-}
-async function dropReader(pg, id){
-  try{ await pg.cdp("WebAuthn.removeVirtualAuthenticator", { authenticatorId: id }); }catch(e){}
-  try{ await pg.cdp("WebAuthn.disable"); }catch(e){}
-}
+tests.push({ name: "a device that had Face ID on loses it on the next load; the PIN and passphrase stay", async run(pg){
+  /* what 4.0.2 – 4.0.6 stored: the credential's record, and a third wrapping of the key */
+  await pg.fn(() => {
+    localStorage.setItem("panappai.lock.bio", JSON.stringify({ id: "AAAA", salt: "BBBB" }));
+    localStorage.setItem("panappai.test.keepWraps", localStorage.getItem(ENC_WRAP_KEY) || "");
+    localStorage.setItem(ENC_WRAP_KEY, JSON.stringify({ pass: { salt:"s", iv:"i", ct:"c" },
+      answer: { salt:"s2", iv:"i2", ct:"c2" }, bio: { iv:"i3", ct:"c3" } }));
+  });
+  await pg.goto("/?oldbio=" + Date.now());
+  const r = await pg.fn(() => {
+    const out = { rec: localStorage.getItem("panappai.lock.bio"), wraps: Object.keys(encWraps() || {}).sort().join(",") };
+    const keep = localStorage.getItem("panappai.test.keepWraps");
+    if (keep) localStorage.setItem(ENC_WRAP_KEY, keep); else localStorage.removeItem(ENC_WRAP_KEY);
+    localStorage.removeItem("panappai.test.keepWraps");
+    return out;
+  });
+  await pg.goto("/?test=" + Date.now());
+  assert.equal(r.rec, null);
+  assert.equal(r.wraps, "answer,pass");
+}});
 
 export default tests;

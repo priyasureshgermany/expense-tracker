@@ -157,18 +157,14 @@ async function openPage(client, base){
         await new Promise(r => setTimeout(r, 100));
       }
     },
-    readFile: f => fs.readFileSync(path.join(ROOT, f), "utf8"),
-    /** A raw DevTools call on this page — for a virtual fingerprint reader, say. */
-    cdp: (m, p) => s(m, p)
+    readFile: f => fs.readFileSync(path.join(ROOT, f), "utf8")
   };
   return page;
 }
 
 /* ---------- running ---------- */
 const srv = await serve();
-/* "localhost", not the IP: WebAuthn will not take an IP address as the site,
-   and the fingerprint tests need it to. Both are secure contexts. */
-const base = "http://localhost:" + srv.address().port;
+const base = "http://127.0.0.1:" + srv.address().port;
 const br = await launch();
 const client = await cdp(br.wsUrl);
 const page = await openPage(client, base);

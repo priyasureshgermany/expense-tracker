@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 4.0.7 — 2026-11-12
+- better: App lock: Face ID / fingerprint unlock is removed — on iPhone it always needed an extra passkey pop-up, slower than the PIN. Anything it stored on this device is cleared.
+
 ## 4.0.6 — 2026-11-12
 - new: Transactions: swipe left or right on empty space — not on an entry — to move to the next or previous tab (All, Planned, Filled, Transfers).
 
