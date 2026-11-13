@@ -1201,6 +1201,60 @@ tests.push({ name: "quick add fills the sheet; ?add= opens it once; the no-spend
   assert.equal(r.free, true);
 }});
 
+tests.push({ name: "no-spend dots: tapping a day shows its date, what was spent and the bills apart; again closes it", async run(pg){
+  const r = await pg.fn(async () => {
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const $q = s => document.querySelector(s);
+    __T.useBook();
+    setPanel("dash");
+    const today = todayISO();
+    view = periodOf(today);
+    /* a day of our own: two purchases and a bill, and a day with nothing */
+    const day = periodStart(view) < today ? periodStart(view) : today;
+    state.txns = state.txns.filter(t => t.date !== day);
+    state.txns.push({ id:"ns1", type:"expense", status:"done", date:day, amount:1250, category:"groceries_de", note:"REWE" });
+    state.txns.push({ id:"ns2", type:"expense", status:"done", date:day, amount:399, category:"dining", note:"" });
+    state.txns.push({ id:"ns3", type:"expense", status:"done", date:day, amount:118000, category:"housing", note:"Rent", ruleId:"r1" });
+    render(); await wait(50);
+
+    const out = {};
+    $q('#nsDays .ns-d[data-date="' + day + '"]').click(); await wait(30);
+    const box = $q("#nsDay");
+    out.shown = !box.hidden;
+    out.head = box.querySelector(".ns-day-h").textContent;
+    out.wantHead = nsDayLabel(day) + fmt(1649);
+    out.rows = [...box.querySelectorAll(".ns-day-r")].map(x => x.textContent);
+    out.wantRows = ["REWE" + fmt(1250, "groceries_de"), catOf("dining").n + fmt(399, "dining")];
+    out.bills = box.querySelector(".ns-day-x") ? box.querySelector(".ns-day-x").textContent : null;
+    out.wantBills = "Bills from repeating entries (not counted)" + fmt(118000);
+    out.sel = $q('#nsDays .ns-d[data-date="' + day + '"]').classList.contains("sel");
+
+    /* survives a re-render, then the same dot closes it */
+    render(); await wait(30);
+    out.keptOpen = !$q("#nsDay").hidden;
+    $q('#nsDays .ns-d[data-date="' + day + '"]').click(); await wait(30);
+    out.closed = $q("#nsDay").hidden;
+
+    /* a day still to come says so */
+    const future = noSpendDays(view, today).days.find(d => d.future);
+    if (future){
+      $q('#nsDays .ns-d[data-date="' + future.date + '"]').click(); await wait(30);
+      out.future = $q("#nsDay .ns-day-h b").textContent;
+    } else out.future = "Still to come";
+
+    __T.restore();
+    return out;
+  });
+  assert.equal(r.shown, true);
+  assert.equal(r.head, r.wantHead);
+  assert.deepEqual(r.rows, r.wantRows);
+  assert.equal(r.bills, r.wantBills);
+  assert.equal(r.sel, true);
+  assert.equal(r.keptOpen, true);
+  assert.equal(r.closed, true);
+  assert.equal(r.future, "Still to come");
+}});
+
 tests.push({ name: "a device that had Face ID on loses it on the next load; the PIN and passphrase stay", async run(pg){
   /* what 4.0.2 – 4.0.6 stored: the credential's record, and a third wrapping of the key */
   await pg.fn(() => {

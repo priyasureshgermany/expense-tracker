@@ -8,6 +8,9 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 4.0.11 — 2026-11-13
+- better: No-spend days: tap a day's dot to see its date and what was spent that day, entry by entry, with any bills shown apart.
+
 ## 4.0.10 — 2026-11-13
 - new: Quick add: type or say one line, e.g. 12,50 REWE groceries yesterday, and the new entry fills itself in.
 - new: Add-expense shortcut: a link that opens straight on a new expense (or listens for one) — copy it in Settings › Config for the iPhone Shortcuts app.

@@ -521,6 +521,21 @@ button.tile:hover .tile-go{color:var(--accent)}
 .ns-d.spent{background:var(--ink-3);opacity:.45}
 .ns-d.future{background:transparent;border:1.5px dashed var(--line)}
 .ns-d.today{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--accent)}
+/* each dot is a button: tapping one shows that day below. The dot stays
+   small, but the target around it is the size a finger needs. */
+button.ns-d{padding:0;border:none;cursor:pointer;position:relative}
+button.ns-d::after{content:"";position:absolute;inset:-5px}
+.ns-d.sel{transform:scale(1.3);box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--ink)}
+.ns-day{margin:6px 0 8px;padding:10px 12px;border-radius:11px;background:var(--surface-2);font-size:12.5px}
+.ns-day[hidden]{display:none}
+.ns-day-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:600;color:var(--ink)}
+.ns-day-h b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ns-day-h b.neg{color:var(--neg)}
+.ns-day-h b.pos{color:var(--pos)}
+.ns-day-r{display:flex;justify-content:space-between;gap:10px;margin-top:6px;color:var(--ink-2)}
+.ns-day-r span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ns-day-r span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ns-day-x{margin-top:7px;padding-top:7px;border-top:1px solid var(--line);color:var(--ink-3);font-size:11.5px;display:flex;justify-content:space-between;gap:10px}
 /* ---------- Quick add, in the entry sheet ---------- */
 .qadd[hidden]{display:none}
 .qadd-row{display:flex;gap:8px;align-items:center}
@@ -3977,7 +3992,8 @@ html.locked #lockScreen::before{
         <div><b id="nsGoalN">5</b><span>Goal</span></div>
         <div><b id="nsStreak">0</b><span id="nsStreakL">Day streak</span></div>
       </div>
-      <div class="ns-days" id="nsDays" aria-hidden="true"></div>
+      <div class="ns-days" id="nsDays" role="group" aria-label="Days of this period"></div>
+      <div class="ns-day" id="nsDay" aria-live="polite" hidden></div>
       <div class="bc-foot">A day counts when nothing was paid that day. Bills from repeating entries and transfers don't count as spending.</div>
       <button class="bc-edit" id="nsGoalBtn" type="button">Change goal</button>
     </section>
@@ -5831,6 +5847,11 @@ const I18N_DE = {
 "Day streak": "Tage in Folge",
 "Best streak": "Beste Serie",
 "Goal reached": "Ziel erreicht",
+"Days of this period": "Tage dieses Zeitraums",
+"Still to come": "Noch nicht da",
+"Spent": "Ausgaben",
+"Nothing spent": "Nichts ausgegeben",
+"Bills from repeating entries (not counted)": "Rechnungen aus wiederkehrenden Einträgen (zählen nicht)",
 "Change goal": "Ziel ändern",
 "Goal saved": "Ziel gespeichert",
 "No-spend goal": "Ziel: Tage ohne Ausgaben",
@@ -7757,7 +7778,7 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "4.0.10";
+const APP_VERSION = "4.0.11";
 const APP_BUILT = "2026-11-13";
 
 const KEY = "panappai.v1";
@@ -11237,10 +11258,72 @@ function renderNoSpend(){
   const host = $("#nsDays");
   host.textContent = "";
   r.days.forEach(d => {
-    const dot = el("span", "ns-d " + (d.future ? "future" : d.spent ? "spent" : "free") + (d.date === today ? " today" : ""));
-    dot.title = prettyDate(d.date);
+    const dot = el("button", "ns-d " + (d.future ? "future" : d.spent ? "spent" : "free") + (d.date === today ? " today" : ""));
+    dot.type = "button";
+    dot.dataset.date = d.date;
+    dot.setAttribute("aria-label", nsDayLabel(d.date) + " — " +
+      T(d.future ? "Still to come" : d.spent ? "Spent" : "Nothing spent"));
+    dot.setAttribute("aria-pressed", "false");
+    dot.addEventListener("click", () => nsShowDay(d.date));
     host.appendChild(dot);
   });
+  /* the day that was open stays open, if it is still in this period */
+  const open = nsOpenDay && r.days.some(d => d.date === nsOpenDay) ? nsOpenDay : null;
+  nsOpenDay = null;
+  if (open) nsShowDay(open); else $("#nsDay").hidden = true;
+}
+
+/* ---------- one day, tapped ---------- */
+let nsOpenDay = null;
+function nsDayLabel(iso){
+  let wd = "";
+  try{
+    wd = new Date(iso + "T12:00:00").toLocaleDateString(APP_LANG === "de" ? "de-DE" : "en-GB", { weekday:"long" });
+  }catch(e){}
+  return (wd ? wd + ", " : "") + prettyDate(iso);
+}
+/**
+ * What went out on one day, under the dots: the spending that counted, entry
+ * by entry, and — apart, since they don't cost a no-spend day — any bills
+ * from repeating entries. Tapping the same day again closes it.
+ */
+function nsShowDay(iso){
+  const box = $("#nsDay");
+  $$("#nsDays .ns-d").forEach(b => {
+    const on = b.dataset.date === iso && nsOpenDay !== iso;
+    b.classList.toggle("sel", on);
+    b.setAttribute("aria-pressed", String(on));
+  });
+  if (nsOpenDay === iso){ nsOpenDay = null; box.hidden = true; return; }
+  nsOpenDay = iso;
+
+  const paid = t => t.type === "expense" && t.status === "done" && t.date === iso;
+  const counted = state.txns.filter(t => paid(t) && !t.ruleId);
+  const bills = state.txns.filter(t => paid(t) && t.ruleId);
+  const total = counted.reduce((s, t) => s + t.amount, 0);
+  const future = iso > todayISO();
+
+  box.textContent = "";
+  const head = el("div", "ns-day-h");
+  head.appendChild(el("span", null, nsDayLabel(iso)));
+  head.appendChild(future ? el("b", null, T("Still to come"))
+                 : counted.length ? el("b", "neg", fmt(total))
+                 : el("b", "pos", T("Nothing spent")));
+  box.appendChild(head);
+
+  counted.slice().sort((a, b) => b.amount - a.amount).forEach(t => {
+    const row = el("div", "ns-day-r");
+    row.appendChild(el("span", null, (t.note && t.note.trim()) || T(catOf(t.category).n)));
+    row.appendChild(el("span", null, fmt(t.amount, t.category)));
+    box.appendChild(row);
+  });
+  if (bills.length){
+    const x = el("div", "ns-day-x");
+    x.appendChild(el("span", null, T("Bills from repeating entries (not counted)")));
+    x.appendChild(el("span", null, fmt(bills.reduce((s, t) => s + t.amount, 0))));
+    box.appendChild(x);
+  }
+  box.hidden = false;
 }
 $("#nsGoalBtn").addEventListener("click", async () => {
   const v = await askText({ title:"No-spend goal", message:"How many days without spending to aim for in a period (1–31)?",
