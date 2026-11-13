@@ -436,6 +436,61 @@ export default [
     assert.deepEqual(r.missing, []);
   }},
 
+  { name: "quickParse: amounts, days, income and categories from one typed or spoken line", async run(pg){
+    /* 13 Nov 2026 is a Friday (1 Nov is a Sunday) */
+    const r = await pg.fn(() => {
+      const T0 = "2026-11-13";
+      const pick = p => ({ amount:p.amount, type:p.type, date:p.date, category:p.category, note:p.note });
+      return [
+        pick(quickParse("12,50 REWE groceries yesterday", T0, "expense")),
+        pick(quickParse("indian groceries 18 euro 40 monday", T0, "expense")),
+        pick(quickParse("salary 3200 received", T0, "expense")),
+        pick(quickParse("€4.99 netflix", T0, "expense")),
+        pick(quickParse("gestern 8,90 bei Lidl", T0, "expense")),
+        pick(quickParse("paid 1.234,56 today", T0, "expense")),
+        pick(quickParse("dm shampoo", T0, "expense")),
+        pick(quickParse("30 to savings", T0, "transfer"))
+      ];
+    });
+    assert.deepEqual(r[0], { amount:1250, type:"expense", date:"2026-11-12", category:"groceries_de", note:"Rewe groceries" });
+    assert.deepEqual(r[1], { amount:1840, type:"expense", date:"2026-11-09", category:"groceries_in", note:"Indian groceries" });
+    assert.equal(r[2].amount, 320000);
+    assert.equal(r[2].type, "income");
+    assert.equal(r[2].category, "salary");
+    assert.equal(r[3].amount, 499);
+    assert.equal(r[3].note, "Netflix");
+    assert.deepEqual([r[4].amount, r[4].date, r[4].note], [890, "2026-11-12", "Lidl"]);
+    assert.deepEqual([r[5].amount, r[5].date], [123456, "2026-11-13"]);
+    assert.equal(r[6].amount, null);
+    assert.equal(r[6].note, "Dm shampoo");
+    assert.deepEqual([r[7].amount, r[7].type, r[7].category], [3000, "transfer", null]);
+  }},
+
+  { name: "noSpendDays: paid expenses only; bills, plans and transfers don't cost a day", async run(pg){
+    const r = await pg.fn(() => {
+      const keep = state.txns;
+      state.txns = [
+        { type:"expense", status:"done", date:"2026-10-15", amount:500 },
+        { type:"expense", status:"planned", date:"2026-10-17", amount:500 },
+        { type:"expense", status:"done", date:"2026-10-18", amount:118000, ruleId:"r1" },
+        { type:"transfer", status:"done", date:"2026-10-19", amount:5000 },
+        { type:"income", status:"done", date:"2026-10-19", amount:5000 },
+        { type:"expense", status:"done", date:"2026-10-20", amount:300 },
+        { type:"expense", status:"done", date:"2026-11-20", amount:300 }      /* the next period */
+      ];
+      const a = noSpendDays("2026-10", "2026-10-20");
+      const b = noSpendDays("2026-10", "2026-10-22");
+      state.txns = keep;
+      return [
+        { n:a.days.length, elapsed:a.elapsed, free:a.free, streak:a.streak, best:a.best },
+        { elapsed:b.elapsed, free:b.free, streak:b.streak, best:b.best }
+      ];
+    });
+    /* 15 Oct – 14 Nov is 31 days; by the 20th six have passed: 15 and 20 spent */
+    assert.deepEqual(r[0], { n:31, elapsed:6, free:4, streak:0, best:4 });
+    assert.deepEqual(r[1], { elapsed:8, free:6, streak:2, best:4 });
+  }},
+
   { name: "ledTabAfterSwipe: left one along, right one back, nothing past the ends", async run(pg){
     const r = await pg.fn(() => [
       ledTabAfterSwipe("all", "left"), ledTabAfterSwipe("planned", "left"), ledTabAfterSwipe("done", "left"),

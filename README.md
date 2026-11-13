@@ -170,6 +170,17 @@ Open `index.html` in any browser, or host the file anywhere static.
   `panappai.inbox` key in localStorage; this app takes them when it opens or
   comes back to the front, once unlocked, and offers Undo. Works between two
   browser tabs; iPhone Home Screen icons each keep their own storage.
+- **Quick add** — at the top of a new entry, one typed or spoken line
+  ("12,50 REWE groceries yesterday", "gestern 8,90 Lidl", "salary 3200
+  received") fills in the amount, description, category and day; nothing is
+  saved until Save. The microphone uses the browser's speech recognition where
+  there is one; otherwise the keyboard's own dictation works in the field.
+- **Add-expense shortcut** — `index.html?add=expense` (or `income`, `voice`)
+  opens straight on a new entry once unlocked. Settings › Config copies the
+  link for the iPhone Shortcuts app; Android offers both from the icon.
+- **No-spend days** — a dashboard card counting the period's days with no
+  paid expense (bills from repeating entries and transfers don't count),
+  against a goal kept on the device, with the current streak and a dot a day.
 - **Optional GitHub sync** — see below.
 
 ## Shopping lists

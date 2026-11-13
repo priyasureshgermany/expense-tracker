@@ -507,6 +507,33 @@ button.tile:hover .tile-go{color:var(--accent)}
   margin-top:4px;padding:10px 0 4px;border-top:1px solid var(--line);
   font-size:11.5px;color:var(--ink-3);
 }
+/* ---------- No-spend days ---------- */
+.ns-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.ns-stats > div{background:var(--surface-2);border-radius:11px;padding:9px 6px 8px;text-align:center}
+.ns-stats b{display:block;font-size:22px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1}
+.ns-stats span{display:block;font-size:10.5px;color:var(--ink-3);margin-top:3px}
+.ns-stats .ns-hit b{color:var(--pos)}
+/* a dot a day: green for a day with nothing spent, muted for a day with
+   spending, an outline for the days still to come; today has a ring */
+.ns-days{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.ns-d{width:14px;height:14px;border-radius:50%;background:var(--line)}
+.ns-d.free{background:var(--pos)}
+.ns-d.spent{background:var(--ink-3);opacity:.45}
+.ns-d.future{background:transparent;border:1.5px dashed var(--line)}
+.ns-d.today{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--accent)}
+/* ---------- Quick add, in the entry sheet ---------- */
+.qadd[hidden]{display:none}
+.qadd-row{display:flex;gap:8px;align-items:center}
+.qadd-row .inp{flex:1;min-width:0}
+.qadd-mic{
+  flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--accent);
+}
+.qadd-mic[hidden]{display:none}
+.qadd-mic svg{width:20px;height:20px}
+.qadd-mic.on{background:var(--neg);border-color:var(--neg);color:#fff;animation:qaPulse 1.2s ease-in-out infinite}
+@keyframes qaPulse{50%{box-shadow:0 0 0 6px color-mix(in srgb, var(--neg) 25%, transparent)}}
+@media (prefers-reduced-motion: reduce){ .qadd-mic.on{animation:none} }
 .envrow{
   display:block;width:100%;text-align:left;padding:9px 0 10px;
   border-bottom:1px solid var(--line);
@@ -3940,6 +3967,21 @@ html.locked #lockScreen::before{
       <div id="goalRows"></div>
     </section>
 
+    <section class="budgetcard nscard" id="noSpendCard" hidden>
+      <div class="bc-head">
+        <div class="bc-t">No-spend days</div>
+        <div class="bc-n" id="nsNote"></div>
+      </div>
+      <div class="ns-stats">
+        <div id="nsCountBox"><b id="nsCount">0</b><span>No-spend days</span></div>
+        <div><b id="nsGoalN">5</b><span>Goal</span></div>
+        <div><b id="nsStreak">0</b><span id="nsStreakL">Day streak</span></div>
+      </div>
+      <div class="ns-days" id="nsDays" aria-hidden="true"></div>
+      <div class="bc-foot">A day counts when nothing was paid that day. Bills from repeating entries and transfers don't count as spending.</div>
+      <button class="bc-edit" id="nsGoalBtn" type="button">Change goal</button>
+    </section>
+
     <section class="monthstrip-wrap">
       <div class="ms-head">
         <div class="monthstrip-t">Period health</div>
@@ -4198,6 +4240,17 @@ html.locked #lockScreen::before{
     </button>
   </div>
   <div class="sheet-body">
+    <div class="field qadd" id="eQuickWrap">
+      <label for="eQuick">Quick add</label>
+      <div class="qadd-row">
+        <input class="inp" id="eQuick" type="text" enterkeyhint="done" autocomplete="off"
+               spellcheck="false" placeholder="e.g. 12,50 REWE groceries yesterday">
+        <button class="qadd-mic" id="eQuickMic" type="button" aria-label="Speak it" title="Speak it" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0013 0"/><path d="M12 17.5V21"/></svg>
+        </button>
+      </div>
+      <div class="note" id="eQuickNote" style="margin-top:6px">Type it or say it — the fields below fill in. Check them, then save.</div>
+    </div>
     <div class="field">
       <div class="toggle2" id="eType" style="grid-template-columns:repeat(3,1fr)">
         <button class="n" data-v="expense" aria-pressed="true">
@@ -5364,6 +5417,20 @@ html.locked #lockScreen::before{
             </div>
           </div>
           <div class="cfgrow cfg-stack">
+            <div class="cf-t"><b>Add-expense shortcut</b><span>Straight to a new entry, from the home screen</span></div>
+            <div class="note" style="margin-top:2px">
+              This link opens the app on a new expense; the voice one also starts
+              listening. On an iPhone: open the <b>Shortcuts</b> app, make a new
+              shortcut with <b>Open URLs</b>, paste the link, then
+              <b>Add to Home Screen</b> — or ask Siri for it by its name. On
+              Android, press and hold the app's icon.
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+              <button class="btn ghost sm" type="button" id="cfgLinkAdd">Copy the add-expense link</button>
+              <button class="btn ghost sm" type="button" id="cfgLinkVoice">Copy the add-by-voice link</button>
+            </div>
+          </div>
+          <div class="cfgrow cfg-stack">
             <div class="cf-t"><b>Shopping or trips</b><span>What the third tab holds</span></div>
             <div class="toggle2 cfg-tog" id="cfgThird" style="grid-template-columns:1fr 1fr">
               <button class="a" type="button" data-v="shop" aria-pressed="true">Shopping list</button>
@@ -5746,6 +5813,30 @@ const I18N_DE = {
 "Swipe left to mark paid · right to delete": "Nach links wischen: bezahlt · nach rechts: löschen",
 "Under a year old": "Jünger als ein Jahr",
 "Username": "Benutzername",
+"Quick add": "Schnell eintragen",
+"e.g. 12,50 REWE groceries yesterday": "z. B. 12,50 REWE Lebensmittel gestern",
+"Speak it": "Sprechen",
+"Type it or say it — the fields below fill in. Check them, then save.": "Tippen oder sprechen — die Felder unten füllen sich. Prüfen, dann speichern.",
+"Filled in below — check it, then save.": "Unten ausgefüllt — prüfen, dann speichern.",
+"Add the amount too, e.g. 12,50.": "Nenne auch den Betrag, z. B. 12,50.",
+"Microphone not allowed — tap the field and use the keyboard's dictation": "Mikrofon nicht erlaubt — tippe ins Feld und nutze die Diktierfunktion der Tastatur",
+"Add-expense shortcut": "Kurzbefehl „Ausgabe hinzufügen“",
+"Straight to a new entry, from the home screen": "Direkt zu einem neuen Eintrag, vom Home-Bildschirm",
+"Copy the add-expense link": "Link „Ausgabe hinzufügen“ kopieren",
+"Copy the add-by-voice link": "Link „Per Sprache hinzufügen“ kopieren",
+"Copy this link:": "Diesen Link kopieren:",
+"Link copied": "Link kopiert",
+"No-spend days": "Tage ohne Ausgaben",
+"Goal": "Ziel",
+"Day streak": "Tage in Folge",
+"Best streak": "Beste Serie",
+"Goal reached": "Ziel erreicht",
+"Change goal": "Ziel ändern",
+"Goal saved": "Ziel gespeichert",
+"No-spend goal": "Ziel: Tage ohne Ausgaben",
+"How many days without spending to aim for in a period (1–31)?": "Wie viele Tage ohne Ausgaben willst du pro Zeitraum schaffen (1–31)?",
+"Use a number from 1 to 31": "Nimm eine Zahl von 1 bis 31",
+"A day counts when nothing was paid that day. Bills from repeating entries and transfers don't count as spending.": "Ein Tag zählt, wenn an dem Tag nichts bezahlt wurde. Rechnungen aus wiederkehrenden Einträgen und Umbuchungen zählen nicht als Ausgaben.",
 "Added from the scanner to your shopping list and expenses": "Vom Scanner zur Einkaufsliste und zu den Ausgaben hinzugefügt",
 "Added from the scanner to your shopping list": "Vom Scanner zur Einkaufsliste hinzugefügt",
 "Added from the scanner as an expense": "Vom Scanner als Ausgabe hinzugefügt",
@@ -7666,8 +7757,8 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "4.0.9";
-const APP_BUILT = "2026-11-12";
+const APP_VERSION = "4.0.10";
+const APP_BUILT = "2026-11-13";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -9504,6 +9595,8 @@ function render(){
   /* These two are in the markup rather than rebuilt, so this only does anything
      the first time — makeFoldable leaves a panel it has already wrapped alone. */
   makeFoldable($("#budgetCard"), "budget", $("#budgetCard .bc-t"), PANEL_ICON.budget);
+  renderNoSpend();
+  makeFoldable($("#noSpendCard"), "nospend", $("#noSpendCard .bc-t"), PANEL_ICON.nospend);
   makeFoldable($(".monthstrip-wrap"), "health", $(".monthstrip-t"), PANEL_ICON.health);
   paintPeriodHealthTag();
   $("#demoBar").hidden = !state.demo;
@@ -11023,7 +11116,8 @@ const PANEL_ICON = {
   budget: '<rect x="3" y="5.5" width="18" height="13" rx="2"/>' +
           '<path d="M3.7 6.9L12 12.9l8.3-6"/>',
   health: '<path d="M3 12h3.6l2.2-6.2 4.1 12.4 2.2-6.2H21"/>',
-  spend:  '<path d="M12 3a9 9 0 109 9h-9z"/><path d="M14.5 2.5A8 8 0 0121.5 9.5h-7z"/>'
+  spend:  '<path d="M12 3a9 9 0 109 9h-9z"/><path d="M14.5 2.5A8 8 0 0121.5 9.5h-7z"/>',
+  nospend:'<circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3"/>'
 };
 
 /* Which panels are folded away, remembered: a dashboard folded down to the
@@ -11087,6 +11181,78 @@ function makeFoldable(panel, key, titleEl, glyph){
   });
   apply();
 }
+
+/* =========================================================================
+   NO-SPEND DAYS
+
+   A small challenge on the dashboard: how many days of the period went by
+   with nothing spent, against a goal, with the run of them you are on now.
+   Spending means a paid expense you made that day. Bills from repeating
+   entries are left out — the rent going out on the 2nd should not cost a
+   day you spent nothing — and so are transfers, planned entries and income.
+   Today counts as a no-spend day until something is paid. The goal is this
+   device's alone, like the folds: it is a nudge, not part of the book.
+   ========================================================================= */
+const NS_GOAL_KEY = "panappai.nospend.goal";
+function nsGoal(){
+  let n = NaN;
+  try{ n = parseInt(localStorage.getItem(NS_GOAL_KEY) || "", 10); }catch(e){}
+  return n >= 1 && n <= 31 ? n : 5;
+}
+
+/** The days of period `p` up to `today`: which were free of spending, the current run, the best run. */
+function noSpendDays(p, today){
+  const start = periodStart(p), end = periodEnd(p);
+  const spent = new Set();
+  state.txns.forEach(t => {
+    if (t.type === "expense" && t.status === "done" && !t.ruleId && t.date >= start && t.date <= end) spent.add(t.date);
+  });
+  const days = [];
+  for (let d = start; d <= end; d = addDays(d, 1)) days.push({ date:d, future: d > today, spent: spent.has(d) });
+  const past = days.filter(x => !x.future);
+  let streak = 0;
+  for (let i = past.length - 1; i >= 0 && !past[i].spent; i--) streak++;
+  let best = 0, run = 0;
+  past.forEach(x => { run = x.spent ? 0 : run + 1; if (run > best) best = run; });
+  return { days, free: past.filter(x => !x.spent).length, streak, best, elapsed: past.length };
+}
+
+function renderNoSpend(){
+  const card = $("#noSpendCard");
+  if (!card) return;
+  const today = todayISO();
+  const r = noSpendDays(view, today);
+  /* a period still to come has nothing to count */
+  card.hidden = !r.elapsed;
+  if (!r.elapsed) return;
+  const goal = nsGoal();
+  const current = view === periodOf(today);
+  $("#nsCount").textContent = r.free;
+  $("#nsGoalN").textContent = goal;
+  $("#nsCountBox").classList.toggle("ns-hit", r.free >= goal);
+  /* a finished period has no run "now", only its best one */
+  $("#nsStreak").textContent = current ? r.streak : r.best;
+  $("#nsStreakL").textContent = current ? "Day streak" : "Best streak";
+  $("#nsNote").textContent = r.free >= goal ? "Goal reached" : "";
+  const host = $("#nsDays");
+  host.textContent = "";
+  r.days.forEach(d => {
+    const dot = el("span", "ns-d " + (d.future ? "future" : d.spent ? "spent" : "free") + (d.date === today ? " today" : ""));
+    dot.title = prettyDate(d.date);
+    host.appendChild(dot);
+  });
+}
+$("#nsGoalBtn").addEventListener("click", async () => {
+  const v = await askText({ title:"No-spend goal", message:"How many days without spending to aim for in a period (1–31)?",
+                            placeholder: String(nsGoal()), confirm:"Save", password:false,
+                            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + PANEL_ICON.nospend + '</svg>' });
+  if (v === null) return;
+  const n = parseInt(String(v).trim(), 10);
+  if (!(n >= 1 && n <= 31)){ toast("Use a number from 1 to 31"); return; }
+  try{ localStorage.setItem(NS_GOAL_KEY, String(n)); }catch(e){}
+  renderNoSpend();
+  toast("Goal saved");
+});
 
 /** One horizontal bar; clicking it reveals the `sub` caption underneath. */
 function barRow(label, value, max, colorVar, sub, cat){
@@ -12515,6 +12681,8 @@ function openEntry(txn, type){
   }
   syncEntryUI();
   renderAccountFields();
+  /* the one-line quick add is for a new entry only */
+  quickReset(!txn);
   sheetOpen("#shEntry");
   /* what the box started as: saved untouched, an entry keeps the amount it had
      rather than being re-worked through the rate */
@@ -12613,6 +12781,210 @@ $("#eSave").addEventListener("click", () => {
   toast(draft.status === "done" ? "Entry saved" : "Planned entry added");
 });
 
+/* =========================================================================
+   QUICK ADD — one line, typed or spoken
+
+   "12,50 REWE groceries yesterday" fills the sheet: the amount, the shop as
+   the description, the category it names (or the one the description
+   suggests), and the day. Nothing is saved until Save is pressed; the line
+   only fills the fields, which stay editable.
+
+   English and German both: "gestern", "für", "Euro". A spoken amount comes
+   in many shapes — "12 euro 50", "€12.50", "12,50" — and all of them mean
+   twelve fifty. Income only when the line says so ("salary", "received",
+   "Gehalt"); otherwise it stays the kind the sheet is on.
+
+   The microphone is the browser's speech recognition where there is one
+   (Safari and Chrome on Android); where there isn't, the field still takes
+   the keyboard's own dictation, which every phone keyboard has.
+   ========================================================================= */
+const QA_INCOME = /(^|\s)(income|received|receive|got paid|earned|einnahme|eingang|bekommen|erhalten)(?=\s|$)/;
+const QA_INCOME_HINT = /(^|\s)(salary|refund|gehalt|lohn|erstattung)(?=\s|$)/;
+const QA_DAYS = [
+  ["sunday", "sonntag"], ["monday", "montag"], ["tuesday", "dienstag"], ["wednesday", "mittwoch"],
+  ["thursday", "donnerstag"], ["friday", "freitag"], ["saturday", "samstag"]
+];
+const QA_FILLER = /(^|\s)(spent|spend|paid|pay|for|at|on|last|bought|buy|i|the|a|an|and|ausgegeben|bezahlt|für|fur|bei|im|am|letzten|letzter|gekauft|habe|ich|und)(?=\s|$)/g;
+
+/**
+ * Reads one line into an entry. `type` is the kind the sheet is on now;
+ * `today` an ISO date. Returns { amount (cents) | null, type, date | null,
+ * category | null, note }.
+ */
+function quickParse(text, today, type){
+  let s = " " + String(text || "").toLowerCase().replace(/[!?]/g, " ").replace(/\s+/g, " ") + " ";
+  const out = { amount:null, type: type || "expense", date:null, category:null, note:"" };
+
+  /* "12 euro 50" / "12 euros and 50 cents" — euros, then cents */
+  let m = /(\d+)\s*(?:€|euros?|eur)\s*(?:and\s+|und\s+)?(\d{1,2})(?:\s*(?:cents?|ct))?(?=\s)/.exec(s);
+  if (m){
+    out.amount = Number(m[1]) * 100 + Number(m[2]);
+    s = s.replace(m[0], " ");
+  } else {
+    m = /(?:€|₹)?\s*(\d[\d.,]*\d|\d)\s*(?:€|euros?|eur|cents?)?(?=\s)/.exec(s);
+    if (m){
+      const isCents = /cents?\s*$/.test(m[0]);
+      const v = isCents ? Number(m[1]) : parseAmount(m[1]);
+      if (v && v > 0){ out.amount = v; s = s.replace(m[0], " "); }
+    }
+  }
+  s = s.replace(/€|₹|(^|\s)(euros?|eur|cents?|ct)(?=\s)/g, " ");
+
+  if (type !== "transfer" && QA_INCOME.test(s)){ out.type = "income"; s = s.replace(QA_INCOME, " "); }
+  else if (type !== "transfer" && QA_INCOME_HINT.test(s)) out.type = "income";
+
+  /* the day: today, yesterday, the day before, or the last such weekday */
+  const day = (re, n) => { if (re.test(s)){ out.date = addDays(today, -n); s = s.replace(re, " "); return true; } return false; };
+  if (!day(/(^|\s)(day before yesterday|vorgestern)(?=\s|$)/, 2) &&
+      !day(/(^|\s)(yesterday|gestern)(?=\s|$)/, 1) &&
+      !day(/(^|\s)(today|heute)(?=\s|$)/, 0)){
+    const dow = new Date(today + "T12:00:00").getDay();
+    QA_DAYS.some((names, i) => {
+      const re = new RegExp("(^|\\s)(" + names.join("|") + ")(?=\\s|$)");
+      if (!re.test(s)) return false;
+      out.date = addDays(today, -((dow - i + 7) % 7));
+      s = s.replace(re, " ");
+      return true;
+    });
+  }
+
+  s = s.replace(QA_FILLER, " ").replace(/\s+/g, " ").trim();
+
+  /* the category the line names: every word of four letters or more in a
+     category's name — English or German — that the line contains, longest
+     total wins, so "indian groceries" picks the Indian one */
+  if (out.type !== "transfer"){
+    const words = s.split(" ");
+    const has = w => words.some(x => x.length >= 4 && (x === w || (w.length >= 5 && x.slice(0, 5) === w.slice(0, 5))));
+    let best = null, bestScore = 0;
+    pickableCats(out.type).forEach(c => {
+      const names = [c.n, I18N_DE[c.n] || ""].join(" ").toLowerCase();
+      const toks = Array.from(new Set(names.split(/[^a-zäöüß]+/).filter(w => w.length >= 4)));
+      const score = toks.filter(has).reduce((a, w) => a + w.length, 0);
+      if (score > bestScore){ best = c.id; bestScore = score; }
+    });
+    if (!best && s){
+      const g = guessCat(s, out.type === "income");
+      if (g !== "other" && g !== "other_in" && pickableCats(out.type).some(c => c.id === g)) best = g;
+    }
+    out.category = best;
+  }
+
+  out.note = s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+  return out;
+}
+
+/** Fills the sheet from the quick-add line. */
+function quickApply(){
+  const line = $("#eQuick").value;
+  if (!line.trim() || !draft) return;
+  const p = quickParse(line, todayISO(), draft.type);
+  if (p.type !== draft.type){
+    draft.type = p.type;
+    draft.category = pickableCats(p.type)[0].id;
+    draft.fromAccount = null;
+  }
+  if (p.category) draft.category = p.category;
+  if (p.amount) $("#eAmt").value = (p.amount / 100).toFixed(2).replace(".", ",");
+  $("#eNote").value = p.note;
+  if (p.date) setDateVal("#eDate", p.date);
+  syncEntryUI();
+  $("#eQuickNote").textContent = p.amount
+    ? "Filled in below — check it, then save."
+    : "Add the amount too, e.g. 12,50.";
+}
+let qaTimer = null;
+$("#eQuick").addEventListener("input", () => {
+  clearTimeout(qaTimer);
+  qaTimer = setTimeout(quickApply, 300);
+});
+$("#eQuick").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  clearTimeout(qaTimer);
+  quickApply();
+  e.target.blur();
+});
+
+const QA_SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+let qaRec = null;
+if (QA_SR) $("#eQuickMic").hidden = false;
+/** Listens once; a second tap stops it. Falls back to the field, for the keyboard's dictation. */
+function quickListen(){
+  if (!QA_SR){ $("#eQuick").focus(); return; }
+  if (qaRec){ try{ qaRec.stop(); }catch(e){} return; }
+  const r = new QA_SR();
+  r.lang = APP_LANG === "de" ? "de-DE" : (navigator.language || "en-GB");
+  r.interimResults = true;
+  r.maxAlternatives = 1;
+  r.onresult = e => {
+    $("#eQuick").value = Array.from(e.results).map(x => x[0].transcript).join(" ");
+    quickApply();
+  };
+  r.onerror = e => {
+    if (e.error === "not-allowed" || e.error === "service-not-allowed")
+      toast("Microphone not allowed — tap the field and use the keyboard's dictation");
+  };
+  r.onend = () => { qaRec = null; $("#eQuickMic").classList.remove("on"); };
+  qaRec = r;
+  $("#eQuickMic").classList.add("on");
+  try{ r.start(); }
+  catch(e){ qaRec = null; $("#eQuickMic").classList.remove("on"); $("#eQuick").focus(); }
+}
+$("#eQuickMic").addEventListener("click", quickListen);
+function quickReset(show){
+  if (qaRec){ try{ qaRec.abort(); }catch(e){} qaRec = null; }
+  $("#eQuickMic").classList.remove("on");
+  $("#eQuickWrap").hidden = !show;
+  $("#eQuick").value = "";
+  $("#eQuickNote").textContent = "Type it or say it — the fields below fill in. Check them, then save.";
+}
+
+/* =========================================================================
+   OPENED FROM A SHORTCUT
+
+   ./index.html?add=expense opens straight on a new expense, ?add=income on
+   income, ?add=voice on an expense with the microphone listening. That is
+   what a home-screen shortcut points at: the Shortcuts app on an iPhone, the
+   manifest's shortcuts on Android. It waits for the lock and the passphrase
+   like everything else, and the word is taken off the address afterwards,
+   so a reload does not open the sheet again.
+   ========================================================================= */
+let launchAdd = (() => {
+  try{
+    const v = new URLSearchParams(location.search).get("add");
+    return /^(expense|income|transfer|voice)$/.test(v || "") ? v : null;
+  }catch(e){ return null; }
+})();
+function launchFromUrl(){
+  if (!launchAdd || !encBooted) return false;
+  if (encOn() && !encUnlocked()) return false;
+  if (document.documentElement.classList.contains("locked")) return false;
+  const what = launchAdd;
+  launchAdd = null;
+  try{
+    const u = new URL(location.href);
+    u.searchParams.delete("add");
+    history.replaceState(null, "", u.pathname + u.search + u.hash);
+  }catch(e){}
+  /* the welcome countdown would sit over the sheet it was opened for */
+  payWelcomeShown = true;
+  payWelcomeClose();
+  openEntry(null, what === "voice" ? "expense" : what);
+  if (what === "voice") setTimeout(quickListen, 380);
+  return true;
+}
+function shortcutLink(what){
+  return location.origin + location.pathname.replace(/[^/]*$/, "") + "index.html?add=" + what;
+}
+async function copyShortcut(what){
+  const link = shortcutLink(what);
+  try{ await navigator.clipboard.writeText(link); toast("Link copied"); }
+  catch(e){ window.prompt(T("Copy this link:"), link); }
+}
+$("#cfgLinkAdd").addEventListener("click", () => copyShortcut("expense"));
+$("#cfgLinkVoice").addEventListener("click", () => copyShortcut("voice"));
+
 /**
  * The same again, today: a new entry with this one's kind, category, accounts,
  * amount and note, dated today and marked paid, open for any change before it
@@ -12621,6 +12993,7 @@ $("#eSave").addEventListener("click", () => {
 function copyEntry(t){
   const kind = isTransfer(t) ? "transfer" : t.type;
   openEntry(null, kind);
+  quickReset(false);
   if (kind !== "transfer" && t.category) draft.category = t.category;
   draft.account = t.account || defaultAccountId();
   draft.fromAccount = t.fromAccount || (kind === "transfer" ? defaultAccountId() : null);
@@ -16600,6 +16973,8 @@ function unlockApp(){
   lockResetIdle();
   /* held back at boot while the PIN was outstanding, so it fires here instead */
   if (typeof firePushDue === "function") firePushDue();
+  /* opened from an add-expense shortcut: the sheet, not the welcome */
+  launchFromUrl();
   if (typeof payWelcomeOpen === "function") payWelcomeOpen(true);
   /* held back while locked, like the two above */
   scannerInboxImport();
@@ -18276,6 +18651,8 @@ document.addEventListener("keydown", e => {
     /* Behind the lock on purpose: a notification naming a bill is not something
        to raise before the passphrase or the PIN has been answered. */
     if (!lockEnabled() && !encOn()) firePushDue();
+    /* opened from an add-expense shortcut; with a lock, unlockApp does it */
+    launchFromUrl();
     /* Behind the lock for the same reason, and once per opening of the app:
        coming back to the dashboard from the ledger is not opening it. */
     if (!lockEnabled() && !encOn()) payWelcomeOpen(true);

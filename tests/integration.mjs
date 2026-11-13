@@ -1134,6 +1134,73 @@ tests.push({ name: "the barcode scanner's caches survive: Update now and the wor
   assert.doesNotMatch(upd, /getRegistrations\(\)/);
 }});
 
+tests.push({ name: "quick add fills the sheet; ?add= opens it once; the no-spend card counts the period", async run(pg){
+  const r = await pg.fn(async () => {
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const $q = s => document.querySelector(s);
+    __T.useBook();
+    const out = {};
+
+    /* quick add, typed */
+    openEntry(null, "expense"); await wait(100);
+    out.quickShown = !$q("#eQuickWrap").hidden;
+    $q("#eQuick").value = "12,50 rewe groceries yesterday";
+    $q("#eQuick").dispatchEvent(new KeyboardEvent("keydown", { key:"Enter", bubbles:true }));
+    await wait(50);
+    out.amt = $q("#eAmt").value;
+    out.note = $q("#eNote").value;
+    out.cat = draft.category;
+    out.date = $q("#eDate").value === addDays(todayISO(), -1);
+    out.unsaved = !state.txns.some(t => t.note === "Rewe groceries");
+    sheetClose();
+    /* editing an entry doesn't offer it */
+    openEntry(state.txns[0]); await wait(50);
+    out.hiddenOnEdit = $q("#eQuickWrap").hidden;
+    sheetClose();
+
+    /* the shortcut: ?add=income opens a new income, once, and leaves the address */
+    const href = location.href;
+    history.replaceState(null, "", location.pathname + "?add=income&keep=1");
+    launchAdd = "income";
+    out.launched = launchFromUrl();
+    await wait(80);
+    out.sheetOpen = $q("#shEntry").classList.contains("open");
+    out.kind = draft.type;
+    out.search = location.search;
+    out.again = launchFromUrl();
+    sheetClose();
+    history.replaceState(null, "", href);
+
+    /* the card */
+    view = periodOf(todayISO());
+    render(); await wait(50);
+    out.card = !$q("#noSpendCard").hidden;
+    const ns = noSpendDays(view, todayISO());
+    out.dots = $q("#nsDays").children.length === ns.days.length;
+    out.count = $q("#nsCount").textContent === String(ns.free);
+    out.free = $q("#nsDays .ns-d.free") ? true : ns.free === 0;
+
+    __T.restore();
+    return out;
+  });
+  assert.equal(r.quickShown, true);
+  assert.equal(r.amt, "12,50");
+  assert.equal(r.note, "Rewe groceries");
+  assert.equal(r.cat, "groceries_de");
+  assert.equal(r.date, true);
+  assert.equal(r.unsaved, true);
+  assert.equal(r.hiddenOnEdit, true);
+  assert.equal(r.launched, true);
+  assert.equal(r.sheetOpen, true);
+  assert.equal(r.kind, "income");
+  assert.equal(r.search, "?keep=1");
+  assert.equal(r.again, false);
+  assert.equal(r.card, true);
+  assert.equal(r.dots, true);
+  assert.equal(r.count, true);
+  assert.equal(r.free, true);
+}});
+
 tests.push({ name: "a device that had Face ID on loses it on the next load; the PIN and passphrase stay", async run(pg){
   /* what 4.0.2 – 4.0.6 stored: the credential's record, and a third wrapping of the key */
   await pg.fn(() => {
