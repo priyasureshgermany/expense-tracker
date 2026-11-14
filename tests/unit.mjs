@@ -449,9 +449,13 @@ export default [
         pick(quickParse("gestern 8,90 bei Lidl", T0, "expense")),
         pick(quickParse("paid 1.234,56 today", T0, "expense")),
         pick(quickParse("dm shampoo", T0, "expense")),
-        pick(quickParse("30 to savings", T0, "transfer"))
+        pick(quickParse("30 to savings", T0, "transfer")),
+        pick(quickParse("8,90 jaffna", T0, "expense")),
+        pick(quickParse("primark 25", T0, "expense"))
       ];
     });
+    assert.deepEqual([r[8].amount, r[8].category, r[8].note], [890, "groceries_in", "Jaffna"]);
+    assert.deepEqual([r[9].amount, r[9].category], [2500, "shopping"]);
     assert.deepEqual(r[0], { amount:1250, type:"expense", date:"2026-11-12", category:"groceries_de", note:"Rewe groceries" });
     assert.deepEqual(r[1], { amount:1840, type:"expense", date:"2026-11-09", category:"groceries_in", note:"Indian groceries" });
     assert.equal(r[2].amount, 320000);
@@ -464,6 +468,25 @@ export default [
     assert.equal(r[6].amount, null);
     assert.equal(r[6].note, "Dm shampoo");
     assert.deepEqual([r[7].amount, r[7].type, r[7].category], [3000, "transfer", null]);
+  }},
+
+  { name: "shopMatches: the word being typed, all shops on an empty field, none once it's whole", async run(pg){
+    const r = await pg.fn(() => [
+      shopMatches("re").map(s => s[0]),
+      shopMatches("weekly shop p").map(s => s[0]),
+      shopMatches("").length,
+      shopMatches("rewe").length,
+      shopMatches("h").map(s => s[0]),
+      shopMatches("Groceries ").length,
+      [guessCat("SPICELAND FRANKFURT", false), guessCat("PRIMARK ZEIL", false), guessCat("WOOLWORTH GMBH", false)]
+    ]);
+    assert.deepEqual(r[0], ["REWE"]);
+    assert.deepEqual(r[1], ["Penny", "Primark"]);
+    assert.equal(r[2], 11);
+    assert.equal(r[3], 0);
+    assert.deepEqual(r[4], ["H&M"]);
+    assert.equal(r[5], 0);
+    assert.deepEqual(r[6], ["groceries_in", "shopping", "shopping"]);
   }},
 
   { name: "noSpendDays: paid expenses only; bills, plans and transfers don't cost a day", async run(pg){

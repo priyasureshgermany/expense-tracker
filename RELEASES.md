@@ -8,6 +8,10 @@ icon beside it — a repair, something that was not there before, or something
 existing made better. Guessing that from the wording alone does not work: “a bar
 fixed along the bottom” is not a bug.
 
+## 4.0.12 — 2026-11-14
+- better: Quick add is now a small button beside Description instead of a row of its own: tap it, then say or type the whole line.
+- new: Description suggests your shops as you type — Lidl, REWE, Penny, dm, Teddy, Woolworth, C&A, H&M, Primark, Jaffna, Spiceland — and picking one sets its category.
+
 ## 4.0.11 — 2026-11-13
 - better: No-spend days: tap a day's dot to see its date and what was spent that day, entry by entry, with any bills shown apart.
 

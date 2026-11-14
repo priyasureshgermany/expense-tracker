@@ -547,6 +547,21 @@ button.ns-d::after{content:"";position:absolute;inset:-5px}
 .qadd-mic[hidden]{display:none}
 .qadd-mic svg{width:20px;height:20px}
 .qadd-mic.on{background:var(--neg);border-color:var(--neg);color:#fff;animation:qaPulse 1.2s ease-in-out infinite}
+/* the one button shows a microphone where the browser can listen, and a
+   bolt — type the whole line — where it cannot */
+.qadd-mic .qa-ic-bolt{display:none}
+.qadd-mic.typed .qa-ic-mic{display:none}
+.qadd-mic.typed .qa-ic-bolt{display:block}
+.qadd-mic.typed.on{animation:none}
+/* shop names under the description, a tap away */
+.shopsugg{display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:2px;scrollbar-width:none}
+.shopsugg::-webkit-scrollbar{display:none}
+.shopsugg[hidden]{display:none}
+.shopsugg button{
+  flex:none;padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+}
+.shopsugg button:active{background:var(--accent-soft)}
 @keyframes qaPulse{50%{box-shadow:0 0 0 6px color-mix(in srgb, var(--neg) 25%, transparent)}}
 @media (prefers-reduced-motion: reduce){ .qadd-mic.on{animation:none} }
 .envrow{
@@ -4256,17 +4271,6 @@ html.locked #lockScreen::before{
     </button>
   </div>
   <div class="sheet-body">
-    <div class="field qadd" id="eQuickWrap">
-      <label for="eQuick">Quick add</label>
-      <div class="qadd-row">
-        <input class="inp" id="eQuick" type="text" enterkeyhint="done" autocomplete="off"
-               spellcheck="false" placeholder="e.g. 12,50 REWE groceries yesterday">
-        <button class="qadd-mic" id="eQuickMic" type="button" aria-label="Speak it" title="Speak it" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0013 0"/><path d="M12 17.5V21"/></svg>
-        </button>
-      </div>
-      <div class="note" id="eQuickNote" style="margin-top:6px">Type it or say it — the fields below fill in. Check them, then save.</div>
-    </div>
     <div class="field">
       <div class="toggle2" id="eType" style="grid-template-columns:repeat(3,1fr)">
         <button class="n" data-v="expense" aria-pressed="true">
@@ -4292,7 +4296,15 @@ html.locked #lockScreen::before{
     </div>
     <div class="field">
       <label for="eNote">Description</label>
-      <input class="inp" id="eNote" type="text" placeholder="e.g. Rewe groceries" autocomplete="off">
+      <div class="qadd-row">
+        <input class="inp" id="eNote" type="text" placeholder="e.g. Rewe groceries" autocomplete="off" enterkeyhint="done">
+        <button class="qadd-mic" id="eQuickBtn" type="button" aria-label="Quick add" title="Quick add" hidden>
+          <svg class="qa-ic-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0013 0"/><path d="M12 17.5V21"/></svg>
+          <svg class="qa-ic-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2.5L4.5 13.5H12l-1 8 8.5-11H12z"/></svg>
+        </button>
+      </div>
+      <div class="note" id="eQuickNote" style="margin-top:6px" hidden></div>
+      <div class="shopsugg" id="eShops" role="listbox" aria-label="Shops" hidden></div>
     </div>
     <div class="field" id="eCatWrap">
       <label>Category</label>
@@ -5831,11 +5843,12 @@ const I18N_DE = {
 "Username": "Benutzername",
 "Quick add": "Schnell eintragen",
 "e.g. 12,50 REWE groceries yesterday": "z. B. 12,50 REWE Lebensmittel gestern",
-"Speak it": "Sprechen",
-"Type it or say it — the fields below fill in. Check them, then save.": "Tippen oder sprechen — die Felder unten füllen sich. Prüfen, dann speichern.",
-"Filled in below — check it, then save.": "Unten ausgefüllt — prüfen, dann speichern.",
+"Say it all in one line — amount, shop, day.": "Sag alles in einem Satz — Betrag, Geschäft, Tag.",
+"Type it all in one line — amount, shop, day — then press Enter.": "Tippe alles in eine Zeile — Betrag, Geschäft, Tag — dann Enter.",
+"Filled in — check it, then save.": "Ausgefüllt — prüfen, dann speichern.",
 "Add the amount too, e.g. 12,50.": "Nenne auch den Betrag, z. B. 12,50.",
-"Microphone not allowed — tap the field and use the keyboard's dictation": "Mikrofon nicht erlaubt — tippe ins Feld und nutze die Diktierfunktion der Tastatur",
+"Microphone not allowed — type the line, or use the keyboard's dictation, then press Enter.": "Mikrofon nicht erlaubt — tippe die Zeile oder nutze die Diktierfunktion der Tastatur, dann Enter.",
+"Shops": "Geschäfte",
 "Add-expense shortcut": "Kurzbefehl „Ausgabe hinzufügen“",
 "Straight to a new entry, from the home screen": "Direkt zu einem neuen Eintrag, vom Home-Bildschirm",
 "Copy the add-expense link": "Link „Ausgabe hinzufügen“ kopieren",
@@ -7778,8 +7791,8 @@ if (APP_LANG === "de"){
 
 /* Both lines are rewritten by tools/bump-version.mjs on every release —
    edit the scheme there, not here. */
-const APP_VERSION = "4.0.11";
-const APP_BUILT = "2026-11-13";
+const APP_VERSION = "4.0.12";
+const APP_BUILT = "2026-11-14";
 
 const KEY = "panappai.v1";
 const THEME_KEY = "panappai.theme";
@@ -12946,6 +12959,11 @@ function quickParse(text, today, type){
       const score = toks.filter(has).reduce((a, w) => a + w.length, 0);
       if (score > bestScore){ best = c.id; bestScore = score; }
     });
+    /* a shop from the suggestions list knows its own category */
+    if (!best && out.type === "expense"){
+      const shop = SHOPS.find(([n]) => words.includes(n.toLowerCase()));
+      if (shop && pickableCats("expense").some(c => c.id === shop[1])) best = shop[1];
+    }
     if (!best && s){
       const g = guessCat(s, out.type === "income");
       if (g !== "other" && g !== "other_in" && pickableCats(out.type).some(c => c.id === g)) best = g;
@@ -12957,10 +12975,12 @@ function quickParse(text, today, type){
   return out;
 }
 
-/** Fills the sheet from the quick-add line. */
-function quickApply(){
-  const line = $("#eQuick").value;
-  if (!line.trim() || !draft) return;
+/**
+ * Fills the sheet from one quick-add line. The description ends up as what
+ * is left of the line once the amount, the day and the filler words are out.
+ */
+function quickApply(line){
+  if (!line || !line.trim() || !draft) return;
   const p = quickParse(line, todayISO(), draft.type);
   if (p.type !== draft.type){
     draft.type = p.type;
@@ -12972,56 +12992,140 @@ function quickApply(){
   $("#eNote").value = p.note;
   if (p.date) setDateVal("#eDate", p.date);
   syncEntryUI();
-  $("#eQuickNote").textContent = p.amount
-    ? "Filled in below — check it, then save."
-    : "Add the amount too, e.g. 12,50.";
+  quickHint(p.amount ? "Filled in — check it, then save." : "Add the amount too, e.g. 12,50.");
 }
-let qaTimer = null;
-$("#eQuick").addEventListener("input", () => {
-  clearTimeout(qaTimer);
-  qaTimer = setTimeout(quickApply, 300);
-});
-$("#eQuick").addEventListener("keydown", e => {
-  if (e.key !== "Enter") return;
-  e.preventDefault();
-  clearTimeout(qaTimer);
-  quickApply();
-  e.target.blur();
-});
+function quickHint(msg){
+  const n = $("#eQuickNote");
+  n.textContent = msg || "";
+  n.hidden = !msg;
+}
 
+/* ---------- the button beside Description ----------
+   Quick add lives in the description field itself rather than a row of its
+   own: the button turns the field into the one-line box — listening at once
+   where the browser can, otherwise waiting for the line to be typed or
+   dictated with the keyboard — and Enter, leaving the field, or the button
+   again turns it back, with the sheet filled in from what was said. */
 const QA_SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+const QA_PLACEHOLDER = "e.g. 12,50 REWE groceries yesterday";
 let qaRec = null;
-if (QA_SR) $("#eQuickMic").hidden = false;
-/** Listens once; a second tap stops it. Falls back to the field, for the keyboard's dictation. */
+let qaMode = false;
+let qaKept = "";
+$("#eQuickBtn").classList.toggle("typed", !QA_SR);
+
+function quickStart(){
+  const f = $("#eNote");
+  qaMode = true;
+  qaKept = f.value;
+  f.value = "";
+  f.placeholder = T(QA_PLACEHOLDER);
+  shopSuggest(false);
+  $("#eQuickBtn").classList.add("on");
+  quickHint(QA_SR ? "Say it all in one line — amount, shop, day." : "Type it all in one line — amount, shop, day — then press Enter.");
+  f.focus();
+  if (QA_SR) quickListen();
+}
+function quickFinish(){
+  if (!qaMode) return;
+  qaMode = false;
+  if (qaRec){ try{ qaRec.stop(); }catch(e){} }
+  const f = $("#eNote");
+  f.placeholder = T("e.g. Rewe groceries");
+  $("#eQuickBtn").classList.remove("on");
+  const line = f.value;
+  if (line.trim()) quickApply(line);
+  else { f.value = qaKept; quickHint(""); }
+}
+/** Listens once; what is heard goes into the field, and the last of it fills the sheet. */
 function quickListen(){
-  if (!QA_SR){ $("#eQuick").focus(); return; }
+  if (!QA_SR) return;
   if (qaRec){ try{ qaRec.stop(); }catch(e){} return; }
   const r = new QA_SR();
   r.lang = APP_LANG === "de" ? "de-DE" : (navigator.language || "en-GB");
   r.interimResults = true;
   r.maxAlternatives = 1;
   r.onresult = e => {
-    $("#eQuick").value = Array.from(e.results).map(x => x[0].transcript).join(" ");
-    quickApply();
+    $("#eNote").value = Array.from(e.results).map(x => x[0].transcript).join(" ");
+    if (e.results[e.results.length - 1].isFinal) quickFinish();
   };
   r.onerror = e => {
     if (e.error === "not-allowed" || e.error === "service-not-allowed")
-      toast("Microphone not allowed — tap the field and use the keyboard's dictation");
+      quickHint("Microphone not allowed — type the line, or use the keyboard's dictation, then press Enter.");
   };
-  r.onend = () => { qaRec = null; $("#eQuickMic").classList.remove("on"); };
+  r.onend = () => { qaRec = null; if (!qaMode) $("#eQuickBtn").classList.remove("on"); };
   qaRec = r;
-  $("#eQuickMic").classList.add("on");
   try{ r.start(); }
-  catch(e){ qaRec = null; $("#eQuickMic").classList.remove("on"); $("#eQuick").focus(); }
+  catch(e){ qaRec = null; }
 }
-$("#eQuickMic").addEventListener("click", quickListen);
+/* pointerdown, not click: the field would lose focus first and finish the line */
+$("#eQuickBtn").addEventListener("pointerdown", e => e.preventDefault());
+$("#eQuickBtn").addEventListener("click", () => { if (qaMode) quickFinish(); else quickStart(); });
+$("#eNote").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  if (qaMode) quickFinish();
+  e.target.blur();
+});
+$("#eNote").addEventListener("blur", () => {
+  setTimeout(() => { if (qaMode && document.activeElement !== $("#eNote")) quickFinish(); }, 120);
+  setTimeout(() => shopSuggest(false), 150);
+});
+
 function quickReset(show){
   if (qaRec){ try{ qaRec.abort(); }catch(e){} qaRec = null; }
-  $("#eQuickMic").classList.remove("on");
-  $("#eQuickWrap").hidden = !show;
-  $("#eQuick").value = "";
-  $("#eQuickNote").textContent = "Type it or say it — the fields below fill in. Check them, then save.";
+  qaMode = false;
+  $("#eQuickBtn").classList.remove("on");
+  $("#eQuickBtn").hidden = !show;
+  $("#eNote").placeholder = T("e.g. Rewe groceries");
+  quickHint("");
+  shopSuggest(false);
 }
+
+/* ---------- shop names, as the description is typed ----------
+   The shops you use most, offered as you type the description — or all of
+   them on an empty field — and picking one also picks its category on a new
+   entry. Only the word being typed is replaced, so "weekly shop re" becomes
+   "weekly shop REWE". Expenses only: income and transfers are not shops. */
+const SHOPS = [
+  ["Lidl", "groceries_de"], ["REWE", "groceries_de"], ["Penny", "groceries_de"], ["dm", "groceries_de"],
+  ["Teddy", "shopping"], ["Woolworth", "shopping"], ["C&A", "shopping"], ["H&M", "shopping"],
+  ["Primark", "shopping"], ["Jaffna", "groceries_in"], ["Spiceland", "groceries_in"]
+];
+/** The shops the word being typed could be; all of them for an empty field. */
+function shopMatches(text){
+  const words = String(text || "").split(/\s+/);
+  const last = (words[words.length - 1] || "").toLowerCase();
+  if (!last) return String(text || "").trim() ? [] : SHOPS.slice();
+  return SHOPS.filter(([n]) => n.toLowerCase().startsWith(last) && n.toLowerCase() !== last);
+}
+function shopSuggest(show){
+  const box = $("#eShops");
+  box.textContent = "";
+  const f = $("#eNote");
+  const list = show && !qaMode && draft && draft.type === "expense" ? shopMatches(f.value) : [];
+  list.forEach(([name, cat]) => {
+    const b = el("button", null, name);
+    b.type = "button";
+    b.setAttribute("role", "option");
+    b.addEventListener("pointerdown", e => e.preventDefault());
+    b.addEventListener("click", () => {
+      const words = f.value.split(/\s+/);
+      words[words.length - 1] = name;
+      f.value = words.join(" ").trim();
+      /* an edit keeps the category it has; a new entry takes the shop's */
+      if (!editing && pickableCats("expense").some(c => c.id === cat)){
+        draft.category = cat;
+        syncEntryUI();
+      }
+      shopSuggest(false);
+      f.blur();
+    });
+    box.appendChild(b);
+  });
+  box.hidden = !list.length;
+}
+$("#eNote").addEventListener("focus", () => shopSuggest(true));
+$("#eNote").addEventListener("input", () => shopSuggest(true));
 
 /* =========================================================================
    OPENED FROM A SHORTCUT
@@ -13054,7 +13158,7 @@ function launchFromUrl(){
   payWelcomeShown = true;
   payWelcomeClose();
   openEntry(null, what === "voice" ? "expense" : what);
-  if (what === "voice") setTimeout(quickListen, 380);
+  if (what === "voice") setTimeout(quickStart, 380);
   return true;
 }
 function shortcutLink(what){
@@ -14346,7 +14450,10 @@ function detectBank(text){
 }
 
 const RULES_CAT = [
+  /* Frankfurt's Tamil and Indian grocers, before the general list below */
+  [/jaffna|spiceland/, "groceries_in"],
   [/rewe|edeka|aldi|lidl|penny|netto|kaufland|real markt|dm filiale|rossmann|denns|alnatura|tegut|nahkauf|supermarkt|hit markt/, "groceries_de"],
+  [/woolworth|primark|\bteddy\b|\btedi\b/, "shopping"],
   [/miete|rent|hausverwaltung|vermieter|wohnung|nebenkosten|hausgeld/, "rent"],
   [/stadtwerke|vattenfall|e\.?on|enbw|rwe|gasag|strom|energie|telekom|vodafone|o2|1und1|1&1|pyur|unitymedia|gez|rundfunk|wasserwerk|entsorgung/, "utilities"],
   [/deutsche bahn|db vertrieb|db fern|deutschlandticket|bahncard|\bbahn\b|bvg|rmv|hvv|mvg|vrr|vrs|kvb|tankstelle|aral|shell|esso|jet |total |uber|freenow|bolt |flixbus|adac|parkhaus|park |tankst|nextbike|lime |tier /, "transport"],

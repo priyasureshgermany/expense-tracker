@@ -170,7 +170,11 @@ Open `index.html` in any browser, or host the file anywhere static.
   `panappai.inbox` key in localStorage; this app takes them when it opens or
   comes back to the front, once unlocked, and offers Undo. Works between two
   browser tabs; iPhone Home Screen icons each keep their own storage.
-- **Quick add** — at the top of a new entry, one typed or spoken line
+- **Shop suggestions** — typing a description offers the usual shops (Lidl,
+  REWE, Penny, dm, Teddy, Woolworth, C&A, H&M, Primark, Jaffna, Spiceland);
+  picking one replaces the word being typed and, on a new entry, sets the
+  shop's category.
+- **Quick add** — the button beside a new entry's description, then one typed or spoken line
   ("12,50 REWE groceries yesterday", "gestern 8,90 Lidl", "salary 3200
   received") fills in the amount, description, category and day; nothing is
   saved until Save. The microphone uses the browser's speech recognition where

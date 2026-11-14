@@ -1141,21 +1141,49 @@ tests.push({ name: "quick add fills the sheet; ?add= opens it once; the no-spend
     __T.useBook();
     const out = {};
 
-    /* quick add, typed */
+    /* quick add: the button beside Description turns the field into the line */
     openEntry(null, "expense"); await wait(100);
-    out.quickShown = !$q("#eQuickWrap").hidden;
-    $q("#eQuick").value = "12,50 rewe groceries yesterday";
-    $q("#eQuick").dispatchEvent(new KeyboardEvent("keydown", { key:"Enter", bubbles:true }));
+    out.quickShown = !$q("#eQuickBtn").hidden;
+    out.noRow = !document.getElementById("eQuickWrap");
+    $q("#eNote").value = "Kept if nothing is said";
+    $q("#eQuickBtn").click(); await wait(30);
+    out.cleared = $q("#eNote").value === "";
+    out.placeholder = $q("#eNote").placeholder;
+    $q("#eNote").value = "12,50 rewe groceries yesterday";
+    $q("#eNote").dispatchEvent(new KeyboardEvent("keydown", { key:"Enter", bubbles:true }));
     await wait(50);
     out.amt = $q("#eAmt").value;
     out.note = $q("#eNote").value;
     out.cat = draft.category;
     out.date = $q("#eDate").value === addDays(todayISO(), -1);
     out.unsaved = !state.txns.some(t => t.note === "Rewe groceries");
+    /* an empty line gives the description back */
+    $q("#eNote").value = "Mine";
+    $q("#eQuickBtn").click(); await wait(30);
+    $q("#eQuickBtn").click(); await wait(30);
+    out.restored = $q("#eNote").value;
     sheetClose();
     /* editing an entry doesn't offer it */
     openEntry(state.txns[0]); await wait(50);
-    out.hiddenOnEdit = $q("#eQuickWrap").hidden;
+    out.hiddenOnEdit = $q("#eQuickBtn").hidden;
+    sheetClose();
+
+    /* shop names: the word being typed becomes the shop, and its category */
+    openEntry(null, "expense"); await wait(100);
+    const note = $q("#eNote");
+    note.focus();
+    out.allOnEmpty = $q("#eShops").children.length;
+    note.value = "Weekly shop re";
+    note.dispatchEvent(new Event("input", { bubbles:true }));
+    out.chips = [...$q("#eShops").children].map(b => b.textContent);
+    $q("#eShops button").click(); await wait(30);
+    out.picked = note.value;
+    out.pickedCat = draft.category;
+    out.chipsGone = $q("#eShops").hidden;
+    sheetClose();
+    openEntry(null, "income"); await wait(100);
+    $q("#eNote").focus();
+    out.noneForIncome = $q("#eShops").hidden;
     sheetClose();
 
     /* the shortcut: ?add=income opens a new income, once, and leaves the address */
@@ -1184,12 +1212,22 @@ tests.push({ name: "quick add fills the sheet; ?add= opens it once; the no-spend
     return out;
   });
   assert.equal(r.quickShown, true);
+  assert.equal(r.noRow, true);
+  assert.equal(r.cleared, true);
+  assert.equal(r.placeholder, "e.g. 12,50 REWE groceries yesterday");
   assert.equal(r.amt, "12,50");
   assert.equal(r.note, "Rewe groceries");
   assert.equal(r.cat, "groceries_de");
   assert.equal(r.date, true);
   assert.equal(r.unsaved, true);
+  assert.equal(r.restored, "Mine");
   assert.equal(r.hiddenOnEdit, true);
+  assert.equal(r.allOnEmpty, 11);
+  assert.deepEqual(r.chips, ["REWE"]);
+  assert.equal(r.picked, "Weekly shop REWE");
+  assert.equal(r.pickedCat, "groceries_de");
+  assert.equal(r.chipsGone, true);
+  assert.equal(r.noneForIncome, true);
   assert.equal(r.launched, true);
   assert.equal(r.sheetOpen, true);
   assert.equal(r.kind, "income");
